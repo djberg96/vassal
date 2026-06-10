@@ -95,7 +95,7 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
   protected int dontUndoPast = 0;
   protected Command beginningState;
   protected File outputFile;
-  protected Action stepAction = new StepAction();
+  protected Action stepAction;
   protected SaveMetaData metadata;
   private boolean multiPlayer = false;
 
@@ -108,12 +108,26 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
 
   public BasicLogger() {
     super();
-    stepAction.setEnabled(false);
-    undoAction.setEnabled(false);
     endLogAction.setEnabled(false);
     newLogAction.setEnabled(false);
     logInput = new ArrayList<>();
     logOutput = new ArrayList<>();
+  }
+
+  protected Action getStepAction() {
+    if (stepAction == null) {
+      stepAction = new StepAction();
+      stepAction.setEnabled(false);
+    }
+    return stepAction;
+  }
+
+  protected Action getUndoAction() {
+    if (undoAction == null) {
+      undoAction = new UndoAction();
+      undoAction.setEnabled(false);
+    }
+    return undoAction;
   }
 
   /** Presently no XML attributes or subcomponents to be built */
@@ -161,19 +175,22 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
     endLogAction.putValue(Action.MNEMONIC_KEY, (int)Resources.getString("BasicLogger.end_logfile.shortcut").charAt(0)); // Separate shortcut key thus possible for each language
     mm.addAction("BasicLogger.end_logfile", endLogAction); //NON-NLS
 
-    JButton button = mod.getToolBar().add(undoAction);
+    final Action undo = getUndoAction();
+    final Action step = getStepAction();
+
+    JButton button = mod.getToolBar().add(undo);
     button.setFocusable(false); //BR// Since for some reason we're manually making a raw "JButton" here, need to make it not focusable (so it won't start stealing keystrokes from the main window)
     button.setToolTipText(Resources.getString("BasicLogger.undo_last_move"));  //$NON-NLS-1$
     button.setAlignmentY((float) 0.0);
 
-    button = mod.getToolBar().add(stepAction);
+    button = mod.getToolBar().add(step);
     button.setToolTipText(Resources.getString("BasicLogger.step_forward_tooltip"));  //$NON-NLS-1$
     button.setAlignmentY((float) 0.0);
 
-    final NamedKeyStrokeListener undoKeyListener = new NamedKeyStrokeListener(undoAction, null);
+    final NamedKeyStrokeListener undoKeyListener = new NamedKeyStrokeListener(undo, null);
     mod.addKeyStrokeListener(undoKeyListener);
 
-    final NamedKeyStrokeListener stepKeyListener = new NamedKeyStrokeListener(stepAction, NamedKeyStroke.of(KeyEvent.VK_PAGE_DOWN, 0));
+    final NamedKeyStrokeListener stepKeyListener = new NamedKeyStrokeListener(step, NamedKeyStroke.of(KeyEvent.VK_PAGE_DOWN, 0));
     mod.addKeyStrokeListener(stepKeyListener);
 
     final NamedKeyStrokeListener newLogKeyListener = new NamedKeyStrokeListener(newLogAction, NamedKeyStroke.of(KeyEvent.VK_W, InputEvent.ALT_DOWN_MASK));
@@ -199,7 +216,7 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
     final IconConfigurer stepIconConfig = new IconConfigurer("stepIcon", Resources.getString("BasicLogger.step_forward_button"), STEP_ICON); //$NON-NLS-1$ //$NON-NLS-2$
     stepIconConfig.setValue(STEP_ICON);
     GlobalOptions.getInstance().addOption(stepIconConfig);
-    stepIconConfig.addPropertyChangeListener(evt -> stepAction.putValue(Action.SMALL_ICON, stepIconConfig.getIconValue()));
+    stepIconConfig.addPropertyChangeListener(evt -> getStepAction().putValue(Action.SMALL_ICON, stepIconConfig.getIconValue()));
     stepIconConfig.fireUpdate();
 
     stepKeyConfig = new NamedHotKeyConfigurer("stepHotKey", Resources.getString("BasicLogger.step_forward_hotkey"), stepKeyListener.getNamedKeyStroke());  //$NON-NLS-1$ //$NON-NLS-2$
@@ -207,10 +224,10 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
     stepKeyConfig.addPropertyChangeListener(evt -> {
       stepKeyListener.setKeyStroke(stepKeyConfig.getValueNamedKeyStroke());
       if (stepKeyListener.getKeyStroke() != null) {
-        stepAction.putValue(Action.SHORT_DESCRIPTION, Resources.getString("BasicLogger.step_forward_tooltip2", NamedHotKeyConfigurer.getString(stepKeyListener.getKeyStroke())));  //$NON-NLS-1$
+        getStepAction().putValue(Action.SHORT_DESCRIPTION, Resources.getString("BasicLogger.step_forward_tooltip2", NamedHotKeyConfigurer.getString(stepKeyListener.getKeyStroke())));  //$NON-NLS-1$
       }
       else {
-        stepAction.putValue(Action.SHORT_DESCRIPTION, Resources.getString("BasicLogger.step_forward_tooltip3"));  //$NON-NLS-1$
+        getStepAction().putValue(Action.SHORT_DESCRIPTION, Resources.getString("BasicLogger.step_forward_tooltip3"));  //$NON-NLS-1$
       }
     });
     stepKeyConfig.fireUpdate();
@@ -218,7 +235,7 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
     final IconConfigurer undoIconConfig = new IconConfigurer("undoIcon", Resources.getString("BasicLogger.undo_icon"), UNDO_ICON);  //$NON-NLS-1$ //$NON-NLS-2$
     undoIconConfig.setValue(UNDO_ICON);
     GlobalOptions.getInstance().addOption(undoIconConfig);
-    undoIconConfig.addPropertyChangeListener(evt -> undoAction.putValue(Action.SMALL_ICON, undoIconConfig.getIconValue()));
+    undoIconConfig.addPropertyChangeListener(evt -> getUndoAction().putValue(Action.SMALL_ICON, undoIconConfig.getIconValue()));
     undoIconConfig.fireUpdate();
 
     undoKeyConfig = new NamedHotKeyConfigurer("undoHotKey", Resources.getString("BasicLogger.undo_hotkey"), undoKeyListener.getNamedKeyStroke()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -226,10 +243,10 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
     undoKeyConfig.addPropertyChangeListener(evt -> {
       undoKeyListener.setKeyStroke(undoKeyConfig.getValueNamedKeyStroke());
       if (undoKeyListener.getKeyStroke() != null) {
-        undoAction.putValue(Action.SHORT_DESCRIPTION, Resources.getString("BasicLogger.undo_tooltip2", NamedHotKeyConfigurer.getString(undoKeyListener.getKeyStroke()))); //$NON-NLS-1$
+        getUndoAction().putValue(Action.SHORT_DESCRIPTION, Resources.getString("BasicLogger.undo_tooltip2", NamedHotKeyConfigurer.getString(undoKeyListener.getKeyStroke()))); //$NON-NLS-1$
       }
       else {
-        undoAction.putValue(Action.SHORT_DESCRIPTION, Resources.getString("BasicLogger.undo_last_move")); //$NON-NLS-1$
+        getUndoAction().putValue(Action.SHORT_DESCRIPTION, Resources.getString("BasicLogger.undo_last_move")); //$NON-NLS-1$
       }
     });
     undoKeyConfig.fireUpdate();
@@ -300,9 +317,9 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
 
       logInput.clear();
       beginningState = null;
-      undoAction.setEnabled(false);
+      getUndoAction().setEnabled(false);
       endLogAction.setEnabled(false);
-      stepAction.setEnabled(false);
+      getStepAction().setEnabled(false);
       outputFile = null;
     }
   }
@@ -359,7 +376,7 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
     final Command c = logInput.get(nextInput++);
     c.execute();
     g.sendAndLog(c);
-    stepAction.setEnabled(isReplaying());
+    getStepAction().setEnabled(isReplaying());
     if (!isReplaying()) {
       if (GameModule.GameFileMode.REPLAYING_GAME.equals(g.getGameFileMode())) {
         g.setGameFileMode(GameModule.GameFileMode.REPLAYED_GAME);
@@ -438,7 +455,7 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
     if (!logOutput.isEmpty()) {
       final Command log = beginningState;
       for (final Command c : logOutput) {
-        log.append(new LogCommand(c, logInput, stepAction));
+        log.append(new LogCommand(c, logInput, getStepAction()));
       }
 
 // FIXME: Extremely inefficient! Make encode write to an OutputStream
@@ -452,7 +469,7 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
       }
 
       GameModule.getGameModule().getGameState().setModified(false);
-      undoAction.setEnabled(false);
+      getUndoAction().setEnabled(false);
       ModuleManagerUpdateHelper.sendGameUpdate(outputFile);
     }
 
@@ -529,7 +546,7 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
 
     dontUndoPast = 0; 
 
-    undoAction.setEnabled(false);
+    getUndoAction().setEnabled(false);
     endLogAction.setEnabled(true);
     gm.setGameFile(outputFile.getName(), GameModule.GameFileMode.LOGGING_GAME);
     GameModule.getGameModule().warn(Resources.getString("BasicLogger.logging_begun"));  //$NON-NLS-1$
@@ -544,7 +561,7 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
    */
   public void blockUndo(int block) {
     dontUndoPast = nextUndo + block;
-    undoAction.setEnabled(false);
+    getUndoAction().setEnabled(false);
   }
 
   /**
@@ -560,7 +577,7 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
       null : logInput.get(nextInput - 1);
     if (lastInput == lastOutput) {
       while (nextInput-- > dontUndoPast) {
-        stepAction.setEnabled(true);
+        getStepAction().setEnabled(true);
         if (logInput.get(nextInput).getUndoCommand() != null) {
           break;
         }
@@ -573,7 +590,7 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
       }
     }
 
-    undoAction.setEnabled(nextUndo >= dontUndoPast);
+    getUndoAction().setEnabled(nextUndo >= dontUndoPast);
     final Command undo = new UndoCommand(true).append(lastOutput.getUndoCommand()).append(new UndoCommand(false));
     undo.execute();
     GameModule.getGameModule().getServer().sendToOthers(undo);
@@ -601,7 +618,7 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
         nextUndo = logOutput.size() - 1;
       }
     }
-    undoAction.setEnabled(nextUndo >= dontUndoPast);
+    getUndoAction().setEnabled(nextUndo >= dontUndoPast);
   }
 
   /**
@@ -635,7 +652,7 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
         return null;
       }
 
-      return new LogCommand(logged, logInput, stepAction);
+      return new LogCommand(logged, logInput, getStepAction());
     }
     else if (command.startsWith(UNDO)) {
       final String inProgress = command.substring(UNDO.length());
@@ -645,7 +662,7 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
     return null;
   }
 
-  protected Action undoAction = new UndoAction();
+  protected Action undoAction;
 
   protected Action endLogAction = new AbstractAction(Resources.getString("BasicLogger.end_logfile")) {  //$NON-NLS-1$
     private static final long serialVersionUID = 1L;
@@ -679,10 +696,10 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
     }
   };
 
-  public static class LogCommand extends Command {
-    protected Command logged;
-    protected List<Command> logInput;
-    protected Action stepAction;
+  public static final class LogCommand extends Command {
+    private final Command logged;
+    private final List<Command> logInput;
+    private final Action stepAction;
 
     public LogCommand(Command c, List<Command> logInput, Action stepAction) {
       if (c instanceof LogCommand) {
@@ -721,7 +738,7 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
       stepAction.setEnabled(true);
     }
 
-    protected Command assembleCommand() {
+    private Command assembleCommand() {
       final Command c = logged;
       for (final Command sub : getSubCommands()) {
         c.append(((LogCommand) sub).assembleCommand());
@@ -730,7 +747,7 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
     }
   }
 
-  public class StepAction extends AbstractAction {
+  public final class StepAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
 
     public StepAction() {
@@ -748,7 +765,7 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
       step();
     }
   }
-  public class UndoAction extends AbstractAction {
+  public final class UndoAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
 
     public UndoAction() {
