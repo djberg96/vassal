@@ -56,7 +56,7 @@ import VASSAL.preferences.Prefs;
  * Dialog for defining a {@link DieManager RollSet}
  * For use with internet dice rollers
  */
-public class MultiRoll extends JDialog implements ActionListener {
+public final class MultiRoll extends JDialog implements ActionListener {
   private static final long serialVersionUID = 1L;
 
   private final JButton rollButton = new JButton("Roll");
@@ -73,10 +73,9 @@ public class MultiRoll extends JDialog implements ActionListener {
   private JPanel topPanel;
   private JPanel buttonPanel;
   private JPanel detailPanel;
-  protected int lastSelectedRow, lastSelectedCol;
   private String description = "";
 
-  protected RollRow[] rollRows;
+  private RollRow[] rollRows;
 
   public static final int COL_IDX = 0;
   public static final int COL_ROLL = 1;
@@ -98,14 +97,12 @@ public class MultiRoll extends JDialog implements ActionListener {
   public static final int COL6_WIDTH = 25;
   public static final int COL7_WIDTH = 35;
 
-  protected transient DieManager dieManager;
-  protected transient DieRoll[] rolls = new DieRoll[MAX_ROLLS];
-  protected boolean[] useDie = new boolean[MAX_ROLLS];
-  protected String verification = "";
-  protected boolean rollCancelled = false;
-  protected boolean singleRoll;
+  private transient DieManager dieManager;
+  private final transient DieRoll[] rolls = new DieRoll[MAX_ROLLS];
+  private final boolean[] useDie = new boolean[MAX_ROLLS];
+  private boolean rollCancelled = false;
 
-  protected MultiRoll() {
+  private MultiRoll() {
     super(GameModule.getGameModule().getPlayerWindow());
     addWindowListener(new WindowAdapter() {
       @Override
