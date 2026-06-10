@@ -43,9 +43,21 @@ public class EditPropertiesAction extends AbstractAction {
 
   protected transient Configurable target;
   protected transient HelpWindow helpWindow;
-  protected static final Map<Configurable, PropertiesWindow> openWindows = new HashMap<>();
+  private static final Map<Configurable, PropertiesWindow> openWindows = new HashMap<>();
   protected transient Frame dialogOwner;
   protected transient ConfigureTree tree;
+
+  protected static PropertiesWindow getOpenWindow(Configurable target) {
+    return openWindows.get(target);
+  }
+
+  protected static void putOpenWindow(Configurable target, PropertiesWindow window) {
+    openWindows.put(target, window);
+  }
+
+  protected static void removeOpenWindow(Configurable target) {
+    openWindows.remove(target);
+  }
 
   public EditPropertiesAction(Configurable target, HelpWindow helpWindow, Frame dialogOwner) {
     super(Resources.getString("Editor.properties")); //$NON-NLS-1$
@@ -65,13 +77,13 @@ public class EditPropertiesAction extends AbstractAction {
 
   @Override
   public void actionPerformed(ActionEvent evt) {
-    PropertiesWindow w = openWindows.get(target);
+    PropertiesWindow w = getOpenWindow(target);
     if (w == null) {
       w = new PropertiesWindow(dialogOwner, false, target, helpWindow);
       w.addWindowListener(new WindowAdapter() {
         @Override
         public void windowClosed(WindowEvent e) {
-          openWindows.remove(target);
+          removeOpenWindow(target);
           if (tree != null) {
             if (target instanceof ConfigureTree.Mutable) {
               tree.nodeUpdated(target);
@@ -80,7 +92,7 @@ public class EditPropertiesAction extends AbstractAction {
           }
         }
       });
-      openWindows.put(target, w);
+      putOpenWindow(target, w);
       w.setVisible(true);
 
       if (evt != null) { // Apparently we manually call this method with a null event sometimes.

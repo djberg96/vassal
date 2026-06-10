@@ -1184,13 +1184,13 @@ public class RegionGrid extends AbstractConfigurable implements MapGrid, Configu
 
       @Override
       public void actionPerformed(ActionEvent evt) {
-        PropertiesWindow w = openWindows.get(target);
+        PropertiesWindow w = getOpenWindow(target);
         if (w == null) {
           w = new PropertiesWindow(dialogOwner, false, target, helpWindow);
           w.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
-              openWindows.remove(target);
+              removeOpenWindow(target);
               owner.setDirty(
                   !region.getName().equals(origRegion.getName()) ||
                   !region.getOrigin().equals(origRegion.getOrigin()));
@@ -1198,7 +1198,7 @@ public class RegionGrid extends AbstractConfigurable implements MapGrid, Configu
               owner.updateCoords();
             }
           });
-          openWindows.put(target, w);
+          putOpenWindow(target, w);
           w.setVisible(true);
         }
         w.toFront();
