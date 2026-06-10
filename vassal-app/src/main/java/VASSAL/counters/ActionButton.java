@@ -91,13 +91,7 @@ public class ActionButton extends Decorator implements EditablePiece, Loopable {
   protected boolean useWholeShape   = false; //BR// If we should just use the whole piece shape as the hotspot for the button
 
   public ActionButton() {
-    this(ID, null);
-    //this(ID + "65,0;-20;-20;40;40;;false,true;1;0", null); //NON-NLS // Starts new ones as "version 1"
-  }
-
-  public ActionButton(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeFromType(ID);
     pusher = globalPusher;
   }
 
@@ -217,6 +211,10 @@ public class ActionButton extends Decorator implements EditablePiece, Loopable {
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     st.nextToken();
     stroke = st.nextNamedKeyStroke('A');

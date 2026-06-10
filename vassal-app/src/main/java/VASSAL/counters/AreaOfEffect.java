@@ -102,12 +102,7 @@ public class AreaOfEffect extends Decorator implements TranslatablePiece, MapSha
   protected boolean globallyVisible = true;
 
   public AreaOfEffect() {
-    this(ID + ColorConfigurer.colorToString(defaultTransparencyColor), null);
-  }
-
-  public AreaOfEffect(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeFromType(ID + ColorConfigurer.colorToString(defaultTransparencyColor));
   }
 
   @Override
@@ -150,6 +145,11 @@ public class AreaOfEffect extends Decorator implements TranslatablePiece, MapSha
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+    initializeKeyCommands();
+  }
+
+  private void initializeFromType(String type) {
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     st.nextToken();    // Discard ID
     transparencyColor = st.nextColor(defaultTransparencyColor);
@@ -160,7 +160,6 @@ public class AreaOfEffect extends Decorator implements TranslatablePiece, MapSha
     locallyActive = alwaysActive;
     activateCommand = st.nextToken(Resources.getString("Editor.AreaOfEffect.show_area"));
     activateKey = st.nextNamedKeyStroke(null);
-    keyCommand = new KeyCommand(activateCommand, activateKey, getOutermost(this), this);
     mapShaderName = st.nextToken("");
     if (mapShaderName.length() == 0) {
       mapShaderName = null;
@@ -171,13 +170,17 @@ public class AreaOfEffect extends Decorator implements TranslatablePiece, MapSha
     name = st.nextToken("");
     onMenuText = st.nextToken("");
     onKey = st.nextNamedKeyStroke(null);
-    onKeyCommand = new KeyCommand(onMenuText, onKey, getOutermost(this), this);
     offMenuText = st.nextToken("");
     offKey = st.nextNamedKeyStroke(null);
-    offKeyCommand = new KeyCommand(offMenuText, offKey, getOutermost(this), this);
     globallyVisible = st.nextBoolean(true);
     shader = null;
     commands = null;
+  }
+
+  private void initializeKeyCommands() {
+    keyCommand = new KeyCommand(activateCommand, activateKey, getOutermost(this), this);
+    onKeyCommand = new KeyCommand(onMenuText, onKey, getOutermost(this), this);
+    offKeyCommand = new KeyCommand(offMenuText, offKey, getOutermost(this), this);
   }
 
   // State is locked to the Globally Visible state. Global visibility (and thus state) will never change

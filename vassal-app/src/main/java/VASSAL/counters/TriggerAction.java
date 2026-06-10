@@ -86,12 +86,7 @@ public class TriggerAction extends Decorator implements TranslatablePiece,
   protected GamePiece outer;
 
   public TriggerAction() {
-    this(ID, null);
-  }
-
-  public TriggerAction(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeFromType(ID);
   }
 
   @Override
@@ -410,6 +405,10 @@ public class TriggerAction extends Decorator implements TranslatablePiece,
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     st.nextToken();
     name = st.nextToken(""); //$NON-NLS-1$
