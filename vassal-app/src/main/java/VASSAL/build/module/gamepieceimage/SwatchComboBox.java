@@ -36,7 +36,7 @@ import javax.swing.table.TableCellRenderer;
 
 import VASSAL.tools.image.ImageUtils;
 
-public class SwatchComboBox extends JComboBox<String> {
+public final class SwatchComboBox extends JComboBox<String> {
   private static final long serialVersionUID = 1L;
 
   private static final Map<String, String> colorMap = new HashMap<>();

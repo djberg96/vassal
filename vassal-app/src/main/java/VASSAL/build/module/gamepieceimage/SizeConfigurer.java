@@ -34,7 +34,7 @@ import javax.swing.ListCellRenderer;
 
 import VASSAL.tools.image.ImageUtils;
 
-public class SizeConfigurer extends StringEnumConfigurer {
+public final class SizeConfigurer extends StringEnumConfigurer {
 
   private static final Map<String, String> symbolMap = new HashMap<>();
 
