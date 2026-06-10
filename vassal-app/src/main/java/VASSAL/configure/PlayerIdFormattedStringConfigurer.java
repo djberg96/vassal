@@ -24,7 +24,7 @@ import VASSAL.build.module.GlobalOptions;
 /** Utility subclass of {@link FormattedStringConfigurer} which includes variable
  * keys for player name, side, and id
  */
-public class PlayerIdFormattedStringConfigurer extends FormattedStringConfigurer {
+public final class PlayerIdFormattedStringConfigurer extends FormattedStringConfigurer {
 
   public PlayerIdFormattedStringConfigurer(String[] options, String initialValue) {
     super(options);

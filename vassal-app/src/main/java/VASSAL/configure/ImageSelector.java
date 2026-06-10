@@ -49,7 +49,7 @@ import java.awt.event.ItemListener;
  *
  * The value stored is the name of the image file (no pathname).
  */
-public class ImageSelector extends Configurer implements ItemListener {
+public final class ImageSelector extends Configurer implements ItemListener {
 
   private static final String NO_IMAGE = "(" + Resources.getString("Editor.ImagePicker.no_image") + ")";
 

@@ -26,7 +26,7 @@ import net.miginfocom.swing.MigLayout;
  *
  * See also {@link ConfigurableList}, {@link ConfigurableListEntry}, {@link ConfigurableListController}
  */
-public class ConfigurableListController extends JPanel {
+public final class ConfigurableListController extends JPanel {
   private static final long serialVersionUID = 1L;
 
   private final JButton upButton;

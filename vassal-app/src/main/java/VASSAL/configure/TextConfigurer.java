@@ -35,7 +35,7 @@ import java.util.StringTokenizer;
 /**
  * A Configurer that allows multi-line string input via a JTextArea
  */
-public class TextConfigurer extends Configurer implements ConfigurerFactory {
+public final class TextConfigurer extends Configurer implements ConfigurerFactory {
   private JTextArea textArea;
   private JPanel p;
   private boolean wordWrap;

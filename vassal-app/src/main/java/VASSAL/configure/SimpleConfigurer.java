@@ -34,7 +34,7 @@ import VASSAL.build.Configurable;
  * It is usually easier for the target to implement AutoConfigurable
  * and use the AutoConfigurer class.
  */
-public class SimpleConfigurer extends Configurer
+public final class SimpleConfigurer extends Configurer
                               implements PropertyChangeListener {
   private JPanel p;
   private final Configurer[] attConfig;

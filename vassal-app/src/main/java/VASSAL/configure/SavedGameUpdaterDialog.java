@@ -53,7 +53,7 @@ import VASSAL.tools.ErrorDialog;
 import VASSAL.tools.SavedGameUpdater;
 import VASSAL.tools.ScrollPane;
 
-public class SavedGameUpdaterDialog extends JDialog {
+public final class SavedGameUpdaterDialog extends JDialog {
   private static final long serialVersionUID = 1L;
 
   private DefaultListModel<File> savedGamesModel;

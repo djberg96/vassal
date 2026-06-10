@@ -20,7 +20,7 @@ package VASSAL.configure;
 import VASSAL.counters.BasicPiece;
 
 /** Convenience class that provides prompts for the properties found in a BasicPiece */
-public class GamePieceFormattedStringConfigurer extends FormattedStringConfigurer {
+public final class GamePieceFormattedStringConfigurer extends FormattedStringConfigurer {
   public GamePieceFormattedStringConfigurer(String key, String name) {
     super(key, name);
     final String[] allOptions = {

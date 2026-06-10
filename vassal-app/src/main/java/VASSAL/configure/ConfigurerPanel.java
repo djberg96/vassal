@@ -23,7 +23,7 @@ import javax.swing.JPanel;
 /**
  * A standardised Panel to hold an individual Configurer
  */
-public class ConfigurerPanel extends JPanel {
+public final class ConfigurerPanel extends JPanel {
   private static final long serialVersionUID = 1L;
 
   /**

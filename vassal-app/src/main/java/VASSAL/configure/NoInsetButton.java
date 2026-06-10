@@ -25,7 +25,7 @@ import javax.swing.JButton;
 /**
  * A button with no insets to be as small as possible
  */
-public class NoInsetButton extends JButton {
+public final class NoInsetButton extends JButton {
   private static final long serialVersionUID = 1L;
   final Insets NO_INSETS = new Insets(0, 0, 0, 0);
   final Font ITALIC = new Font(Font.DIALOG, Font.ITALIC, 12);

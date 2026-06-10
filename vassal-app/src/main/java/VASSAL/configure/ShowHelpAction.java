@@ -33,7 +33,7 @@ import VASSAL.tools.BrowserSupport;
 /**
  * Action that displays a {@link HelpWindow}
  */
-public class ShowHelpAction extends AbstractAction {
+public final class ShowHelpAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
 
   private final HelpWindow helpWindow;

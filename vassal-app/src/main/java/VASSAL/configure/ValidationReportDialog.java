@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * Dialog for reporting the results of validating a GameModule
  */
-public class ValidationReportDialog extends JDialog {
+public final class ValidationReportDialog extends JDialog {
   private static final long serialVersionUID = 1L;
 
   private final transient CallBack callback;

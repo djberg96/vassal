@@ -24,7 +24,7 @@ import org.apache.commons.lang3.ArrayUtils;
 /** Utility subclass of {@link FormattedStringConfigurer} which includes variable
  * keys for player name, side, and id
  */
-public class PlayerIdFormattedExpressionConfigurer extends FormattedExpressionConfigurer {
+public final class PlayerIdFormattedExpressionConfigurer extends FormattedExpressionConfigurer {
 
   public PlayerIdFormattedExpressionConfigurer(String[] options, String initialValue, GamePiece piece) {
     this(options, initialValue);

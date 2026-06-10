@@ -31,7 +31,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
-public class DeckSelectionConfigurer extends FormattedExpressionConfigurer {
+public final class DeckSelectionConfigurer extends FormattedExpressionConfigurer {
 
   private final JButton select;
 

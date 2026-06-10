@@ -30,7 +30,7 @@ import VASSAL.i18n.Resources;
 /**
  * Action to edit all {@link VASSAL.counters.GamePiece}'s within a given component
  */
-public class EditContainedPiecesAction extends AbstractAction {
+public final class EditContainedPiecesAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
 
   private transient ConfigureTree tree;

@@ -37,7 +37,7 @@ import javax.swing.JScrollPane;
 
 import net.miginfocom.swing.MigLayout;
 
-public class RemoveUnusedImagesDialog extends JDialog {
+public final class RemoveUnusedImagesDialog extends JDialog {
   private static final long serialVersionUID = 1L;
 
   private final DefaultListModel<String> keepModel = new DefaultListModel<>();
