@@ -39,7 +39,7 @@ public class ImageItemInstance extends ItemInstance {
 
   public ImageItemInstance(String code, GamePieceImage defn) {
     super(defn);
-    decode(code);
+    decodeFrom(code);
   }
 
 
@@ -63,10 +63,14 @@ public class ImageItemInstance extends ItemInstance {
   }
 
   public void decode(String code) {
+    decodeFrom(code);
+  }
+
+  private void decodeFrom(String code) {
     final SequenceEncoder.Decoder sd = new SequenceEncoder.Decoder(code, ';');
-    setType(sd.nextToken("")); //$NON-NLS-1$
-    setName(sd.nextToken("")); //$NON-NLS-1$
-    setLocation(sd.nextToken("")); //$NON-NLS-1$
+    type = sd.nextToken(""); //$NON-NLS-1$
+    name = sd.nextToken(""); //$NON-NLS-1$
+    location = sd.nextToken(""); //$NON-NLS-1$
     imageName = sd.nextToken(""); //$NON-NLS-1$
   }
 

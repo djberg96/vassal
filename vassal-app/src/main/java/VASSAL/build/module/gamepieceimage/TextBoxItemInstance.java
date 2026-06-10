@@ -37,19 +37,19 @@ public class TextBoxItemInstance extends ItemInstance {
 
   public TextBoxItemInstance() {
     super();
-    setFgColor(ColorSwatch.getBlack());
-    setBgColor(ColorManager.getColorManager().getColorSwatch(Color.LIGHT_GRAY));
+    fgColor = ColorSwatch.getBlack();
+    bgColor = ColorManager.getColorManager().getColorSwatch(Color.LIGHT_GRAY);
   }
 
   public TextBoxItemInstance(String code, GamePieceImage defn) {
     super(defn);
-    decode(code);
+    decodeFrom(code);
   }
 
   public TextBoxItemInstance(String name, String type, String location) {
     super(name, type, location);
-    setFgColor(ColorSwatch.getBlack());
-    setBgColor(ColorManager.getColorManager().getColorSwatch(Color.LIGHT_GRAY));
+    fgColor = ColorSwatch.getBlack();
+    bgColor = ColorManager.getColorManager().getColorSwatch(Color.LIGHT_GRAY);
   }
 
   public void setValue(String value) {
@@ -73,13 +73,17 @@ public class TextBoxItemInstance extends ItemInstance {
   }
 
   public void decode(String code) {
+    decodeFrom(code);
+  }
+
+  private void decodeFrom(String code) {
     final SequenceEncoder.Decoder sd = new SequenceEncoder.Decoder(code, ';');
-    setType(sd.nextToken("")); //$NON-NLS-1$
-    setName(sd.nextToken("")); //$NON-NLS-1$
-    setLocation(sd.nextToken("")); //$NON-NLS-1$
-    setFgColor(new ColorSwatch(sd.nextToken(""))); //$NON-NLS-1$
-    setBgColor(new ColorSwatch(sd.nextToken(""))); //$NON-NLS-1$
-    setValue(sd.nextToken("")); //$NON-NLS-1$
+    type = sd.nextToken(""); //$NON-NLS-1$
+    name = sd.nextToken(""); //$NON-NLS-1$
+    location = sd.nextToken(""); //$NON-NLS-1$
+    fgColor = new ColorSwatch(sd.nextToken("")); //$NON-NLS-1$
+    bgColor = new ColorSwatch(sd.nextToken("")); //$NON-NLS-1$
+    val = sd.nextToken(""); //$NON-NLS-1$
   }
 
   @Override

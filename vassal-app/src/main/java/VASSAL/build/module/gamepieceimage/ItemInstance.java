@@ -40,9 +40,9 @@ public abstract class ItemInstance extends AbstractConfigurable {
   protected InstanceConfigurer myConfig = null;
 
   public ItemInstance(String nam, String typ, String loc) {
-    setName(nam);
-    setType(typ);
-    setLocation(loc);
+    name = nam;
+    type = typ;
+    location = loc;
   }
 
   public ItemInstance() {

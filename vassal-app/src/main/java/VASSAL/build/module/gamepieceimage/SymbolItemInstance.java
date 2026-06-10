@@ -42,14 +42,14 @@ public class SymbolItemInstance extends ItemInstance {
 
   public SymbolItemInstance(String nam, String typ, String loc, String sz, String s1, String s2) {
     super(nam, typ, loc);
-    setSize(sz);
-    setSymbol1(s1);
-    setSymbol2(s2);
+    size = sz;
+    symbol1 = s1;
+    symbol2 = s2;
   }
 
   public SymbolItemInstance(String code, GamePieceImage defn) {
     super(defn);
-    decode(code);
+    decodeFrom(code);
   }
 
   @Override
@@ -68,16 +68,20 @@ public class SymbolItemInstance extends ItemInstance {
   }
 
   public void decode(String code) {
+    decodeFrom(code);
+  }
+
+  private void decodeFrom(String code) {
     final SequenceEncoder.Decoder sd = new SequenceEncoder.Decoder(code, ';');
-    setType(sd.nextToken("")); //$NON-NLS-1$
-    setName(sd.nextToken("")); //$NON-NLS-1$
-    setLocation(sd.nextToken("")); //$NON-NLS-1$
-    setFgColor(new ColorSwatch(sd.nextToken(""))); //$NON-NLS-1$
-    setBgColor(new ColorSwatch(sd.nextToken(""))); //$NON-NLS-1$
-    setSize(sd.nextToken("")); //$NON-NLS-1$
-    setSymbol1(sd.nextToken("")); //$NON-NLS-1$
-    setSymbol2(sd.nextToken("")); //$NON-NLS-1$
-    setSizeColor(new ColorSwatch(sd.nextToken(""))); //$NON-NLS-1$
+    type = sd.nextToken(""); //$NON-NLS-1$
+    name = sd.nextToken(""); //$NON-NLS-1$
+    location = sd.nextToken(""); //$NON-NLS-1$
+    fgColor = new ColorSwatch(sd.nextToken("")); //$NON-NLS-1$
+    bgColor = new ColorSwatch(sd.nextToken("")); //$NON-NLS-1$
+    size = sd.nextToken(""); //$NON-NLS-1$
+    symbol1 = sd.nextToken(""); //$NON-NLS-1$
+    symbol2 = sd.nextToken(""); //$NON-NLS-1$
+    sizeColor = new ColorSwatch(sd.nextToken("")); //$NON-NLS-1$
   }
 
   public void setSize(String size) {

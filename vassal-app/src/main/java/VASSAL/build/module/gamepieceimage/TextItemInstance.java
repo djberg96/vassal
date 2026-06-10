@@ -44,24 +44,24 @@ public class TextItemInstance extends ItemInstance {
     if (val == null) {
       switch (nam.length()) {
       case 0:
-        setValue("Xx"); //$NON-NLS-1$
+        this.val = "Xx"; //$NON-NLS-1$
         break;
       case 1:
-        setValue(nam);
+        this.val = nam;
         break;
       default:
-        setValue(nam.substring(0, 2));
+        this.val = nam.substring(0, 2);
         break;
       }
     }
     else {
-      setValue(val);
+      this.val = val;
     }
   }
 
   public TextItemInstance(String code, GamePieceImage defn) {
     super(defn);
-    decode(code);
+    decodeFrom(code);
   }
 
   public void setValue(String value) {
@@ -99,14 +99,18 @@ public class TextItemInstance extends ItemInstance {
   }
 
   public void decode(String code) {
+    decodeFrom(code);
+  }
+
+  private void decodeFrom(String code) {
     final SequenceEncoder.Decoder sd = new SequenceEncoder.Decoder(code, ';');
-    setType(sd.nextToken("")); //$NON-NLS-1$
-    setName(sd.nextToken("")); //$NON-NLS-1$
-    setLocation(sd.nextToken("")); //$NON-NLS-1$
-    setFgColor(new ColorSwatch(sd.nextToken(""))); //$NON-NLS-1$
-    setBgColor(new ColorSwatch(sd.nextToken(""))); //$NON-NLS-1$
-    setValue(sd.nextToken("")); //$NON-NLS-1$
-    setOutlineColor(new ColorSwatch(sd.nextToken(""))); //$NON-NLS-1$
+    type = sd.nextToken(""); //$NON-NLS-1$
+    name = sd.nextToken(""); //$NON-NLS-1$
+    location = sd.nextToken(""); //$NON-NLS-1$
+    fgColor = new ColorSwatch(sd.nextToken("")); //$NON-NLS-1$
+    bgColor = new ColorSwatch(sd.nextToken("")); //$NON-NLS-1$
+    val = sd.nextToken(""); //$NON-NLS-1$
+    outlineColor = new ColorSwatch(sd.nextToken("")); //$NON-NLS-1$
   }
 
   @Override

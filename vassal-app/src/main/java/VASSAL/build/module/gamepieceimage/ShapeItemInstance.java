@@ -32,17 +32,17 @@ public class ShapeItemInstance extends ItemInstance {
 
   public ShapeItemInstance() {
     super();
-    setFgColor(ColorSwatch.getClear());
+    fgColor = ColorSwatch.getClear();
   }
 
   public ShapeItemInstance(String code, GamePieceImage defn) {
     super(defn);
-    decode(code);
+    decodeFrom(code);
   }
 
   public ShapeItemInstance(String name, String type, String location) {
     super(name, type, location);
-    setFgColor(ColorSwatch.getClear());
+    fgColor = ColorSwatch.getClear();
   }
 
   @Override
@@ -57,12 +57,16 @@ public class ShapeItemInstance extends ItemInstance {
   }
 
   public void decode(String code) {
+    decodeFrom(code);
+  }
+
+  private void decodeFrom(String code) {
     final SequenceEncoder.Decoder sd = new SequenceEncoder.Decoder(code, ';');
-    setType(sd.nextToken("")); //$NON-NLS-1$
-    setName(sd.nextToken("")); //$NON-NLS-1$
-    setLocation(sd.nextToken("")); //$NON-NLS-1$
-    setFgColor(new ColorSwatch(sd.nextToken(""))); //$NON-NLS-1$
-    setBorderColor(new ColorSwatch(sd.nextToken(""))); //$NON-NLS-1$
+    type = sd.nextToken(""); //$NON-NLS-1$
+    name = sd.nextToken(""); //$NON-NLS-1$
+    location = sd.nextToken(""); //$NON-NLS-1$
+    fgColor = new ColorSwatch(sd.nextToken("")); //$NON-NLS-1$
+    borderColor = new ColorSwatch(sd.nextToken("")); //$NON-NLS-1$
   }
 
   protected void setBorderColor(ColorSwatch borderColor) {
