@@ -1165,7 +1165,7 @@ public class TurnTracker extends TurnComponent implements CommandEncoder, GameCo
     protected JPanel controls = null;
     protected JPanel levelControls = null;
     protected Component childControls = null;
-    protected TurnTracker turn;
+    protected transient TurnTracker turn;
     protected JDialog me;
 
     protected SetDialog() {

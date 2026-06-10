@@ -737,7 +737,7 @@ public final class GameRefresher implements CommandEncoder, GameComponent {
 
   static class RefreshDialog extends JDialog {
     private static final long serialVersionUID = 1L;
-    private final GameRefresher refresher;
+    private final transient GameRefresher refresher;
     private JTextArea results;
     private JCheckBox refreshPieces;
     private JCheckBox nameCheck;
@@ -751,7 +751,7 @@ public final class GameRefresher implements CommandEncoder, GameComponent {
     private JCheckBox deleteOldDecks;
     private JCheckBox addNewDecks;
     private JCheckBox fireHotkey;
-    private final Set<String> options = new HashSet<>();
+    private final transient Set<String> options = new HashSet<>();
     JButton runButton;
 
     RefreshDialog(GameRefresher refresher) {
@@ -1344,7 +1344,6 @@ public final class GameRefresher implements CommandEncoder, GameComponent {
     }
   }
 }
-
 
 
 

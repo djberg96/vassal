@@ -33,7 +33,7 @@ public class Visualizer extends JPanel {
   private static final long serialVersionUID = 1L;
 
   protected static final int OFFSET = 20;
-  protected Visualizable observer;
+  protected transient Visualizable observer;
   protected JPanel visPanel;
 
   public Visualizer() {
