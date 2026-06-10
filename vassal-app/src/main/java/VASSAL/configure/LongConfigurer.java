@@ -31,7 +31,7 @@ public class LongConfigurer extends StringConfigurer {
   public LongConfigurer(String key, String name, Long val) {
     super(key, name);
     if (val != null) {
-      setValue(val);
+      value = val;
     }
   }
 

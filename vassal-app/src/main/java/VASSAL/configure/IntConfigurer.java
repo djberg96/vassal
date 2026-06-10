@@ -28,7 +28,7 @@ public class IntConfigurer extends StringConfigurer {
   public IntConfigurer(String key, String name, Integer val) {
     super(key, name, 4);
     if (val != null) {
-      setValue(val);
+      value = val;
     }
   }
 
