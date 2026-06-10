@@ -67,16 +67,16 @@ public class ComponentI18nData {
    *          I18n Prefix
    */
   public ComponentI18nData(AbstractConfigurable c, String prefix) {
-    init(c, prefix, c.getAttributeNames(), c.getAttributeTypes(), c.getAttributeDescriptions());
+    initProperties(c, prefix, c.getAttributeNames(), c.getAttributeTypes(), c.getAttributeDescriptions());
   }
 
   @Deprecated(since = "2020-10-26", forRemoval = true)
   public ComponentI18nData(AbstractConfigurable c, String prefix, ArrayList<String> names, ArrayList<Class<?>> types, ArrayList<String> descriptions) { //NOPMD
-    init(c, prefix, names.toArray(new String[0]), types.toArray(new Class<?>[0]), descriptions.toArray(new String[0]));
+    initProperties(c, prefix, names.toArray(new String[0]), types.toArray(new Class<?>[0]), descriptions.toArray(new String[0]));
   }
 
   public ComponentI18nData(AbstractConfigurable c, String prefix, List<String> names, List<Class<?>> types, List<String> descriptions) {
-    init(c, prefix, names.toArray(new String[0]), types.toArray(new Class<?>[0]), descriptions.toArray(new String[0]));
+    initProperties(c, prefix, names.toArray(new String[0]), types.toArray(new Class<?>[0]), descriptions.toArray(new String[0]));
   }
 
     /**
@@ -89,23 +89,32 @@ public class ComponentI18nData {
      */
   public ComponentI18nData(AutoConfigurable c, String prefix) {
     parent = null;
-    init(c, prefix, c.getAttributeNames(),
+    initProperties(c, prefix, c.getAttributeNames(),
          c.getAttributeTypes(), c.getAttributeDescriptions());
   }
 
   protected void init(Configurable c, String pfx, String[] names,
                       Class<?>[] types, String[] descriptions) {
+    initProperties(c, pfx, names, types, descriptions);
+  }
+
+  private void initProperties(Configurable c, String pfx, String[] names,
+                              Class<?>[] types, String[] descriptions) {
     final boolean[] translatable = new boolean[types.length];
     for (int i = 0; i < types.length; i++) {
       translatable[i] = types[i] != null &&
         (types[i].equals(String.class) ||
          TranslatableConfigurerFactory.class.isAssignableFrom(types[i]));
     }
-    init(c, pfx, names, descriptions, translatable);
+    initProperties(c, pfx, names, descriptions, translatable);
   }
 
   protected void init(Configurable c, String pfx, String[] names, String[] descriptions, boolean[] translatable) {
-    setPrefix(pfx);
+    initProperties(c, pfx, names, descriptions, translatable);
+  }
+
+  private void initProperties(Configurable c, String pfx, String[] names, String[] descriptions, boolean[] translatable) {
+    prefix = pfx.intern();
     myComponent = c;
     children.addAll(Arrays.asList(myComponent.getConfigureComponents()));
     try {
@@ -149,7 +158,7 @@ public class ComponentI18nData {
   public ComponentI18nData(Configurable c, String prefix, Translatable parent, String[] names, boolean[] translatable, String[] descriptions) {
     myComponent = c;
     this.parent = parent;
-    init(c, prefix, names, descriptions, translatable);
+    initProperties(c, prefix, names, descriptions, translatable);
   }
 
   public ComponentI18nData(Configurable c, String prefix, Translatable parent) {
@@ -165,7 +174,7 @@ public class ComponentI18nData {
    */
   public ComponentI18nData(Configurable c, GamePiece piece) {
     myComponent = c;
-    setPrefix(TranslatablePiece.PREFIX);
+    prefix = TranslatablePiece.PREFIX.intern();
     parent = null;
     for (GamePiece p = piece; p != null;) {
       if (p instanceof TranslatablePiece) {
