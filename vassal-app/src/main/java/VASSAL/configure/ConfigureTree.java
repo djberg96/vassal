@@ -174,12 +174,12 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
 
   private static final Logger logger = LoggerFactory.getLogger(ConfigureTree.class);
 
-  protected Map<Configurable, DefaultMutableTreeNode> nodes = new HashMap<>();
+  protected transient Map<Configurable, DefaultMutableTreeNode> nodes = new HashMap<>();
   protected DefaultMutableTreeNode copyData;
   protected DefaultMutableTreeNode cutData;
   protected HelpWindow helpWindow;
   protected EditorWindow editorWindow;
-  protected Configurable selected;
+  protected transient Configurable selected;
   protected int selectedRow;
   protected String searchCmd;
   protected String moveCmd;
@@ -201,16 +201,16 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
   protected KeyStroke propertiesKey;
   protected KeyStroke translateKey;
   protected KeyStroke duplicateKey;
-  protected Action cutAction;
-  protected Action copyAction;
-  protected Action pasteAction;
-  protected Action deleteAction;
-  protected Action moveAction;
-  protected Action searchAction;
-  protected Action propertiesAction;
-  protected Action translateAction;
-  protected Action helpAction;
-  protected Action duplicateAction;
+  protected transient Action cutAction;
+  protected transient Action copyAction;
+  protected transient Action pasteAction;
+  protected transient Action deleteAction;
+  protected transient Action moveAction;
+  protected transient Action searchAction;
+  protected transient Action propertiesAction;
+  protected transient Action translateAction;
+  protected transient Action helpAction;
+  protected transient Action duplicateAction;
 
   protected JDialog searchDialog;
   protected JTextField searchField;
@@ -218,7 +218,7 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
 
   protected JCheckBox searchAdvanced;
 
-  private final SearchParameters searchParameters;
+  private final transient SearchParameters searchParameters;
   protected static Chatter chatter;
 
   @Deprecated(since = "2022-08-08", forRemoval = true)
@@ -1146,10 +1146,10 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
   protected class AddAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
 
-    protected final Configurable target;
+    protected final transient Configurable target;
     private final Class<? extends Buildable> newConfig;
     private final int index;
-    private final Configurable duplicate;
+    private final transient Configurable duplicate;
 
     public AddAction(Configurable target, Class<? extends Buildable> newConfig, String name, int index, Configurable duplicate) {
       super(name);
@@ -2251,11 +2251,11 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
 
     private static final long serialVersionUID = 1L;
     private final ConfigureTree configureTree;
-    private final SearchParameters searchParameters;
+    private final transient SearchParameters searchParameters;
     private Pattern regexPattern;
     private int nodeListIndex;
     private int traitIndex;
-    private final List<Integer> breadCrumbs = new ArrayList<>();
+    private final transient List<Integer> breadCrumbs = new ArrayList<>();
 
     /**
      * Constructs a new {@link SearchAction}
