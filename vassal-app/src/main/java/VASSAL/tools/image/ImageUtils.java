@@ -32,6 +32,7 @@ import java.awt.image.PixelGrabber;
 import java.awt.image.WritableRaster;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.ImageIcon;
@@ -431,9 +432,13 @@ public class ImageUtils {
   public static final String SVG_SUFFIX = ".svg"; //NON-NLS
   public static final String JPG_SUFFIX = ".jpg"; //NON-NLS
   public static final String JPEG_SUFFIX = ".jpeg"; //NON-NLS
-  public static final String[] IMAGE_SUFFIXES = {
+  public static final List<String> IMAGE_SUFFIXES = List.of(
     GIF_SUFFIX, PNG_SUFFIX, SVG_SUFFIX, JPG_SUFFIX, JPEG_SUFFIX
-  };
+  );
+
+  public static String[] imageSuffixes() {
+    return IMAGE_SUFFIXES.toArray(new String[0]);
+  }
 
   public static boolean hasImageSuffix(String name) {
     final String s = name.toLowerCase();
