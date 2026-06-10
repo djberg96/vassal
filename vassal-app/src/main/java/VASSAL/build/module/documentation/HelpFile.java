@@ -100,7 +100,8 @@ public class HelpFile extends AbstractConfigurable {
   public HelpFile(String title, URL contents) {
     this.title = title;
     this.contents = contents;
-    setConfigureName(title);
+    name = title;
+    localizedName = title;
 
     launch = new AbstractAction() {
       private static final long serialVersionUID = 1L;
@@ -111,7 +112,7 @@ public class HelpFile extends AbstractConfigurable {
       }
     };
 
-    launch.putValue(Action.NAME, getConfigureName());
+    launch.putValue(Action.NAME, title);
   }
 
   /**
