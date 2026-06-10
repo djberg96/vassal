@@ -65,13 +65,6 @@ public class BeanShellExpression extends Expression {
     return interpreter.evaluate(ps, properties, localized, owner, audit);
   }
 
-  /** @deprecated Use {@link #evaluate(PropertySource, Map, boolean, Auditable, AuditTrail)} */
-  @Deprecated(since = "2021-06-11")
-  @Override
-  public String evaluate(PropertySource ps, Map<String, String> properties, boolean localized) throws ExpressionException {
-    return evaluate(ps, properties, localized, null, null);
-  }
-
   @Override
   public String toBeanShellString() {
     return strip(getExpression());
@@ -87,17 +80,6 @@ public class BeanShellExpression extends Expression {
 
   protected boolean isDynamic() {
     return getExpression() != null && getExpression().indexOf('$') >= 0;
-  }
-
-  /**
-   * Return a PieceFilter that selects GamePieces that cause
-   * this expression to evaluate to true
-   * @deprecated Use {@link #getFilter(PropertySource, Auditable, AuditTrail)}
-   */
-  @Deprecated(since = "2021-06-11")
-  @Override
-  public PieceFilter getFilter(PropertySource ps) {
-    return getFilter(ps, null, null);
   }
 
   @Override
@@ -129,7 +111,6 @@ public class BeanShellExpression extends Expression {
       this.auditTrail = auditTrail;
     }
 
-    @Deprecated(since = "2021-06-11")
     @Override
     public boolean accept(GamePiece piece) {
       return accept(piece, owningAuditable, auditTrail);

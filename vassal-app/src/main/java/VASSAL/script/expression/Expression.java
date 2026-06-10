@@ -89,36 +89,6 @@ public class Expression {
     return evaluate(null, null, false, owner, audit);
   }
 
-  /** @deprecated Use {@link #evaluate(PropertySource, Map, boolean, Auditable, AuditTrail)} */
-  @Deprecated(since = "2021-06-11")
-  public String evaluate(PropertySource ps, Map<String, String> properties, boolean localized) throws ExpressionException {
-    return evaluate(ps, properties, localized, null, null);
-  }
-
-  /** @deprecated Use {@link #evaluate(PropertySource, boolean, Auditable, AuditTrail)} */
-  @Deprecated(since = "2021-06-11")
-  public String evaluate(PropertySource ps, boolean localized) throws ExpressionException {
-    return evaluate(ps, null, localized, null, null);
-  }
-
-  /** @deprecated Use {@link #evaluate(PropertySource, Auditable, AuditTrail)} */
-  @Deprecated(since = "2021-06-11")
-  public String evaluate(PropertySource ps) throws ExpressionException {
-    return evaluate(ps, null, false, null, null);
-  }
-
-  /** @deprecated Use {@link #evaluate(PropertySource, boolean, Auditable, AuditTrail)} */
-  @Deprecated(since = "2021-06-11")
-  public String evaluate(boolean localized) throws ExpressionException {
-    return evaluate(null, null, localized, null, null);
-  }
-
-  /** @deprecated Use {@link #evaluate(Auditable, AuditTrail)} */
-  @Deprecated(since = "2021-06-11")
-  public String evaluate() throws ExpressionException {
-    return evaluate(null, null, false, null, null);
-  }
-
   protected void handleError(ExpressionException e) {
     ErrorDialog.dataWarning(new BadDataReport(Resources.getString("Error.expression_error"), getExpression(), e));
   }
@@ -142,12 +112,6 @@ public class Expression {
     return quietEvaluate(ps, null, false, owner, null);
   }
 
-  /** @deprecated Use {@link #tryEvaluate(PropertySource, Auditable, String)} */
-  @Deprecated(since = "2021-06-11")
-  public String tryEvaluate(PropertySource ps) {
-    return tryEvaluate(ps, null, false, null, null);
-  }
-
   /**
    * Evaluate an expression with data warning support built in
    * @param audit Audit trail to record expression evaluation info in
@@ -155,12 +119,6 @@ public class Expression {
    */
   public String tryEvaluate(Auditable owner, AuditTrail audit) {
     return tryEvaluate(null, null, false, owner, audit);
-  }
-
-  /** @deprecated User {@link #tryEvaluate(Auditable, AuditTrail)} */
-  @Deprecated(since = "2021-06-11")
-  public String tryEvaluate() {
-    return tryEvaluate(null, null, false, null, null);
   }
 
   /**
@@ -174,12 +132,6 @@ public class Expression {
     return tryEvaluate(ps, null, localized, owner, audit);
   }
 
-  /** @deprecated Use {@link #tryEvaluate(PropertySource, boolean, Auditable, AuditTrail)} */
-  @Deprecated(since = "2021-06-11")
-  public String tryEvaluate(PropertySource ps, boolean localized) {
-    return tryEvaluate(ps, null, localized, null, null);
-  }
-
   /**
    * Evaluate an expression with data warning support built in
    * @param localized Localize property calls?
@@ -188,12 +140,6 @@ public class Expression {
    */
   public String tryEvaluate(boolean localized, Auditable owner, AuditTrail audit) {
     return tryEvaluate(null, null, localized, owner, audit);
-  }
-
-  /** @deprecated Use {@link #tryEvaluate(boolean, Auditable, AuditTrail)} */
-  @Deprecated(since = "2021-06-11")
-  public String tryEvaluate(boolean localized) {
-    return tryEvaluate(null, null, localized, null, null);
   }
 
   /**
@@ -232,12 +178,6 @@ public class Expression {
     }
   }
 
-  /** @deprecated Use {@link #tryEvaluate(PropertySource, Map, boolean, Auditable, AuditTrail)} */
-  @Deprecated(since = "2021-06-11")
-  public String tryEvaluate(PropertySource ps, Map<String, String> properties, boolean localized) {
-    return tryEvaluate(ps, properties, localized, null, null);
-  }
-
   /**
    * Return a PieceFilter using the expression.
    *
@@ -256,16 +196,6 @@ public class Expression {
 
   public PieceFilter getFilter(Auditable owner, AuditTrail audit) {
     return getFilter(null, owner, audit);
-  }
-
-  @Deprecated(since = "2021-06-11")
-  public PieceFilter getFilter(PropertySource ps) {
-    return getFilter(ps, null, null);
-  }
-
-  @Deprecated(since = "2021-06-11")
-  public PieceFilter getFilter() {
-    return getFilter((Auditable) null, null);
   }
 
   /**

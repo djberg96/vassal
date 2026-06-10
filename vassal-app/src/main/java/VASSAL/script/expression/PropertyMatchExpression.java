@@ -22,8 +22,6 @@ import VASSAL.counters.PieceFilter;
 import VASSAL.counters.PropertiesPieceFilter;
 import VASSAL.tools.FormattedString;
 
-import java.util.Map;
-
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
@@ -34,20 +32,6 @@ public class PropertyMatchExpression extends Expression {
 
   public PropertyMatchExpression(String s) {
     super(s);
-  }
-
-  /** @deprecated  */
-  @Deprecated(since = "2021-06-11")
-  @Override
-  public String evaluate(PropertySource ps, Map<String, String> properties, boolean localized) {
-    return null;
-  }
-
-  /** @deprecated  */
-  @Deprecated(since = "2021-06-11")
-  @Override
-  public PieceFilter getFilter(PropertySource ps) {
-    return getFilter(ps, null, null);
   }
 
   @Override

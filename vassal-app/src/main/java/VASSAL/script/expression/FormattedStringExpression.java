@@ -35,17 +35,6 @@ public class FormattedStringExpression extends Expression {
     super(s);
   }
 
-  /**
-   * Evaluate this expression.
-   * NB. Code moved from FormattedString.java
-   * @deprecated Use {@link #evaluate(PropertySource, Map, boolean, Auditable, AuditTrail)}
-   */
-  @Deprecated(since = "2021-06-11")
-  @Override
-  public String evaluate(PropertySource ps, Map<String, String> properties, boolean localized) {
-    return evaluate(ps, properties, localized, null, null);
-  }
-
   @Override
   public String evaluate(PropertySource ps, Map<String, String> properties, boolean localized, Auditable owner, AuditTrail audit) {
     final StringBuilder buffer = new StringBuilder();
