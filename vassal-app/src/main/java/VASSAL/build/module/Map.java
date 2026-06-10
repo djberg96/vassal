@@ -2020,7 +2020,7 @@ public class Map extends AbstractToolbarItem implements GameComponent, MouseList
     // Clicking with mouse always repaints the map
     clearFirst = true;
     theMap.repaint();
-    activeMap = this;
+    setActiveMap(this);
   }
 
   /**

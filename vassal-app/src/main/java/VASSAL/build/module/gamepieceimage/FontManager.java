@@ -43,6 +43,10 @@ public class FontManager extends AbstractConfigurable {
     return instance;
   }
 
+  private static void setFontManager(FontManager fontManager) {
+    instance = fontManager;
+  }
+
   protected Map<String, FontStyle> fontStyles = new HashMap<>();
 
   public static final String DIALOG = "Dialog"; //$NON-NLS-1$
@@ -108,7 +112,7 @@ public class FontManager extends AbstractConfigurable {
 
   @Override
   public void addTo(Buildable parent) {
-    instance = this;
+    setFontManager(this);
   }
 
   @Override

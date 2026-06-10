@@ -102,6 +102,10 @@ public class ServerAddressBook {
     return instance;
   }
 
+  private static void setInstance(ServerAddressBook addressBook) {
+    instance = addressBook;
+  }
+
   public static void editCurrentServer(boolean connected) {
     instance.editCurrent(connected);
   }
@@ -222,7 +226,7 @@ public class ServerAddressBook {
   }
 
   public ServerAddressBook() {
-    instance = this;
+    setInstance(this);
   }
 
   public JComponent getControls() {

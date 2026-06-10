@@ -42,11 +42,15 @@ public class GamePieceImageDefinitions extends AbstractConfigurable {
   protected static final Color DEFAULT_COLOR  = Color.WHITE;
 
   public GamePieceImageDefinitions() {
-    instance = this;
+    setInstance(this);
   }
 
   public static GamePieceImageDefinitions getInstance() {
     return instance;
+  }
+
+  private static void setInstance(GamePieceImageDefinitions definitions) {
+    instance = definitions;
   }
 
   @Override

@@ -50,6 +50,12 @@ public class SendSoundAction extends AbstractAction {
   private final transient Player target;
   private final String soundKey;
 
+  private static void recordLastSound(Player player, Room room) {
+    lastPlayer = player;
+    lastRoom = room;
+    lastSound = System.currentTimeMillis();
+  }
+
   public SendSoundAction(String name, ChatServerConnection client, String soundKey, Player target) {
     super(name);
     this.client = client;
@@ -77,9 +83,7 @@ public class SendSoundAction extends AbstractAction {
   @Override
   public void actionPerformed(ActionEvent e) {
     client.sendTo(target, new SoundEncoder.Cmd(soundKey, client.getUserInfo()));
-    lastPlayer = target;
-    lastRoom = client.getRoom();
-    lastSound = System.currentTimeMillis();
+    recordLastSound(target, client.getRoom());
   }
 
   public static PlayerActionFactory factory(final ChatServerConnection client, final String name, final String soundKey, final String defaultSoundFile) {

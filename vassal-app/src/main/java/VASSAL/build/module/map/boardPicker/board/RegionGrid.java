@@ -107,7 +107,7 @@ public class RegionGrid extends AbstractConfigurable implements MapGrid, Configu
   protected Map<Point, Region> regionList = new HashMap<>();
   protected GridContainer container;
   protected boolean visible = false;
-  protected static boolean inConfig = false;
+  protected boolean inConfig = false;
   protected int fontSize = 9; // Size square to display when configuring
   protected boolean snapTo = true;
   protected Config regionConfigurer;
@@ -625,7 +625,7 @@ public class RegionGrid extends AbstractConfigurable implements MapGrid, Configu
     }
 
     protected void close() {
-      inConfig = false;
+      grid.inConfig = false;
       setVisible(false);
     }
 
