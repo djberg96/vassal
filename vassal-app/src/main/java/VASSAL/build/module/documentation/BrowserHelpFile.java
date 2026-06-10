@@ -88,7 +88,7 @@ public class BrowserHelpFile extends AbstractBuildable implements Configurable {
   protected Action launch;
   protected URL url;
   protected File externalTempFile;
-  protected PropertyChangeSupport propSupport = new PropertyChangeSupport(this);
+  protected PropertyChangeSupport propSupport;
   protected ComponentI18nData myI18nData;
 
   public BrowserHelpFile() {
@@ -271,7 +271,14 @@ public class BrowserHelpFile extends AbstractBuildable implements Configurable {
 
   @Override
   public void addPropertyChangeListener(PropertyChangeListener l) {
-    propSupport.addPropertyChangeListener(l);
+    getPropertyChangeSupport().addPropertyChangeListener(l);
+  }
+
+  private PropertyChangeSupport getPropertyChangeSupport() {
+    if (propSupport == null) {
+      propSupport = new PropertyChangeSupport(this);
+    }
+    return propSupport;
   }
 
   @Override
