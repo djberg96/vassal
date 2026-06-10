@@ -80,10 +80,6 @@ public class PieceWindow extends Widget implements UniqueIdManager.Identifyable 
   protected double scale;
   protected int defaultDockedWidth;
 
-  @SuppressWarnings({"deprecation", "removal"})
-  @Deprecated(since = "2020-11-15", forRemoval = true)
-  protected VASSAL.tools.ComponentSplitter.SplitPane mainWindowDock;
-
   protected SplitPane splitPane;
 
   private static final String firstId = PieceWindow.class.getSimpleName() + '0';

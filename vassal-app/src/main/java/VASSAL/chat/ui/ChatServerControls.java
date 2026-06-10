@@ -80,10 +80,6 @@ public class ChatServerControls extends AbstractBuildable {
   protected JButton configServerButton;
   protected String configServerText;
 
-  @SuppressWarnings("removal")
-  @Deprecated(since = "2020-11-15", forRemoval = true)
-  protected VASSAL.tools.ComponentSplitter.SplitPane splitter;
-
   protected SplitPane splitPane;
 
   public ChatServerControls() {
