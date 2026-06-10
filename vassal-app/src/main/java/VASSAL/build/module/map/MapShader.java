@@ -93,10 +93,6 @@ public class MapShader extends AbstractToolbarItem implements GameComponent, Dra
 
   public static final String ADD_TO_MAP_TOOLBAR = "addToMapToolbar";
 
-  // No longer used but maintained in case class has been referenced in custom code
-  @Deprecated(since = "2023-08-13")
-  protected static final UniqueIdManager idMgr = new UniqueIdManager("MapShader"); //NON-NLS
-
   protected boolean alwaysOn = false;
   protected boolean startsOn = false;
   protected String boardSelection = ALL_BOARDS;
