@@ -36,8 +36,8 @@ import VASSAL.i18n.Resources;
 public class InviteAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
 
-  private final SimplePlayer invitee;
-  private final LockableChatServerConnection client;
+  private final transient SimplePlayer invitee;
+  private final transient LockableChatServerConnection client;
 
   public InviteAction(LockableChatServerConnection client, SimplePlayer target) {
     super(Resources.getString("Chat.invite")); //$NON-NLS-1$

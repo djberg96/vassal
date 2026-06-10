@@ -57,7 +57,7 @@ public class ServerStatusView extends JTabbedPane implements ChangeListener, Tre
   private static final long serialVersionUID = 1L;
 
   public static final String SELECTION_PROPERTY = "ServerStatusView.selection"; //$NON-NLS-1$
-  private ServerStatus status;
+  private transient ServerStatus status;
   private DefaultTreeModel model;
   private DefaultTreeModel[] historicalModels;
   private JTree treeCurrent;
@@ -165,8 +165,8 @@ public class ServerStatusView extends JTabbedPane implements ChangeListener, Tre
     refresh(0);
   }
 
-  private SwingWorker<ServerStatus.ModuleSummary[], Void> cur_request = null;
-  private SwingWorker<ServerStatus.ModuleSummary[], Void> hist_request = null;
+  private transient SwingWorker<ServerStatus.ModuleSummary[], Void> cur_request = null;
+  private transient SwingWorker<ServerStatus.ModuleSummary[], Void> hist_request = null;
 
   private void refresh(final int page) {
     if (page == 0) {

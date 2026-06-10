@@ -73,8 +73,8 @@ public class ShowServerStatusAction extends AbstractAction {
   private static class Window extends JFrame implements PropertyChangeListener {
     private static final long serialVersionUID = 1L;
 
-    private final ServerStatusView view;
-    private final MessageBoardControls messageMgr;
+    private final transient ServerStatusView view;
+    private final transient MessageBoardControls messageMgr;
 
     public Window(ServerStatus status, boolean includeMessageControls) {
       super(Resources.getString("Chat.server_status")); //$NON-NLS-1$

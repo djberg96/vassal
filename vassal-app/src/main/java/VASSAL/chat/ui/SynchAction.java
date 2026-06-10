@@ -44,9 +44,9 @@ public class SynchAction extends AbstractAction {
   private static Room lastRoom;
   private static long lastSync = System.currentTimeMillis();
 
-  private final Player p;
-  private final ChatServerConnection client;
-  private Room targetRoom;
+  private final transient Player p;
+  private final transient ChatServerConnection client;
+  private transient Room targetRoom;
 
   public SynchAction(Player p, ChatServerConnection client) {
     super(Resources.getString("Chat.synchronize")); //$NON-NLS-1$

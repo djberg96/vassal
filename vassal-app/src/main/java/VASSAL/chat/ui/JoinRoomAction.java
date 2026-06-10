@@ -37,8 +37,8 @@ import javax.swing.JOptionPane;
 public class JoinRoomAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
 
-  private final Room r;
-  private final ChatServerConnection client;
+  private final transient Room r;
+  private final transient ChatServerConnection client;
 
   public JoinRoomAction(Room r, ChatServerConnection client) {
     super(Resources.getString("Chat.join_room")); //$NON-NLS-1$

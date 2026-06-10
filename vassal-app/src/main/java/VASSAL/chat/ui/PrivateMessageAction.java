@@ -36,8 +36,8 @@ import VASSAL.i18n.Resources;
 public class PrivateMessageAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
 
-  private final Player p;
-  private final PrivateChatManager mgr;
+  private final transient Player p;
+  private final transient PrivateChatManager mgr;
 
   public PrivateMessageAction(Player p, ChatServerConnection client, PrivateChatManager mgr) {
     super(Resources.getString("Chat.private_msg")); //$NON-NLS-1$
