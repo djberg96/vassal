@@ -58,7 +58,7 @@ import VASSAL.tools.image.ImageIOException;
  *
  * @since 3.1.0
  */
-public class FirstTimeDialog extends JDialog {
+public final class FirstTimeDialog extends JDialog {
   private static final long serialVersionUID = 1L;
 
   private static final Logger logger =
