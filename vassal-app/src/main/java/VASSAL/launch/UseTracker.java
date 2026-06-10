@@ -27,7 +27,7 @@ public class UseTracker {
 
   private final Map<File, Integer> using = new HashMap<>();
 
-  private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+  private PropertyChangeSupport pcs;
 
   /**
    * @return <code>true</code> iff any files are in use
@@ -57,7 +57,7 @@ public class UseTracker {
     using.merge(file, 1, Integer::sum);
     final boolean isOpen = using.isEmpty();
     if (wasOpen != isOpen) {
-      this.pcs.firePropertyChange("open", wasOpen, isOpen);
+      getPropertyChangeSupport().firePropertyChange("open", wasOpen, isOpen);
     }
   }
 
@@ -66,7 +66,7 @@ public class UseTracker {
     using.merge(file, 0, (v, n) -> v == 1 ? null : v - 1);
     final boolean isOpen = using.isEmpty();
     if (wasOpen != isOpen) {
-      this.pcs.firePropertyChange("open", wasOpen, isOpen);
+      getPropertyChangeSupport().firePropertyChange("open", wasOpen, isOpen);
     }
   }
 
@@ -75,7 +75,7 @@ public class UseTracker {
     using.put(file, -1);
     final boolean isOpen = using.isEmpty();
     if (wasOpen != isOpen) {
-      this.pcs.firePropertyChange("open", wasOpen, isOpen);
+      getPropertyChangeSupport().firePropertyChange("open", wasOpen, isOpen);
     }
   }
 
@@ -84,15 +84,22 @@ public class UseTracker {
     using.remove(file);
     final boolean isOpen = using.isEmpty();
     if (wasOpen != isOpen) {
-      this.pcs.firePropertyChange("open", wasOpen, isOpen);
+      getPropertyChangeSupport().firePropertyChange("open", wasOpen, isOpen);
     }
   }
 
   public void addPropertyChangeListener(PropertyChangeListener listener) {
-    pcs.addPropertyChangeListener(listener);
+    getPropertyChangeSupport().addPropertyChangeListener(listener);
   }
 
   public void removePropertyChangeListener(PropertyChangeListener listener) {
-    pcs.removePropertyChangeListener(listener);
+    getPropertyChangeSupport().removePropertyChangeListener(listener);
+  }
+
+  private synchronized PropertyChangeSupport getPropertyChangeSupport() {
+    if (pcs == null) {
+      pcs = new PropertyChangeSupport(this);
+    }
+    return pcs;
   }
 }
