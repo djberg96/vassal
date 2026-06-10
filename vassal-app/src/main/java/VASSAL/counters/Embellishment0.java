@@ -1003,10 +1003,6 @@ public class Embellishment0 extends Decorator implements TranslatablePiece {
           isPrefix.set(index, NEITHER);
         }
       }
-      else if (index == 0) {
-        names.set(index, null);
-        isPrefix.set(index, NEITHER);
-      }
     }
 
     @Override

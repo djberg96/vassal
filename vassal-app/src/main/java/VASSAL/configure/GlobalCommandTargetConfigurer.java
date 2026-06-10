@@ -74,9 +74,13 @@ public class GlobalCommandTargetConfigurer extends Configurer {
   private GamePiece sourcePiece;
 
   public GlobalCommandTargetConfigurer(String key, String name, GlobalCommandTarget target) {
-    super(key, name, target);
-    this.target = new GlobalCommandTarget(target);
+    super(key, name, copyTarget(target));
+    this.target = (GlobalCommandTarget) value;
     this.sourcePiece = null;
+  }
+
+  private static GlobalCommandTarget copyTarget(GlobalCommandTarget target) {
+    return target == null ? new GlobalCommandTarget() : new GlobalCommandTarget(target);
   }
 
   public GlobalCommandTargetConfigurer(String key, String name) {
