@@ -562,15 +562,6 @@ public class GameModule extends AbstractConfigurable
   }
 
   /**
-   * @return the top-level frame of the controls window
-   * @deprecated use {@link #getPlayerWindow()}
-   */
-  @Deprecated(since = "2020-08-06", forRemoval = false)
-  public JFrame getFrame() {
-    return frame;
-  }
-
-  /**
    * @return String identifier for module
    */
   @Override
@@ -1705,15 +1696,6 @@ public class GameModule extends AbstractConfigurable
     for (final Map m : getComponentsOf(Map.class)) {
       m.updateTitleBar();
     }
-  }
-
-  /**
-   * @deprecated use {@link #updateTitleBar()}
-   * @param s String to append to title
-   */
-  @Deprecated(since = "2020-09-16", forRemoval = true)
-  public void appendToTitle(String s) {
-    // replaced by updateTitleBar()
   }
 
   /**
