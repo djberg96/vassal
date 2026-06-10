@@ -90,8 +90,7 @@ public abstract class Configurer {
   public Configurer(String key, String name, Object val) {
     this.key = key;
     this.name = name == null ? "" : name;
-    changeSupport = new PropertyChangeSupport(this);
-    setValue(val);
+    value = val;
   }
 
   /**
@@ -112,7 +111,7 @@ public abstract class Configurer {
     final String oldName = name;
     name = s;
     if (!frozen) {
-      changeSupport.firePropertyChange(NAME_PROPERTY, oldName, name);
+      getChangeSupport().firePropertyChange(NAME_PROPERTY, oldName, name);
     }
   }
 
@@ -136,7 +135,7 @@ public abstract class Configurer {
     final Object oldValue = getValue();
     value = o;
     if (!frozen) {
-      changeSupport.firePropertyChange(key, oldValue, value);
+      getChangeSupport().firePropertyChange(key, oldValue, value);
     }
   }
 
@@ -155,7 +154,7 @@ public abstract class Configurer {
    * Fire a PropertyChangeEvent as if the value had been set from null
    */
   public void fireUpdate() {
-    changeSupport.firePropertyChange(key, null, value);
+    getChangeSupport().firePropertyChange(key, null, value);
   }
 
   /**
@@ -172,11 +171,20 @@ public abstract class Configurer {
    * Add a listener to be notified when the Object state changes
    */
   public void addPropertyChangeListener(PropertyChangeListener l) {
-    changeSupport.addPropertyChangeListener(l);
+    getChangeSupport().addPropertyChangeListener(l);
   }
 
   public void removePropertyChangeListener(PropertyChangeListener l) {
-    changeSupport.removePropertyChangeListener(l);
+    if (changeSupport != null) {
+      changeSupport.removePropertyChangeListener(l);
+    }
+  }
+
+  protected PropertyChangeSupport getChangeSupport() {
+    if (changeSupport == null) {
+      changeSupport = new PropertyChangeSupport(this);
+    }
+    return changeSupport;
   }
 
   /**

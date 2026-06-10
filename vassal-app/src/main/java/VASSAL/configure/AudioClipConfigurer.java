@@ -158,7 +158,7 @@ public class AudioClipConfigurer extends FileConfigurer {
       final Object oldValue = getValue();
       value = o;
       if (!frozen) {
-        changeSupport.firePropertyChange(key, oldValue, value);
+        getChangeSupport().firePropertyChange(key, oldValue, value);
       }
       if (tf != null && !noUpdate) {
         tf.setText(getValueString());

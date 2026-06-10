@@ -43,6 +43,9 @@ public class PositionOption extends VASSAL.configure.Configurer
 
   public PositionOption(String key, Window f, Rectangle defaultValue) {
     super(key, null, defaultValue);
+    if (defaultValue != null) {
+      bounds = new Rectangle(defaultValue);
+    }
     adjustInitialOffset();
     theFrame = f;
     theFrame.pack();

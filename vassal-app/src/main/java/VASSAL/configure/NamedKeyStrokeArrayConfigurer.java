@@ -141,7 +141,7 @@ public class NamedKeyStrokeArrayConfigurer extends Configurer implements Configu
     final NamedKeyStroke[] oldValue = ArrayUtils.clone(getNameKeyStrokeArrayValue());
     getNameKeyStrokeArrayValue()[pos] = stroke;
     if (!frozen) {
-      changeSupport.firePropertyChange(key, oldValue, getNameKeyStrokeArrayValue());
+      getChangeSupport().firePropertyChange(key, oldValue, getNameKeyStrokeArrayValue());
     }
   }
 

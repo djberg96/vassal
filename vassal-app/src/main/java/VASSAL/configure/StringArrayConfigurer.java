@@ -394,7 +394,7 @@ public class StringArrayConfigurer extends Configurer implements ConfigurableLis
     final String[] oldValue = ArrayUtils.clone(getStringArray());
     getStringArray()[entries.indexOf(entry)] = entry.getConfigurer().getValueString();
     if (!frozen) {
-      changeSupport.firePropertyChange(key, oldValue, getStringArray());
+      getChangeSupport().firePropertyChange(key, oldValue, getStringArray());
     }
   }
 
