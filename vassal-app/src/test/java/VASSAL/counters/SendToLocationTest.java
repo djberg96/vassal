@@ -22,7 +22,28 @@ import java.awt.Point;
 import java.lang.reflect.InvocationTargetException;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class SendToLocationTest extends DecoratorTest {
+
+  @Test
+  public void destinationOptionsAreImmutable() {
+    assertThrows(UnsupportedOperationException.class, () -> SendToLocation.DEST_OPTIONS.add("changed"));
+    assertThrows(UnsupportedOperationException.class, () -> SendToLocation.DEST_KEYS.add("Editor.changed"));
+  }
+
+  @Test
+  public void destinationArrayAccessorsReturnCopies() {
+    final String[] options = SendToLocation.destOptions();
+    options[0] = "changed";
+
+    final String[] keys = SendToLocation.destKeys();
+    keys[0] = "Editor.changed";
+
+    assertEquals(SendToLocation.DEST_GRIDLOCATION, SendToLocation.destOptions()[0]);
+    assertEquals("Editor.SendToLocation.grid_location_on_selected_map", SendToLocation.destKeys()[0]);
+  }
 
   @Test
   public void serializeTests() throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {

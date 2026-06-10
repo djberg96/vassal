@@ -160,12 +160,12 @@ public class MoveCameraButton extends AbstractToolbarItem {
   public static class DestConfig extends TranslatableStringEnum {
     @Override
     public String[] getValidValues(AutoConfigurable target) {
-      return SendToLocation.DEST_OPTIONS;
+      return SendToLocation.destOptions();
     }
 
     @Override
     public String[] getI18nKeys(AutoConfigurable target) {
-      return SendToLocation.DEST_KEYS;
+      return SendToLocation.destKeys();
     }
   }
 

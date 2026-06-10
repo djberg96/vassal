@@ -97,11 +97,11 @@ public class SendToLocation extends Decorator implements TranslatablePiece {
   public static final String DEST_COUNTER = "A"; // NON-NLS
   public static final String DEST_COUNTER_CYCLE = "C"; //NON-NLS
   public static final String DEST_COUNTER_NEAREST = "N"; //NON-NLS
-  public static final String[] DEST_OPTIONS = {
+  public static final List<String> DEST_OPTIONS = List.of(
     DEST_GRIDLOCATION, DEST_LOCATION, DEST_ZONE, DEST_REGION, DEST_COUNTER, DEST_COUNTER_CYCLE, DEST_COUNTER_NEAREST
-  };
+  );
   // Actual valued recorded for Destination option
-  public static final String[] DEST_KEYS = {
+  public static final List<String> DEST_KEYS = List.of(
     "Editor.SendToLocation.grid_location_on_selected_map",
     "Editor.SendToLocation.location_on_selected_map",
     "Editor.SendToLocation.zone_on_selected_map",
@@ -109,7 +109,15 @@ public class SendToLocation extends Decorator implements TranslatablePiece {
     "Editor.SendToLocation.another_counter_selected_by_properties_any",
     "Editor.SendToLocation.another_counter_selected_by_properties_cycle",
     "Editor.SendToLocation.another_counter_selected_by_properties_nearest"
-  };
+  );
+
+  public static String[] destOptions() {
+    return DEST_OPTIONS.toArray(new String[0]);
+  }
+
+  public static String[] destKeys() {
+    return DEST_KEYS.toArray(new String[0]);
+  }
 
   protected KeyCommand[] command;
   protected String commandName;
