@@ -334,36 +334,6 @@ public class SwingUtils {
       new MacInputClassifier() : new DefaultInputClassifier();
 
   /**
-   * @return whether the event is effectively for the left button.
-   *
-   * @deprecated in favor of {@link #isMainMouseButtonDown(MouseEvent)}
-   */
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  public static boolean isLeftMouseButton(MouseEvent e) {
-    return INPUT_CLASSIFIER.isMainMouseButtonDown(e);
-  }
-
-  /**
-   * @return whether the event is effectively for the right button.
-   *
-   * @deprecated in favor of {@link #isContextMouseButtonDown(MouseEvent)}
-   */
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  public static boolean isRightMouseButton(MouseEvent e) {
-    return INPUT_CLASSIFIER.isContextMouseButtonDown(e);
-  }
-
-  /**
-   * @return whether the event effectively has Control down.
-   *
-   * @deprecated The situation where this was needed with mouse events is now handled by {@link #isSelectionToggle(MouseEvent)}.
-   */
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  public static boolean isControlDown(MouseEvent e) {
-    return INPUT_CLASSIFIER.isSelectionToggle(e);
-  }
-
-  /**
    * @return whether the event has the key/mouse combo for Context Menu active, whether it would raise one "right now" or not. (normally plain right mouse button, but some funky mac bonuses)
    */
   public static boolean isContextMouseButtonDown(MouseEvent e) {

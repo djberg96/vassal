@@ -52,12 +52,6 @@ public class VersionUtils {
     return compareReportable(version) >= 0;
   }
 
-  /** @deprecated Use !{@link isCurrent} instead */
-  @Deprecated(since = "2021-04-15", forRemoval = true)
-  public static Boolean isUpdateable(String runningVersion) throws IOException {
-    return !isCurrent(runningVersion);
-  }
-
   /**
    * Compares version strings.
    *

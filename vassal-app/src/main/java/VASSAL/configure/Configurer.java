@@ -258,12 +258,6 @@ public abstract class Configurer {
   public void setLabelVisible(boolean visible) {
   }
 
-  /** @deprecated Use {@link #setLabelVisible} instead. */
-  @Deprecated(since = "2023-01-14", forRemoval = true)
-  public void setLabelVisibile(boolean visible) {
-    setLabelVisible(visible);
-  }
-
   /**
    * Set the highlighted status of this configurer.
    * It is up to individual Configurers to override this method and implement a suitable visual highlighting scheme

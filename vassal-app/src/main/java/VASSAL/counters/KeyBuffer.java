@@ -28,7 +28,6 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 
@@ -276,12 +275,6 @@ public class KeyBuffer {
    */
   public Iterator<GamePiece> getPiecesIterator() {
     return pieces.iterator();
-  }
-
-  /** @deprecated Use {@link #getPiecesIterator()} instead. */
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  public Enumeration<GamePiece> getPieces() {
-    return Collections.enumeration(pieces);
   }
 
   /**

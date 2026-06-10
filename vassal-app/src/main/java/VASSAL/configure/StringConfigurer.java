@@ -44,10 +44,6 @@ public class StringConfigurer extends Configurer {
   protected static final int DEFAULT_LENGTH = 16;
   protected boolean updateInProgress; /* Used to co-ordinate external updates from List Confogurers using this Configurer */
 
-  /** Use {@link #DEFAULT_LENGTH} instead. */
-  @Deprecated(since = "2021-12-04", forRemoval = true)
-  protected static final int DEFAULT_LENGHTH = 16;
-
   /**
    * Base Constructor for StringConfigurer
    *
