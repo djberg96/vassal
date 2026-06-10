@@ -45,7 +45,7 @@ import java.awt.event.ActionEvent;
 public class ExtensionTree extends ConfigureTree {
   private static final long serialVersionUID = 1L;
 
-  private final ModuleExtension extension;
+  private final transient ModuleExtension extension;
 
   public ExtensionTree(Configurable root, HelpWindow helpWindow, ModuleExtension extension, EditorWindow editorWindow) {
     super(root, helpWindow, editorWindow);

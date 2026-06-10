@@ -364,7 +364,7 @@ public class NamedHotKeyConfigurer extends Configurer implements FocusListener {
   private static class ConfigLayerUI extends LayerUI<JTextField> {
     private static final long serialVersionUID = 1L;
 
-    private final Configurer parent;
+    private final transient Configurer parent;
 
     public ConfigLayerUI(Configurer parent) {
       this.parent = parent;

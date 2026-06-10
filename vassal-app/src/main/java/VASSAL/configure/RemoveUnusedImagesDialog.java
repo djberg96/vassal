@@ -43,17 +43,17 @@ public class RemoveUnusedImagesDialog extends JDialog {
   private final DefaultListModel<String> keepModel = new DefaultListModel<>();
   private final DefaultListModel<String> dumpModel = new DefaultListModel<>();
 
-  private final SortedSet<String> keep = new TreeSet<>();
-  private final SortedSet<String> dump = new TreeSet<>();
+  private final transient SortedSet<String> keep = new TreeSet<>();
+  private final transient SortedSet<String> dump = new TreeSet<>();
 
   private final JButton ok;
 
-  private final DataArchive archive;
+  private final transient DataArchive archive;
 
   private final JButton dropAllButton;
   private final JButton keepAllButton;
 
-  private final Map<String, Entry> displayIndex = new HashMap<>();
+  private final transient Map<String, Entry> displayIndex = new HashMap<>();
   private final JLabel keepTotalLabel = new JLabel();
   private final JLabel dropTotalLabel = new JLabel();
 

@@ -42,7 +42,7 @@ import java.awt.event.MouseEvent;
 public class ChooseComponentDialog extends JDialog implements TreeSelectionListener {
   private static final long serialVersionUID = 1L;
 
-  private Configurable target;
+  private transient Configurable target;
   private final Class<? extends Buildable> targetClass;
   private final JButton okButton;
   private final ConfigureTree tree;

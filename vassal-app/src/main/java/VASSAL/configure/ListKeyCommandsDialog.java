@@ -307,7 +307,7 @@ public class ListKeyCommandsDialog extends JDialog {
   private static class MyTableModel extends AbstractTableModel {
     private static final long serialVersionUID = 1L;
 
-    private final List<Pair<String[], AbstractConfigurable>> rows;
+    private final transient List<Pair<String[], AbstractConfigurable>> rows;
 
     public MyTableModel(List<Pair<String[], AbstractConfigurable>> rows) {
       this.rows = rows;

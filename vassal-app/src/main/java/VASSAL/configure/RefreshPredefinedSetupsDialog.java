@@ -91,6 +91,7 @@ public class RefreshPredefinedSetupsDialog extends JDialog {
   private static final int FILE_NAME_REPORT_LENGTH = 24;
   private JCheckBox fireHotkey;
 
+  @SuppressWarnings("serial")
   private final Set<String> options = new HashSet<>();
 
   public RefreshPredefinedSetupsDialog(Frame owner) throws HeadlessException {

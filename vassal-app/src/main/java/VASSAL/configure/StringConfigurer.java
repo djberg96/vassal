@@ -210,7 +210,7 @@ public class StringConfigurer extends Configurer {
   // Use JLayer to outline the field in Red as the Unix LaF ignores TextField background colours
   private static class ConfigLayerUI extends LayerUI<JTextField> {
     private static final long serialVersionUID = 1L;
-    private final Configurer parent;
+    private final transient Configurer parent;
 
     public ConfigLayerUI(Configurer parent) {
       this.parent = parent;

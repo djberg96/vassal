@@ -41,11 +41,11 @@ import VASSAL.i18n.Resources;
 public class EditPropertiesAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
 
-  protected Configurable target;
-  protected HelpWindow helpWindow;
+  protected transient Configurable target;
+  protected transient HelpWindow helpWindow;
   protected static final Map<Configurable, PropertiesWindow> openWindows = new HashMap<>();
-  protected Frame dialogOwner;
-  protected ConfigureTree tree;
+  protected transient Frame dialogOwner;
+  protected transient ConfigureTree tree;
 
   public EditPropertiesAction(Configurable target, HelpWindow helpWindow, Frame dialogOwner) {
     super(Resources.getString("Editor.properties")); //$NON-NLS-1$

@@ -49,9 +49,9 @@ import java.util.List;
 public class PropertiesWindow extends JDialog {
   private static final long serialVersionUID = 1L;
 
-  private Configurer configurer;
-  private Configurable target;
-  private Element originalState;
+  private transient Configurer configurer;
+  private transient Configurable target;
+  private transient Element originalState;
 
   private static List<PropertiesWindow> propertiesWindowQueue = new ArrayList<>();
 

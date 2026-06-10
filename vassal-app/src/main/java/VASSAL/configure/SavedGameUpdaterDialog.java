@@ -57,7 +57,7 @@ public class SavedGameUpdaterDialog extends JDialog {
   private static final long serialVersionUID = 1L;
 
   private DefaultListModel<File> savedGamesModel;
-  private final SavedGameUpdater updater = new SavedGameUpdater();
+  private final transient SavedGameUpdater updater = new SavedGameUpdater();
   private Properties oldPieceInfo;
   private final JFileChooser fc;
 

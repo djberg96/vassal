@@ -33,7 +33,7 @@ import VASSAL.build.Configurable;
 public class ChooseComponentPathDialog extends ChooseComponentDialog {
   private static final long serialVersionUID = 1L;
 
-  private Configurable[] path;
+  private transient Configurable[] path;
 
   public ChooseComponentPathDialog(Frame owner,
                                    Class<? extends Buildable> targetClass) {

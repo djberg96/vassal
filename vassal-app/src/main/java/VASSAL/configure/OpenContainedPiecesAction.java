@@ -40,10 +40,10 @@ import org.apache.commons.lang3.ArrayUtils;
 public class OpenContainedPiecesAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
 
-  private final Configurable target;
-  protected HelpWindow helpWindow;
-  protected Frame dialogOwner;
-  protected ConfigureTree tree;
+  private final transient Configurable target;
+  protected transient HelpWindow helpWindow;
+  protected transient Frame dialogOwner;
+  protected transient ConfigureTree tree;
 
   public OpenContainedPiecesAction(Configurable target, HelpWindow helpWindow, Frame dialogOwner, ConfigureTree tree) {
     super(Resources.getString("Editor.OpenContainedPiecesAction.what_it_does"));

@@ -36,7 +36,7 @@ import java.util.List;
 public class ValidationReportDialog extends JDialog {
   private static final long serialVersionUID = 1L;
 
-  private final CallBack callback;
+  private final transient CallBack callback;
 
   public ValidationReportDialog(ValidationReport report, CallBack cb) {
     super(GameModule.getGameModule().getPlayerWindow(), false);
