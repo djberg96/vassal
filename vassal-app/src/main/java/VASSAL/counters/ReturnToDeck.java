@@ -78,12 +78,7 @@ public class ReturnToDeck extends Decorator implements TranslatablePiece {
   protected FormattedString deckExpression = new FormattedString("");
 
   public ReturnToDeck() {
-    this(ID + Resources.getString("Editor.ReturnToDeck.default_command") + ";R;", null); // NON-NLS
-  }
-
-  public ReturnToDeck(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeFromType(ID + Resources.getString("Editor.ReturnToDeck.default_command") + ";R;"); // NON-NLS
   }
 
   @Override
@@ -113,6 +108,10 @@ public class ReturnToDeck extends Decorator implements TranslatablePiece {
 
   @Override
   public void mySetType(String s) {
+    initializeFromType(s);
+  }
+
+  private void initializeFromType(String s) {
     if (s.startsWith(ID)) {
       s = s.substring(ID.length());
       final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(s, ';');

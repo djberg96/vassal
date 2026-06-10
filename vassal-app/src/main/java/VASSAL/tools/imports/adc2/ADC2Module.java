@@ -2227,7 +2227,7 @@ public class ADC2Module extends Importer {
     gp = del;
 
     if (forcePools.count(ForcePool.class) > 0)
-      gp = new ReturnToDeck(ReturnToDeck.ID + "Return to Force Pool;R;;Select Force Pool", gp);
+      gp = Decorator.create(ReturnToDeck::new, ReturnToDeck.ID + "Return to Force Pool;R;;Select Force Pool", gp);
 
     se = new SequenceEncoder(';');
     se.append(NamedKeyStroke.of(KeyStroke.getKeyStroke('T', InputEvent.CTRL_DOWN_MASK)))

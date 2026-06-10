@@ -182,7 +182,7 @@ public class BasicCommandEncoder implements CommandEncoder, Buildable {
     Map.entry(ReportState.ID, decoratorFactory(ReportState::new)),
     Map.entry(MovementMarkable.ID, MovementMarkable::new),
     Map.entry(Footprint.ID, Footprint::new),
-    Map.entry(ReturnToDeck.ID, ReturnToDeck::new),
+    Map.entry(ReturnToDeck.ID, decoratorFactory(ReturnToDeck::new)),
     Map.entry(SendToLocation.ID, SendToLocation::new),
     Map.entry(UsePrototype.ID, UsePrototype::new),
     Map.entry(Clone.ID, decoratorFactory(Clone::new)),
