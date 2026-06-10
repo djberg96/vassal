@@ -23,17 +23,13 @@ import VASSAL.counters.TraitLayout;
 import VASSAL.tools.SequenceEncoder;
 
 import java.awt.Component;
-import java.awt.event.ActionListener;
 import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
-import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -43,18 +39,6 @@ import org.apache.commons.lang3.ArrayUtils;
  * A Configurer that returns an array of Strings
  */
 public class StringArrayConfigurer extends Configurer implements ConfigurableList {
-
-  @Deprecated(since = "2020-11-12", forRemoval = true)
-  protected JList<String> list;
-  @Deprecated(since = "2020-11-12", forRemoval = true)
-  protected DefaultListModel<String> model;
-  @Deprecated(since = "2020-11-12", forRemoval = true)
-  protected JTextField textField;
-  @Deprecated(since = "2020-11-12", forRemoval = true)
-  protected int minRows = 3;
-  @Deprecated(since = "2020-11-12", forRemoval = true)
-  protected int maxRows = 3;
-
   protected JPanel panel;
   private static final String[] EMPTY = new String[0];
   private final List<StringEntry> entries = new ArrayList<>();
@@ -73,17 +57,6 @@ public class StringArrayConfigurer extends Configurer implements ConfigurableLis
 
   public StringArrayConfigurer(String key, String name) {
     super(key, name);
-  }
-
-  @Deprecated(since = "2020-11-12", forRemoval = true)
-  public DefaultListModel<String> getModel() {
-    return model;
-  }
-
-  @Deprecated(since = "2020-11-12", forRemoval = true)
-  public void addValue(String s) {
-    setValue(value == null ?
-      new String[]{s} : ArrayUtils.add((String[]) value, s));
   }
 
   public void removeValue(String s) {
@@ -105,30 +78,6 @@ public class StringArrayConfigurer extends Configurer implements ConfigurableLis
       rebuildControls();
     }
     return panel;
-  }
-
-  @Deprecated(since = "2020-11-12", forRemoval = true)
-  public void updateViewable(int rows) {
-  }
-
-  @Deprecated(since = "2020-11-12", forRemoval = true)
-  protected Component getTextComponent() {
-    return textField;
-  }
-
-  @Deprecated(since = "2020-11-12", forRemoval = true)
-  protected String getTextValue() {
-    return textField.getText();
-  }
-
-  @Deprecated(since = "2020-11-12", forRemoval = true)
-  protected void setTextValue(String s) {
-    textField.setText(s);
-  }
-
-  @Deprecated(since = "2020-11-12", forRemoval = true)
-  protected void addTextActionListener(ActionListener a) {
-    textField.addActionListener(a);
   }
 
   public String[] getStringArray() {
@@ -184,11 +133,6 @@ public class StringArrayConfigurer extends Configurer implements ConfigurableLis
       l.add(st.nextToken());
     }
     return l.toArray(new String[0]);
-  }
-
-  @Deprecated(since = "2020-11-12", forRemoval = true)
-  protected void updateModel() {
-
   }
 
   /**
