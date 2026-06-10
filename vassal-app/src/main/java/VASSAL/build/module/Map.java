@@ -4050,7 +4050,7 @@ public class Map extends AbstractToolbarItem implements GameComponent, MouseList
   public static class View extends JPanel {
     private static final long serialVersionUID = 1L;
 
-    protected Map map;
+    protected transient Map map;
 
     /**
      * Create our view

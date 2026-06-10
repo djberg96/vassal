@@ -286,9 +286,9 @@ public class PrivateMap extends Map {
 
     private boolean listenersActive;
     private boolean motionListenersActive;
-    private final List<KeyListener> keyListeners = new ArrayList<>();
-    private final List<MouseListener> mouseListeners = new ArrayList<>();
-    private final List<MouseMotionListener> mouseMotionListeners = new ArrayList<>();
+    private final transient List<KeyListener> keyListeners = new ArrayList<>();
+    private final transient List<MouseListener> mouseListeners = new ArrayList<>();
+    private final transient List<MouseMotionListener> mouseMotionListeners = new ArrayList<>();
     private DropTarget dropTarget;
 
     public View(PrivateMap m) {

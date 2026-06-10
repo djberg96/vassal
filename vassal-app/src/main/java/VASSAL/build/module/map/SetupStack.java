@@ -791,15 +791,15 @@ public class SetupStack extends AbstractConfigurable implements GameComponent, U
 
     private static final long serialVersionUID = 1L;
 
-    protected Board board;
+    protected transient Board board;
     protected View view;
     protected JScrollPane scroll;
-    protected SetupStack myStack;
-    protected PieceSlot mySlot;
-    protected GamePiece myPiece;
+    protected transient SetupStack myStack;
+    protected transient PieceSlot mySlot;
+    protected transient GamePiece myPiece;
     protected Point savePosition;
     protected Dimension dummySize;
-    protected BufferedImage dummyImage;
+    protected transient BufferedImage dummyImage;
     protected JLabel coords;
     protected JCheckBox shouldShowOthers;
     protected Rectangle cachedBoundingBox;
@@ -1167,11 +1167,11 @@ public class SetupStack extends AbstractConfigurable implements GameComponent, U
     private static final long serialVersionUID = 1L;
     protected static final int CURSOR_ALPHA = 127;
     protected static final int EXTRA_BORDER = 4;
-    protected Board myBoard;
-    protected MapGrid myGrid;
-    protected SetupStack myStack;
-    protected GamePiece myPiece;
-    protected PieceSlot slot;
+    protected transient Board myBoard;
+    protected transient MapGrid myGrid;
+    protected transient SetupStack myStack;
+    protected transient GamePiece myPiece;
+    protected transient PieceSlot slot;
     protected DragSource ds = DragSource.getDefaultDragSource();
     protected boolean isDragging = false;
     protected JLabel dragCursor;
@@ -1184,7 +1184,7 @@ public class SetupStack extends AbstractConfigurable implements GameComponent, U
     protected int originalPieceOffsetY;
     protected Point lastDragLocation = new Point();
 
-    protected List<SetupStack> otherStacks;
+    protected transient List<SetupStack> otherStacks;
 
     public View(Board b, SetupStack s) {
       myBoard = b;

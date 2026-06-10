@@ -65,11 +65,11 @@ public class HidePiecesButton extends JPanel implements MouseListener,
   private static final long serialVersionUID = 1L;
 
   protected boolean piecesVisible = false;
-  protected Map map;
+  protected transient Map map;
   protected LaunchButton launch;
   protected String showingIcon;
   protected String hiddenIcon;
-  protected ComponentI18nData myI18nData;
+  protected transient ComponentI18nData myI18nData;
   public static final String DEFAULT_SHOWING_ICON = "/images/globe_unselected.gif"; //NON-NLS
   public static final String DEFAULT_HIDDEN_ICON = "/images/globe_selected.gif"; //NON-NLS
 
