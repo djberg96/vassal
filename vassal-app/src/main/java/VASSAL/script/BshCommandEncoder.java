@@ -32,7 +32,7 @@ public class BshCommandEncoder extends BasicCommandEncoder {
   @Override
   public Decorator createDecorator(String type, GamePiece inner) {
     if (type.startsWith(CalculatedProperty.ID)) {
-      return new CalculatedProperty(type, inner);
+      return Decorator.create(CalculatedProperty::new, type, inner);
     }
     return super.createDecorator(type, inner);
   }

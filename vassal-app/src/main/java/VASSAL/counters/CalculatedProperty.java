@@ -56,12 +56,7 @@ public class CalculatedProperty extends Decorator implements EditablePiece, Loop
   protected String description = "";
 
   public CalculatedProperty() {
-    this(ID, null);
-  }
-
-  public CalculatedProperty(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeFromType(ID);
   }
 
   @Override
@@ -134,6 +129,10 @@ public class CalculatedProperty extends Decorator implements EditablePiece, Loop
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     st.nextToken();
     name = st.nextToken("");

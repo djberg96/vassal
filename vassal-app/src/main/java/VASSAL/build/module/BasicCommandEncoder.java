@@ -194,7 +194,7 @@ public class BasicCommandEncoder implements CommandEncoder, Buildable {
     Map.entry(CounterGlobalKeyCommand.ID, CounterGlobalKeyCommand::new),
     Map.entry(TriggerAction.ID, decoratorFactory(TriggerAction::new)),
     Map.entry(DynamicProperty.ID, DynamicProperty::new),
-    Map.entry(CalculatedProperty.ID, CalculatedProperty::new),
+    Map.entry(CalculatedProperty.ID, decoratorFactory(CalculatedProperty::new)),
     Map.entry(SetGlobalProperty.ID, SetGlobalProperty::new),
     Map.entry(SetPieceProperty.ID, SetPieceProperty::new),
     Map.entry(RestrictCommands.ID, decoratorFactory(RestrictCommands::new)),
