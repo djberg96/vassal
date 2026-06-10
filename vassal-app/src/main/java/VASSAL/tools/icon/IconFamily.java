@@ -78,8 +78,7 @@ public class IconFamily extends AbstractConfigurable {
   public static final String ICON2 = "icon2"; //$NON-NLS-1$
   public static final String ICON3 = "icon3"; //$NON-NLS-1$
 
-  private final PropertyChangeSupport propSupport = new PropertyChangeSupport(
-      this);
+  private PropertyChangeSupport propSupport;
 
   // Tango Icon sizes
   public static final int XSMALL = 0;
@@ -175,20 +174,22 @@ public class IconFamily extends AbstractConfigurable {
    */
   public IconFamily(String familyName, String scalableName, String[] sizeName) {
     this(familyName);
-    setScalableIconPath(scalableName);
+    scalablePath = scalableName;
     for (int i = 0; i < MAX_SIZE; i++) {
-      setSizeIconPath(i, sizeName[i]);
+      sizePaths[i] = sizeName[i];
     }
   }
 
   public IconFamily(String familyName) {
     this();
-    setConfigureName(familyName);
+    name = familyName;
+    localizedName = familyName;
   }
 
   public IconFamily() {
     icons = new OpIcon[SIZE_COUNT];
-    setConfigureName(""); //$NON-NLS-1$
+    name = ""; //$NON-NLS-1$
+    localizedName = ""; //$NON-NLS-1$
   }
 
   public void setScalableIconPath(String s) {
@@ -319,14 +320,23 @@ public class IconFamily extends AbstractConfigurable {
 
   @Override
   public void addPropertyChangeListener(PropertyChangeListener l) {
-    propSupport.addPropertyChangeListener(l);
+    getPropertyChangeSupport().addPropertyChangeListener(l);
   }
 
   @Override
   public void setConfigureName(String s) {
     final String oldName = name;
     this.name = s;
-    propSupport.firePropertyChange(NAME_PROPERTY, oldName, name);
+    if (propSupport != null) {
+      propSupport.firePropertyChange(NAME_PROPERTY, oldName, name);
+    }
+  }
+
+  private PropertyChangeSupport getPropertyChangeSupport() {
+    if (propSupport == null) {
+      propSupport = new PropertyChangeSupport(this);
+    }
+    return propSupport;
   }
 
   // Note: Custom Configurer
