@@ -71,7 +71,7 @@ import java.util.List;
 /**
  * Editor tool for finding all the key commands (and named key commands) in a module, and applying sorts/filters to them.
  */
-public class ListKeyCommandsDialog extends JDialog {
+public final class ListKeyCommandsDialog extends JDialog {
   private static final long serialVersionUID = 1L;
   private static final int KEY_COMMAND_COLUMN = 0;
   private static final int COLUMN_COUNT = 6;
@@ -267,7 +267,7 @@ public class ListKeyCommandsDialog extends JDialog {
 
 
   // Copy action for right click context menu
-  public static class CopyAction extends AbstractAction {
+  private static final class CopyAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
     private final JTable table;
 
@@ -282,7 +282,7 @@ public class ListKeyCommandsDialog extends JDialog {
     }
   }
 
-  public class JumpAction extends AbstractAction {
+  private final class JumpAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
     private final JTable table;
 
