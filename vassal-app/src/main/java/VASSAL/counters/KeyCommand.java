@@ -79,7 +79,7 @@ public class KeyCommand extends AbstractAction {
 
   public KeyCommand(String name, KeyStroke key, GamePiece target, TranslatablePiece i18nPiece, boolean enabled) {
     this(name, key, target, i18nPiece);
-    setEnabled(enabled);
+    this.enabled = enabled;
   }
 
   public KeyCommand(KeyCommand command) {
