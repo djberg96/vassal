@@ -20,6 +20,8 @@ package VASSAL.tools;
 
 import VASSAL.i18n.Resources;
 
+import java.util.List;
+
 /**
  * Code for controlling looping common to both TriggerAction and DoActionButton
  */
@@ -32,13 +34,21 @@ public class LoopControl {
   public static final String LOOP_COUNTED = "counted"; //$NON-NLS-1$
   public static final String LOOP_WHILE = "while"; //$NON-NLS-1$
   public static final String LOOP_UNTIL = "until"; //$NON-NLS-1$
-  public static final String[] LOOP_TYPES = { LOOP_COUNTED, LOOP_UNTIL, LOOP_WHILE };
+  public static final List<String> LOOP_TYPES = List.of(LOOP_COUNTED, LOOP_UNTIL, LOOP_WHILE);
 
   // Localized description of loop types
-  public static final String[] LOOP_TYPE_DESCS = {
+  public static final List<String> LOOP_TYPE_DESCS = List.of(
       Resources.getString("Editor.LoopControl.repeat_fixed"), //$NON-NLS-1$
       Resources.getString("Editor.LoopControl.repeat_until"), //$NON-NLS-1$
-      Resources.getString("Editor.LoopControl.repeat_while") }; //$NON-NLS-1$
+      Resources.getString("Editor.LoopControl.repeat_while")); //$NON-NLS-1$
+
+  public static String[] loopTypes() {
+    return LOOP_TYPES.toArray(new String[0]);
+  }
+
+  public static String[] loopTypeDescriptions() {
+    return LOOP_TYPE_DESCS.toArray(new String[0]);
+  }
 
   /**
    * Convert a Loop Type to a localized description
@@ -48,12 +58,12 @@ public class LoopControl {
    * @return localized description
    */
   public static String loopTypeToDesc(String type) {
-    for (int i = 0; i < LOOP_TYPES.length; i++) {
-      if (LOOP_TYPES[i].equals(type)) {
-        return LOOP_TYPE_DESCS[i];
+    for (int i = 0; i < LOOP_TYPES.size(); i++) {
+      if (LOOP_TYPES.get(i).equals(type)) {
+        return LOOP_TYPE_DESCS.get(i);
       }
     }
-    return LOOP_TYPE_DESCS[0];
+    return LOOP_TYPE_DESCS.get(0);
   }
 
   /**
@@ -64,15 +74,15 @@ public class LoopControl {
    * @return loop type
    */
   public static String loopDescToType(String desc) {
-    for (int i = 0; i < LOOP_TYPES.length; i++) {
-      if (LOOP_TYPE_DESCS[i].equals(desc)) {
-        return LOOP_TYPES[i];
+    for (int i = 0; i < LOOP_TYPES.size(); i++) {
+      if (LOOP_TYPE_DESCS.get(i).equals(desc)) {
+        return LOOP_TYPES.get(i);
       }
-      if (LOOP_TYPES[i].equals(desc)) {
+      if (LOOP_TYPES.get(i).equals(desc)) {
         return desc;
       }
     }
-    return LOOP_TYPES[0];
+    return LOOP_TYPES.get(0);
   }
 
 }

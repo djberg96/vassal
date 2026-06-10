@@ -271,12 +271,12 @@ public class DoActionButton extends AbstractToolbarItem
 
   public static class LoopTypeConfig extends StringEnumConfigurer {
     public LoopTypeConfig(String key, String name, String loopType) {
-      super(key, name, LoopControl.LOOP_TYPE_DESCS);
+      super(key, name, LoopControl.loopTypeDescriptions());
       setValue(LoopControl.loopTypeToDesc(loopType));
     }
 
     public String[] getValidValues(AutoConfigurable target) {
-      return LoopControl.LOOP_TYPE_DESCS;
+      return LoopControl.loopTypeDescriptions();
     }
 
     @Override
