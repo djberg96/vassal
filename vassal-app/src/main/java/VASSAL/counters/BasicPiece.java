@@ -147,7 +147,7 @@ public class BasicPiece extends AbstractImageFinder implements TranslatablePiece
    * @param type serialized type information (data about the piece which does not
    * change during the course of a game) ready to be processed by a {@link SequenceEncoder.Decoder} */
   public BasicPiece(String type) {
-    mySetType(type);
+    initializeFromType(type);
   }
 
   /** Sets the type information for this piece.  See {@link Decorator#myGetType}
@@ -159,6 +159,10 @@ public class BasicPiece extends AbstractImageFinder implements TranslatablePiece
    *              SequenceEncoder.decode() */
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     st.nextToken();
     legacyCloneKey = st.nextChar('\0');
