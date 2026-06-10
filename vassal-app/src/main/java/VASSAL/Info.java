@@ -17,16 +17,11 @@
  */
 package VASSAL;
 
-import java.awt.Component;
-import java.awt.Rectangle;
 import java.io.File;
-
-import org.apache.commons.lang3.SystemUtils;
 
 import VASSAL.launch.Config;
 import VASSAL.launch.DummyConfig;
 import VASSAL.tools.version.VersionUtils;
-import VASSAL.tools.swing.SwingUtils;
 
 /**
  * Class for storing release-related information
@@ -37,14 +32,6 @@ public final class Info {
   public static void setConfig(Config c) {
     CONFIG = c;
   }
-
-  /**
-   * The path to the JVM binary.
-   *
-   * @deprecated Use {@link #getJavaBinPath()} instead.
-   */
-  @Deprecated(since = "2020-10-03", forRemoval = true)
-  public static final String javaBinPath = getJavaBinPath().getAbsolutePath();
 
   /** This class should not be instantiated */
   private Info() { }
@@ -112,23 +99,6 @@ public final class Info {
     return CONFIG.getPrefsDir().toFile();
   }
 
-  /**
-   * @return size of screen accounting for the screen insets (e.g., Windows
-   * taskbar)
-   * @deprecated Use {@link VASSAL.tools.swing.SwingUtils#getScreenBounds(Component)}
-   * instead.
-   */
-  @Deprecated(since = "2020-10-03", forRemoval = true)
-  public static Rectangle getScreenBounds(Component c) {
-    return SwingUtils.getScreenBounds(c);
-  }
-
-  /** @deprecated Use {@link SystemUtils#IS_OS_MAC} instead */
-  @Deprecated(since = "2020-08-06", forRemoval = true)
-  public static boolean isMacOSX() {
-    return SystemUtils.IS_OS_MAC;
-  }
-
   public static boolean isModuleTooNew(String version) {
     return VersionUtils.compareVersions(
       VersionUtils.truncateToMinorVersion(version),
@@ -141,17 +111,5 @@ public final class Info {
       VersionUtils.truncateToMinorVersion(version),
       VersionUtils.truncateToMinorVersion(getVersion())
     ) < 0;
-  }
-
-  /** @deprecated Use {@link #getBaseDir()} instead. */
-  @Deprecated(since = "2020-10-03", forRemoval = true)
-  public static File getBinDir() {
-    return getBaseDir();
-  }
-
-  /** @deprecated Use {@link #getConfDir()} instead. */
-  @Deprecated(since = "2020-10-02", forRemoval = true)
-  public static File getHomeDir() {
-    return getConfDir();
   }
 }

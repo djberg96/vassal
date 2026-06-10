@@ -72,12 +72,6 @@ public class ModuleManager {
   public static final String CONVERTER_MAXIMUM_HEAP = "converterMaximumHeap"; //$NON-NLS-1$
   public static final String TILER_MAXIMUM_HEAP = "tilerMaximumHeap"; //$NON-NLS-1$
 
-  @Deprecated(since = "2022-02-25", forRemoval = true)
-  public static final String MAXIMUM_HEAP = "maximumHeap"; //$NON-NLS-1$
-
-  @Deprecated(since = "2020-10-21", forRemoval = true)
-  public static final String INITIAL_HEAP = "initialHeap"; //$NON-NLS-1$
-
   private static FileLock acquireLock(FileChannel fc) throws IOException {
     try {
       return fc.lock();

@@ -136,9 +136,6 @@ public class GlobalOptions extends AbstractConfigurable implements ComponentDesc
 
   public static final boolean FORCE_MAC_LEGACY = true; //BR// Keeps Mac key translation "waiting in the wings"
 
-  @Deprecated(since = "2020-10-21", forRemoval = true)
-  public static final String INITIAL_HEAP = "initialHeap"; //$NON-NLS-1$
-
   protected String description; // Description/comments for Global Options
 
   /************************************************************
