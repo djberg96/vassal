@@ -74,12 +74,7 @@ public class ReportState extends Decorator implements TranslatablePiece {
   protected boolean noSuppress;
 
   public ReportState() {
-    this(ID, null);
-  }
-
-  public ReportState(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeFromType(ID);
   }
 
   @Override
@@ -302,6 +297,10 @@ public class ReportState extends Decorator implements TranslatablePiece {
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     st.nextToken();
     final String encodedKeys = st.nextToken("");

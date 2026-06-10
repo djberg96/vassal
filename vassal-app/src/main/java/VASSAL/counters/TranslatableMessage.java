@@ -46,17 +46,15 @@ public class TranslatableMessage extends Decorator implements TranslatablePiece 
 
 
   public TranslatableMessage() {
-    this(ID, null);
-  }
-
-  public TranslatableMessage(String type, GamePiece p) {
-    mySetType(type);
-    setInner(p);
+    initializeFromType(ID);
   }
 
   @Override
   public void mySetType(String s) {
+    initializeFromType(s);
+  }
 
+  private void initializeFromType(String s) {
     final SequenceEncoder.Decoder sd = new SequenceEncoder.Decoder(s, DELIMITER);
     sd.nextToken(); // Skip over command prefix
     key = sd.nextToken("name");

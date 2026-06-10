@@ -78,12 +78,7 @@ public class Translate extends Decorator implements TranslatablePiece {
   protected static MoveExecuter mover;
 
   public Translate() {
-    this(ID + Resources.getString("Editor.MoveFixedDistance.default_command"), null);
-  }
-
-  public Translate(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeFromType(ID + Resources.getString("Editor.MoveFixedDistance.default_command"));
   }
 
   @Override
@@ -105,6 +100,10 @@ public class Translate extends Decorator implements TranslatablePiece {
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     type = type.substring(ID.length());
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     commandName = st.nextToken(Resources.getString("Editor.MoveFixedDistance.default_command"));

@@ -65,12 +65,7 @@ public class TableInfo extends Decorator implements TranslatablePiece {
   protected String description = "";
 
   public TableInfo() {
-    this(ID + "2;2;" + Resources.getString("Editor.TableInfo.default_command") + ";S", null); // NON-NLS
-  }
-
-  public TableInfo(String type, GamePiece p) {
-    mySetType(type);
-    setInner(p);
+    initializeFromType(ID + "2;2;" + Resources.getString("Editor.TableInfo.default_command") + ";S"); // NON-NLS
   }
 
   public int getRowCount() {
@@ -83,6 +78,10 @@ public class TableInfo extends Decorator implements TranslatablePiece {
 
   @Override
   public void mySetType(String s) {
+    initializeFromType(s);
+  }
+
+  private void initializeFromType(String s) {
     s = s.substring(ID.length());
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(s, ';');
     nRows = st.nextInt(2);
