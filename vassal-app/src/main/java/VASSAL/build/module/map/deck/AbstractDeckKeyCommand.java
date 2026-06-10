@@ -117,7 +117,7 @@ public abstract class AbstractDeckKeyCommand extends AbstractConfigurable implem
 
   @Override
   public Class<?>[] getAttributeTypes() {
-    return new Class[] {String.class, String.class, NamedKeyStroke.class, DeckReportFormatConfig.class};
+    return new Class<?>[] {String.class, String.class, NamedKeyStroke.class, DeckReportFormatConfig.class};
   }
 
   @Override

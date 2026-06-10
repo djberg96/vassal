@@ -27,7 +27,6 @@ import java.awt.Stroke;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
-import java.util.List;
 
 import javax.swing.JComponent;
 
@@ -272,12 +271,8 @@ public class KeyBufferer extends MouseAdapter implements Buildable, MouseMotionL
 
           // If we've added a mat, add all its pieces to the selection.
           if (GameModule.getGameModule().isMatSupport() && !SwingUtils.isSelectionToggle(e)) {
-            final Object o = p.getProperty(Mat.MAT_CONTENTS);
-            if (o instanceof List) {
-              final List<GamePiece> matPieces = (List<GamePiece>)o;
-              for (final GamePiece mp : matPieces) {
-                kbuf.add(mp);
-              }
+            for (final GamePiece mp : Mat.getMatContents(p)) {
+              kbuf.add(mp);
             }
           }
         }
@@ -315,12 +310,8 @@ public class KeyBufferer extends MouseAdapter implements Buildable, MouseMotionL
               kbuf.add(p);
             }
             else {
-              final Object o = p.getProperty(Mat.MAT_CONTENTS);
-              if (o instanceof List) {
-                final List<GamePiece> matPieces = (List<GamePiece>)o;
-                for (final GamePiece mp : matPieces) {
-                  kbuf.add(mp);
-                }
+              for (final GamePiece mp : Mat.getMatContents(p)) {
+                kbuf.add(mp);
               }
             }
           }

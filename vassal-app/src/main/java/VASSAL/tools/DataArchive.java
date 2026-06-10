@@ -58,7 +58,8 @@ public class DataArchive extends SecureClassLoader implements Closeable {
     new HashMap<>();
 
   protected SortedSet<String> localImages = null;
-  protected SortedSet<String>[] cachedLocalImages = new SortedSet[4];
+  @SuppressWarnings("unchecked")
+  protected SortedSet<String>[] cachedLocalImages = (SortedSet<String>[]) new SortedSet<?>[4];
 
   public static final String IMAGE_DIR = "images/"; //NON-NLS
   protected String imageDir = IMAGE_DIR;

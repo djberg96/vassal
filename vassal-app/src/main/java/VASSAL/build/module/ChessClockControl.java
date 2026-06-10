@@ -344,7 +344,7 @@ public class ChessClockControl extends AbstractConfigurable
    */
   @Override
   public Class<?>[] getAttributeTypes() {
-    return new Class[] { String.class, String.class, IconConfig.class, String.class, String.class,
+    return new Class<?>[] { String.class, String.class, IconConfig.class, String.class, String.class,
       NamedKeyStroke.class, NamedKeyStroke.class, NamedKeyStroke.class, NamedKeyStroke.class, TimeStyleConfig.class, TimeStyleConfig.class,
       TimeStyleConfig.class, TimeStyleConfig.class, Boolean.class };
   }

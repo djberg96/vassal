@@ -48,11 +48,11 @@ public class SizeConfigurer extends StringEnumConfigurer {
   }
 
   @Override
-  public JComboBox getComboBox() {
+  public JComboBox<String> getComboBox() {
     return new SizeComboBox();
   }
 
-  public class SizeComboBox extends JComboBox {
+  public class SizeComboBox extends JComboBox<String> {
     private static final long serialVersionUID = 1L;
 
     public SizeComboBox() {
@@ -75,7 +75,7 @@ public class SizeConfigurer extends StringEnumConfigurer {
       addItemListener(l);
     }
 
-    public class SizeRenderer extends JLabel implements ListCellRenderer {
+    public class SizeRenderer extends JLabel implements ListCellRenderer<String> {
       private static final long serialVersionUID = 1L;
 
       public SizeRenderer() {
@@ -89,7 +89,7 @@ public class SizeConfigurer extends StringEnumConfigurer {
        * value and returns the label, set up to display the text and image.
        */
       @Override
-      public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+      public Component getListCellRendererComponent(JList<? extends String> list, String value, int index, boolean isSelected,
           boolean cellHasFocus) {
 
         if (isSelected) {

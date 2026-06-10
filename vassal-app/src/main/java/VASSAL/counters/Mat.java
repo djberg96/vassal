@@ -54,6 +54,25 @@ public class Mat extends Decorator implements TranslatablePiece {
   protected String desc;
   protected List<GamePiece> contents = new ArrayList<>();
 
+  public static List<GamePiece> getMatContents(GamePiece piece) {
+    if (piece == null) {
+      return List.of();
+    }
+
+    final Object value = piece.getProperty(MAT_CONTENTS);
+    if (!(value instanceof List<?> rawContents)) {
+      return List.of();
+    }
+
+    final List<GamePiece> matContents = new ArrayList<>(rawContents.size());
+    for (final Object content : rawContents) {
+      if (content instanceof GamePiece gamePiece) {
+        matContents.add(gamePiece);
+      }
+    }
+    return matContents;
+  }
+
   public Mat() {
     this(ID + "Mat;;", null); //NON-NLS
   }

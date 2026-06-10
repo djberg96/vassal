@@ -190,7 +190,7 @@ public class ScenarioPropertiesOptionTab extends AbstractConfigurable implements
 
   @Override
   public Class<?>[] getAttributeTypes() {
-    return new Class[]{String.class, String.class, ChangeOptionConfig.class, TextConfig.class, AlignConfig.class};
+    return new Class<?>[]{String.class, String.class, ChangeOptionConfig.class, TextConfig.class, AlignConfig.class};
   }
 
   @Override

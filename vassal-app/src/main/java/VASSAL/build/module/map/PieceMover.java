@@ -572,12 +572,9 @@ public class PieceMover extends AbstractBuildable
         if (GameModule.getGameModule().isMatSupport()) {
           final List<GamePiece> checkDrag = new ArrayList<>(dbuf.asList());
           for (final GamePiece piece : checkDrag) {
-            final List<GamePiece> cargoList = (List<GamePiece>) piece.getProperty(Mat.MAT_CONTENTS);
-            if (cargoList != null) {
-              for (final GamePiece cargo : cargoList) {
-                if (!dbuf.contains(cargo)) {
-                  dbuf.add(cargo);
-                }
+            for (final GamePiece cargo : Mat.getMatContents(piece)) {
+              if (!dbuf.contains(cargo)) {
+                dbuf.add(cargo);
               }
             }
           }

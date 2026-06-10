@@ -169,7 +169,7 @@ public abstract class Widget extends AbstractConfigurable implements ComponentDe
 
     @Override
     public java.awt.Component getListCellRendererComponent(
-      javax.swing.JList list,
+      javax.swing.JList<?> list,
       Object value,
       int index,
       boolean isSelected,

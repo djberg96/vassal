@@ -999,13 +999,17 @@ public class GameState implements CommandEncoder {
       if (flavor.isFlavorJavaFileListType()) {
         try {
           // Get all of the dropped files
-          final List<File> files = (List<File>) transferable.getTransferData(flavor);
-          for (final File file : files) {
-            if (file.getName().toLowerCase().endsWith("url")) { // NON-NLS
-              break; // Don't try to load a Discord url link as a file
-            }
-            else if (GameModule.getGameModule().getGameState().loadGame(file, false)) {
-              break; // Only load the first file in the list
+          final Object transferData = transferable.getTransferData(flavor);
+          if (transferData instanceof List<?> files) {
+            for (final Object item : files) {
+              if (item instanceof File file) {
+                if (file.getName().toLowerCase().endsWith("url")) { // NON-NLS
+                  break; // Don't try to load a Discord url link as a file
+                }
+                else if (GameModule.getGameModule().getGameState().loadGame(file, false)) {
+                  break; // Only load the first file in the list
+                }
+              }
             }
           }
         }

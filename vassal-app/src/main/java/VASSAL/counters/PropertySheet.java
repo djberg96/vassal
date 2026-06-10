@@ -926,7 +926,7 @@ public class PropertySheet extends Decorator implements TranslatablePiece {
     private final NamedHotKeyConfigurer keyStrokeConfig;
     private final JButton colorCtrl;
     private final JTable propertyTable;
-    private final JComboBox commitCtrl;
+    private final JComboBox<String> commitCtrl;
 
     static final String[] COLUMN_NAMES = {Resources.getString("Editor.PropertySheet.name"), Resources.getString("Editor.PropertySheet.type")};
     static final String[] DEFAULT_ROW = {Resources.getString("Editor.PropertySheet.new_property"), Resources.getString("Editor.PropertySheet.text")};

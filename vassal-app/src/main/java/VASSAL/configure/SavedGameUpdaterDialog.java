@@ -110,7 +110,7 @@ public class SavedGameUpdaterDialog extends JDialog {
 
       @Override
       public Component getListCellRendererComponent(
-          JList list,
+          JList<?> list,
           Object value,
           int index,
           boolean isSelected,

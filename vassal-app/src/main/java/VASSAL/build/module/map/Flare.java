@@ -174,7 +174,7 @@ public class Flare extends AbstractConfigurable
    */
   @Override
   public Class<?>[] getAttributeTypes() {
-    return new Class[] {
+    return new Class<?>[] {
       String.class,
       String.class,
       FlareKeyConfig.class,
@@ -561,7 +561,7 @@ public class Flare extends AbstractConfigurable
 
   @Override
   public Class<?>[] getAllowableConfigureComponents() {
-    return new Class[0];
+    return new Class<?>[0];
   }
 
   /**

@@ -373,7 +373,7 @@ public class MultiRoll extends JDialog implements ActionListener {
 
     StateButton col1;
     JCheckBox col2, col7;
-    JComboBox col4, col5;
+    JComboBox<String> col4, col5;
     JTextField col3, col6;
 
     Border blackline = BorderFactory.createLineBorder(Color.black);
@@ -441,7 +441,7 @@ public class MultiRoll extends JDialog implements ActionListener {
       col4.setSelectedIndex(defaultNDIdx);
       col4.setPreferredSize(new Dimension(COL4_WIDTH, ROW_HEIGHT));
       col4.addActionListener(e -> {
-        final JComboBox cb = (JComboBox) e.getSource();
+        final JComboBox<?> cb = (JComboBox<?>) e.getSource();
         rolls[myRow].setNumDice(Integer.parseInt((String) cb.getSelectedItem()));
       });
       col4.setEnabled(false);
@@ -459,7 +459,7 @@ public class MultiRoll extends JDialog implements ActionListener {
       col5.setSelectedIndex(defaultNSIdx);
       col5.setPreferredSize(new Dimension(COL5_WIDTH, ROW_HEIGHT));
       col5.addActionListener(e -> {
-        final JComboBox cb = (JComboBox) e.getSource();
+        final JComboBox<?> cb = (JComboBox<?>) e.getSource();
         rolls[myRow].setNumSides(Integer.parseInt((String) cb.getSelectedItem()));
       });
       col5.setEnabled(false);

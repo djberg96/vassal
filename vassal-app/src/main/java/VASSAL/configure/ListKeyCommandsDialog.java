@@ -168,11 +168,11 @@ public class ListKeyCommandsDialog extends JDialog {
       }
     });
 
-    final TableRowSorter trs = new TableRowSorter<>(tmod);
+    final TableRowSorter<TableModel> trs = new TableRowSorter<>(tmod);
     table.setRowSorter(trs);
     trs.setSortsOnUpdates(true);
 
-    trs.setRowFilter(new RowFilter<TableModel, Integer>() {
+    trs.setRowFilter(new RowFilter<>() {
       @Override
       public boolean include(Entry<? extends TableModel, ? extends Integer> entry) {
         // show row on an empty filter

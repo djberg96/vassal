@@ -72,7 +72,7 @@ public class StartUp {
    * @param f Font for UI
    */
   public void setUIFont(javax.swing.plaf.FontUIResource f, javax.swing.plaf.FontUIResource fItalic, javax.swing.plaf.FontUIResource fBold, javax.swing.plaf.FontUIResource fBoth) {
-    final java.util.Enumeration keys = UIManager.getDefaults().keys();
+    final java.util.Enumeration<?> keys = UIManager.getDefaults().keys();
     while (keys.hasMoreElements()) {
       final Object key = keys.nextElement();
       final Object value = UIManager.get(key);

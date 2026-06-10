@@ -33,7 +33,7 @@ public class FontStyleConfigurer extends Configurer {
 
   protected JPanel p;
   protected JPanel fontPanel;
-  protected JComboBox fonts;
+  protected JComboBox<String> fonts;
 
   public FontStyleConfigurer(String key, String name) {
     super(key, name);
