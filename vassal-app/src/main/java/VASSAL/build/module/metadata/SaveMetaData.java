@@ -72,7 +72,7 @@ public class SaveMetaData extends AbstractMetaData {
   public SaveMetaData() {
     super();
 
-    setVersion(GameModule.getGameModule().getGameVersion());
+    version = GameModule.getGameModule().getGameVersion();
 
     if ((Boolean)GameModule.getGameModule().getPrefs().getValue(PROMPT_LOG_COMMENT)) {
       final JDialog d = new JDialog((Frame) SwingUtilities.getAncestorOfClass(Frame.class, GameModule.getGameModule().getPlayerWindow()), true);
@@ -86,13 +86,14 @@ public class SaveMetaData extends AbstractMetaData {
 
       final JCheckBox stopBox = new JCheckBox(Resources.getString("Editor.SaveMetaData.dont_ask_again"), false);
 
+      final Attribute[] description = new Attribute[1];
       final JButton okay = new JButton(Resources.getString("General.ok"));
       okay.addActionListener(e -> {
         if (stopBox.isSelected()) {
           GameModule.getGameModule().getPrefs().setValue(PROMPT_LOG_COMMENT, false);
         }
         final String comments = commentField.getText();
-        setDescription(new Attribute(DESCRIPTION_ELEMENT, comments));
+        description[0] = new Attribute(DESCRIPTION_ELEMENT, comments);
         d.dispose();
       });
 
@@ -137,6 +138,7 @@ public class SaveMetaData extends AbstractMetaData {
       d.pack();
       d.setLocationRelativeTo(d.getParent());
       d.setVisible(true);
+      descriptionAttr = description[0];
     }
   }
 

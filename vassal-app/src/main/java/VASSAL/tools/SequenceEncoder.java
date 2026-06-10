@@ -79,7 +79,7 @@ public class SequenceEncoder {
 
   public SequenceEncoder(String val, char delimiter) {
     this(delimiter);
-    append(val);
+    appendString(val);
   }
 
   private void startBufferOrAddDelimiter() {
@@ -93,10 +93,16 @@ public class SequenceEncoder {
 
   @SuppressWarnings("PMD.ConsecutiveLiteralAppends")
   public SequenceEncoder append(String s) {
+    appendString(s);
+    return this;
+  }
+
+  @SuppressWarnings("PMD.ConsecutiveLiteralAppends")
+  private void appendString(String s) {
     startBufferOrAddDelimiter();
 
     if (s == null || s.isEmpty()) {
-      return this;
+      return;
     }
 
     if (s.charAt(0) == '\\' ||
@@ -108,8 +114,6 @@ public class SequenceEncoder {
     else {
       appendEscapedString(s);
     }
-
-    return this;
   }
 
   private void appendEscapedChar(char c) {

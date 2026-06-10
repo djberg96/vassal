@@ -118,7 +118,7 @@ public abstract class AbstractMetaData {
   protected String extra2;
 
   public AbstractMetaData() {
-    setVassalVersion(Info.getVersion());
+    vassalVersion = Info.getVersion();
   }
 
   public String getVersion() {

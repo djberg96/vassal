@@ -60,16 +60,16 @@ public class ModuleMetaData extends AbstractMetaData {
   public ModuleMetaData(GameModule module) {
     super();
     nameAttr = new Attribute(module, GameModule.MODULE_NAME);
-    setDescription(new Attribute(module, GameModule.DESCRIPTION));
-    setVersion(module.getGameVersion());
-    setExtra1(module.getModuleOther1());
-    setExtra2(module.getModuleOther2());
+    descriptionAttr = new Attribute(module, GameModule.DESCRIPTION);
+    version = module.getGameVersion();
+    extra1 = module.getModuleOther1();
+    extra2 = module.getModuleOther2();
   }
 
   public ModuleMetaData(String name, String version) {
     super();
     nameAttr = new Attribute(GameModule.MODULE_NAME, name);
-    setVersion(version);
+    this.version = version;
   }
 
   public String getName() {
