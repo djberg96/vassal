@@ -128,12 +128,8 @@ public class Footprint extends MovementMarkable {
 
 
   public Footprint() {
-    super(ID, null);
-  }
-
-  public Footprint(String type, GamePiece p) {
-    mySetType(type);
-    setInner(p);
+    super(false);
+    initializeFromType(ID);
   }
 
   @Override
@@ -180,6 +176,10 @@ public class Footprint extends MovementMarkable {
    */
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     st.nextToken();
 

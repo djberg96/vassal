@@ -71,7 +71,7 @@ public class MovementMarkableTest extends DecoratorTest {
         when(gm.createPiece(anyString())).thenReturn(new BasicPiece());
 
         staticGm.when(GameModule::getGameModule).thenReturn(gm);
-        return type == null ? new MovementMarkable() : new MovementMarkable(type, null);
+        return type == null ? new MovementMarkable() : Decorator.create(MovementMarkable::new, type, null);
       }
     }
   }

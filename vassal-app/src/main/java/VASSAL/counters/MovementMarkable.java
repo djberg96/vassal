@@ -75,12 +75,13 @@ public class MovementMarkable extends Decorator implements TranslatablePiece {
   private KeyCommand[] commands = null;
 
   public MovementMarkable() {
-    this(ID + "moved.gif;0;0", null); // NON-NLS
+    initializeFromType(ID + "moved.gif;0;0"); // NON-NLS
   }
 
-  public MovementMarkable(String type, GamePiece p) {
-    mySetType(type);
-    setInner(p);
+  protected MovementMarkable(boolean initializeDefaults) {
+    if (initializeDefaults) {
+      initializeFromType(ID + "moved.gif;0;0"); // NON-NLS
+    }
   }
 
   public boolean isMoved() {
@@ -93,6 +94,10 @@ public class MovementMarkable extends Decorator implements TranslatablePiece {
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     st.nextToken();
     movedIcon.setValue(st.nextToken());

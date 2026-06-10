@@ -2239,7 +2239,7 @@ public class ADC2Module extends Importer {
       .append(Color.BLACK)
       .append(100)
       .append(0);
-    gp = new Footprint(Footprint.ID + se.getValue(), gp);
+    gp = Decorator.create(Footprint::new, Footprint.ID + se.getValue(), gp);
     se = new SequenceEncoder(',');
     se.append(ADC2Utils.TYPE);
 
