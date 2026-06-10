@@ -557,7 +557,7 @@ public class DynamicProperty extends Decorator implements TranslatablePiece, Pro
   public static class DynamicKeyCommand extends KeyCommand {
     private static final long serialVersionUID = 1L;
 
-    protected PropertyChanger propChanger;
+    protected transient PropertyChanger propChanger;
 
     public DynamicKeyCommand(String name, NamedKeyStroke key, GamePiece target, TranslatablePiece i18nPiece, PropertyChanger propChanger) {
       super(name, key, target, i18nPiece);

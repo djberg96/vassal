@@ -36,12 +36,12 @@ public class KeyCommand extends AbstractAction {
   protected String untranslatedName;
   protected String localizedMenuText;
   private final KeyStroke stroke;
-  private final GamePiece target;
+  private final transient GamePiece target;
   private boolean global;
   private boolean enabled = true;
 
-  protected TranslatablePiece i18nPiece;
-  protected NamedKeyStroke namedKeyStroke;
+  protected transient TranslatablePiece i18nPiece;
+  protected transient NamedKeyStroke namedKeyStroke;
 
   public KeyCommand(String name, KeyStroke key, GamePiece target) {
     this(name, key, target, null);
