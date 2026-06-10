@@ -70,7 +70,6 @@ import java.util.Objects;
 public class SetPieceProperty extends DynamicProperty implements RecursionLimiter.Loopable {
   protected PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
   public static final String ID = "setpieceprop;"; // NON-NLS
-  protected String description;
 
   protected GlobalCommandTarget target;
   protected GlobalSetter globalSetter;

@@ -65,7 +65,6 @@ public class ChartWindow extends Widget {
   protected Container root;
   protected String tooltip = ""; //$NON-NLS-1$
   protected String id;
-  protected String description;
 
   public ChartWindow() {
     root = new JPanel();
