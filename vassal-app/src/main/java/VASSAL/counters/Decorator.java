@@ -58,6 +58,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import static VASSAL.counters.BasicPiece.BASIC_NAME;
 import static VASSAL.counters.BasicPiece.PIECE_NAME;
@@ -83,6 +84,13 @@ public abstract class Decorator extends AbstractImageFinder implements EditableP
   private GamePiece innermost;
   private Decorator dec;
   private boolean selected = false;
+
+  public static <T extends Decorator> T create(Supplier<T> supplier, String type, GamePiece inner) {
+    final T decorator = supplier.get();
+    decorator.mySetType(type);
+    decorator.setInner(inner);
+    return decorator;
+  }
 
   /** @param p Set the inner GamePiece -- usually the next Trait (Decorator) inward, or the BasicPiece itself. */
   public void setInner(GamePiece p) {
@@ -1082,4 +1090,3 @@ public abstract class Decorator extends AbstractImageFinder implements EditableP
     return "";
   }
 }
-

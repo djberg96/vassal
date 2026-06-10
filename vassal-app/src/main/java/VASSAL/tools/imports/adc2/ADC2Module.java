@@ -526,7 +526,7 @@ public class ADC2Module extends Importer {
         if (name != null && name.length() > 0) {
           usePieceNames = true;
         }
-        pieceNameMarker = new Marker(Marker.ID + "pcName", null);
+        pieceNameMarker = Decorator.create(Marker::new, Marker.ID + "pcName", null);
         final SequenceEncoder se = new SequenceEncoder(',');
         se.append(name == null ? "" : name);
         pieceNameMarker.mySetState(se.getValue());
@@ -2243,7 +2243,7 @@ public class ADC2Module extends Importer {
     se = new SequenceEncoder(',');
     se.append(ADC2Utils.TYPE);
 
-    gp = new Marker(Marker.ID + se.getValue(), gp);
+    gp = Decorator.create(Marker::new, Marker.ID + se.getValue(), gp);
     gp.setProperty(ADC2Utils.TYPE, PIECE);
 
     def.setPiece(gp);

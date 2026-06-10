@@ -79,6 +79,7 @@ import VASSAL.build.module.map.boardPicker.board.mapgrid.Zone;
 import VASSAL.build.widget.PieceSlot;
 import VASSAL.configure.StringArrayConfigurer;
 import VASSAL.counters.BasicPiece;
+import VASSAL.counters.Decorator;
 import VASSAL.counters.GamePiece;
 import VASSAL.counters.Immobilized;
 import VASSAL.counters.Marker;
@@ -120,9 +121,9 @@ public class MapBoard extends Importer {
         final SequenceEncoder se = new SequenceEncoder(';');
         se.append("").append("").append(imageName).append(getName());
         GamePiece gp = new BasicPiece(BasicPiece.ID + se.getValue());
-        gp = new Marker(Marker.ID + "Layer", gp);
+        gp = Decorator.create(Marker::new, Marker.ID + "Layer", gp);
         gp.setProperty("Layer", getName());
-        gp = new Marker(Marker.ID + "Type", gp);
+        gp = Decorator.create(Marker::new, Marker.ID + "Type", gp);
         gp.setProperty("Type", "Layer");
         gp = new Immobilized(Immobilized.ID + "n;V", gp);
 
@@ -2986,7 +2987,7 @@ public class MapBoard extends Importer {
     GamePiece gp = new BasicPiece();
     SequenceEncoder se = new SequenceEncoder(',');
     se.append(ADC2Utils.TYPE);
-    gp = new Marker(Marker.ID + se.getValue(), gp);
+    gp = Decorator.create(Marker::new, Marker.ID + se.getValue(), gp);
     gp.setProperty(ADC2Utils.TYPE, PLACE_NAME);
     gp = new Immobilized(Immobilized.ID + "n;V", gp);
     def.setPiece(gp);

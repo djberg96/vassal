@@ -174,7 +174,7 @@ public class BasicCommandEncoder implements CommandEncoder, Buildable {
     Map.entry(Pivot.ID, decoratorFactory(Pivot::new)),
     Map.entry(NonRectangular.OLD_ID, decoratorFactory(NonRectangular::new)),
     Map.entry(NonRectangular.ID, decoratorFactory(NonRectangular::new)),
-    Map.entry(Marker.ID, Marker::new),
+    Map.entry(Marker.ID, decoratorFactory(Marker::new)),
     Map.entry(TranslatableMessage.ID, decoratorFactory(TranslatableMessage::new)),
     Map.entry(Restricted.ID, Restricted::new),
     Map.entry(PlaceMarker.ID, PlaceMarker::new),
@@ -212,12 +212,7 @@ public class BasicCommandEncoder implements CommandEncoder, Buildable {
   );
 
   private static <T extends Decorator> DecoratorFactory decoratorFactory(Supplier<T> supplier) {
-    return (type, inner) -> {
-      final T decorator = supplier.get();
-      decorator.mySetType(type);
-      decorator.setInner(inner);
-      return decorator;
-    };
+    return (type, inner) -> Decorator.create(supplier, type, inner);
   }
 
   /**
@@ -225,7 +220,7 @@ public class BasicCommandEncoder implements CommandEncoder, Buildable {
    */
   private final DecoratorFactory defaultDecoratorFactory = (type, inner) -> {
     ErrorDialog.dataWarning(new BadDataReport("Unknown type " + type + " not found in BasicCommandEncoder's list of traits and basic pieces.", "")); //NON-NLS
-    return new Marker(Marker.ID, inner);
+    return Decorator.create(Marker::new, Marker.ID, inner);
   };
 
   /**

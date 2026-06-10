@@ -47,12 +47,7 @@ public class Marker extends Decorator implements EditablePiece {
   protected String[] values;
 
   public Marker() {
-    this(ID, null);
-  }
-
-  public Marker(String type, GamePiece p) {
-    mySetType(type);
-    setInner(p);
+    initializeFromType(ID);
   }
 
   public String[] getKeys() {
@@ -61,6 +56,10 @@ public class Marker extends Decorator implements EditablePiece {
 
   @Override
   public void mySetType(String s) {
+    initializeFromType(s);
+  }
+
+  private void initializeFromType(String s) {
     s = s.substring(ID.length());
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(s, ',');
     final List<String> l = new ArrayList<>();
