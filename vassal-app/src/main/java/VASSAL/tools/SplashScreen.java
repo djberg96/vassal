@@ -34,7 +34,7 @@ import VASSAL.tools.swing.SwingUtils;
 /**
  * Displays an image centered on the screen
  */
-public class SplashScreen extends JWindow {
+public final class SplashScreen extends JWindow {
   private static final long serialVersionUID = 1L;
 
   private static final List<SplashScreen> instances = new ArrayList<>();

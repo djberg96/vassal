@@ -37,7 +37,7 @@ import VASSAL.tools.swing.SwingUtils;
  * @author Joel Uckelman
  * @since 3.1.0
  */
-public class ColorButton extends JButton {
+public final class ColorButton extends JButton {
   private static final long serialVersionUID = 1L;
   private static final Font FONT = new Font(Font.DIALOG, 0, 10);
 

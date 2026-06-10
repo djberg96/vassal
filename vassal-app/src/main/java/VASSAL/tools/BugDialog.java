@@ -64,7 +64,7 @@ import java.util.concurrent.TimeoutException;
  * @since 3.1.0
  * @author Joel Uckelman
  */
-public class BugDialog extends JDialog {
+public final class BugDialog extends JDialog {
   private static final long serialVersionUID = 1L;
 
   private static final Logger logger = LoggerFactory.getLogger(BugDialog.class);

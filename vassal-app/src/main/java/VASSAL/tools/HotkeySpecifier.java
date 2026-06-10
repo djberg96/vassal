@@ -28,7 +28,7 @@ import VASSAL.tools.swing.SwingUtils;
 /**
  * Text component for specifying a hot key
  */
-public class HotkeySpecifier extends JTextField implements KeyListener {
+public final class HotkeySpecifier extends JTextField implements KeyListener {
   private static final long serialVersionUID = 1L;
 
   private final int key;

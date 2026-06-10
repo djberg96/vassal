@@ -46,7 +46,7 @@ import net.miginfocom.swing.MigLayout;
  *
  * @author Joel Uckelman
  */
-public class UsernameAndPasswordDialog extends JDialog {
+public final class UsernameAndPasswordDialog extends JDialog {
   private static final long serialVersionUID = 1L;
 
   public UsernameAndPasswordDialog(Frame parent) {

@@ -11,7 +11,7 @@ import javax.swing.JButton;
 
 import VASSAL.tools.image.ImageUtils;
 
-public class IconButton extends JButton {
+public final class IconButton extends JButton {
   private static final long serialVersionUID = 1L;
 
   public static final int PLUS_ICON = 0;
