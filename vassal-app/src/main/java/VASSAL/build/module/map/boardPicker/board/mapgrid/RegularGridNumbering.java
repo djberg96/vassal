@@ -593,8 +593,8 @@ public abstract class RegularGridNumbering extends AbstractConfigurable implemen
     default  :
       break;
     }
-    n.x += (hDrawOff * zoom);
-    n.y += (vDrawOff * zoom);
+    n.x = (int) (n.x + hDrawOff * zoom);
+    n.y = (int) (n.y + vDrawOff * zoom);
 
     return n;
   }

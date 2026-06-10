@@ -443,7 +443,7 @@ public class TilingHandler {
           // The tiler possibly ran out of memory; we can't reliably detect
           // this, so assume it did. Try again with 50% more max heap.
           logger.info("Tiling with " + maxheap + " possibly ran out of memory. Retrying tiling with 50% more (" + (int)(maxheap * 1.5) + ")."); //NON-NLS
-          maxheap *= 1.5;
+          maxheap = (int) (maxheap * 1.5);
           multi.removeAll(tiled);
         }
         else {

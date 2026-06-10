@@ -148,7 +148,7 @@ public final class GeneralFilter {
   public static final class Lanczos3Filter extends Filter {
     private float sinc(float t) {
       if (t == 0.0f) return 1.0f;
-      t *= Math.PI;
+      t = (float) (t * Math.PI);
       return (float)(Math.sin(t) / t);
     }
 

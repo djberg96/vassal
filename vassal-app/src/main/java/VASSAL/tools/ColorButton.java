@@ -87,8 +87,8 @@ public class ColorButton extends JButton {
       final AffineTransform orig_t = g2d.getTransform();
       g2d.setTransform(SwingUtils.descaleTransform(orig_t));
 
-      x *= os_scale;
-      y *= os_scale;
+      x = (int) (x * os_scale);
+      y = (int) (y * os_scale);
       final int w = (int)(swatchWidth * os_scale);
       final int h = (int)(swatchHeight * os_scale);
 

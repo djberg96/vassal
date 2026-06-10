@@ -610,7 +610,7 @@ public class HexGrid extends AbstractConfigurable
           final Point p = new Point(x, y);
           rotateIfSideways(p);
           shape.add(getSingleHexShape(p.x, p.y, false));
-          y += dy;
+          y = (int) (y + dy);
         }
       }
 
@@ -982,8 +982,8 @@ public class HexGrid extends AbstractConfigurable
     final Point p4 = new Point();
 
     // x,y is the center of a hex
-    for (float x = xmin; x < xmax; x += zoom * 2 * dx) {
-      for (float y = ymin; y < ymax; y += zoom * dy) {
+    for (float x = xmin; x < xmax; x = (float) (x + zoom * 2 * dx)) {
+      for (float y = ymin; y < ymax; y = (float) (y + zoom * dy)) {
         // Draw Center dots?
         if (dotsVisible) {
           center.setLocation(round(x), round(y));

@@ -483,10 +483,10 @@ public abstract class GridEditor extends JDialog implements MouseListener, KeyLi
 
         final Rectangle b = getVisibleRect();
 
-        b.x *= os_scale;
-        b.y *= os_scale;
-        b.width *= os_scale;
-        b.height *= os_scale;
+        b.x = (int) (b.x * os_scale);
+        b.y = (int) (b.y * os_scale);
+        b.width = (int) (b.width * os_scale);
+        b.height = (int) (b.height * os_scale);
 
         g.clearRect(b.x, b.y, b.width, b.height);
         board.drawRegion(g, new Point(0, 0), b, os_scale, this);

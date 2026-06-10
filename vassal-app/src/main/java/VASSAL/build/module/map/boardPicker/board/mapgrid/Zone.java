@@ -790,10 +790,10 @@ public class Zone extends AbstractConfigurable implements GridContainer, Mutable
             g2d.setTransform(SwingUtils.descaleTransform(orig_t));
 
             final Rectangle b = getVisibleRect();
-            b.x *= os_scale;
-            b.y *= os_scale;
-            b.width *= os_scale;
-            b.height *= os_scale;
+            b.x = (int) (b.x * os_scale);
+            b.y = (int) (b.y * os_scale);
+            b.width = (int) (b.width * os_scale);
+            b.height = (int) (b.height * os_scale);
 
             g.clearRect(b.x, b.y, b.width, b.height);
             board.draw(g, 0, 0, os_scale, editor);

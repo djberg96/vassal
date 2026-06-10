@@ -1229,8 +1229,8 @@ public class Map extends AbstractToolbarItem implements GameComponent, MouseList
    */
   public Dimension getPreferredSize() {
     final Dimension size = mapSize();
-    size.width *= getZoom();
-    size.height *= getZoom();
+    size.width = (int) (size.width * getZoom());
+    size.height = (int) (size.height * getZoom());
     return size;
   }
 
@@ -4203,4 +4203,3 @@ public class Map extends AbstractToolbarItem implements GameComponent, MouseList
     }
   }
 }
-

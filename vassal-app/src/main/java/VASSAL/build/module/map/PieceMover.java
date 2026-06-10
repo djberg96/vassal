@@ -1632,24 +1632,24 @@ public class PieceMover extends AbstractBuildable
 
       // convert boundingBoxComp to component space
       boundingBoxComp = new Rectangle(boundingBox);
-      boundingBoxComp.width *= mapzoom;
-      boundingBoxComp.height *= mapzoom;
-      boundingBoxComp.x *= mapzoom;
-      boundingBoxComp.y *= mapzoom;
+      boundingBoxComp.width = (int) (boundingBoxComp.width * mapzoom);
+      boundingBoxComp.height = (int) (boundingBoxComp.height * mapzoom);
+      boundingBoxComp.x = (int) (boundingBoxComp.x * mapzoom);
+      boundingBoxComp.y = (int) (boundingBoxComp.y * mapzoom);
 
       if (doOffset) {
         calcDrawOffset();
       }
 
       // convert boundingBox, relativePosisions to drawing space
-      boundingBox.width *= zoom;
-      boundingBox.height *= zoom;
-      boundingBox.x *= zoom;
-      boundingBox.y *= zoom;
+      boundingBox.width = (int) (boundingBox.width * zoom);
+      boundingBox.height = (int) (boundingBox.height * zoom);
+      boundingBox.x = (int) (boundingBox.x * zoom);
+      boundingBox.y = (int) (boundingBox.y * zoom);
 
       for (final Point p: relativePositions) {
-        p.x *= zoom;
-        p.y *= zoom;
+        p.x = (int) (p.x * zoom);
+        p.y = (int) (p.y * zoom);
       }
 
       final int w = boundingBox.width + EXTRA_BORDER * 2;

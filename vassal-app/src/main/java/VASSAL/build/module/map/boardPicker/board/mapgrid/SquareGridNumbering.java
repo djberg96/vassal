@@ -75,10 +75,10 @@ public class SquareGridNumbering extends RegularGridNumbering {
           grid.setDy(new_dy);
 
           final Rectangle bounds = new Rectangle(0, 0, getWidth(), getHeight());
-          bounds.x *= os_scale;
-          bounds.y *= os_scale;
-          bounds.width *= os_scale;
-          bounds.height *= os_scale;
+          bounds.x = (int) (bounds.x * os_scale);
+          bounds.y = (int) (bounds.y * os_scale);
+          bounds.width = (int) (bounds.width * os_scale);
+          bounds.height = (int) (bounds.height * os_scale);
 
           g.clearRect(0, 0, bounds.width, bounds.height);
           grid.forceDraw(g, bounds, bounds, os_scale, false);

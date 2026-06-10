@@ -79,8 +79,8 @@ public class OpIcon extends ImageIcon implements Icon {
     final AffineTransform orig_t = g2d.getTransform();
     g2d.setTransform(SwingUtils.descaleTransform(orig_t));
 
-    x *= os_scale;
-    y *= os_scale;
+    x = (int) (x * os_scale);
+    y = (int) (y * os_scale);
 
     try {
       g.drawImage(Op.scale(sop, os_scale).getImage(r), x, y, c);

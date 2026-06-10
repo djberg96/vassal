@@ -382,16 +382,16 @@ public class CounterDetailViewer extends AbstractConfigurable implements Drawabl
     final double os_scale = g2d.getDeviceConfiguration().getDefaultTransform().getScaleX();
 
     final Rectangle dbounds = new Rectangle(bounds);
-    dbounds.x *= os_scale;
-    dbounds.y *= os_scale;
-    dbounds.width *= os_scale;
-    dbounds.height *= os_scale;
+    dbounds.x = (int) (dbounds.x * os_scale);
+    dbounds.y = (int) (dbounds.y * os_scale);
+    dbounds.width = (int) (dbounds.width * os_scale);
+    dbounds.height = (int) (dbounds.height * os_scale);
 
     final Rectangle visibleRect = comp.getVisibleRect();
-    visibleRect.x *= os_scale;
-    visibleRect.y *= os_scale;
-    visibleRect.width *= os_scale;
-    visibleRect.height *= os_scale;
+    visibleRect.x = (int) (visibleRect.x * os_scale);
+    visibleRect.y = (int) (visibleRect.y * os_scale);
+    visibleRect.width = (int) (visibleRect.width * os_scale);
+    visibleRect.height = (int) (visibleRect.height * os_scale);
 
     final int origX = dbounds.x;
 
@@ -500,7 +500,7 @@ public class CounterDetailViewer extends AbstractConfigurable implements Drawabl
       if (textVisible && !terrainText.isEmpty()) {
         int y = dbounds.y + dbounds.height + (int)((verticalBottomText + extraTextPadding * 2) * os_scale);
         if ((useInnerBottom ? borderInnerThickness : borderThickness) > 2) {
-          y -= ((useInnerBottom ? borderInnerThickness : borderThickness) - 2) * os_scale; // Stuff was previously built around a border thickness of 2, so if it's more we attempt to adjust upwards for better results. Designer can manually adjust.
+          y = (int) (y - ((useInnerBottom ? borderInnerThickness : borderThickness) - 2) * os_scale); // Stuff was previously built around a border thickness of 2, so if it's more we attempt to adjust upwards for better results. Designer can manually adjust.
         }
         // If we're doing the "stretch the bottom all the way across" thing, then draw our "master box" now.
         if (combineCounterSummary && stretchWidthSummary) {
@@ -579,7 +579,7 @@ public class CounterDetailViewer extends AbstractConfigurable implements Drawabl
         int y = dbounds.y + dbounds.height + (int)((verticalBottomText + extraTextPadding * 2) * os_scale);
 
         if ((useInnerBottom ? borderInnerThickness : borderThickness) > 2) {
-          y += ((useInnerBottom ? borderInnerThickness : borderThickness) - 2) * os_scale; // Stuff was previously built around an arbitrary border thickness of 2, so if it's more we heuristically attempt to auto-adjust upwards for better results. Designer can manually adjust with verticalBottomText setting.
+          y = (int) (y + ((useInnerBottom ? borderInnerThickness : borderThickness) - 2) * os_scale); // Stuff was previously built around an arbitrary border thickness of 2, so if it's more we heuristically attempt to auto-adjust upwards for better results. Designer can manually adjust with verticalBottomText setting.
         }
 
         if (text.length() > 0) {
@@ -595,7 +595,7 @@ public class CounterDetailViewer extends AbstractConfigurable implements Drawabl
                 (int)((borderThickness - 1) * os_scale)
               );
             }
-            y -= (borderThickness - 1) * os_scale; // Since we won't be drawing borders w/ the individual entries, adjust the text position
+            y = (int) (y - (borderThickness - 1) * os_scale); // Since we won't be drawing borders w/ the individual entries, adjust the text position
           }
 
           // Draw text label for this counter. If we already have a combine-o-rama box, don't draw an extra round of box & background
@@ -854,7 +854,7 @@ public class CounterDetailViewer extends AbstractConfigurable implements Drawabl
       if (graphicsVisible) {
         x = (lastPieceBounds.x - 1); // We pass a clear picture of where our full piece-box is, to allow more options
         if ((useInnerTop ? borderInnerThickness : borderThickness) > 2) {
-          y += ((useInnerTop ? borderInnerThickness : borderThickness) - 2) * os_scale; // Stuff was previously built around a border thickness of 2, so if it's more we attempt to adjust upwards for better results. Designer can manually adjust.
+          y = (int) (y + ((useInnerTop ? borderInnerThickness : borderThickness) - 2) * os_scale); // Stuff was previously built around a border thickness of 2, so if it's more we attempt to adjust upwards for better results. Designer can manually adjust.
         }
         drawLabel(g, new Point(x, y), topText, centerText ? LabelUtils.CENTER : LabelUtils.RIGHT, LabelUtils.BOTTOM,
           lastPieceBounds.width + 2, // Because for some reason somebody made the default box be "one pixel bigger in all directions". THANKS, somebody!

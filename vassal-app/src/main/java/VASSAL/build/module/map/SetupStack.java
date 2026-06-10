@@ -987,8 +987,8 @@ public class SetupStack extends AbstractConfigurable implements GameComponent, U
       scaled_t.scale(os_scale, os_scale);
       g2d.setTransform(scaled_t);
 
-      x /= os_scale;
-      y /= os_scale;
+      x = (int) (x / os_scale);
+      y = (int) (y / os_scale);
 
       g.drawImage(getDummyImage(), x, y, obs);
 
@@ -1282,8 +1282,8 @@ public class SetupStack extends AbstractConfigurable implements GameComponent, U
       myBoard.draw(g, 0, 0, os_scale, this);
       if (myGrid != null) {
         final Rectangle bounds = new Rectangle(new Point(), myBoard.bounds().getSize());
-        bounds.width *= os_scale;
-        bounds.height *= os_scale;
+        bounds.width = (int) (bounds.width * os_scale);
+        bounds.height = (int) (bounds.height * os_scale);
         myGrid.draw(g, bounds, bounds, os_scale, false);
       }
 
@@ -1291,10 +1291,10 @@ public class SetupStack extends AbstractConfigurable implements GameComponent, U
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.5F));
 
         final Rectangle r = getVisibleRect();
-        r.x *= os_scale;
-        r.y *= os_scale;
-        r.width *= os_scale;
-        r.height *= os_scale;
+        r.x = (int) (r.x * os_scale);
+        r.y = (int) (r.y * os_scale);
+        r.width = (int) (r.width * os_scale);
+        r.height = (int) (r.height * os_scale);
 
         for (final SetupStack s : otherStacks) { 
           drawOtherStack(s, g2d, r, os_scale);

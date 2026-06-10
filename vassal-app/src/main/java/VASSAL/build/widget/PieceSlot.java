@@ -278,8 +278,8 @@ public class PieceSlot extends Widget implements MouseListener, KeyListener {
                          RenderingHints.VALUE_ANTIALIAS_ON);
 
     final Dimension size = panel.getSize();
-    size.width *= os_scale;
-    size.height *= os_scale;
+    size.width = (int) (size.width * os_scale);
+    size.height = (int) (size.height * os_scale);
 
     final Color c = g.getColor();
     g.setColor(Color.WHITE);

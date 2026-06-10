@@ -205,8 +205,8 @@ public class BoardSlot extends JPanel implements Icon, ActionListener {
     final double os_scale = g2d.getDeviceConfiguration().getDefaultTransform().getScaleX();
     g2d.setTransform(SwingUtils.descaleTransform(orig_t));
 
-    x *= os_scale;
-    y *= os_scale;
+    x = (int) (x * os_scale);
+    y = (int) (y * os_scale);
 
     if (board != null) {
       board.draw(g, x, y, picker.getSlotScale() * os_scale, c);
