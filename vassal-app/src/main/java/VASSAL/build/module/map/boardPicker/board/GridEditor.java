@@ -61,8 +61,8 @@ public abstract class GridEditor extends JDialog implements MouseListener, KeyLi
   protected static final String OK = Resources.getString(Resources.SAVE);
   protected static final String NUMBERING = Resources.getString("Editor.GridEditor.numbering"); //$NON-NLS-1$
 
-  protected EditableGrid grid;
-  protected Board board;
+  protected transient EditableGrid grid;
+  protected transient Board board;
 
   protected JPanel view;
   protected JScrollPane scroll;
@@ -446,7 +446,7 @@ public abstract class GridEditor extends JDialog implements MouseListener, KeyLi
    */
   protected class GridPanel extends JPanel {
     private static final long serialVersionUID = 1L;
-    protected Board board;
+    protected transient Board board;
 
     public GridPanel() {
       super();

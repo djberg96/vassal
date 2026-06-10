@@ -468,21 +468,21 @@ public class RegionGrid extends AbstractConfigurable implements MapGrid, Configu
   public static class Config extends JFrame implements MouseListener, MouseMotionListener, ActionListener, KeyListener {
     private static final long serialVersionUID = 1L;
 
-    protected RegionGrid grid;
-    protected Board board;
+    protected transient RegionGrid grid;
+    protected transient Board board;
 
     protected JPanel view;
     protected JScrollPane scroll;
     protected JPopupMenu myPopup;
     protected JLabel coords;
 
-    protected List<Region> selectedRegions = new ArrayList<>();
-    protected Region lastClickedRegion = null;
+    protected transient List<Region> selectedRegions = new ArrayList<>();
+    protected transient Region lastClickedRegion = null;
     protected Point lastClick;
     protected Rectangle selectionRect = null;
     protected Point anchor;
 
-    protected List<Region> saveRegions;
+    protected transient List<Region> saveRegions;
 
     protected boolean dirty = false;
 
@@ -705,8 +705,8 @@ public class RegionGrid extends AbstractConfigurable implements MapGrid, Configu
     public static class View extends JPanel implements DropTargetListener, DragGestureListener, DragSourceListener, DragSourceMotionListener {
       private static final long serialVersionUID = 1L;
 
-      protected Board myBoard;
-      protected RegionGrid grid;
+      protected transient Board myBoard;
+      protected transient RegionGrid grid;
       protected Config config;
 
       protected DragSource ds = DragSource.getDefaultDragSource();
@@ -1169,9 +1169,9 @@ public class RegionGrid extends AbstractConfigurable implements MapGrid, Configu
      */
     protected static class EditRegionAction extends EditPropertiesAction {
 
-      Config owner;
-      Region origRegion;
-      Region region;
+      transient Config owner;
+      transient Region origRegion;
+      transient Region region;
 
       private static final long serialVersionUID = 1L;
 

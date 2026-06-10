@@ -41,8 +41,8 @@ public class BoardSlot extends JPanel implements Icon, ActionListener {
 
   private final String prompt;
 
-  protected BoardPicker picker;
-  protected Board board = null;
+  protected transient BoardPicker picker;
+  protected transient Board board = null;
 
   protected JComboBox<String> boards;
   protected JCheckBox reverseCheckBox;
