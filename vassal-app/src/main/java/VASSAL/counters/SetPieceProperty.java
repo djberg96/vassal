@@ -53,7 +53,6 @@ import javax.swing.JLabel;
 import javax.swing.KeyStroke;
 import java.awt.Component;
 import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -68,7 +67,6 @@ import java.util.Objects;
  * Combines the Property manipulation functionality of DynamicProperty with the searching function of Global Key Commands
  */
 public class SetPieceProperty extends DynamicProperty implements RecursionLimiter.Loopable {
-  protected PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
   public static final String ID = "setpieceprop;"; // NON-NLS
 
   protected GlobalCommandTarget target;
