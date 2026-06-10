@@ -98,8 +98,8 @@ public class MultiRoll extends JDialog implements ActionListener {
   public static final int COL6_WIDTH = 25;
   public static final int COL7_WIDTH = 35;
 
-  protected DieManager dieManager;
-  protected DieRoll[] rolls = new DieRoll[MAX_ROLLS];
+  protected transient DieManager dieManager;
+  protected transient DieRoll[] rolls = new DieRoll[MAX_ROLLS];
   protected boolean[] useDie = new boolean[MAX_ROLLS];
   protected String verification = "";
   protected boolean rollCancelled = false;
@@ -376,12 +376,12 @@ public class MultiRoll extends JDialog implements ActionListener {
     JComboBox<String> col4, col5;
     JTextField col3, col6;
 
-    Border blackline = BorderFactory.createLineBorder(Color.black);
-    Border raisedetched = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
-    Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
-    Border raisedbevel = BorderFactory.createRaisedBevelBorder();
-    Border loweredbevel = BorderFactory.createLoweredBevelBorder();
-    Border myBorder = raisedbevel;
+    transient Border blackline = BorderFactory.createLineBorder(Color.black);
+    transient Border raisedetched = BorderFactory.createEtchedBorder(EtchedBorder.RAISED);
+    transient Border loweredetched = BorderFactory.createEtchedBorder(EtchedBorder.LOWERED);
+    transient Border raisedbevel = BorderFactory.createRaisedBevelBorder();
+    transient Border loweredbevel = BorderFactory.createLoweredBevelBorder();
+    transient Border myBorder = raisedbevel;
 
     @Override
     public void setEnabled(boolean enabled) {
