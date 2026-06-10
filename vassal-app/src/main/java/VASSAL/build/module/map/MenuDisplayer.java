@@ -42,7 +42,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import java.awt.Font;
 import java.awt.Point;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
@@ -54,9 +53,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class MenuDisplayer extends MouseAdapter implements Buildable {
-  @Deprecated(since = "2022-08-08", forRemoval = true)
-  public static final Font POPUP_MENU_FONT = new Font(Font.DIALOG, Font.PLAIN, 10);
-
   protected Map map;
   protected PieceFinder targetSelector;
 

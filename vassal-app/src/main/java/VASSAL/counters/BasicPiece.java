@@ -48,7 +48,6 @@ import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Point;
@@ -112,9 +111,6 @@ public class BasicPiece extends AbstractImageFinder implements TranslatablePiece
   public static final String STACK_SIZE = "StackSize";
   public static final String UNIQUE_ID = "UniqueID";
 
-
-  @Deprecated(since = "2022-08-08", forRemoval = true)
-  public static Font POPUP_MENU_FONT = new Font(Font.DIALOG, Font.PLAIN, 11);
 
   protected JPopupMenu popup;
   protected Rectangle imageBounds;
