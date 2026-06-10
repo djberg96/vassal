@@ -30,11 +30,8 @@ import VASSAL.build.module.properties.PropertySource;
 import VASSAL.command.ChangeTracker;
 import VASSAL.command.Command;
 import VASSAL.configure.BooleanConfigurer;
-import VASSAL.configure.Configurer;
-import VASSAL.configure.ConfigurerLayout;
 import VASSAL.configure.DynamicKeyCommandListConfigurer;
 import VASSAL.configure.IntConfigurer;
-import VASSAL.configure.NamedHotKeyConfigurer;
 import VASSAL.configure.StringConfigurer;
 import VASSAL.i18n.PieceI18nData;
 import VASSAL.i18n.Resources;
@@ -43,18 +40,14 @@ import VASSAL.script.expression.Expression;
 import VASSAL.tools.FormattedString;
 import VASSAL.tools.NamedKeyStroke;
 import VASSAL.tools.SequenceEncoder;
-import net.miginfocom.swing.MigLayout;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.swing.BorderFactory;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Shape;
-import java.awt.event.InputEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -574,120 +567,4 @@ public class DynamicProperty extends Decorator implements TranslatablePiece, Pro
     }
   }
 
-  /**
-   *
-   * Configure a single Dynamic Key Command line
-   * @deprecated Use {@link VASSAL.configure.DynamicKeyCommandConfigurer}
-   */
-  @Deprecated(since = "2020-12-06", forRemoval = true)
-  protected static class DynamicKeyCommandConfigurer extends Configurer {
-    protected final NamedHotKeyConfigurer keyConfig;
-    protected PropertyChangerConfigurer propChangeConfig;
-    protected StringConfigurer commandConfig;
-    protected JPanel controls;
-    protected DynamicProperty target;
-
-    public DynamicKeyCommandConfigurer(DynamicProperty target) {
-      super(target.getKey(), target.getKey(),
-        new DynamicKeyCommand(
-          Resources.getString("Editor.DynamicProperty.change_value"),
-          NamedKeyStroke.of('V', InputEvent.CTRL_DOWN_MASK),
-          getOutermost(target),
-          target,
-          new PropertyPrompt(target, Resources.getString("Editor.DynamicProperty.change_value_of", target.getKey()))));
-
-      commandConfig = new StringConfigurer(Resources.getString("Editor.DynamicProperty.change_value"));
-      keyConfig = new NamedHotKeyConfigurer(NamedKeyStroke.of('V', InputEvent.CTRL_DOWN_MASK));
-      propChangeConfig = new PropertyChangerConfigurer(null, target.getKey(), target);
-      propChangeConfig.setValue(new PropertyPrompt(target, Resources.getString("Editor.DynamicProperty.change_value_of", target.getKey())));
-
-      commandConfig.addPropertyChangeListener(e -> updateValue());
-      keyConfig.addPropertyChangeListener(e -> updateValue());
-      propChangeConfig.addPropertyChangeListener(e -> {
-        updateValue();
-        repack(commandConfig.getControls());
-      });
-      this.target = target;
-    }
-
-    @Override
-    public String getValueString() {
-      final SequenceEncoder se = new SequenceEncoder(':');
-      se.append(commandConfig.getValueString()).append(keyConfig.getValueString()).append(propChangeConfig.getValueString());
-      return se.getValue();
-    }
-
-    /**
-     * Freeze the Configurer from issuing PropertyChange Events.
-     * Ensure the subsidiary Configurers are quiet also.
-     *
-     * @param val true to freeze
-     */
-    @Override
-    public void setFrozen(boolean val) {
-      super.setFrozen(val);
-      commandConfig.setFrozen(val);
-      keyConfig.setFrozen(val);
-      propChangeConfig.setFrozen(val);
-    }
-
-    @Override
-    public void setValue(Object value) {
-      if (!noUpdate && value instanceof DynamicKeyCommand && commandConfig != null) {
-        final DynamicKeyCommand dkc = (DynamicKeyCommand) value;
-        commandConfig.setValue(dkc.getName());
-        keyConfig.setValue(dkc.getNamedKeyStroke());
-        propChangeConfig.setValue(dkc.propChanger);
-      }
-      super.setValue(value);
-    }
-
-    public DynamicKeyCommand getKeyCommand() {
-      return (DynamicKeyCommand) getValue();
-    }
-
-    @Override
-    public void setValue(String s) {
-      final SequenceEncoder.Decoder sd = new SequenceEncoder.Decoder(s == null ? "" : s, ':');
-      commandConfig.setValue(sd.nextToken(""));
-      keyConfig.setValue(sd.nextNamedKeyStroke(null));
-      propChangeConfig.setValue(sd.nextToken(""));
-      updateValue();
-    }
-
-    @Override
-    public Component getControls() {
-      if (controls == null) {
-        buildControls();
-      }
-      return controls;
-    }
-
-    protected void updateValue() {
-      noUpdate = true;
-      setValue(new DynamicKeyCommand(commandConfig.getValueString(), keyConfig.getValueNamedKeyStroke(), target, target, propChangeConfig.getPropertyChanger()));
-      noUpdate = false;
-    }
-
-    protected void buildControls() {
-      controls = new JPanel(new MigLayout("ins panel," + ConfigurerLayout.STANDARD_GAPY + ",hidemode 3", "[]rel[][]rel[]")); // NON-NLS
-      controls.setBorder(BorderFactory.createEtchedBorder());
-      JLabel label = new JLabel(Resources.getString("Editor.menu_command"));
-      label.setLabelFor(commandConfig.getControls());
-      controls.add(label);
-      controls.add(commandConfig.getControls(), "grow"); // NON-NLS
-
-      label = new JLabel(Resources.getString("Editor.keyboard_command"));
-      label.setLabelFor(keyConfig.getControls());
-      controls.add(label);
-      controls.add(keyConfig.getControls(), "grow,wrap"); // NON-NLS
-
-      controls.add(propChangeConfig.getTypeLabel());
-      controls.add(propChangeConfig.getTypeControls(), "grow"); // NON-NLS
-
-      controls.add(propChangeConfig.getChangerLabel());
-      controls.add(propChangeConfig.getChangerControls(), "growx,aligny center,wrap"); // NON-NLS
-      controls.add(propChangeConfig.getValuesControls(), "grow,span 4"); // NON-NLS
-    }
-  }
 }

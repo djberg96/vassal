@@ -32,7 +32,6 @@ import VASSAL.build.module.map.boardPicker.board.mapgrid.Zone;
 import VASSAL.build.module.properties.PropertySource;
 import VASSAL.command.ChangeTracker;
 import VASSAL.command.Command;
-import VASSAL.configure.BooleanConfigurer;
 import VASSAL.configure.ChooseComponentDialog;
 import VASSAL.configure.FormattedExpressionConfigurer;
 import VASSAL.configure.FormattedStringConfigurer;
@@ -759,10 +758,6 @@ public class SendToLocation extends Decorator implements TranslatablePiece {
     protected FormattedStringConfigurer xInput;
     protected JLabel yInputLabel;
     protected FormattedStringConfigurer yInput;
-    @Deprecated(since = "2020-12-11", forRemoval = true)
-    protected JLabel advancedLabel;
-    @Deprecated(since = "2020-12-11", forRemoval = true)
-    protected BooleanConfigurer advancedInput;
     protected JLabel xAdvancedLabel;
     protected JLabel yAdvancedLabel;
     protected FormattedStringConfigurer xIndexInput;
