@@ -64,7 +64,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -647,29 +646,11 @@ public class ActionButton extends Decorator implements EditablePiece, Loopable {
    */
   protected static class ButtonPusher {
     private final Set<Map> maps = new HashSet<>();
-    private final java.util.Map<Component, ComponentMouseListener> componentMouseListeners = new HashMap<>();
 
     public void register(Map map) {
       if (map != null && !maps.contains(map)) {
         map.addLocalMouseListener(new MapMouseListener(map));
         maps.add(map);
-      }
-    }
-
-    @Deprecated(since = "2020-10-26", forRemoval = true)
-    public void register(Component obs, GamePiece piece, int x, int y) {
-      if (obs != null) {
-        ComponentMouseListener l = componentMouseListeners.get(obs);
-        if (l == null) {
-          l = new ComponentMouseListener(piece, x, y);
-          obs.addMouseListener(l);
-          componentMouseListeners.put(obs, l);
-        }
-        else {
-          l.xOffset = x;
-          l.yOffset = y;
-          l.target = piece;
-        }
       }
     }
 
@@ -764,27 +745,5 @@ public class ActionButton extends Decorator implements EditablePiece, Loopable {
       }
     }
 
-    @Deprecated(since = "2020-10-26", forRemoval = true)
-    protected class ComponentMouseListener extends MouseAdapter {
-      private GamePiece target;
-      private int xOffset;
-      private int yOffset;
-
-      public ComponentMouseListener(GamePiece piece, int x, int y) {
-        target = piece;
-        xOffset = x;
-        yOffset = y;
-      }
-
-      @Override
-      public void mouseClicked(MouseEvent e) {
-        if (SwingUtils.isMainMouseButtonDown(e)) {
-          final Point point = e.getPoint();
-          point.translate(-xOffset, -yOffset);
-          doClick(target, point);
-          e.getComponent().repaint();
-        }
-      }
-    }
   }
 }
