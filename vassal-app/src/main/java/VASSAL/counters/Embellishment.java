@@ -138,12 +138,6 @@ public class Embellishment extends Decorator implements TranslatablePiece, Recur
   protected KeyCommand up = null;
   protected KeyCommand down = null;
 
-  // Shape cache
-  @Deprecated(since = "2021-03-14", forRemoval = true)
-  protected Rectangle lastBounds = null;
-  @Deprecated(since = "2021-03-14", forRemoval = true)
-  protected Area lastShape = null;
-
   // Version control
   // Version 0 = Original multi-keystroke support for Activate/Increase/Decrease
   // Version 1 = NamedKeyStrokes for Activate/Increase/Decrease

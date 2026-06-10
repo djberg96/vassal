@@ -38,11 +38,9 @@ import VASSAL.tools.RecursionLimiter;
 import VASSAL.tools.RecursionLimiter.Loopable;
 import VASSAL.tools.SequenceEncoder;
 import VASSAL.tools.image.ImageUtils;
-import VASSAL.tools.image.LabelUtils;
 import VASSAL.tools.imageop.AbstractTileOpImpl;
 import VASSAL.tools.imageop.ImageOp;
 import VASSAL.tools.imageop.Op;
-import VASSAL.tools.imageop.ScaledImagePainter;
 import VASSAL.tools.swing.DataArchiveTextPane;
 import VASSAL.tools.swing.SwingUtils;
 import net.miginfocom.swing.MigLayout;
@@ -104,9 +102,6 @@ public class Labeler extends Decorator implements TranslatablePiece, Loopable {
   private double lastZoom = -1.0;
   private ImageOp lastCachedOp;
   private ImageOp baseOp;
-
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  protected ScaledImagePainter imagePainter = new ScaledImagePainter();
 
   private char verticalJust = 'b';
   private char horizontalJust = 'c';
@@ -694,11 +689,6 @@ public class Labeler extends Decorator implements TranslatablePiece, Loopable {
     return r;
   }
 
-  @Deprecated(since = "2021-03-14", forRemoval = true)
-  protected Rectangle lastRect = null;
-  @Deprecated(since = "2021-03-14", forRemoval = true)
-  protected Area lastShape = null;
-
   /**
    * Return the Shape of the counter by adding the shape of this label to the shape of all inner traits.
    * Minimize generation of new Area objects.
@@ -1058,18 +1048,6 @@ public class Labeler extends Decorator implements TranslatablePiece, Loopable {
           Resources.getString("Editor.TextLabel.name_format"),
           Resources.getString("Editor.TextLabel.change_label_command")
         });
-  }
-
-  /** @deprecated Use {@link VASSAL.tools.image.LabelUtils#drawLabel(Graphics, String, int, int, int, int, Color, Color)} instead. **/
-  @Deprecated(since = "2020-08-27", forRemoval = true)
-  public static void drawLabel(Graphics g, String text, int x, int y, int hAlign, int vAlign, Color fgColor, Color bgColor) {
-    LabelUtils.drawLabel(g, text, x, y, hAlign, vAlign, fgColor, bgColor);
-  }
-
-  /** @deprecated Use {@link VASSAL.tools.image.LabelUtils#drawLabel(Graphics, String, int, int, Font, int, int, Color, Color, Color)} instead. **/
-  @Deprecated(since = "2020-08-27", forRemoval = true)
-  public static void drawLabel(Graphics g, String text, int x, int y, Font f, int hAlign, int vAlign, Color fgColor, Color bgColor, Color borderColor) {
-    LabelUtils.drawLabel(g, text, x, y, f, hAlign, vAlign, fgColor, bgColor, borderColor);
   }
 
   /**

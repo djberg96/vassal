@@ -64,11 +64,6 @@ public class SelectionHighlighter extends AbstractConfigurable implements Highli
   protected int xOff = 0;
   protected int yOff = 0;
 
-  @Deprecated(since = "2021-04-05", forRemoval = true)
-  protected int x = 0;
-  @Deprecated(since = "2021-04-05", forRemoval = true)
-  protected int y = 0;
-
   protected VisibilityCondition visibilityCondition;
 
   protected ScaledImagePainter imagePainter = new ScaledImagePainter();
@@ -201,7 +196,7 @@ public class SelectionHighlighter extends AbstractConfigurable implements Highli
         value = Integer.valueOf((String) value);
       }
       try {
-        xOff = x = (Integer) value;
+        xOff = (Integer) value;
       }
       catch (NumberFormatException ex) {
         throw new IllegalBuildException(ex);
@@ -212,7 +207,7 @@ public class SelectionHighlighter extends AbstractConfigurable implements Highli
         value = Integer.valueOf((String) value);
       }
       try {
-        yOff = y = (Integer) value;
+        yOff = (Integer) value;
       }
       catch (NumberFormatException ex) {
         throw new IllegalBuildException(ex);
