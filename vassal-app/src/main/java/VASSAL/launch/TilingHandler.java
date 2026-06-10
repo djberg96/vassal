@@ -129,20 +129,6 @@ public class TilingHandler {
     return true;
   }
 
-  @Deprecated(since = "2023-04-17", forRemoval = true)
-  protected boolean isFresh(FileArchive archive,
-                            FileStore tcache, String ipath)
-                                                           throws IOException {
-    // look at the first 1:1 tile
-    final String tpath = TileUtils.tileName(ipath, 0, 0, 1);
-
-    // check whether the image is older than the tile
-    final long imtime = archive.getMTime(ipath);
-
-    return imtime > 0 && // time in archive might be goofy
-           imtime <= tcache.getMTime(tpath);
-  }
-
   protected Dimension getImageSize(DataArchive archive, String ipath)
                                                            throws IOException {
     try (InputStream in = archive.getInputStream(ipath)) {

@@ -300,7 +300,7 @@ public final class GameRefresher implements CommandEncoder, GameComponent {
 
 
   /**
-   * This method is used by PredefinedSetup.refresh() to update a PredefinedSetup in a GameModule
+   * This method is used by PredefinedSetup.refreshWithStatus() to update a PredefinedSetup in a GameModule
    * The default execute() method calls: GameModule.getGameModule().getGameState().getAllPieces()
    * to set the pieces list, this method provides an alternative way to specify which pieces should be refreshed.
    *
@@ -1344,6 +1344,5 @@ public final class GameRefresher implements CommandEncoder, GameComponent {
     }
   }
 }
-
 
 

@@ -38,7 +38,6 @@ import VASSAL.i18n.Localization;
 import VASSAL.i18n.Resources;
 import VASSAL.i18n.Translation;
 import VASSAL.tools.DataArchive;
-import VASSAL.tools.LaunchButton;
 import VASSAL.tools.NamedKeyStroke;
 import VASSAL.tools.SequenceEncoder;
 import VASSAL.tools.swing.FlowLabel;
@@ -88,10 +87,6 @@ public class PlayerRoster extends AbstractToolbarItem implements CommandEncoder,
   protected List<String> sides = new ArrayList<>();
   protected String[] untranslatedSides;
 
-  /** @deprecated use launch from the superclass */
-  @Deprecated(since = "2021-04-03", forRemoval = true)
-  protected LaunchButton retireButton;
-
   protected List<SideChangeListener> sideChangeListeners = new ArrayList<>();
 
   protected String translatedObserver;
@@ -117,8 +112,6 @@ public class PlayerRoster extends AbstractToolbarItem implements CommandEncoder,
     ));
 
     getLaunchButton().setEnabled(false); // not usable without a game
-    retireButton = getLaunchButton(); // for compatibility
-
     setShowDisabledOptions(false); //AbstractToolbarItem
 
     translatedObserver = Resources.getString("PlayerRoster.observer"); //$NON-NLS-1$
