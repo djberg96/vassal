@@ -60,15 +60,6 @@ public class RestrictCommands extends Decorator implements EditablePiece {
   protected String action = HIDE;
   protected NamedKeyStroke[] watchKeys = new NamedKeyStroke[0];
 
-  public RestrictCommands() {
-    this(ID, null);
-  }
-
-  public RestrictCommands(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
-  }
-
   @Override
   public Rectangle boundingBox() {
     return piece.boundingBox();

@@ -74,12 +74,7 @@ public class Pivot extends Decorator implements TranslatablePiece {
   private static final double PI_180 = Math.PI / 180.0;
 
   public Pivot() {
-    this(ID, null);
-  }
-
-  public Pivot(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeFromType(ID);
   }
 
   @Override
@@ -104,6 +99,10 @@ public class Pivot extends Decorator implements TranslatablePiece {
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     type = type.substring(ID.length());
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     command = st.nextToken(Resources.getString("Editor.Pivot.default_pivot_command"));

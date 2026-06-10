@@ -80,20 +80,11 @@ public class NonRectangular extends Decorator implements EditablePiece {
   public static final String OLD_ID = "nonRect;"; // NON-NLS
   private static final Map<String, Pair<String, Shape>> cache = new HashMap<>();
 
-  private String shapeSpec;
+  private String shapeSpec = "";
   private Shape shape;
   private Shape scaledShape = null;
   private String imageName = "";
   private double scale = 1.0;
-
-  public NonRectangular() {
-    this(ID + "1.0;", null);
-  }
-
-  public NonRectangular(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
-  }
 
   @Override
   public void mySetState(String newState) {
@@ -174,6 +165,10 @@ public class NonRectangular extends Decorator implements EditablePiece {
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     if (type.startsWith(OLD_ID)) {
       setScale(1.0);
       shapeSpec = type.substring(OLD_ID.length());

@@ -43,16 +43,15 @@ public class BasicName extends Decorator implements TranslatablePiece {
   protected String localizedName = null;
 
   public BasicName() {
-    this(ID + ";", null);
-  }
-
-  public BasicName(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeFromType(ID + ";");
   }
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     type = type.substring(ID.length());
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     name = st.nextToken();

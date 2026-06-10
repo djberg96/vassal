@@ -82,11 +82,6 @@ public class Deselect extends Decorator implements TranslatablePiece {
     deselectType = DESELECT_THIS;
   }
 
-  public Deselect(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
-  }
-
   @Override
   public void mySetType(String type) {
     type = type.substring(ID.length());
