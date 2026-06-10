@@ -87,7 +87,7 @@ public class SavedGameUpdater {
                   GameModule.getGameModule().getChatter().show(Resources.getString("Editor.SavedGameUpdater.basic_only", p.getName()));
                 }
                 else {
-                  final ReplaceTrait r = new ReplaceTrait(p, slot.getPiece());
+                  final ReplaceTrait r = ReplaceTrait.create(p, slot.getPiece());
                   r.replacePiece();
                 }
               }
@@ -137,11 +137,18 @@ public class SavedGameUpdater {
   private static class ReplaceTrait extends Replace {
     private final GamePiece replacement;
 
-    public ReplaceTrait(GamePiece original, GamePiece replacement) {
-      super(ID + "Replace;R;dummy;;0;0;true", original); //NON-NLS
-      setProperty(VASSAL.counters.Properties.OUTER, original);
-      original.setProperty(VASSAL.counters.Properties.OUTER, null);
+    private ReplaceTrait(GamePiece replacement) {
+      super();
       this.replacement = replacement;
+    }
+
+    public static ReplaceTrait create(GamePiece original, GamePiece replacement) {
+      final ReplaceTrait trait = new ReplaceTrait(replacement);
+      trait.mySetType(ID + "Replace;R;dummy;;0;0;true"); //NON-NLS
+      trait.setInner(original);
+      trait.setProperty(VASSAL.counters.Properties.OUTER, original);
+      original.setProperty(VASSAL.counters.Properties.OUTER, null);
+      return trait;
     }
 
     @Override

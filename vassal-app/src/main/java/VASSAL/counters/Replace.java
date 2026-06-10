@@ -36,17 +36,13 @@ public class Replace extends PlaceMarker {
   public static final String ID = "replace;"; // NON-NLS
 
   public Replace() {
-    this(ID + Resources.getString("Editor.Replace.default_command") + ";R;null", null); // NON-NLS
-  }
-
-  public Replace(String type, GamePiece inner) {
-    super(type, inner);
+    super(ID + Resources.getString("Editor.Replace.default_command") + ";R;null"); // NON-NLS
   }
 
   @Override
   public Command myKeyEvent(KeyStroke stroke) {
     Command c = null;
-    if (command.matches(stroke)) {
+    if (getCommand().matches(stroke)) {
       c = replacePiece();
     }
     return c;
@@ -96,7 +92,7 @@ public class Replace extends PlaceMarker {
   @Override
   public String getDescription() {
     String s = buildDescription("Editor.Replace.trait_description", description);
-    s += getCommandDesc(command.getName(), key);
+    s += getCommandDesc(commandName, key);
 
     updateDescString();
 

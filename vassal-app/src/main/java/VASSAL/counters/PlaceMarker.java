@@ -73,6 +73,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -100,6 +101,7 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
   public static final int PLACEMARKER_VERSION = 1;
 
   protected KeyCommand command;
+  protected String commandName;
   protected NamedKeyStroke key;
   protected String markerSpec;
   protected String markerText = "";
@@ -129,12 +131,11 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
   protected List<Parameter> parameterList = new ArrayList<>();
 
   public PlaceMarker() {
-    this(ID + Resources.getString("Editor.PlaceMarker.default_command") + ";M;null;null", null); // NON-NLS
+    initializeDefaults();
   }
 
-  public PlaceMarker(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+  protected PlaceMarker(String type) {
+    initializeFromType(type);
   }
 
   @Override
@@ -154,8 +155,9 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
 
   @Override
   protected KeyCommand[] myGetKeyCommands() {
-    command.setEnabled(getMap() != null && markerSpec != null);
-    return commands;
+    final KeyCommand markerCommand = getCommand();
+    markerCommand.setEnabled(getMap() != null && markerSpec != null);
+    return getCommands();
   }
 
   @Override
@@ -166,7 +168,7 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
   @Override
   public String myGetType() {
     final SequenceEncoder se = new SequenceEncoder(';');
-    se.append(command.getName())
+    se.append(commandName)
             .append(key)
             .append(markerSpec == null ? "null" : markerSpec) // NON-NLS
             .append(markerText == null ? "null" : markerText) // NON-NLS
@@ -186,7 +188,7 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
   @Override
   public Command myKeyEvent(KeyStroke stroke) {
     myGetKeyCommands();
-    if (command.matches(stroke)) {
+    if (getCommand().matches(stroke)) {
       return placeMarker();
     }
     else {
@@ -494,7 +496,7 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
   @Override
   public String getDescription() {
     String s = buildDescription("Editor.PlaceMarker.trait_description", description);
-    s += getCommandDesc(command.getName(), key);
+    s += getCommandDesc(commandName, key);
 
     updateDescString();
 
@@ -522,17 +524,15 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     st.nextToken();
-    final String name = st.nextToken();
+    commandName = st.nextToken();
     key = st.nextNamedKeyStroke(null);
-    command = new KeyCommand(name, key, this, this);
-    if (name.length() > 0 && key != null) {
-      commands = new KeyCommand[]{command};
-    }
-    else {
-      commands = KeyCommand.NONE;
-    }
+    resetCommand();
     markerSpec = st.nextToken();
     if ("null".equals(markerSpec)) { // NON-NLS
       markerSpec = null;
@@ -548,13 +548,57 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
     matchRotation = st.nextBoolean(false);
     afterBurnerKey = st.nextNamedKeyStroke(null);
     description = st.nextToken("");
-    setGpId(st.nextToken(""));
+    gpId = st.nextToken("");
     placement = st.nextInt(STACK_TOP);
     above = st.nextBoolean(false);
     copyDPsByName = st.nextBoolean(false);
     gpidSupport = GameModule.getGameModule().getGpIdSupport();
     parameterList = ParameterListConfigurer.decode(st.nextToken(""));
     version = st.nextInt(0);
+  }
+
+  private void initializeDefaults() {
+    commandName = Resources.getString("Editor.PlaceMarker.default_command");
+    key = NamedKeyStroke.of('M', InputEvent.CTRL_DOWN_MASK);
+    resetCommand();
+    markerSpec = null;
+    markerText = null;
+    xOffsetExpression = new FormattedStringExpression("0");
+    yOffsetExpression = new FormattedStringExpression("0");
+    matchRotation = false;
+    afterBurnerKey = NamedKeyStroke.NULL_KEYSTROKE;
+    description = "";
+    gpId = "";
+    placement = STACK_TOP;
+    above = false;
+    copyDPsByName = false;
+    gpidSupport = GameModule.getGameModule().getGpIdSupport();
+    parameterList = new ArrayList<>();
+    version = 0;
+  }
+
+  protected KeyCommand getCommand() {
+    if (command == null) {
+      command = new KeyCommand(commandName, key, this, this);
+    }
+    return command;
+  }
+
+  private KeyCommand[] getCommands() {
+    if (commands == null) {
+      if (commandName.length() > 0 && key != null) {
+        commands = new KeyCommand[]{getCommand()};
+      }
+      else {
+        commands = KeyCommand.NONE;
+      }
+    }
+    return commands;
+  }
+
+  private void resetCommand() {
+    command = null;
+    commands = null;
   }
 
   @Override
@@ -564,7 +608,7 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
 
   @Override
   public PieceI18nData getI18nData() {
-    return getI18nData(command.getName(), getCommandDescription(description, Resources.getString("Editor.PlaceMarker.place_marker_command")));
+    return getI18nData(commandName, getCommandDescription(description, Resources.getString("Editor.PlaceMarker.place_marker_command")));
   }
 
   public String getGpId() {
@@ -590,6 +634,7 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
     if (! (o instanceof PlaceMarker)) return false;
     final PlaceMarker c = (PlaceMarker) o;
 
+    if (! Objects.equals(commandName, c.commandName)) return false;
     if (! Objects.equals(key, c.key)) return false;
     if (! Objects.equals(markerSpec, c.markerSpec)) return false;
     if (! Objects.equals(markerText, c.markerText)) return false;
@@ -640,7 +685,7 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
       descConfig.setHintKey("Editor.description_hint");
       p.add("Editor.description_label", descConfig);
 
-      commandInput = new StringConfigurer(piece.command.getName());
+      commandInput = new StringConfigurer(piece.commandName);
       commandInput.setHintKey("Editor.menu_command_hint");
       p.add("Editor.menu_command", commandInput);
 
@@ -850,7 +895,7 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
    */
   @Override
   public List<String> getMenuTextList() {
-    return List.of(command.getName());
+    return List.of(commandName);
   }
 
   @Override

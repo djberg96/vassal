@@ -43,7 +43,7 @@ public class ReplaceTest extends DecoratorTest {
 
     //
     trait = createTrait();
-    trait.command = new KeyCommand("testCommand", NamedKeyStroke.of("plugh"), trait); // NON-NLS
+    trait.commandName = "testCommand"; // NON-NLS
     trait.key = NamedKeyStroke.of("xyzzy"); // NON-NLS
     trait.markerSpec = "spec";
     trait.markerText = "text";

@@ -1027,7 +1027,7 @@ public class ADC2Module extends Importer {
 
       flipClass.writeFlipDefinition();
 
-      return new Replace(Replace.ID + "Flip Back;B;" + se.getValue(), null);
+      return Decorator.create(Replace::new, Replace.ID + "Flip Back;B;" + se.getValue(), null);
     }
 
     // TODO: find a different way to do this so that we don't have to generate unique class names.
@@ -1056,7 +1056,7 @@ public class ADC2Module extends Importer {
 
       flipClass.writeFlipDefinition();
 
-      return new Replace(Replace.ID + "Flip;F;" + se.getValue(), null);
+      return Decorator.create(Replace::new, Replace.ID + "Flip;F;" + se.getValue(), null);
     }
 
     private void writeFlipDefinition() throws IOException {
