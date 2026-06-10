@@ -400,14 +400,6 @@
                     <ignoredDifferencesFile>src/test/resources/clirr-ignored-differences.xml</ignoredDifferencesFile>
                     <comparisonVersion>${clirr.nofork.comparison.version}</comparisonVersion>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check-no-fork</goal>
-                        </goals>
-                        <phase>test</phase>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
               <groupId>org.codehaus.mojo</groupId>
@@ -447,6 +439,25 @@
                             </compilerArgs>
                             <showWarnings>true</showWarnings>
                         </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>api-compat</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>clirr-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>check-no-fork</goal>
+                                </goals>
+                                <phase>test</phase>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

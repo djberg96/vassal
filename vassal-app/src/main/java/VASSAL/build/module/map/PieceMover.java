@@ -1527,7 +1527,7 @@ public class PieceMover extends AbstractBuildable
       return new StackMetrics();
     }
 
-    protected static List<PieceMover> pieceMovers = new ArrayList<>(); // our piece movers
+    protected static final List<PieceMover> pieceMovers = new ArrayList<>(); // our piece movers
 
     protected static final int CURSOR_ALPHA = 127; // pseudo cursor is 50% transparent
     protected static final int EXTRA_BORDER = 4;   // pseudo cursor is includes a 4 pixel border
