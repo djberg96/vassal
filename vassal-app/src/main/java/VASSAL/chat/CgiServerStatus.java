@@ -115,7 +115,7 @@ public class CgiServerStatus implements ServerStatus {
     final long now = System.currentTimeMillis();
 
     // start with new interval
-    final Range<Long> req = Range.between(now - time, now);
+    final Range<Long> req = Range.of(now - time, now);
     final List<Range<Long>> toRequest = new ArrayList<>();
     toRequest.add(req);
 
@@ -134,8 +134,8 @@ public class CgiServerStatus implements ServerStatus {
         final long yl = y.getMinimum();
         final long yr = y.getMaximum();
 
-        if (xl < yl && yl <= xr) i.add(Range.between(xl, yl));
-        if (xl <= yr && yr < xr) i.add(Range.between(yr, xr));
+        if (xl < yl && yl <= xr) i.add(Range.of(xl, yl));
+        if (xl <= yr && yr < xr) i.add(Range.of(yr, xr));
       }
     }
 
@@ -175,8 +175,8 @@ public class CgiServerStatus implements ServerStatus {
           final long bl = b.getMinimum();
           final long br = b.getMaximum();
 
-          requests.set(i, Range.between(Math.min(al, bl),
-                                        Math.max(ar, br)));
+          requests.set(i, Range.of(Math.min(al, bl),
+                                   Math.max(ar, br)));
           requests.remove(j--);
         }
       }

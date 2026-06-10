@@ -116,7 +116,7 @@ public class SizeConfigurer extends StringEnumConfigurer {
         g.drawRect(0, 0, w - 1, h - 1);
 
         final BufferedImage simg = Symbol.NatoUnitSymbolSet.buildSizeImage(
-          (String) value, sample_w, sample_h, sample_g);
+          value, sample_w, sample_h, sample_g);
         final int x = (w / 2) - (simg.getWidth() / 2);
         g.drawImage(simg, x, 0, null);
         g.dispose();

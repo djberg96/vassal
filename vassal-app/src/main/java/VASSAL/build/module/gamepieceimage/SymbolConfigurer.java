@@ -112,7 +112,7 @@ public class SymbolConfigurer extends StringEnumConfigurer {
           ImageUtils.createCompatibleTranslucentImage(sample_w, sample_h);
         final Graphics2D g = img.createGraphics();
 
-        final String symbol1 = (String) value;
+        final String symbol1 = value;
         final String symbol2 = Symbol.NatoUnitSymbolSet.NONE;
         final Rectangle bounds = new Rectangle(0, 0, sample_w - 1, sample_h - 1);
         Symbol.NatoUnitSymbolSet.draw(
