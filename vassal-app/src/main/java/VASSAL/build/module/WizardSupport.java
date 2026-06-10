@@ -170,8 +170,7 @@ public class WizardSupport {
     final Object result =
       WizardDisplayer.showWizard(welcomeWizard, null, help, props);
 
-    if (result instanceof Map) {
-      final Map m = (Map) result;
+    if (result instanceof Map<?, ?> m) {
       final Object action = m.get(ACTION_KEY);
       if (PLAY_ONLINE_ACTION.equals(action)) {
         final ChatServerControls controls = g.getServerControls();
@@ -205,6 +204,11 @@ public class WizardSupport {
     final InitialWelcomeSteps info = createInitialWelcomeSteps();
     info.setTutorial(tutorial);
     return new BranchingWizard(info, POST_INITIAL_STEPS_WIZARD);
+  }
+
+  @SuppressWarnings({"rawtypes", "unchecked"})
+  private static Map<String, Object> typedWizardSettings(Map settings) {
+    return (Map<String, Object>) settings;
   }
 
   public WizardPanelProvider createPlayOfflinePanels() {
@@ -272,6 +276,7 @@ public class WizardSupport {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     protected void recycleExistingPanel(String id, WizardController controller, Map wizardData, JComponent panel) {
       super.recycleExistingPanel(id, controller, wizardData, panel);
       if (NAME_STEP.equals(id)) {
@@ -286,12 +291,14 @@ public class WizardSupport {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     protected JComponent createPanel(WizardController controller, String id, Map settings) {
+      final Map<String, Object> wizardSettings = typedWizardSettings(settings);
       final JComponent c;
       if (NAME_STEP.equals(id)) {
-        c = getNameControls(controller, settings);
+        c = getNameControls(controller, wizardSettings);
         // Creating Name/Pw panel for the first time. Make sure the Finish and Next buttons are set correctly for the game type.
-        if (settings.get(ACTION_KEY).equals(PLAY_ONLINE_ACTION)) {
+        if (wizardSettings.get(ACTION_KEY).equals(PLAY_ONLINE_ACTION)) {
           controller.setForwardNavigationMode(WizardController.MODE_CAN_FINISH);
         }
         else {
@@ -299,7 +306,7 @@ public class WizardSupport {
         }
       }
       else if (ACTION_KEY.equals(id)) {
-        c = getActionControls(controller, settings);
+        c = getActionControls(controller, wizardSettings);
       }
       else {
         throw new IllegalArgumentException("Illegal step: " + id); //$NON-NLS-1$
@@ -499,7 +506,9 @@ public class WizardSupport {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     protected JComponent createPanel(final WizardController controller, String id, final Map settings) {
+      final Map<String, Object> wizardSettings = typedWizardSettings(settings);
       final DefaultComboBoxModel<Object> comboBoxModel = new DefaultComboBoxModel<>(new Vector<>(setups));
       comboBoxModel.insertElementAt(description, 0);
       final JComboBox<Object> setupSelection = new JComboBox<>(comboBoxModel);
@@ -517,12 +526,12 @@ public class WizardSupport {
               final JDialog dialog = (JDialog) SwingUtilities.getWindowAncestor(setupSelection);
               final Cursor oldCursor = dialog.getCursor();
               dialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-              loadSetup(setup, controller, settings);
+              loadSetup(setup, controller, wizardSettings);
               dialog.setCursor(oldCursor);
             }
             else {
               final GameSetupPanels panels = GameSetupPanels.newInstance();
-              settings.put(POST_PLAY_OFFLINE_WIZARD, panels);
+              wizardSettings.put(POST_PLAY_OFFLINE_WIZARD, panels);
               controller.setProblem(null);
               controller.setForwardNavigationMode(panels == null ? WizardController.MODE_CAN_FINISH : WizardController.MODE_CAN_CONTINUE);
             }
@@ -560,7 +569,7 @@ public class WizardSupport {
 
     // From 3.7.6, load Pre-defined setups in the Foreground, not in the Background as arrowing through the PDS drop-down can initiate
     // multiple concurrent game loads for any but the smallest save files.
-    protected void loadSetup(PredefinedSetup setup, final WizardController controller, final Map settings) {
+    protected void loadSetup(PredefinedSetup setup, final WizardController controller, final Map<String, Object> settings) {
       controller.setProblem(Resources.getString("WizardSupport.LoadingGame"));
       final GameModule g = GameModule.getGameModule();
 
@@ -638,11 +647,13 @@ public class WizardSupport {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     protected WizardPanelProvider getPanelProviderForStep(String step, Map settings) {
       return (WizardPanelProvider) settings.get(wizardKey);
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     protected Wizard getWizardForStep(String step, Map settings) {
       final Wizard w;
       final Object next = settings.get(wizardKey);
@@ -785,7 +796,9 @@ public class WizardSupport {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     protected JComponent createPanel(final WizardController controller, String id, final Map settings) {
+      final Map<String, Object> wizardSettings = typedWizardSettings(settings);
       if (fileConfig == null) {
         fileConfig = new FileConfigurer(null,
           Resources.getString("WizardSupport.SavedGame"), GameModule.getGameModule().getGameState().getSavedGameDirectoryPreference()); //$NON-NLS-1$
@@ -805,7 +818,7 @@ public class WizardSupport {
               // file
               processing.add(f);
               try {
-                new SavedGameLoader(controller, settings, new BufferedInputStream(Files.newInputStream(f.toPath())), POST_LOAD_GAME_WIZARD, f) {
+                new SavedGameLoader(controller, wizardSettings, new BufferedInputStream(Files.newInputStream(f.toPath())), POST_LOAD_GAME_WIZARD, f) {
                   @Override
                   public void run() {
                     final GameModule g = GameModule.getGameModule();
@@ -925,6 +938,7 @@ public class WizardSupport {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     protected JComponent createPanel(WizardController controller, String id, Map settings) {
       final int index = indexOfStep(id);
       controller.setForwardNavigationMode(index == pages.length - 1 ? WizardController.MODE_CAN_FINISH : WizardController.MODE_CAN_CONTINUE);
@@ -933,6 +947,7 @@ public class WizardSupport {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public boolean cancel(Map settings) {
       final GameModule g = GameModule.getGameModule();
       g.setGameFileMode(GameModule.GameFileMode.NEW_GAME);
@@ -943,6 +958,7 @@ public class WizardSupport {
     }
 
     @Override
+    @SuppressWarnings("rawtypes")
     public Object finish(Map wizardData) throws WizardException {
       for (final GameSetupStep step : setupSteps) {
         step.finish();
