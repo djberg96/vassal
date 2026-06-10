@@ -79,6 +79,7 @@ public class LaunchRequest implements Serializable {
   public File importFile;
 
   public boolean builtInModule;
+  @SuppressWarnings("serial")
   public List<String> autoext;
 
   public long key;

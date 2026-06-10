@@ -41,7 +41,7 @@ import VASSAL.tools.filechooser.FileChooser;
 public class LoadModuleAction extends GameModuleAction {
   private static final long serialVersionUID = 1L;
   private File moduleFile;
-  protected FileChooser fc;
+  protected transient FileChooser fc;
 
   public LoadModuleAction(Component comp) {
     super(Resources.getString("Main.play_module"), comp);

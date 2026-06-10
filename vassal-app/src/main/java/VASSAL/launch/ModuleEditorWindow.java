@@ -34,7 +34,7 @@ import VASSAL.tools.menu.MenuManager;
 public class ModuleEditorWindow extends EditorWindow {
   private static final long serialVersionUID = 1L;
 
-  protected Action updateSavedGame;
+  protected transient Action updateSavedGame;
 
   public ModuleEditorWindow(GameModule mod) {
     super();

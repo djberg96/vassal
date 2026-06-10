@@ -35,7 +35,7 @@ public class ExtensionEditorWindow extends EditorWindow {
 
   private static final long serialVersionUID = 1L;
   protected static ExtensionEditorWindow instance = null;
-  protected ModuleExtension extension;
+  protected transient ModuleExtension extension;
 
   public ExtensionEditorWindow(GameModule mod, ModuleExtension ext) {
     super();

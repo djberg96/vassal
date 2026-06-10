@@ -45,7 +45,7 @@ public abstract class GameModuleAction extends AbstractAction {
 
   protected Component comp;
   protected boolean actionCancelled;
-  protected List<Runnable> actions = new ArrayList<>();
+  protected transient List<Runnable> actions = new ArrayList<>();
 
   public GameModuleAction(String name, Component comp) {
     super(name);

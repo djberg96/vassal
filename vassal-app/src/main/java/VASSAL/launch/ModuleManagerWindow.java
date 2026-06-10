@@ -156,23 +156,23 @@ public class ModuleManagerWindow extends JFrame {
   private final ImageIcon closedGameFolderIcon;
   private final ImageIcon fileIcon;
 
-  private StringArrayConfigurer recentModuleConfig;
-  private StringArrayConfigurer moduleConfig;
+  private transient StringArrayConfigurer recentModuleConfig;
+  private transient StringArrayConfigurer moduleConfig;
   private File selectedModule;
 
   private final CardLayout modulePanelLayout;
   private final JPanel moduleView;
   private final SplitPane splitPane;
 
-  private MyTreeNode rootNode;
-  private MyTree tree;
-  private MyTreeTableModel treeModel;
-  protected MyTreeNode selectedNode;
+  private transient MyTreeNode rootNode;
+  private transient MyTree tree;
+  private transient MyTreeTableModel treeModel;
+  protected transient MyTreeNode selectedNode;
 
   private long lastExpansionTime;
   private TreePath lastExpansionPath;
 
-  private final IntConfigurer dividerLocationConfig;
+  private final transient IntConfigurer dividerLocationConfig;
 
   private static final long doubleClickInterval;
   static {
