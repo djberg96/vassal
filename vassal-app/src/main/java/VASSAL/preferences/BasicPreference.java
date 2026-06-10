@@ -49,7 +49,7 @@ public abstract class BasicPreference extends AbstractConfigurable {
 
   protected String tabName;
   protected String variableName = "";
-  protected MutableProperty.Impl property = new MutableProperty.Impl("", this);
+  protected MutableProperty.Impl property;
 
   public BasicPreference() {
     tabName = GameModule.getGameModule().getConfigureName();
@@ -103,7 +103,7 @@ public abstract class BasicPreference extends AbstractConfigurable {
   public void setAttribute(String key, Object value) {
     if (NAME.equals(key)) {
       variableName = (String) value;
-      property.setPropertyName(variableName);
+      getProperty().setPropertyName(variableName);
     }
     else if (TAB.equals(key)) {
       tabName = (String) value;
@@ -143,7 +143,7 @@ public abstract class BasicPreference extends AbstractConfigurable {
   public void addTo(Buildable b) {
     final GameModule g = GameModule.getGameModule();
 
-    property.addTo(g);
+    getProperty().addTo(g);
     // if a tab name is not specified, then pass null as tab name to addOption, which causes the preference to
     // be created, but not placed on any tab.
     g.getPrefs().addOption((tabName == null || tabName.isEmpty()) ? null : tabName, getPreferenceConfigurer());
@@ -151,12 +151,12 @@ public abstract class BasicPreference extends AbstractConfigurable {
   }
 
   protected void updateGlobalProperty(String newValue) {
-    property.setPropertyValue(newValue);
+    getProperty().setPropertyValue(newValue);
   }
 
   @Override
   public void removeFrom(Buildable b) {
-    property.removeFromContainer();
+    getProperty().removeFromContainer();
   }
 
   @Override
@@ -175,6 +175,13 @@ public abstract class BasicPreference extends AbstractConfigurable {
 
   public String getVariableName() {
     return variableName;
+  }
+
+  private MutableProperty.Impl getProperty() {
+    if (property == null) {
+      property = new MutableProperty.Impl("", this);
+    }
+    return property;
   }
 
 }
