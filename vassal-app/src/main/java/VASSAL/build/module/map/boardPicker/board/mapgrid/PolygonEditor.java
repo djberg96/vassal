@@ -242,21 +242,6 @@ public class PolygonEditor extends JPanel {
   }
 
 
-  /** @deprecated Use {@link PolygonEditor#stringToPolygon(String) stringToPolygon} for parsing and
-   *  {@link #setPolygon(Polygon)} for setting the editor instead.
-   */
-  @Deprecated(since = "2021-11-29", forRemoval = true)
-  public static void reset(Polygon p, String pathStr) {
-    if (p == null) {
-      p = new Polygon();
-    }
-    p.reset();
-    parseString(p, pathStr);
-    if (p.npoints == 0) {
-      p = null;
-    }
-  }
-
   public static String polygonToString(Polygon p) {
     // Sometimes people delete all the points from the polygon. Because of course they do.
     if (p == null || p.npoints == 0) {

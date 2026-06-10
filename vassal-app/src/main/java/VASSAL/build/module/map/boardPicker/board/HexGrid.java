@@ -778,16 +778,6 @@ public class HexGrid extends AbstractConfigurable
     return (int) (max(dx, dy) * 1.1);
   }
 
-  @Deprecated(since = "2023-06-03", forRemoval = true)
-  protected int hexX(int x, int y) {
-    return hexPoint(x, y).x;
-  }
-
-  @Deprecated(since = "2023-06-03", forRemoval = true)
-  protected int hexY(int x, int y) {
-    return hexPoint(x, y).y;
-  }
-
   private Point hexPointCenterFromRawIndex(int nx, int ny) {
 
     final int xLoc = ((int) (dx * nx + origin.x));
