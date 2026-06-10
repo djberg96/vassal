@@ -44,7 +44,7 @@ import VASSAL.tools.FormattedString;
  * Die Servers
  */
 
-public class DieManager extends AbstractConfigurable {
+public final class DieManager extends AbstractConfigurable {
   private final Map<String, DieServer> servers;
   private final List<InternetDiceButton> dieButtons = new ArrayList<>();
   private String desc = "Die Manager"; //NON-NLS

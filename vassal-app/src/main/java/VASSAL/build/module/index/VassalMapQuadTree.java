@@ -25,7 +25,7 @@ import java.util.Set;
  * indexed and NOT be found by a Ranged GKC
  *
  */
-public class VassalMapQuadTree extends QuadTree<Set<GamePiece>> {
+public final class VassalMapQuadTree extends QuadTree<Set<GamePiece>> {
 
   /** The actual playable bounds of the map **/
   private final Rectangle bounds;

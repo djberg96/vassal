@@ -27,7 +27,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-public class KeySpecifier extends JPanel implements KeyListener {
+public final class KeySpecifier extends JPanel implements KeyListener {
   private static final long serialVersionUID = 1L;
 
   private final JTextField tf = new JTextField(3);
@@ -100,5 +100,4 @@ public class KeySpecifier extends JPanel implements KeyListener {
     super.setEnabled(enable);
   }
 }
-
 

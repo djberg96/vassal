@@ -24,7 +24,7 @@ package VASSAL.build.module;
  * Describes a single roll of one or more identical dice.
  * For use with internet dice rollers
  */
-public class DieRoll {
+public final class DieRoll {
 
   private String description = ""; //$NON-NLS-1$
   private int numSides;

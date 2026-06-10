@@ -27,7 +27,7 @@ import VASSAL.tools.swing.HTMLWindowHelper;
 /**
  * A Dialog that displays HTML content, with navigation
  */
-public class DialogHelpWindow extends JDialog {
+public final class DialogHelpWindow extends JDialog {
   private static final long serialVersionUID = 1L;
 
   private final transient HTMLWindowHelper helper = new HTMLWindowHelper();

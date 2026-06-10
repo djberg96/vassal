@@ -28,7 +28,7 @@ import VASSAL.i18n.Resources;
  * A CardSlot is identical to a PieceSlot except that it is initialized
  * with a card-like GamePiece.
  */
-public class CardSlot extends PieceSlot {
+public final class CardSlot extends PieceSlot {
   public CardSlot() {
   }
 

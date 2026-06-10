@@ -19,7 +19,7 @@ package VASSAL.build.module.map.deck;
 
 import VASSAL.tools.SequenceEncoder;
 
-public class SortParameter {
+public final class SortParameter {
   private String sortProperty = "";
   private boolean descendingSort = false;
   private boolean numericSort;

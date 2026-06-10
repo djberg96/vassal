@@ -34,7 +34,7 @@ import java.awt.Rectangle;
 import java.awt.Shape;
 import java.awt.geom.Area;
 
-public class Region extends AbstractConfigurable {
+public final class Region extends AbstractConfigurable {
 
   private Point origin = new Point(0, 0);
 
@@ -271,4 +271,3 @@ public class Region extends AbstractConfigurable {
     selectionRect.setSize(width, height + labelOffset + 1);
   }
 }
-
