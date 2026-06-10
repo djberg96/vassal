@@ -20,8 +20,6 @@ package VASSAL.build.module.documentation;
 import java.net.URL;
 
 import javax.swing.JFrame;
-import javax.swing.event.HyperlinkEvent;
-import javax.swing.event.HyperlinkListener;
 
 import VASSAL.tools.menu.MenuManager;
 import VASSAL.tools.swing.HTMLWindowHelper;
@@ -29,7 +27,7 @@ import VASSAL.tools.swing.HTMLWindowHelper;
 /**
  * A Window that displays HTML content, with navigation
  */
-public class HelpWindow extends JFrame implements HyperlinkListener {
+public class HelpWindow extends JFrame {
   private static final long serialVersionUID = 1L;
 
   private final transient HTMLWindowHelper helper = new HTMLWindowHelper();
@@ -39,12 +37,6 @@ public class HelpWindow extends JFrame implements HyperlinkListener {
     setDefaultCloseOperation(HIDE_ON_CLOSE);
     setJMenuBar(MenuManager.getInstance().getMenuBarFor(this));
     helper.setup(this, contents);
-  }
-
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  @Override
-  public void hyperlinkUpdate(HyperlinkEvent e) {
-    helper.hyperlinkUpdate(e);
   }
 
   public void update(URL contents) {
