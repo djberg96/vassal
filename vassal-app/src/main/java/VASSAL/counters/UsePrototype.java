@@ -347,13 +347,13 @@ public class UsePrototype extends Decorator implements EditablePiece, Loopable {
       private static final int VALID = 1;
       private static final int UNKNOWN = 2;
 
-      private final Icon tick;
-      private final Icon cross;
+      private final transient Icon tick;
+      private final transient Icon cross;
       private final ImageIcon none;
       private boolean validating = false;
       private boolean dirty = false;
-      private final ValidationThread validationThread = new ValidationThread();
-      private final Editor editor;
+      private final transient ValidationThread validationThread = new ValidationThread();
+      private final transient Editor editor;
 
       private static final long serialVersionUID = 1L;
 

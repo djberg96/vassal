@@ -130,8 +130,8 @@ public class MassPieceLoader {
     protected boolean cancelled = false;
     protected DefineDialog defineDialog;
     protected MyTreeTable tree;
-    protected MyTreeTableModel model;
-    protected BasicNode root;
+    protected transient MyTreeTableModel model;
+    protected transient BasicNode root;
     protected File loadDirectory;
 
     public MassLoaderDialog() {
@@ -1442,8 +1442,8 @@ public class MassPieceLoader {
 
   private static class Entry extends JPanel {
     private static final long serialVersionUID = 1L;
-    private final TranslatingStringEnumConfigurer typeConfig;
-    private final StringConfigurer nameConfig;
+    private final transient TranslatingStringEnumConfigurer typeConfig;
+    private final transient StringConfigurer nameConfig;
     private final JLabel warning = new JLabel(Resources.getString("Editor.MassPieceLoader.warning_suffix"));
 
     public Entry() {

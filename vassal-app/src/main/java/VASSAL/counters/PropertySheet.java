@@ -1050,8 +1050,8 @@ public class PropertySheet extends Decorator implements TranslatablePiece {
     private final JTextField valField;
     private final JTextField maxField;
     private final TickLabel ticks;
-    private final List<ActionListener> actionListeners = new ArrayList<>();
-    private final List<DocumentListener> documentListeners = new ArrayList<>();
+    private final transient List<ActionListener> actionListeners = new ArrayList<>();
+    private final transient List<DocumentListener> documentListeners = new ArrayList<>();
 
     public TickPanel(String value, int type) {
       super(new GridBagLayout());
@@ -1248,7 +1248,7 @@ public class PropertySheet extends Decorator implements TranslatablePiece {
     private int numTicks = 0;
     private int maxTicks = 0;
     protected int panelType;
-    private final List<ActionListener> actionListeners = new ArrayList<>();
+    private final transient List<ActionListener> actionListeners = new ArrayList<>();
 
     public int getNumTicks() {
       return numTicks;
