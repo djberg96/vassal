@@ -53,7 +53,7 @@ public class FormattedExpressionConfigurer extends FormattedStringConfigurer {
 
   public FormattedExpressionConfigurer(String key, String name, String s) {
     super(key, name);
-    setValue(s);
+    value = s;
   }
 
   public FormattedExpressionConfigurer(String s) {
@@ -75,7 +75,7 @@ public class FormattedExpressionConfigurer extends FormattedStringConfigurer {
   public FormattedExpressionConfigurer(String key, String name, String s, Constraints p) {
     this(key, name, s);
     if (p instanceof GamePiece) {
-      storePiece((GamePiece) p);
+      pieceTarget = findEditablePiece((GamePiece) p);
     }
   }
 
@@ -85,16 +85,21 @@ public class FormattedExpressionConfigurer extends FormattedStringConfigurer {
 
   public FormattedExpressionConfigurer(String key, String name, String s, GamePiece p) {
     this(key, name, s);
-    storePiece(p);
+    pieceTarget = findEditablePiece(p);
   }
 
-  protected void storePiece(GamePiece p) {
+  protected final void storePiece(GamePiece p) {
+    pieceTarget = findEditablePiece(p);
+  }
+
+  private static EditablePiece findEditablePiece(GamePiece p) {
     if (p instanceof Decorator) {
       final GamePiece gp = Decorator.getOutermost(p);
       if (gp instanceof EditablePiece) {
-        pieceTarget = (EditablePiece) gp;
+        return (EditablePiece) gp;
       }
     }
+    return null;
   }
 
   public FormattedExpressionConfigurer(String key, String name, String[] options) {
@@ -130,6 +135,8 @@ public class FormattedExpressionConfigurer extends FormattedStringConfigurer {
     private static final long serialVersionUID = 1L;
     protected transient Configurer config;
     protected transient EditablePiece piece;
+    private Dimension buttonSize;
+    private boolean actionListenerAdded;
 
     public ExpressionButton(Configurer config, int size) {
       this(config, size, null);
@@ -138,15 +145,42 @@ public class FormattedExpressionConfigurer extends FormattedStringConfigurer {
     public ExpressionButton(Configurer config, int size, EditablePiece piece) {
       this.config = config;
       this.piece = piece;
-      setIcon(IconFactory.getIcon("calculator", IconFamily.XSMALL)); //NON-NLS
-      setSize(size);
-      setToolTipText(Resources.getString("Editor.FormattedExpressionConfigurer.expression_builder"));
-      addActionListener(this);
+      buttonSize = new Dimension(size, size);
     }
 
     public void setSize(int size) {
-      setPreferredSize(new Dimension(size, size));
-      setMaximumSize(new Dimension(size, size));
+      setButtonSize(size);
+    }
+
+    private void setButtonSize(int size) {
+      buttonSize = new Dimension(size, size);
+      applyButtonSize();
+    }
+
+    private void applyButtonSize() {
+      setPreferredSize(buttonSize);
+      setMaximumSize(buttonSize);
+    }
+
+    @Override
+    public void addNotify() {
+      super.addNotify();
+      applyButtonSize();
+      setIcon(IconFactory.getIcon("calculator", IconFamily.XSMALL)); //NON-NLS
+      setToolTipText(Resources.getString("Editor.FormattedExpressionConfigurer.expression_builder"));
+      if (!actionListenerAdded) {
+        addActionListener(this);
+        actionListenerAdded = true;
+      }
+    }
+
+    @Override
+    public void removeNotify() {
+      if (actionListenerAdded) {
+        removeActionListener(this);
+        actionListenerAdded = false;
+      }
+      super.removeNotify();
     }
 
     @Override

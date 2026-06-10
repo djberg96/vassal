@@ -85,6 +85,12 @@ public class TranslatingStringEnumConfigurerTest {
     config = new TranslatingStringEnumConfigurer(key, name, listValues, listKeys, option2);
     assertThat(config.getValueString(), is(equalTo(option2)));
 
+    config = new TranslatingStringEnumConfigurer(key, name,
+      new String[] {option1, option2, option3},
+      new String[] {key1, key2, key3},
+      "not an option");
+    assertThat(config.getValueString(), is(equalTo(option1)));
+
     String[] validValues = config.getValidValues();
     assertThat(validValues[0], is(equalTo(option1)));
     assertThat(validValues[1], is(equalTo(option2)));

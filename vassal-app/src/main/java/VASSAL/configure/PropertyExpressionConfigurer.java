@@ -23,6 +23,7 @@ import javax.swing.JDialog;
 
 import VASSAL.counters.EditablePiece;
 import VASSAL.counters.GamePiece;
+import VASSAL.i18n.Resources;
 import VASSAL.script.expression.PropertyExpressionBuilder;
 
 /**
@@ -57,7 +58,7 @@ public class PropertyExpressionConfigurer extends FormattedExpressionConfigurer 
 
   public PropertyExpressionConfigurer(String key, String name, String val, GamePiece piece) {
     super(key, name, val, piece);
-    setHintKey("Editor.property_match_hint");
+    hint = Resources.getString("Editor.property_match_hint");
   }
 
   @Override

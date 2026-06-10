@@ -140,7 +140,7 @@ public class TranslatingStringEnumConfigurer extends Configurer {
    */
   public TranslatingStringEnumConfigurer(String key, String name, String[] validValues, String[] i18nKeys, String initialValue) {
     this (key, name, validValues, i18nKeys);
-    setValue(initialValue);
+    setInitialValue(initialValue);
   }
 
   /**
@@ -194,7 +194,7 @@ public class TranslatingStringEnumConfigurer extends Configurer {
    */
   public TranslatingStringEnumConfigurer(String key, String name, String[] validValues, String[] i18nKeys, String initialValue, boolean isDisplayNames) {
     this (key, name, validValues, i18nKeys, isDisplayNames);
-    setValue(initialValue);
+    setInitialValue(initialValue);
   }
 
   /**
@@ -209,7 +209,7 @@ public class TranslatingStringEnumConfigurer extends Configurer {
    */
   public TranslatingStringEnumConfigurer(String key, String name, List<String> validValues, List<String> i18nKeys, String initialValue) {
     this (key, name, validValues, i18nKeys);
-    setValue(initialValue);
+    setInitialValue(initialValue);
   }
 
   /**
@@ -237,7 +237,14 @@ public class TranslatingStringEnumConfigurer extends Configurer {
    */
   public TranslatingStringEnumConfigurer(String key, String name, List<String> validValues, List<String> i18nKeys, String initialValue, boolean isDisplayNames) {
     this (key, name, validValues, i18nKeys, isDisplayNames);
-    setValue(initialValue);
+    setInitialValue(initialValue);
+  }
+
+  private void setInitialValue(String initialValue) {
+    final String val = initialValue == null ? "" : initialValue;
+    if (validValues == null || isAllowedValue(val)) {
+      value = val;
+    }
   }
 
   /**
@@ -321,8 +328,12 @@ public class TranslatingStringEnumConfigurer extends Configurer {
    * @return true if the supplied Object is one of the allowed values
    */
   public boolean isValidValue(Object o) {
+    return o != null && isAllowedValue(o.toString());
+  }
+
+  private boolean isAllowedValue(String value) {
     for (final String validValue : validValues) {
-      if (validValue.equals(o.toString())) {
+      if (validValue.equals(value)) {
         return true;
       }
     }
