@@ -312,14 +312,6 @@ public class PlayerRoster extends AbstractToolbarItem implements CommandEncoder,
     return GameModule.getGameModule().getPlayerRoster() != null;
   }
 
-  /**
-   * @deprecated use {@link GameModule#getPlayerRoster()}
-   */
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  protected static PlayerRoster getInstance() {
-    return GameModule.getGameModule().getPlayerRoster();
-  }
-
   /** Return my Untranslated side */
   public static String getMySide() {
     return getMySide(false);

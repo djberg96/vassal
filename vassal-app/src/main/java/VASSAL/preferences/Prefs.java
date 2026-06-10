@@ -239,12 +239,6 @@ public class Prefs implements Closeable {
     // channel and streams closed, lock released
   }
 
-  /** Save these preferences and write to disk. */
-  @Deprecated(since = "2021-02-15", forRemoval = true)
-  public void write() throws IOException {
-    save();
-  }
-
   @Override
   public void close() throws IOException {
     save();

@@ -70,11 +70,6 @@ public class ComponentI18nData {
     initProperties(c, prefix, c.getAttributeNames(), c.getAttributeTypes(), c.getAttributeDescriptions());
   }
 
-  @Deprecated(since = "2020-10-26", forRemoval = true)
-  public ComponentI18nData(AbstractConfigurable c, String prefix, ArrayList<String> names, ArrayList<Class<?>> types, ArrayList<String> descriptions) { //NOPMD
-    initProperties(c, prefix, names.toArray(new String[0]), types.toArray(new Class<?>[0]), descriptions.toArray(new String[0]));
-  }
-
   public ComponentI18nData(AbstractConfigurable c, String prefix, List<String> names, List<Class<?>> types, List<String> descriptions) {
     initProperties(c, prefix, names.toArray(new String[0]), types.toArray(new Class<?>[0]), descriptions.toArray(new String[0]));
   }

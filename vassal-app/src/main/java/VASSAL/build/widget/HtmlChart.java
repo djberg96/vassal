@@ -36,12 +36,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
-import javax.swing.text.ComponentView;
-import javax.swing.text.Element;
-import javax.swing.text.View;
-import javax.swing.text.ViewFactory;
-import javax.swing.text.html.HTML;
-import javax.swing.text.html.HTMLEditorKit;
 
 import org.apache.commons.io.IOUtils;
 
@@ -56,9 +50,6 @@ import VASSAL.tools.DataArchive;
 import VASSAL.tools.ErrorDialog;
 import VASSAL.tools.ReadErrorDialog;
 import VASSAL.tools.ScrollPane;
-import VASSAL.tools.imageop.Op;
-import VASSAL.tools.imageop.OpIcon;
-import VASSAL.tools.imageop.SourceOp;
 import VASSAL.tools.swing.DataArchiveHTMLEditorKit;
 
 /**
@@ -321,59 +312,4 @@ public class HtmlChart extends Widget implements MouseListener {
     h.addImageNames(s);
   }
 
-  /**
-   * Extended HTML Editor kit to extend the <src> tag to display images
-   * from the module DataArchive where no pathname included in the image name.
-   * The image is placed on a label and returned as a ComponentView. An
-   * ImageView cannot be used as the standard Java HTML Renderer can only
-   * display Images from an external URL.
-   *
-   * @deprecated Use {@link VASSAL.tools.swing.DataArchiveHTMLEditorKit} instead.
-   */
-  @Deprecated(since = "2020-10-10", forRemoval = true)
-  public static class XTMLEditorKit extends HTMLEditorKit {
-    private static final long serialVersionUID = 1L;
-
-    @Override
-    public ViewFactory getViewFactory() {
-      return new XTMLFactory();
-    }
-
-    public static class XTMLFactory extends HTMLFactory implements ViewFactory {
-      @Override
-      public View create(Element element) {
-        final HTML.Tag kind = (HTML.Tag) (element.getAttributes().getAttribute(javax.swing.text.StyleConstants.NameAttribute));
-
-        if (kind != null && element.getName().equals("img")) {  //NON-NLS
-          final String imageName = (String) element.getAttributes().getAttribute(HTML.Attribute.SRC);
-          if (!imageName.contains("/")) {
-            return new ImageComponentView(element);
-          }
-        }
-        return super.create(element);
-      }
-
-      public static class ImageComponentView extends ComponentView {
-        protected String imageName;
-        protected SourceOp srcOp;
-
-        /**
-         * Very basic Attribute handling only. Expand as needed.
-         */
-        public ImageComponentView(Element e) {
-          super(e);
-          imageName = (String) e.getAttributes()
-                                .getAttribute(HTML.Attribute.SRC);
-          srcOp = (imageName == null || imageName.isBlank()) ? null : Op.load(imageName);
-        }
-
-        @Override
-        protected Component createComponent() {
-          final JLabel label = new JLabel();
-          label.setIcon(new OpIcon(srcOp));
-          return label;
-        }
-      }
-    }
-  }
 }

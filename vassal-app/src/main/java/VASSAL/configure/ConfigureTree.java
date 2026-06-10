@@ -3061,16 +3061,6 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
       }
     }
 
-    @Deprecated (since = "2023-10-21", forRemoval = true)
-    private void showConfigurableHitList(DefaultMutableTreeNode node, Pattern regexPattern) {
-      final Configurable c = (Configurable) node.getUserObject();
-      final String item = getConfigureName(c.getClass());
-      final String name = StringUtils.defaultString(c.getConfigureName());
-      final String matchString = Resources.getString("Editor.search_matches", nodeListIndex) + "<b>" + noHTML(name + " [" + item + "]") + "</b>: ";
-      final TargetProgress progress = new TargetProgress();
-      showConfigurableHitList(node, regexPattern, matchString, progress);
-    }
-
     /**
      * Called from showHitList to generate detailed output for Configurables.
      * @param node - any node of our module tree
