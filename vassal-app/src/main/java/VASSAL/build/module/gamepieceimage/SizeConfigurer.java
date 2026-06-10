@@ -52,16 +52,12 @@ public final class SizeConfigurer extends StringEnumConfigurer {
     return new SizeComboBox();
   }
 
-  public class SizeComboBox extends JComboBox<String> {
+  public static final class SizeComboBox extends JComboBox<String> {
     private static final long serialVersionUID = 1L;
 
     public SizeComboBox() {
-      final String[] s = Symbol.NatoUnitSymbolSet.getSymbolSizes();
-      for (final String item : s) {
-        addItem(item);
-      }
-      final SizeRenderer renderer = new SizeRenderer();
-      setRenderer(renderer);
+      super(Symbol.NatoUnitSymbolSet.getSymbolSizes());
+      setRenderer(new SizeRenderer());
     }
 
     public SizeComboBox(ItemListener l) {
@@ -75,7 +71,7 @@ public final class SizeConfigurer extends StringEnumConfigurer {
       addItemListener(l);
     }
 
-    public class SizeRenderer extends JLabel implements ListCellRenderer<String> {
+    public static final class SizeRenderer extends JLabel implements ListCellRenderer<String> {
       private static final long serialVersionUID = 1L;
 
       public SizeRenderer() {

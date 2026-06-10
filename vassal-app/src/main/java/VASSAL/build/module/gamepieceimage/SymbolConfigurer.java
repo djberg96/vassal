@@ -56,19 +56,15 @@ public final class SymbolConfigurer extends StringEnumConfigurer {
     return new SymbolComboBox();
   }
 
-  public class SymbolComboBox extends JComboBox<String> {
+  public static final class SymbolComboBox extends JComboBox<String> {
     private static final long serialVersionUID = 1L;
 
     static final int sample_w = 20;
     static final int sample_h = 13;
 
     public SymbolComboBox() {
-      final String[] s = Symbol.NatoUnitSymbolSet.getSymbolNames();
-      for (final String item : s) {
-        addItem(item);
-      }
-      final SymbolRenderer renderer = new SymbolRenderer();
-      setRenderer(renderer);
+      super(Symbol.NatoUnitSymbolSet.getSymbolNames());
+      setRenderer(new SymbolRenderer());
     }
 
     public SymbolComboBox(ItemListener l) {
@@ -82,7 +78,7 @@ public final class SymbolConfigurer extends StringEnumConfigurer {
       addItemListener(l);
     }
 
-    public class SymbolRenderer extends JLabel implements ListCellRenderer<String> {
+    public static final class SymbolRenderer extends JLabel implements ListCellRenderer<String> {
       private static final long serialVersionUID = 1L;
 
       public SymbolRenderer() {
