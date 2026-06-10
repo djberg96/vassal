@@ -143,7 +143,7 @@ public class PieceSlot extends Widget implements MouseListener, KeyListener {
 
   public class Panel extends JPanel {
     private static final long serialVersionUID = 1L;
-    protected final PieceSlot pieceSlot;
+    protected final transient PieceSlot pieceSlot;
 
     public Panel(PieceSlot slot) {
       super();

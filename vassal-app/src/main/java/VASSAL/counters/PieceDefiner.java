@@ -112,15 +112,15 @@ public class PieceDefiner extends JPanel {
   protected static DefaultListModel<GamePiece> availableModel;
   private static final SortedMap<String, GamePiece> alphaMap = new TreeMap<>();
   private static Boolean sorted = false;
-  protected DefaultListModel<GamePiece> inUseModel;
-  protected ListCellRenderer<? super GamePiece> r;
-  protected ListCellRenderer<? super GamePiece> availableRenderer;
-  protected ScaleablePieceSlot slot;
-  private GamePiece piece;
+  protected transient DefaultListModel<GamePiece> inUseModel;
+  protected transient ListCellRenderer<? super GamePiece> r;
+  protected transient ListCellRenderer<? super GamePiece> availableRenderer;
+  protected transient ScaleablePieceSlot slot;
+  private transient GamePiece piece;
   protected static TraitClipboard clipBoard;
   protected String pieceId = "";
   protected JLabel pieceIdLabel = new JLabel("");
-  protected GpIdSupport gpidSupport;
+  protected transient GpIdSupport gpidSupport;
   protected boolean changed;
 
   protected JList<GamePiece> availableList;
@@ -140,7 +140,7 @@ public class PieceDefiner extends JPanel {
   private JPanel slotPanel;
   private int maxPanelHeight;
   private JLabel scaleLabel;
-  private final Prefs prefs;
+  private final transient Prefs prefs;
 
   private String prototypeName; // If we're editing a prototype definition, this holds the name of it
 
@@ -1171,7 +1171,7 @@ public class PieceDefiner extends JPanel {
   protected static class Ed extends JDialog {
     private static final long serialVersionUID = 1L;
 
-    PieceEditor ed;
+    transient PieceEditor ed;
 
     private Ed(Frame owner, final EditablePiece p) {
       super(owner, Resources.getString("Editor.PieceDefiner.properties", p.getBaseDescription()), true);

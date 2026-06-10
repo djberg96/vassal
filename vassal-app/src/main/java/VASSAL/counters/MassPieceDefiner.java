@@ -31,7 +31,7 @@ import VASSAL.build.widget.PieceSlot;
 public class MassPieceDefiner extends PieceDefiner {
   private static final long serialVersionUID = 1L;
 
-  protected List<Entry> definers;
+  protected transient List<Entry> definers;
   protected ConfigureTree tree;
 
   public MassPieceDefiner(Configurable top) {
