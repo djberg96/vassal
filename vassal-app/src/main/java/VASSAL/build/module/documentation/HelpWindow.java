@@ -32,7 +32,7 @@ import VASSAL.tools.swing.HTMLWindowHelper;
 public class HelpWindow extends JFrame implements HyperlinkListener {
   private static final long serialVersionUID = 1L;
 
-  private final HTMLWindowHelper helper = new HTMLWindowHelper();
+  private final transient HTMLWindowHelper helper = new HTMLWindowHelper();
 
   public HelpWindow(String title, URL contents) {
     super(title);
