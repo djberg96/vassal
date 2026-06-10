@@ -21,7 +21,6 @@ import VASSAL.build.BadDataReport;
 import VASSAL.build.GameModule;
 import VASSAL.build.module.properties.PropertySource;
 import VASSAL.counters.EditablePiece;
-import VASSAL.counters.GamePiece;
 import VASSAL.i18n.Resources;
 import VASSAL.script.expression.AuditTrail;
 import VASSAL.script.expression.Auditable;
@@ -137,18 +136,6 @@ public class FormattedString implements Loopable {
   /**
    * Evaulate a formatted String and return unlocalized text
    * Use the default property source to find property values
-   * 
-   * @deprecated Use {@link #getText(Auditable, String)}
-   * @return evaluated formatted String
-   */
-  @Deprecated(since = "2021-12-01")
-  public String getText() {
-    return getText(fsdata.defaultProperties, false, null, null);
-  }
-
-  /**
-   * Evaulate a formatted String and return unlocalized text
-   * Use the default property source to find property values
    * Create an AuditTrail object if expression auditing enabled
    * 
    * @param owner Owning component of this formatted string. 
@@ -157,18 +144,6 @@ public class FormattedString implements Loopable {
    */
   public String getText(Auditable owner, String fieldKey) {
     return getText(fsdata.defaultProperties, false, owner, AuditTrail.create(owner, getFormat(), Resources.getString(fieldKey)));
-  }
-
-  /**
-   * Evaluate a Formatted String and return localized text   
-   * Use the default property source to find property values
-   * 
-   * @deprecated Use {@link #getLocalizedText(Auditable, String)}
-   * @return localized text
-   */
-  @Deprecated(since = "2021-12-01")
-  public String getLocalizedText() {
-    return getText(fsdata.defaultProperties, true, null, null);
   }
 
   /**
@@ -182,20 +157,6 @@ public class FormattedString implements Loopable {
    */
   public String getLocalizedText(Auditable owner, String fieldKey) {
     return getText(fsdata.defaultProperties, true, owner, AuditTrail.create(owner, getFormat(), Resources.getString(fieldKey)));
-  }
-
-  /**
-   * Evaulate a formatted String and return unlocalized text
-   * Also, if any property keys match a property in the given GamePiece,
-   * substitute the value of that property
-   *
-   * @param ps property source
-   * @return Return the resulting string after substituting properties
-   * @deprecated Use {@link #getText(PropertySource, Auditable, String)}
-   */
-  @Deprecated(since = "2021-12-01")
-  public String getText(PropertySource ps) {
-    return getText(ps, false, null, null);
   }
 
   /**
@@ -238,31 +199,6 @@ public class FormattedString implements Loopable {
    */
   public String getText(PropertySource ps, Auditable owner, AuditTrail audit) {
     return getText(ps, false, owner, audit);
-  }
-
-  /**
-   * Evaulate a formatted String and return unlocalized text
-   * @deprecated Use {@link #getText(PropertySource, String, Auditable, String)}
-   */
-  @Deprecated(since = "2021-12-01")
-  public String getText(PropertySource ps, boolean localized) {
-    return getText(ps, localized, null, null);
-  }
-
-  /**
-   * Return the resulting string after substituting properties
-   * Also, if any property keys match a property in the given GamePiece,
-   * substitute the value of that property. If the resulting string is
-   * empty, then the default is returned.
-   * @see GamePiece#getProperty
-   * @param ps Property source
-   * @param def the default if the result is otherwise empty
-   * @return Return the resulting string after substituting properties
-   * @deprecated Use {@link #getText(PropertySource, String, Auditable, String)} 
-   */
-  @Deprecated(since = "2021-12-01")
-  public String getText(PropertySource ps, String def) {
-    return getText(ps, def, null, (AuditTrail) null);
   }
 
   /**
@@ -330,15 +266,6 @@ public class FormattedString implements Loopable {
     return getText(ps, true, owner, audit);
   }
 
-  /**
-   * Evaulate a formatted String and return localized text
-   * @deprecated Use {@link #getLocalizedText(PropertySource, Auditable, String)}
-   */
-  @Deprecated(since = "2021-12-01")
-  public String getLocalizedText(PropertySource ps) {
-    return getLocalizedText(ps, null, (AuditTrail) null);
-  }
-  
   /**
    * Evaluate the supplied Formmatted String, using the supplied property source to replace any property references.
    * NOTE that evaluation is handled by the Beanshell Interpreter, so full Beanshell is supported in Formatted Strings (yikes!)
