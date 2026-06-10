@@ -44,14 +44,14 @@ import VASSAL.i18n.Resources;
  * @since 3.1.0
  * @author Joel Uckelman
  */
-public class ProgressDialog extends JDialog {
+public final class ProgressDialog extends JDialog {
   private static final long serialVersionUID = 1L;
 
-  protected final JLabel label;
-  protected final JProgressBar progbar;
-  protected final JButton cancel;
+  private final JLabel label;
+  private final JProgressBar progbar;
+  private final JButton cancel;
 
-  protected final EventListenerList listeners = new EventListenerList();
+  private final EventListenerList listeners = new EventListenerList();
 
   /**
    * Creates a progress dialog.
@@ -129,7 +129,7 @@ public class ProgressDialog extends JDialog {
     this(parent, title, text, true);
   }
 
-  protected void fireCancelledEvent(ActionEvent e) {
+  private void fireCancelledEvent(ActionEvent e) {
     final Object[] larr = listeners.getListenerList();
 
     // Process the listeners last to first, notifying

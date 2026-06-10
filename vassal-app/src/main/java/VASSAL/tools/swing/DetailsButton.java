@@ -47,21 +47,21 @@ import net.miginfocom.swing.MigLayout;
  * @author Joel Uckelman
  * @since 3.1.0
  */
-public class DetailsButton extends JButton {
+public final class DetailsButton extends JButton {
   private static final long serialVersionUID = 1L;
 
-  protected static final Icon collapsedIcon =
+  private static final Icon collapsedIcon =
     UIManager.getIcon("Tree.collapsedIcon");
-  protected static final Icon expandedIcon =
+  private static final Icon expandedIcon =
     UIManager.getIcon("Tree.expandedIcon");
 
-  protected String showText;
-  protected String hideText;
+  private String showText;
+  private String hideText;
 
-  protected Component expander;
-  protected Component buddy;
+  private Component expander;
+  private Component buddy;
 
-  protected static int eh = 300;
+  private static int eh = 300;
 
   public DetailsButton(String showText, String hideText) {
     this(showText, hideText, null, null);

@@ -11,7 +11,7 @@ import javax.swing.JSplitPane;
 
 import org.apache.commons.lang3.SystemUtils;
 
-public class SplitPane extends JSplitPane {
+public final class SplitPane extends JSplitPane {
   private static final long serialVersionUID = 1L;
 
   private int prevDividerLocation = 0;

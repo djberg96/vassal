@@ -35,7 +35,7 @@ import javax.swing.JWindow;
  * @since 3.1.0
  * @author Joel Uckelman
  */
-public class AboutWindow extends JWindow {
+public final class AboutWindow extends JWindow {
   private static final long serialVersionUID = 1L;
 
   public AboutWindow(Window w, BufferedImage img, String text) {

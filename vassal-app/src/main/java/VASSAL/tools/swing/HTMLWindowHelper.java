@@ -35,7 +35,7 @@ import VASSAL.build.GameModule;
 import VASSAL.tools.ReadErrorDialog;
 import VASSAL.tools.ScrollPane;
 
-public class HTMLWindowHelper implements HyperlinkListener {
+public final class HTMLWindowHelper implements HyperlinkListener {
   private final JEditorPane pane = new JEditorPane();
 
   public HTMLWindowHelper() {

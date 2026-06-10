@@ -36,7 +36,7 @@ import javax.swing.text.StyledDocument;
  * @author Joel Uckelman
  * @since 3.1.0
  */
-public class FlowLabel extends JTextPane {
+public final class FlowLabel extends JTextPane {
   private static final long serialVersionUID = 1L;
 
   private static final int DEFAULT_WIDTH = 40;
