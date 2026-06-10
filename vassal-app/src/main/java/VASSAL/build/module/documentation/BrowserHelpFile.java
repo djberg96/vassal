@@ -219,19 +219,6 @@ public class BrowserHelpFile extends AbstractBuildable implements Configurable {
     return startingPage;
   }
 
-  /** @deprecated Use {@link org.apache.commons.io.FileUtils#deleteDirectory(File)} instead. */
-  @Deprecated(since = "2020-10-04", forRemoval = true)
-  protected void recursiveDelete(File output) {
-    if (output.isDirectory()) {
-      for (final File f : output.listFiles()) {
-        recursiveDelete(f);
-      }
-    }
-    else {
-      output.delete();
-    }
-  }
-
   @Override
   public String[] getAttributeNames() {
     return new String[]{

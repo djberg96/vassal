@@ -124,12 +124,6 @@ public class Immobilized extends Decorator implements EditablePiece {
     this(ID, null);
   }
 
-  /** @deprecated Use {@link #Immobilized(String, GamePiece)} instead. */
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  public Immobilized(GamePiece p, String type) {
-    this(type, p);
-  }
-
   public Immobilized(String type, GamePiece p) {
     setInner(p);
     mySetType(type);

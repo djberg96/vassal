@@ -716,19 +716,6 @@ public class NodeClient implements LockableChatServerConnection,
                 .removePropertyChangeListener(profileChangeListener);
   }
 
-  /**
-   * Check on the compatibility of this client connecting to the target room.
-   * Check Vassal version, module version, module CRC
-   * @param targetRoom Room to be entered
-   * @param compatible Return true if entry allowed
-   * @param errors Return a list of error message if entry not allowed.
-   * @deprecated Use boolean checkCompatibility(NodeRoom targetRoom, List<String> errors)
-   */
-  @Deprecated(since = "2020-03-01")
-  public void checkCompatibility(NodeRoom targetRoom, boolean compatible, List<String> errors) {
-    checkCompatibility(targetRoom, errors);
-  }
-
   public boolean checkCompatibility(NodeRoom targetRoom, List<String> errors) {
     errors.clear();
     boolean compatible = true;
