@@ -142,24 +142,24 @@ public class Symbol {
     protected static String[] sizeNames;
     protected static String[] sizeDisplayNames;
 
-    protected static String[] getSymbolSizes() {
+    protected static synchronized String[] getSymbolSizes() {
       if (sizeNames == null) {
         sizeNames = new String[SIZES.length];
         for (int i = 0; i < SIZES.length; i++) {
           sizeNames[i] = SIZES[i].getName();
         }
       }
-      return sizeNames;
+      return sizeNames.clone();
     }
 
-    protected static String[] getSymbolSizeDisplayNames() {
+    protected static synchronized String[] getSymbolSizeDisplayNames() {
       if (sizeDisplayNames == null) {
         sizeDisplayNames = new String[SIZES.length];
         for (int i = 0; i < SIZES.length; i++) {
           sizeDisplayNames[i] = SIZES[i].getDisplayName();
         }
       }
-      return sizeDisplayNames;
+      return sizeDisplayNames.clone();
     }
 
     protected static SizeOption findSize(String name) {
