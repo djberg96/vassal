@@ -22,7 +22,7 @@ import java.beans.PropertyChangeSupport;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
-public class IpWatch implements Runnable {
+public final class IpWatch implements Runnable {
   private final PropertyChangeSupport propSupport = new PropertyChangeSupport(this);
   private String currentIp;
   private final long wait;

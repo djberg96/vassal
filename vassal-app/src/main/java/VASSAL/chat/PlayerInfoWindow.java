@@ -32,7 +32,7 @@ import VASSAL.i18n.Resources;
 /**
  * A window that displays information on a {@link VASSAL.chat.SimplePlayer}
  */
-public class PlayerInfoWindow extends JDialog {
+public final class PlayerInfoWindow extends JDialog {
   private static final long serialVersionUID = 1L;
 
   public PlayerInfoWindow(Frame f, SimplePlayer p) {

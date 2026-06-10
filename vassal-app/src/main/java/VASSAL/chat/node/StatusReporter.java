@@ -28,7 +28,7 @@ import VASSAL.tools.PropertiesEncoder;
  * Copyright (c) 2003 by Rodney Kinney.  All rights reserved.
  * Date: Jun 7, 2003
  */
-public class StatusReporter implements Runnable {
+public final class StatusReporter implements Runnable {
   private final HttpRequestWrapper reportStatus;
   private String lastReportedContents;
   private String currentContents;

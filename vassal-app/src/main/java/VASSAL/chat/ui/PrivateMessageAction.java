@@ -33,7 +33,7 @@ import VASSAL.i18n.Resources;
 /**
  * When invoked, will open a private message window to another player
  */
-public class PrivateMessageAction extends AbstractAction {
+public final class PrivateMessageAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
 
   private final transient Player p;

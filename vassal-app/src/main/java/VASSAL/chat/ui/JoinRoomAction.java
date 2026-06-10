@@ -34,7 +34,7 @@ import javax.swing.JOptionPane;
 /**
  * When invoked, will join a game room on the server
  */
-public class JoinRoomAction extends AbstractAction {
+public final class JoinRoomAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
 
   private final transient Room r;

@@ -40,7 +40,7 @@ import VASSAL.preferences.Prefs;
  * - No wake-ups to people in different rooms
  * - No wake-up to the same person in the same room until at least 5 seconds has passed.
  */
-public class SendSoundAction extends AbstractAction {
+public final class SendSoundAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
   private static Room lastRoom;
   private static Player lastPlayer;

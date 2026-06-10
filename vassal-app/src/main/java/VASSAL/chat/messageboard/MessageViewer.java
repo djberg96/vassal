@@ -34,7 +34,7 @@ import javax.swing.table.DefaultTableModel;
 
 import VASSAL.i18n.Resources;
 
-public class MessageViewer extends JPanel {
+public final class MessageViewer extends JPanel {
   private static final long serialVersionUID = 1L;
 
   private JTable msgTable;

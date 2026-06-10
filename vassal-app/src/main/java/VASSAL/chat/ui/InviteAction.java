@@ -33,7 +33,7 @@ import VASSAL.i18n.Resources;
  * When invoked, will Kick another player out of his current room back to the
  * Main Room.
  */
-public class InviteAction extends AbstractAction {
+public final class InviteAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
 
   private final transient SimplePlayer invitee;

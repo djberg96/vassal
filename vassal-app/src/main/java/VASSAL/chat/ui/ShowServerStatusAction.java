@@ -43,7 +43,7 @@ import VASSAL.tools.swing.SwingUtils;
 /**
  * Description?
  */
-public class ShowServerStatusAction extends AbstractAction {
+public final class ShowServerStatusAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
 
   private static Window frame;

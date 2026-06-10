@@ -38,7 +38,7 @@ import VASSAL.i18n.Resources;
  *  - Cannot Synch with yourself
  *  - Cannot Synch with any player in the same room within 15 seconds of your last synch in this room
  */
-public class SynchAction extends AbstractAction {
+public final class SynchAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
   private static final long TOO_SOON = 15 * 1000;
   private static Room lastRoom;

@@ -27,7 +27,7 @@ import VASSAL.chat.SimplePlayer;
 import VASSAL.chat.SimpleStatus;
 import VASSAL.tools.PropertiesEncoder;
 
-public class P2PPlayer extends SimplePlayer {
+public final class P2PPlayer extends SimplePlayer {
   private static final String ID = "id"; //$NON-NLS-1$
   private static final String ROOM = "room"; //$NON-NLS-1$
 

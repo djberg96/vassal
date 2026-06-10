@@ -29,7 +29,7 @@ import VASSAL.tools.ArgsParser;
 /**
  * The server-side Main class
  */
-public class Server extends Thread {
+public final class Server extends Thread {
   private final AsynchronousServerNode rootNode;
   private final ServerSocket socket;
 
