@@ -85,7 +85,7 @@ public class ColorConfigurer extends Configurer {
     if (c == null) {
       return "";
     }
-    else if (c.getTransparency() == c.OPAQUE) {
+    else if (c.getTransparency() == Color.OPAQUE) {
       return c.getRed() + ","
         + c.getGreen() + ","
         + c.getBlue();

@@ -417,9 +417,9 @@ public class DataArchive extends SecureClassLoader implements Closeable {
     return null;
   }
 
-/////////////////////////////////////////////////////////////////////
-// Methods overridden from SecureClassLoader
-/////////////////////////////////////////////////////////////////////
+  // ---------------------------------------------------------------------
+  // Methods overridden from SecureClassLoader
+  // ---------------------------------------------------------------------
 
   @Override
   public synchronized Class<?> loadClass(String name, boolean resolve)

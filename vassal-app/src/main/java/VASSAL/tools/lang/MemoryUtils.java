@@ -43,7 +43,7 @@ public class MemoryUtils {
       final Object o = ManagementFactory.getOperatingSystemMXBean();
       if (o instanceof OperatingSystemMXBean) {
         final OperatingSystemMXBean osb = (OperatingSystemMXBean) o;
-        return osb.getTotalPhysicalMemorySize();
+        return osb.getTotalMemorySize();
       }
     }
     catch (Exception e) {

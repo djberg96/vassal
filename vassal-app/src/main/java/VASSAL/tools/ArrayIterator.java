@@ -34,6 +34,7 @@ public class ArrayIterator<T> implements Iterator<T> {
   private int pos = 0;
 
   @SafeVarargs
+  @SuppressWarnings("varargs")
   public ArrayIterator(T... array) {
     this.array = array;
   }
