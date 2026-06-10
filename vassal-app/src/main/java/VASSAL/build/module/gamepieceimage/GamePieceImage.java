@@ -87,22 +87,25 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
 
   public GamePieceImage() {
     super();
-    setConfigureName(""); //$NON-NLS-1$
+    name = ""; //$NON-NLS-1$
+    localizedName = ""; //$NON-NLS-1$
   }
 
   public GamePieceImage(String s) {
-    instances = InstanceConfigurer.StringToProperties(s, this);
+    instances = InstanceConfigurer.StringToProperties(s, null);
   }
 
   public GamePieceImage(GamePieceLayout l) {
     this();
-    setConfigureName(l.getConfigureName());
+    name = l.getConfigureName();
+    localizedName = name;
     layout = l;
   }
 
   public GamePieceImage(GamePieceImage defn) {
     this();
-    this.setConfigureName(defn.getConfigureName());
+    name = defn.getConfigureName();
+    localizedName = name;
     this.layout = defn.getLayout();
     this.bgColor = defn.getBgColor();
     this.borderColor = defn.getBorderColor();
