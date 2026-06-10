@@ -126,40 +126,6 @@ public class BoardSlot extends JPanel implements Icon, ActionListener {
       setSize(getPreferredSize());
       revalidate();
       repaint();
-
-// FIXME: do something in case the image fails to load
-/*
-      picker.warn(Resources.getString("BoardPicker.loading", b.getLocalizedName())); //$NON-NLS-1$
-      final javax.swing.Timer t = new javax.swing.Timer(1000, new ActionListener() {
-        boolean toggle = false;
-
-        public void actionPerformed(ActionEvent evt) {
-          if (toggle) {
-            picker.warn(Resources.getString("BoardPicker.loading", b.getLocalizedName())); //$NON-NLS-1$
-          }
-          else {
-            picker.warn(Resources.getString("BoardPicker.loading2", b.getLocalizedName())); //$NON-NLS-1$
-          }
-          toggle = !toggle;
-        }
-      });
-      new BackgroundTask() {
-        public void doFirst() {
-//          if (board != null) {
-//            board.fixImage();
-//          }
-        }
-
-        public void doLater() {
-          picker.warn(Resources.getString("BoardPicker.loaded", b.getLocalizedName())); //$NON-NLS-1$
-          t.stop();
-          setSize(getPreferredSize());
-          revalidate();
-          repaint();
-        }
-      }.start();
-      t.start();
-*/
     }
     else {
       reverseCheckBox.setVisible(false);
