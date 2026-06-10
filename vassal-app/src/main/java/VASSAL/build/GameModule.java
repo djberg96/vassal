@@ -160,8 +160,6 @@ import java.nio.file.NoSuchFileException;
 import java.security.SecureRandom;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
@@ -829,10 +827,7 @@ public class GameModule extends AbstractConfigurable
     openRecentItems.clear();
 
     // recreate recent games
-    final List<String> rgs = new ArrayList<>(Arrays.asList((String[]) getPrefs().getValue(RECENT_GAMES)));
-    Collections.reverse(rgs);
-
-    for (final String rg : rgs) {
+    for (final String rg : recentGamesFromPrefsValue(getPrefs().getValue(RECENT_GAMES))) {
       final MenuItemProxy i = new MenuItemProxy(new AbstractAction(new File(rg).getName()) {
         private static final long serialVersionUID = 1L;
 
@@ -848,6 +843,19 @@ public class GameModule extends AbstractConfigurable
       mm.addToSection("OpenRecent", i);
       openRecentItems.add(i);
     }
+  }
+
+  static List<String> recentGamesFromPrefsValue(Object value) {
+    final List<String> recentGames = new ArrayList<>();
+    if (value instanceof String[]) {
+      final String[] values = (String[]) value;
+      for (int i = values.length - 1; i >= 0; i--) {
+        if (values[i] != null && !values[i].isEmpty()) {
+          recentGames.add(values[i]);
+        }
+      }
+    }
+    return recentGames;
   }
 
   /**
