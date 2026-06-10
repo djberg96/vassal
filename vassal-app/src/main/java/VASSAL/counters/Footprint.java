@@ -65,6 +65,8 @@ import java.util.Objects;
 public class Footprint extends MovementMarkable {
 
   public static final String ID = "footprint;"; //$NON-NLS-1$//
+  private static final double ZOOM_TOLERANCE = 1e-9;
+
   private KeyCommand[] commands;
 
   // State Variables (Saved in logfile/sent to opponent)
@@ -103,6 +105,10 @@ public class Footprint extends MovementMarkable {
   protected static final int DEFAULT_EDGE_POINT_BUFFER = 20;
   protected static final int DEFAULT_EDGE_DISPLAY_BUFFER = 30;
   protected static final float LINE_WIDTH = 1.0f;
+
+  private static boolean sameZoom(double a, double b) {
+    return Math.abs(a - b) <= ZOOM_TOLERANCE;
+  }
 
   // Local Variables
   protected Rectangle myBoundingBox;
@@ -401,7 +407,7 @@ public class Footprint extends MovementMarkable {
      * setting, then don't draw the trail as it will be in the wrong place.
      * (i.e. Mouse-over viewer)
      */
-    if (zoom != map.getZoom() * os_scale) {
+    if (!sameZoom(zoom, map.getZoom() * os_scale)) {
       return;
     }
 
@@ -513,7 +519,7 @@ public class Footprint extends MovementMarkable {
         x1 = (int)((p.x - circleRadius) * zoom);
         y1 = (int)((p.y - circleRadius) * zoom);
         if (selected && image != null) {
-          if (zoom == 1.0) {
+          if (sameZoom(zoom, 1.0)) {
             g.drawImage(image, x1, y1, obs);
           }
           else {

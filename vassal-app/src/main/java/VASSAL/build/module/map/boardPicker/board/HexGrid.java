@@ -982,6 +982,7 @@ public class HexGrid extends AbstractConfigurable
     final Point p4 = new Point();
 
     // x,y is the center of a hex
+    boolean firstColumn = true;
     for (float x = xmin; x < xmax; x = (float) (x + zoom * 2 * dx)) {
       for (float y = ymin; y < ymax; y = (float) (y + zoom * dy)) {
         // Draw Center dots?
@@ -1038,7 +1039,7 @@ public class HexGrid extends AbstractConfigurable
           g2d.drawLine(p1.x, p1.y, p2.x, p2.y);
           g2d.drawLine(p2.x, p2.y, p3.x, p3.y);
           g2d.drawLine(p3.x, p3.y, p4.x, p4.y);
-          if (x == xmin) {
+          if (firstColumn) {
             p1.setLocation(round(x - r), round(y));
             p2.setLocation(round(x - r / 2), round(y + deltaY / 2));
             if (sideways) {
@@ -1049,6 +1050,7 @@ public class HexGrid extends AbstractConfigurable
           }
         }
       }
+      firstColumn = false;
     }
     g2d.setClip(oldClip);
   }

@@ -77,6 +77,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 public class Board extends AbstractConfigurable implements GridContainer {
+  private static final double SCALE_TOLERANCE = 1e-9;
+
   /**
    * A Board is a piece of a Map.
    * A Map can cantain a set of boards layed out in a rectangular grid.
@@ -105,6 +107,10 @@ public class Board extends AbstractConfigurable implements GridContainer {
   protected ScaleOp scaledImageOp;
 
   private static final Color CLEAR = new Color(0, 0, 0, 0);
+
+  private static boolean sameScale(double a, double b) {
+    return Math.abs(a - b) <= SCALE_TOLERANCE;
+  }
 
   /**
    * @return this <code>Board</code>'s {@link Map}.
@@ -378,11 +384,11 @@ public class Board extends AbstractConfigurable implements GridContainer {
 
     ImageOp op;
     if (boardImageOp != null) {
-      if (zoom == 1.0 && !reversed) {
+      if (sameScale(zoom, 1.0) && !reversed) {
         op = boardImageOp;
       }
       else {
-        if (scaledImageOp == null || scaledImageOp.getScale() != zoom) {
+        if (scaledImageOp == null || !sameScale(scaledImageOp.getScale(), zoom)) {
           if (boardImageOp instanceof SVGOp) {
             scaledImageOp = Op.scale(boardImageOp, zoom);
           }

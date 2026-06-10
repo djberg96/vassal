@@ -90,6 +90,8 @@ import java.util.Set;
  * @author Joel Uckelman
  */
 public class Zoomer extends AbstractConfigurable implements GameComponent {
+  private static final double ZOOM_TOLERANCE = 1e-9;
+
   protected Map map;
 
   protected LaunchButton zoomInButton;
@@ -116,6 +118,10 @@ public class Zoomer extends AbstractConfigurable implements GameComponent {
   };
 
   protected static final int defaultInitialZoomLevel = 8;
+
+  private static boolean sameZoom(double a, double b) {
+    return Math.abs(a - b) <= ZOOM_TOLERANCE;
+  }
 
   /**
    * Stores the state information for the {@link Zoomer}. This class
@@ -1027,7 +1033,7 @@ public class Zoomer extends AbstractConfigurable implements GameComponent {
         dialog.setVisible(true);
 
         final double z = dialog.getResult() / 100.0;
-        if (z > 0 && z != state.getZoom()) {
+        if (z > 0 && !sameZoom(z, state.getZoom())) {
           setZoomFactor(z);
         }
       }
