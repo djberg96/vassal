@@ -346,7 +346,7 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
             getOutermost(this),
             this));
 
-    if ((c != null) && (afterBurnerKey != null) && !afterBurnerKey.isNull()) {
+    if ((afterBurnerKey != null) && !afterBurnerKey.isNull()) {
       marker.setProperty(Properties.SNAPSHOT, ((PropertyExporter) marker).getProperties());
       try {
         RecursionLimiter.startExecution(this);
