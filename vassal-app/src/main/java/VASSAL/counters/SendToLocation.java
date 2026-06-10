@@ -142,16 +142,15 @@ public class SendToLocation extends Decorator implements TranslatablePiece {
   private Map map;
 
   public SendToLocation() {
-    this(ID, null);
-  }
-
-  public SendToLocation(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeFromType(ID);
   }
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     type = type.substring(ID.length());
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     commandName = st.nextToken("");

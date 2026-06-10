@@ -154,17 +154,16 @@ public class MultiLocationCommand extends Decorator implements TranslatablePiece
 
 
   public MultiLocationCommand() {
-    this(ID + ";", null); //NON-NLS
-  }
-
-  public MultiLocationCommand(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeFromType(ID + ";"); //NON-NLS
   }
 
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     type = type.substring(ID.length());
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     desc = st.nextToken("");

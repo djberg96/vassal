@@ -183,7 +183,7 @@ public class BasicCommandEncoder implements CommandEncoder, Buildable {
     Map.entry(MovementMarkable.ID, decoratorFactory(MovementMarkable::new)),
     Map.entry(Footprint.ID, decoratorFactory(Footprint::new)),
     Map.entry(ReturnToDeck.ID, decoratorFactory(ReturnToDeck::new)),
-    Map.entry(SendToLocation.ID, SendToLocation::new),
+    Map.entry(SendToLocation.ID, decoratorFactory(SendToLocation::new)),
     Map.entry(UsePrototype.ID, UsePrototype::new),
     Map.entry(Clone.ID, decoratorFactory(Clone::new)),
     Map.entry(Delete.ID, decoratorFactory(Delete::new)),
@@ -207,7 +207,7 @@ public class BasicCommandEncoder implements CommandEncoder, Buildable {
     Map.entry(BasicName.ID, decoratorFactory(BasicName::new)),
     Map.entry(BorderOutline.ID, BorderOutline::new),
     Map.entry(Attachment.ID, Attachment::new),
-    Map.entry(MultiLocationCommand.ID, MultiLocationCommand::new),
+    Map.entry(MultiLocationCommand.ID, decoratorFactory(MultiLocationCommand::new)),
     Map.entry(Comment.ID, decoratorFactory(Comment::new))
   );
 
