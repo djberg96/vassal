@@ -17,7 +17,6 @@
  */
 package VASSAL.chat.ui;
 
-import java.awt.Font;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -47,8 +46,6 @@ import VASSAL.tools.swing.SwingUtils;
  *
  */
 public class RoomInteractionControlsInitializer implements ChatControlsInitializer {
-  @Deprecated(since = "2022-08-08", forRemoval = true)
-  public static final Font POPUP_MENU_FONT = new Font("Dialog", 0, 10); //$NON-NLS-1$
   private final List<PlayerActionFactory> playerActionFactories = new ArrayList<>();
   private final List<RoomActionFactory> roomActionFactories = new ArrayList<>();
   protected ChatServerConnection client;

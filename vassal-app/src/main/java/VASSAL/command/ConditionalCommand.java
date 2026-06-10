@@ -19,7 +19,6 @@ package VASSAL.command;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 
 import VASSAL.build.GameModule;
 import VASSAL.tools.version.VersionUtils;
@@ -77,12 +76,6 @@ public class ConditionalCommand extends Command {
     private final List<String> allowed;
 
     public Eq(String property, List<String> allowed) {
-      this.property = property;
-      this.allowed = allowed;
-    }
-
-    @Deprecated(since = "2020-10-26", forRemoval = true)
-    public Eq(String property, Vector<String> allowed) { //NOPMD
       this.property = property;
       this.allowed = allowed;
     }

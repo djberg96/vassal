@@ -221,8 +221,6 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
   private final transient SearchParameters searchParameters;
   protected static Chatter chatter;
 
-  @Deprecated(since = "2022-08-08", forRemoval = true)
-  public static final Font POPUP_MENU_FONT = new Font(Font.DIALOG, Font.PLAIN, 11);
   protected static final List<AdditionalComponent> additionalComponents = new ArrayList<>();
 
   // Internal names of module classes; used where system literals are required rather than translate codes (shown in comment)
