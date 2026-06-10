@@ -41,12 +41,11 @@ public class ConfigurerLayout extends MigLayout {
    * @param nameColConstraints Column constraints to apply if a label is supplied
    */
   public ConfigurerLayout(String name, String noNameColConstraints, String nameColConstraints) {
-    this(DEFAULT_CFG_LAYOUT_CONSTRAINTS, (name == null || name.isEmpty()) ? noNameColConstraints : nameColConstraints);
+    super(DEFAULT_CFG_LAYOUT_CONSTRAINTS, (name == null || name.isEmpty()) ? noNameColConstraints : nameColConstraints);
   }
 
   public ConfigurerLayout(String name, String noNameColConstraints, String nameColConstraints, String rowConstraints) {
-    this(name, noNameColConstraints, nameColConstraints);
-    setRowConstraints(rowConstraints);
+    super(DEFAULT_CFG_LAYOUT_CONSTRAINTS, (name == null || name.isEmpty()) ? noNameColConstraints : nameColConstraints, rowConstraints);
   }
 
   public ConfigurerLayout(String defaultLayoutConstraints, String defaultColumnConstraints) {
@@ -54,7 +53,6 @@ public class ConfigurerLayout extends MigLayout {
   }
 
   public ConfigurerLayout() {
-    super();
-    setLayoutConstraints(DEFAULT_CFG_LAYOUT_CONSTRAINTS);
+    super(DEFAULT_CFG_LAYOUT_CONSTRAINTS);
   }
 }
