@@ -48,3 +48,6 @@ debian/files
 debian/vassal.substvars
 debian/vassal
 deprecated
+
+# Visual Studio
+.vscode
