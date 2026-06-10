@@ -170,25 +170,11 @@ public class GlobalCommandTarget implements ConfigurerFactory, SearchTarget {
   }
 
   public GlobalCommandTarget(GKCtype gkc) {
-    setGKCtype(gkc);
-
-    // Can't just let this shit be null => ANGRY ENCODER IS ANGRY!!!
-    targetMap          = new FormattedStringExpression("");
-    targetBoard        = new FormattedStringExpression("");
-    targetZone         = new FormattedStringExpression("");
-    targetLocation     = new FormattedStringExpression("");
-    targetDeck         = new FormattedStringExpression("");
-    targetProperty     = new FormattedStringExpression("");
-    targetValue        = new FormattedStringExpression("");
-    targetX            = new FormattedStringExpression("0");
-    targetY            = new FormattedStringExpression("0");
-    targetAttachment   = new FormattedStringExpression("");
-    targetAttachmentId = new FormattedStringExpression("");
-    targetCompare      = CompareMode.EQUALS;
+    initializeDefaults(gkc);
   }
 
   public GlobalCommandTarget(String s) {
-    decode(s);
+    decodeFrom(s);
   }
 
   public GlobalCommandTarget(GlobalCommandTarget gc) {
@@ -226,6 +212,28 @@ public class GlobalCommandTarget implements ConfigurerFactory, SearchTarget {
    * @param code String to decode into our fields.
    */
   public void decode(String code) {
+    decodeFrom(code);
+  }
+
+  private void initializeDefaults(GKCtype gkc) {
+    gkcType = gkc;
+
+    // Can't just let this shit be null => ANGRY ENCODER IS ANGRY!!!
+    targetMap          = new FormattedStringExpression("");
+    targetBoard        = new FormattedStringExpression("");
+    targetZone         = new FormattedStringExpression("");
+    targetLocation     = new FormattedStringExpression("");
+    targetDeck         = new FormattedStringExpression("");
+    targetProperty     = new FormattedStringExpression("");
+    targetValue        = new FormattedStringExpression("");
+    targetX            = new FormattedStringExpression("0");
+    targetY            = new FormattedStringExpression("0");
+    targetAttachment   = new FormattedStringExpression("");
+    targetAttachmentId = new FormattedStringExpression("");
+    targetCompare      = CompareMode.EQUALS;
+  }
+
+  private void decodeFrom(String code) {
     final SequenceEncoder.Decoder sd = new SequenceEncoder.Decoder(code, ENCODE_DELIMITER);
     final String source = sd.nextToken("");
     gkcType = source.isEmpty() ? GKCtype.MAP : GKCtype.valueOf(source);
