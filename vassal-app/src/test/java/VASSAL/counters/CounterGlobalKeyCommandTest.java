@@ -43,8 +43,8 @@ public class CounterGlobalKeyCommandTest extends DecoratorTest {
     trait.restrictRange = true;
     trait.range = 3;
     trait.rangeProperty = "test";
-    trait.globalCommand.setReportSingle(true);
-    trait.globalCommand.selectFromDeck = 3;
+    trait.getGlobalCommand().setReportSingle(true);
+    trait.getGlobalCommand().selectFromDeck = 3;
     serializeTest("Complex trait", trait);
 
     trait = new CounterGlobalKeyCommand();
@@ -55,8 +55,8 @@ public class CounterGlobalKeyCommandTest extends DecoratorTest {
     trait.restrictRange = true;
     trait.range = 3;
     trait.rangeProperty = "test";
-    trait.globalCommand.setReportSingle(true);
-    trait.globalCommand.selectFromDeck = 3;
+    trait.getGlobalCommand().setReportSingle(true);
+    trait.getGlobalCommand().selectFromDeck = 3;
     GlobalCommandTarget target = new GlobalCommandTarget(GlobalCommandTarget.GKCtype.COUNTER);
     target.setTargetType(GlobalCommandTarget.Target.MAP);
     target.setTargetMap("xyzzy");

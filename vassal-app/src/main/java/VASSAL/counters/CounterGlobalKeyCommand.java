@@ -50,7 +50,6 @@ import java.awt.Shape;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -78,7 +77,7 @@ public class CounterGlobalKeyCommand extends Decorator
   protected String commandName;
   protected NamedKeyStroke key;
   protected NamedKeyStroke globalKey;
-  protected GlobalCommand globalCommand = new GlobalCommand(this);
+  protected GlobalCommand globalCommand;
   protected PropertyExpression propertiesFilter = new PropertyExpression();
   protected boolean restrictRange;
   protected boolean fixedRange = true;
@@ -90,41 +89,66 @@ public class CounterGlobalKeyCommand extends Decorator
   protected List<Parameter> parameters = new ArrayList<>();
 
   public CounterGlobalKeyCommand() {
-    this(ID, null);
-  }
-
-  public CounterGlobalKeyCommand(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeDefaults();
   }
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     type = type.substring(ID.length());
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     commandName = st.nextToken(Resources.getString("Editor.GlobalkeyCommand.command"));
     key = st.nextNamedKeyStroke('G');
     globalKey = st.nextNamedKeyStroke('K');
+    final GlobalCommand global = getGlobalCommand();
     propertiesFilter.setExpression(st.nextToken(""));
     restrictRange = st.nextBoolean(false);
     range = st.nextInt(1);
-    globalCommand.setReportSingle(st.nextBoolean(true));
-    globalCommand.setKeyStroke(globalKey);
+    global.setReportSingle(st.nextBoolean(true));
+    global.setKeyStroke(globalKey);
     fixedRange = st.nextBoolean(true);
     rangeProperty = st.nextToken("");
     description = st.nextToken("");
-    globalCommand.setSelectFromDeckExpression(st.nextToken("-1"));
+    global.setSelectFromDeckExpression(st.nextToken("-1"));
     target.decode(st.nextToken(""));
-    globalCommand.setSuppressSounds(st.nextBoolean(false));
+    global.setSuppressSounds(st.nextBoolean(false));
     target.setGKCtype(GlobalCommandTarget.GKCtype.COUNTER);
-    target.setCurPiece(this);
     parameters = ParameterListConfigurer.decode(st.nextToken(""));
 
     command = null;
   }
 
+  private void initializeDefaults() {
+    commandName = Resources.getString("Editor.GlobalkeyCommand.command");
+    key = NamedKeyStroke.of('G');
+    globalKey = NamedKeyStroke.of('K');
+    propertiesFilter.setExpression("");
+    restrictRange = false;
+    range = 1;
+    fixedRange = true;
+    rangeProperty = "";
+    description = "";
+    target.decode("");
+    target.setGKCtype(GlobalCommandTarget.GKCtype.COUNTER);
+    parameters = new ArrayList<>();
+    command = null;
+  }
+
+  protected GlobalCommand getGlobalCommand() {
+    if (globalCommand == null) {
+      globalCommand = new GlobalCommand(this);
+      globalCommand.setReportSingle(true);
+      globalCommand.setKeyStroke(globalKey);
+    }
+    return globalCommand;
+  }
+
   @Override
   public String myGetType() {
+    final GlobalCommand global = getGlobalCommand();
     final SequenceEncoder se = new SequenceEncoder(';');
     se.append(commandName)
       .append(key)
@@ -132,13 +156,13 @@ public class CounterGlobalKeyCommand extends Decorator
       .append(propertiesFilter.getExpression())
       .append(restrictRange)
       .append(range)
-      .append(globalCommand.isReportSingle())
+      .append(global.isReportSingle())
       .append(fixedRange)
       .append(rangeProperty)
       .append(description)
-      .append(globalCommand.getSelectFromDeckExpression())
+      .append(global.getSelectFromDeckExpression())
       .append(target.encode())
-      .append(globalCommand.isSuppressSounds())
+      .append(global.isSuppressSounds())
       .append(ParameterListConfigurer.encode(parameters));
     return ID + se.getValue();
   }
@@ -242,10 +266,7 @@ public class CounterGlobalKeyCommand extends Decorator
    */
   @Override
   public List<String> getFormattedStringList() {
-    if (globalCommand != null) {
-      return List.of(globalCommand.getReportFormat());
-    }
-    return Collections.emptyList();
+    return List.of(getGlobalCommand().getReportFormat());
   }
 
   @Override
@@ -288,7 +309,9 @@ public class CounterGlobalKeyCommand extends Decorator
 
   public Command apply() {
     final GamePiece outer = getOutermost(this);
-    globalCommand.setPropertySource(outer); // Doing this here ensures trait is linked into GamePiece before finding source
+    final GlobalCommand global = getGlobalCommand();
+    global.setPropertySource(outer); // Doing this here ensures trait is linked into GamePiece before finding source
+    target.setCurPiece(this);
     final AuditTrail audit = AuditTrail.create(this, propertiesFilter.getExpression(), Resources.getString("Editor.GlobalKeyCommand.matching_properties"));
 
     // This filter will be run by GlobalCommand.apply() on any pieces that remain after fastmatch has done it's thing.
@@ -310,17 +333,17 @@ public class CounterGlobalKeyCommand extends Decorator
       filter = new BooleanAndPieceFilter(filter, new RangeFilter(getMap(), getPosition(), r));
 
       // Set the range into the GlobalCommand so it can do a fast Qtree lookup
-      globalCommand.setRange(r);
+      global.setRange(r);
     }
     else {
-      globalCommand.setRange(null);
+      global.setRange(null);
     }
 
-    globalCommand.setParameters(parameters);
+    global.setParameters(parameters);
 
     // If Range restriction is requested, it can only apply to units on the same map. Otherwise check all maps.
     final Map[] maps = restrictRange ? new Map[] {getMap()} : Map.getMapList().toArray(new Map[0]);
-    c = c.append(globalCommand.apply(maps, filter, target, audit));
+    c = c.append(global.apply(maps, filter, target, audit));
 
     return c;
   }
@@ -349,9 +372,11 @@ public class CounterGlobalKeyCommand extends Decorator
       return false;
     if (!Objects.equals(range, trait.range))
       return false;
-    if (!Objects.equals(globalCommand.isReportSingle(), trait.globalCommand.isReportSingle()))
+    final GlobalCommand global = getGlobalCommand();
+    final GlobalCommand otherGlobal = trait.getGlobalCommand();
+    if (!Objects.equals(global.isReportSingle(), otherGlobal.isReportSingle()))
       return false;
-    if (!Objects.equals(globalCommand.isSuppressSounds(), trait.globalCommand.isSuppressSounds()))
+    if (!Objects.equals(global.isSuppressSounds(), otherGlobal.isSuppressSounds()))
       return false;
     if (!Objects.equals(fixedRange, trait.fixedRange))
       return false;
@@ -363,7 +388,7 @@ public class CounterGlobalKeyCommand extends Decorator
       return false;
     if (!Objects.equals(parameters, trait.parameters))
       return false;
-    return Objects.equals(globalCommand.getSelectFromDeckExpression(), trait.globalCommand.getSelectFromDeckExpression());
+    return Objects.equals(global.getSelectFromDeckExpression(), otherGlobal.getSelectFromDeckExpression());
   }
 
   public static class Ed implements PieceEditor {
@@ -429,7 +454,7 @@ public class CounterGlobalKeyCommand extends Decorator
       traitPanel.add("Editor.GlobalKeyCommand.matching_properties", propertyMatch);
 
       deckPolicy = new MassKeyCommand.DeckPolicyConfig(false, p);
-      deckPolicy.setValue(p.globalCommand.getSelectFromDeckExpression());
+      deckPolicy.setValue(p.getGlobalCommand().getSelectFromDeckExpression());
       traitPanel.add("Editor.GlobalKeyCommand.deck_policy", deckPolicy);
 
       restrictRange = new BooleanConfigurer(p.restrictRange);
@@ -450,10 +475,10 @@ public class CounterGlobalKeyCommand extends Decorator
       rangePropertyLabel = new JLabel(Resources.getString("Editor.GlobalKeyCommand.range_property"));
       traitPanel.add(rangePropertyLabel, rangeProperty);
 
-      suppress = new BooleanConfigurer(p.globalCommand.isReportSingle());
+      suppress = new BooleanConfigurer(p.getGlobalCommand().isReportSingle());
       traitPanel.add("Editor.GlobalKeyCommand.Editor_MassKey_suppress", suppress);
 
-      suppressSounds = new BooleanConfigurer(p.globalCommand.isSuppressSounds());
+      suppressSounds = new BooleanConfigurer(p.getGlobalCommand().isSuppressSounds());
       traitPanel.add("Editor.GlobalKeyCommand.Editor_MassKey_suppress_sounds", suppressSounds);
 
       paramConfig = new ParameterListConfigurer(p.parameters);
