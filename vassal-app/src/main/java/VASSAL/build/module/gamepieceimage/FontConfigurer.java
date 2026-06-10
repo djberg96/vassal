@@ -54,13 +54,13 @@ public class FontConfigurer extends Configurer {
 
   public FontConfigurer(String key, String name, OutlineFont f) {
     super(key, name);
-    setValue(f);
+    value = f;
   }
 
   public FontConfigurer(String key, String name, FontStyle f) {
     super(key, name);
-    setValue(f.font);
-    setName(f.getConfigureName());
+    value = f.font;
+    this.name = f.getConfigureName();
   }
   @Override
   public String getValueString() {

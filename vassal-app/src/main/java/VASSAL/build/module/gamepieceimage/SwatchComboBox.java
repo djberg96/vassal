@@ -68,7 +68,7 @@ public final class SwatchComboBox extends JComboBox<String> {
     addItemListener(l);
   }
 
-  public class SwatchRenderer extends JLabel implements ListCellRenderer<String> {
+  public static final class SwatchRenderer extends JLabel implements ListCellRenderer<String> {
     private static final long serialVersionUID = 1L;
 
     public SwatchRenderer() {
@@ -114,7 +114,7 @@ public final class SwatchComboBox extends JComboBox<String> {
     }
   }
 
-  public class SwatchTableRenderer extends JLabel implements TableCellRenderer  {
+  public static final class SwatchTableRenderer extends JLabel implements TableCellRenderer  {
     private static final long serialVersionUID = 1L;
 
     public SwatchTableRenderer() {
