@@ -61,7 +61,8 @@ public class TextBoxItem extends TextItem {
 
   public TextBoxItem(GamePieceLayout l, String n) {
     this(l);
-    setConfigureName(n);
+    name = n;
+    localizedName = n;
   }
 
   @Override

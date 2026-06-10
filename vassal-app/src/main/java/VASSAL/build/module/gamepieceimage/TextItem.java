@@ -87,7 +87,8 @@ public class TextItem extends Item {
 
   public TextItem(GamePieceLayout l, String nam) {
     this(l);
-    setConfigureName(nam);
+    name = nam;
+    localizedName = nam;
   }
 
   @Override

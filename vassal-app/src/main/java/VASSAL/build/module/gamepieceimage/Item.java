@@ -58,7 +58,8 @@ public abstract class Item extends AbstractConfigurable {
 
   public Item() {
     super();
-    setConfigureName(""); //$NON-NLS-1$
+    name = ""; //$NON-NLS-1$
+    localizedName = ""; //$NON-NLS-1$
   }
 
   public Item(GamePieceLayout l) {
@@ -68,7 +69,8 @@ public abstract class Item extends AbstractConfigurable {
 
   public Item(String name) {
     this();
-    setConfigureName(name);
+    this.name = name;
+    localizedName = name;
   }
 
   @Override

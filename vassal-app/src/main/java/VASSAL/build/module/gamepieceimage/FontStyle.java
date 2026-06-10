@@ -41,13 +41,15 @@ public class FontStyle extends AbstractConfigurable {
 
   public FontStyle() {
     super();
-    setConfigureName(FontManager.DEFAULT);
+    name = FontManager.DEFAULT;
+    localizedName = FontManager.DEFAULT;
     font = new OutlineFont(FontManager.DIALOG, Font.PLAIN, 12, false);
   }
 
   public FontStyle(String name, OutlineFont f) {
     super();
-    setConfigureName(name);
+    this.name = name;
+    localizedName = name;
     font = f;
   }
 

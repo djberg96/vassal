@@ -58,7 +58,7 @@ public class ColorSwatch extends AbstractConfigurable
 
   public ColorSwatch(String code) {
     this();
-    decode(code);
+    decodeFrom(code);
   }
 
   public Color getColor() {
@@ -164,13 +164,18 @@ public class ColorSwatch extends AbstractConfigurable
   }
 
   public void decode(String s) {
+    decodeFrom(s);
+  }
+
+  private void decodeFrom(String s) {
     final SequenceEncoder.Decoder sd = new SequenceEncoder.Decoder(s, ';');
-    setConfigureName(sd.nextToken());
-    Color c = ColorManager.getColorManager().getColorByName(getConfigureName());
-    if (c == null && !getConfigureName().equals(CLEAR)) {
+    name = sd.nextToken();
+    localizedName = name;
+    Color c = ColorManager.getColorManager().getColorByName(name);
+    if (c == null && !CLEAR.equals(name)) {
       c = ColorManager.getColorManager().getColorByName("BLACK"); //$NON-NLS-1$
     }
-    setColor(c);
+    color = c;
   }
 
   public static ColorSwatch getDefaultSwatch() {

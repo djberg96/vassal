@@ -53,13 +53,14 @@ public class SymbolItem extends Item {
 
   public SymbolItem(GamePieceLayout l) {
     super(l);
-    width = getLayout().getLayoutWidth() / 2;
+    width = layout.getLayoutWidth() / 2;
     height = (int) (width * 0.75);
   }
 
   public SymbolItem(GamePieceLayout l, String nam) {
     this(l);
-    setConfigureName(nam);
+    name = nam;
+    localizedName = nam;
   }
 
   @Override

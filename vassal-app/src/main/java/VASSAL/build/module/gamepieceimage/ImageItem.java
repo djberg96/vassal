@@ -69,7 +69,8 @@ public class ImageItem extends Item {
 
   public ImageItem(GamePieceLayout l, String n) {
     this(l);
-    setConfigureName(n);
+    name = n;
+    localizedName = n;
   }
 
   @Override

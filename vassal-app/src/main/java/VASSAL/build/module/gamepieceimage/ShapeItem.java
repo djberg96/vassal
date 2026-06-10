@@ -62,7 +62,8 @@ public class ShapeItem extends Item {
 
   public ShapeItem(GamePieceLayout l, String n) {
     this(l);
-    setConfigureName(n);
+    name = n;
+    localizedName = n;
   }
 
   @Override
