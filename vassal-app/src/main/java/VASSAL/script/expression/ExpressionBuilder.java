@@ -40,11 +40,11 @@ import java.awt.event.WindowEvent;
 public class ExpressionBuilder extends JDialog {
 
   private static final long serialVersionUID = 1L;
-  protected BeanShellExpressionConfigurer expression;
+  protected transient BeanShellExpressionConfigurer expression;
   protected String save;
-  protected Configurer target;
-  protected EditablePiece pieceTarget;
-  protected AbstractBuildable context;
+  protected transient Configurer target;
+  protected transient EditablePiece pieceTarget;
+  protected transient AbstractBuildable context;
 
   public ExpressionBuilder(Configurer c, JDialog parent) {
     this(c, parent, null);

@@ -105,13 +105,15 @@ public class ExpressionInterpreter extends AbstractInterpreter implements Loopab
   //protected NameSpace localNameSpace;
 
   protected String expression;
+  @SuppressWarnings("serial")
   protected List<String> variables;
+  @SuppressWarnings("serial")
   protected List<String> stringVariables;
 
   // source is not persistent; it should be set during evaluate() only
-  protected PropertySource source;
-  protected AuditTrail currentAudit;
-  protected Auditable currentOwner;
+  protected transient PropertySource source;
+  protected transient AuditTrail currentAudit;
+  protected transient Auditable currentOwner;
   @Override
   public String getComponentTypeName() {
     return Resources.getString("Editor.ExpressionInterpreter.component_type");
@@ -162,8 +164,8 @@ public class ExpressionInterpreter extends AbstractInterpreter implements Loopab
     // know must be String type. These will be passed in to the evaluating expression as
     // parameters to force their type to be known and allow String functions to be called on them.
     final BeanShellExpressionValidator validator = new BeanShellExpressionValidator(expression);
-    variables = validator.getVariables();
-    stringVariables = validator.getStringVariables();
+    variables = new ArrayList<>(validator.getVariables());
+    stringVariables = new ArrayList<>(validator.getStringVariables());
 
     // Build a method enclosing the expression. This saves the results
     // of the expression parsing, improving performance. Force return
@@ -2032,4 +2034,3 @@ public class ExpressionInterpreter extends AbstractInterpreter implements Loopab
 
 
 }
-

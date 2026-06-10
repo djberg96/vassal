@@ -421,13 +421,13 @@ public class BeanShellExpressionConfigurer extends StringConfigurer {
     protected static final int VALID = 1;
     protected static final int UNKNOWN = 2;
 
-    protected Icon tick;
-    protected Icon cross;
+    protected transient Icon tick;
+    protected transient Icon cross;
     protected ImageIcon none;
     protected int status = UNKNOWN;
     protected boolean validating = false;
     protected boolean dirty = false;
-    protected ValidationThread validationThread = new ValidationThread();
+    protected transient ValidationThread validationThread = new ValidationThread();
 
     private static final long serialVersionUID = 1L;
 

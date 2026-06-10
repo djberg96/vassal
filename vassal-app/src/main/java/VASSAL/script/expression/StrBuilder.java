@@ -40,8 +40,8 @@ import java.awt.event.WindowEvent;
 
 public class StrBuilder extends JDialog {
   private static final long serialVersionUID = 1L;
-  protected StringConfigurer target;
-  protected StringConfigurer entry;
+  protected transient StringConfigurer target;
+  protected transient StringConfigurer entry;
 
   public StrBuilder(StringConfigurer c, JDialog parent) {
     super(parent, Resources.getString("Editor.StringBuilder.component_type"), true);

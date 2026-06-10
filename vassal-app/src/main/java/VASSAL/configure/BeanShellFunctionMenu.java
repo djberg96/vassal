@@ -83,8 +83,8 @@ public class BeanShellFunctionMenu extends JPopupMenu {
     Resources.getString("Editor.BeanShell.warning3")
   };
   protected static int maxScrollItems = 0;
-  protected BeanShellExpressionConfigurer configurer;
-  protected EditablePiece target;
+  protected transient BeanShellExpressionConfigurer configurer;
+  protected transient EditablePiece target;
 
   enum PropertyType { PIECE, GLOBAL, VASSAL, ALL };
 
@@ -639,8 +639,8 @@ public class BeanShellFunctionMenu extends JPopupMenu {
    * the module build structure
    */
 
-  protected Map menuMap;
-  protected Zone menuZone;
+  protected transient Map menuMap;
+  protected transient Zone menuZone;
 
   protected void buildGlobalMenu(JMenu parentMenu, AbstractBuildable target, boolean useParentMenu) {
 

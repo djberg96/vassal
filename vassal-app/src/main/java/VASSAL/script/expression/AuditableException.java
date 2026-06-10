@@ -20,8 +20,8 @@ package VASSAL.script.expression;
 public class AuditableException extends Exception {
   private static final long serialVersionUID = 1L;
 
-  protected Auditable owner;
-  protected AuditTrail auditTrail;
+  protected transient Auditable owner;
+  protected transient AuditTrail auditTrail;
 
   public AuditableException(Auditable owner, AuditTrail auditTrail) {
     this.owner = owner;

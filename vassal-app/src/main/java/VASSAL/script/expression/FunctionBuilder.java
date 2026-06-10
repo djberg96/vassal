@@ -48,11 +48,11 @@ public class FunctionBuilder extends JDialog {
 
   private static final long serialVersionUID = 1L;
   protected String save;
-  protected StringConfigurer target;
+  protected transient StringConfigurer target;
   protected String function;
-  protected List<BeanShellExpressionConfigurer> configs = new ArrayList<>();
-  protected EditablePiece targetPiece;
-  protected BeanShellExpressionConfigurer result;
+  protected transient List<BeanShellExpressionConfigurer> configs = new ArrayList<>();
+  protected transient EditablePiece targetPiece;
+  protected transient BeanShellExpressionConfigurer result;
 
   public FunctionBuilder(StringConfigurer c, JDialog parent, String function, String desc, String[] parmDesc, EditablePiece piece, String[] hints, BeanShellExpressionConfigurer.Option[] options, String selectedText) {
     super(parent, Resources.getString("Editor.FunctionBuilder.component_type") + " - " + function, true);

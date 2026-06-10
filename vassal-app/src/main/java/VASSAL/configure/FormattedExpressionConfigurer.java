@@ -128,8 +128,8 @@ public class FormattedExpressionConfigurer extends FormattedStringConfigurer {
    */
   public static class ExpressionButton extends JButton implements ActionListener {
     private static final long serialVersionUID = 1L;
-    protected Configurer config;
-    protected EditablePiece piece;
+    protected transient Configurer config;
+    protected transient EditablePiece piece;
 
     public ExpressionButton(Configurer config, int size) {
       this(config, size, null);
