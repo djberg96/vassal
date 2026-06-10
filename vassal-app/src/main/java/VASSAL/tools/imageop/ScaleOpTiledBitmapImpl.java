@@ -43,6 +43,7 @@ import VASSAL.tools.image.ImageUtils;
  * @author Joel Uckelman
  */
 public class ScaleOpTiledBitmapImpl extends ScaleOpBitmapImpl {
+  private static final double INVERSE_SCALE_TOLERANCE = 1e-9;
 
   public ScaleOpTiledBitmapImpl(ImageOp sop, double scale) {
     this(sop, scale, defaultHints);
@@ -57,8 +58,7 @@ public class ScaleOpTiledBitmapImpl extends ScaleOpBitmapImpl {
   @Override
   protected ImageOp createTileOp(int tileX, int tileY) {
     final double iscale = 1.0 / scale;
-    final boolean invPow2 = Math.floor(iscale) == iscale &&
-                            (((int) iscale) & (((int) iscale) - 1)) == 0;
+    final boolean invPow2 = isIntegralPowerOfTwo(iscale);
 
     if (invPow2 && sop instanceof SourceOp) {
       final String name = ((SourceOp) sop).getName();
@@ -67,6 +67,17 @@ public class ScaleOpTiledBitmapImpl extends ScaleOpBitmapImpl {
     else {
       return new TileOp(this, tileX, tileY);
     }
+  }
+
+  static boolean isIntegralPowerOfTwo(double value) {
+    final long rounded = Math.round(value);
+    if (rounded <= 0 || rounded > Integer.MAX_VALUE) {
+      return false;
+    }
+
+    final int inverseScale = (int) rounded;
+    return Math.abs(value - rounded) <= INVERSE_SCALE_TOLERANCE &&
+           (inverseScale & (inverseScale - 1)) == 0;
   }
 
   private static class TileOp extends AbstractTileOpImpl {
