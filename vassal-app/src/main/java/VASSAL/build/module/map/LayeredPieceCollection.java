@@ -30,6 +30,7 @@ import VASSAL.counters.DeckVisitor;
 import VASSAL.counters.DeckVisitorDispatcher;
 import VASSAL.counters.GamePiece;
 import VASSAL.counters.Stack;
+import VASSAL.i18n.ComponentI18nData;
 import VASSAL.i18n.Resources;
 import VASSAL.tools.TemporaryToolBar;
 
@@ -63,9 +64,16 @@ public class LayeredPieceCollection extends AbstractConfigurable implements Comp
   protected Map map;
   protected TemporaryToolBar tempToolBar;
   protected String description;
+  private boolean propertyNameTranslationConfigured;
 
-  public LayeredPieceCollection() {
-    this.setAttributeTranslatable(PROPERTY_NAME, false);
+  @Override
+  public ComponentI18nData getI18nData() {
+    final ComponentI18nData data = super.getI18nData();
+    if (!propertyNameTranslationConfigured) {
+      data.setAttributeTranslatable(PROPERTY_NAME, false);
+      propertyNameTranslationConfigured = true;
+    }
+    return data;
   }
 
   @Override
@@ -194,12 +202,12 @@ public class LayeredPieceCollection extends AbstractConfigurable implements Comp
   public static class Collection extends CompoundPieceCollection implements DeckVisitor {
     private String propertyName;
     private String[] layerOrder;
-    private final DeckVisitorDispatcher dispatcher = new DeckVisitorDispatcher(this);
+    private DeckVisitorDispatcher dispatcher;
 
     public Collection(String propertyName, String[] layerOrder) {
-      super(0);
-      setPropertyName(propertyName);
-      setLayerOrder(layerOrder);
+      super(layerOrder.length + 1);
+      this.propertyName = propertyName;
+      this.layerOrder = layerOrder;
     }
 
     public String[] getLayerOrder() {
@@ -227,7 +235,14 @@ public class LayeredPieceCollection extends AbstractConfigurable implements Comp
      */
     @Override
     public int getLayerForPiece(GamePiece p) {
-      return (Integer) dispatcher.accept(p); // This will send to visitDeck/visitStack/visitDefault below.
+      return (Integer) getDispatcher().accept(p); // This will send to visitDeck/visitStack/visitDefault below.
+    }
+
+    private DeckVisitorDispatcher getDispatcher() {
+      if (dispatcher == null) {
+        dispatcher = new DeckVisitorDispatcher(this);
+      }
+      return dispatcher;
     }
 
     @Override

@@ -43,10 +43,14 @@ public abstract class CompoundPieceCollection implements PieceCollection {
   protected boolean[] enabled;              // Flags indicating which layers are presently enabled/visible
 
   protected CompoundPieceCollection(int layerCount) {
-    initLayers(layerCount);
+    resetLayers(layerCount);
   }
 
   protected void initLayers(int layerCount) {
+    resetLayers(layerCount);
+  }
+
+  private void resetLayers(int layerCount) {
     layers = new SimplePieceCollection[layerCount];
     enabled = new boolean[layerCount];
     for (int i = 0; i < layers.length; ++i) {
