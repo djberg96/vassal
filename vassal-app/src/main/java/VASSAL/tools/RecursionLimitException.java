@@ -21,7 +21,7 @@ import VASSAL.tools.RecursionLimiter.Loopable;
 
 public class RecursionLimitException extends Exception {
   private static final long serialVersionUID = 1L;
-  protected Loopable looper;
+  protected transient Loopable looper;
 
   protected String additionalErrorMessage;
 

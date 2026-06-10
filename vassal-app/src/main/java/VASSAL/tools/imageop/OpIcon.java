@@ -40,7 +40,7 @@ import VASSAL.tools.swing.SwingUtils;
  */
 public class OpIcon extends ImageIcon implements Icon {
   private static final long serialVersionUID = 1L;
-  protected ImageOp sop;
+  protected transient ImageOp sop;
 
   /**
    * Creates an uninitialized icon.

@@ -29,7 +29,7 @@ public class DataArchiveHTMLEditorKit extends HTMLEditorKit {
 
   private static final Logger logger = LoggerFactory.getLogger(DataArchiveHTMLEditorKit.class);
 
-  private final DataArchive arch;
+  private final transient DataArchive arch;
 
   public DataArchiveHTMLEditorKit(DataArchive arch) {
     this.arch = arch;

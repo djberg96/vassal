@@ -45,16 +45,16 @@ public class LaunchButton extends JButton implements Auditable {
   protected String nameAtt;
   protected String keyAtt;
   protected String iconAtt;
-  protected IconConfigurer iconConfig;
+  protected transient IconConfigurer iconConfig;
   protected String toolTipText;
-  protected NamedKeyStrokeListener keyListener;
-  protected Configurer nameConfig, keyConfig;
+  protected transient NamedKeyStrokeListener keyListener;
+  protected transient Configurer nameConfig, keyConfig;
   protected boolean alwaysAcceptKeystroke;
   protected boolean forceVisible = false;
   protected boolean forceInvisible = false;
   protected boolean allowExpression;
   protected boolean usesExpression = false;
-  protected FormattedString formatted = new FormattedString("");
+  protected transient FormattedString formatted = new FormattedString("");
 
   public LaunchButton(String text, String textAttribute,
                       String hotkeyAttribute, ActionListener al) {

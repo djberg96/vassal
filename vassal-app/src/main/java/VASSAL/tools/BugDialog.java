@@ -471,7 +471,7 @@ public class BugDialog extends JDialog {
     button_deck.show(buttons, "emergencySaveButtons");
   }
 
-  private CheckRequest checkRequest = null;
+  private transient CheckRequest checkRequest = null;
 
   @Override
   public void setVisible(boolean visible) {
@@ -580,7 +580,7 @@ public class BugDialog extends JDialog {
     return panel;
   }
 
-  private SendRequest sendRequest = null;
+  private transient SendRequest sendRequest = null;
 
   private class SendRequest extends SwingWorker<Void, Void> {
     private Timer timer = null;

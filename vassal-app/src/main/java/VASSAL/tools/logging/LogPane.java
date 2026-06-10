@@ -32,7 +32,7 @@ import VASSAL.tools.io.Tailer;
 public class LogPane extends JTextArea {
   private static final long serialVersionUID = 1L;
 
-  protected final Tailer tailer;
+  protected final transient Tailer tailer;
 
   public LogPane(File file) {
     setEditable(false);

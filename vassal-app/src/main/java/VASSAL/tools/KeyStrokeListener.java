@@ -89,7 +89,7 @@ public class KeyStrokeListener {
   private static class ActionChain extends AbstractAction {
     private static final long serialVersionUID = 1L;
 
-    private ActionListener l;
+    private transient ActionListener l;
 
     public ActionChain(ActionListener l) {
       this.l = l;
