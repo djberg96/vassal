@@ -54,7 +54,7 @@ import VASSAL.tools.concurrent.CountingReadWriteLock;
  * @author Joel Uckelman
  * @since 3.2.0
  */
-public class ZipArchive implements FileArchive {
+public final class ZipArchive implements FileArchive {
   private final Path archive;
   private ZipFile zipFile;
 

@@ -48,7 +48,7 @@ import javax.swing.event.PopupMenuListener;
  * @version 1.5.0 04/05/12
  * @author Darryl
  */
-public class MenuScroller {
+public final class MenuScroller {
 
   private JPopupMenu menu;
   private Component[] menuItems;
