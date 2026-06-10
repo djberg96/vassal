@@ -195,7 +195,7 @@ public class QuadTree<T> implements Cloneable {
         arr.add(node.getPoint());
       }
     });
-    return arr.toArray((QPoint<T>[]) new QPoint[0]);
+    return arr.toArray(newPointArray(0));
   }
 
   /**
@@ -226,7 +226,7 @@ public class QuadTree<T> implements Cloneable {
 
       }
     }, xmin, ymin, xmax, ymax);
-    return arr.toArray((QPoint<T>[]) new QPoint[0]);
+    return arr.toArray(newPointArray(0));
   }
 
   public QPoint<T>[] searchWithin(final double xmin, final double ymin, final double xmax, final double ymax) {
@@ -240,7 +240,12 @@ public class QuadTree<T> implements Cloneable {
         }
       }
     }, xmin, ymin, xmax, ymax);
-    return arr.toArray((QPoint<T>[]) new QPoint[0]);
+    return arr.toArray(newPointArray(0));
+  }
+
+  @SuppressWarnings("unchecked")
+  private QPoint<T>[] newPointArray(int size) {
+    return (QPoint<T>[]) new QPoint<?>[size];
   }
 
   public void navigate(QNode<T> node, QFunc<T> func, double xmin, double ymin, double xmax, double ymax) {

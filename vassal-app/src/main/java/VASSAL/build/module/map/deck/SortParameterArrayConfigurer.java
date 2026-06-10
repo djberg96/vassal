@@ -173,6 +173,7 @@ public class SortParameterArrayConfigurer extends Configurer implements Configur
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public void setValue(Object o) {
     final List<SortParameter> newParams = o == null ? new ArrayList<>() : new ArrayList<>((List<SortParameter>) o);
     if (o == null) {
@@ -189,6 +190,7 @@ public class SortParameterArrayConfigurer extends Configurer implements Configur
     fireUpdate();
   }
 
+  @SuppressWarnings("unchecked")
   public List<SortParameter> getSortParameterListValue() {
     return (List<SortParameter>) getValue();
   }

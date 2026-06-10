@@ -74,11 +74,16 @@ public class DeckSortKeyCommand extends AbstractDeckKeyCommand {
       if (value instanceof String) {
         value = SortParameterArrayConfigurer.decode((String) value);
       }
-      sortParameters = (List<SortParameter>) value;
+      sortParameters = castSortParameters(value);
     }
     else {
       super.setAttribute(key, value);
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static List<SortParameter> castSortParameters(Object value) {
+    return (List<SortParameter>) value;
   }
 
   @Override
@@ -132,7 +137,6 @@ public class DeckSortKeyCommand extends AbstractDeckKeyCommand {
     }
   }
 }
-
 
 
 

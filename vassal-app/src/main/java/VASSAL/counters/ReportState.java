@@ -150,7 +150,7 @@ public class ReportState extends Decorator implements TranslatablePiece {
     }
     else {
       // If this cast fails, then custom code developer has done something terribly wrong, so just let it crash and burn
-      oldPiece = (java.util.Map<String, Object>) o;
+      oldPiece = castPropertySnapshot(o);
     }
 
     final boolean wasVisible = oldPiece != null && !Boolean.TRUE.equals(oldPiece.get(Properties.INVISIBLE_TO_OTHERS));
@@ -233,6 +233,11 @@ public class ReportState extends Decorator implements TranslatablePiece {
     }
 
     return c;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static java.util.Map<String, Object> castPropertySnapshot(Object value) {
+    return (java.util.Map<String, Object>) value;
   }
 
   protected String getPieceName() {

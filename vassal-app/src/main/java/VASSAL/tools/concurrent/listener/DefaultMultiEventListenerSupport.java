@@ -119,9 +119,14 @@ public class DefaultMultiEventListenerSupport
     List<EventListener<?>> list = listeners.get(c);
     if (list == null) list = registerType(c);
 
-    for (final EventListener l : list) {
-      l.receive(src, c.cast(event));
+    for (final EventListener<?> l : list) {
+      receive(l, c.cast(event));
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T> void receive(EventListener<T> listener, Object event) {
+    listener.receive(src, (T) event);
   }
 
   protected List<EventListener<?>> registerType(Class<?> c) {

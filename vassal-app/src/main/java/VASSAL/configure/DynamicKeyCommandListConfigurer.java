@@ -230,6 +230,7 @@ public class DynamicKeyCommandListConfigurer extends Configurer implements Confi
     return se.getValue();
   }
 
+  @SuppressWarnings("unchecked")
   public List<Object> getListValue() {
     return (List<Object>) getValue();
   }

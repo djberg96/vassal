@@ -704,12 +704,17 @@ public class MassKeyCommand extends AbstractToolbarItem
       if (value instanceof String) {
         value = ParameterListConfigurer.decode((String) value);
       }
-      parameters = (List<Parameter>) value;
+      parameters = castParameters(value);
       globalCommand.setParameters(parameters);
     }
     else {
       super.setAttribute(key, value);
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static List<Parameter> castParameters(Object value) {
+    return (List<Parameter>) value;
   }
 
   // Implement Loopable

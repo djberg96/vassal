@@ -25,7 +25,7 @@ import java.util.Set;
  * indexed and NOT be found by a Ranged GKC
  *
  */
-public class VassalMapQuadTree extends QuadTree {
+public class VassalMapQuadTree extends QuadTree<Set<GamePiece>> {
 
   /** The actual playable bounds of the map **/
   private final Rectangle bounds;
@@ -89,9 +89,9 @@ public class VassalMapQuadTree extends QuadTree {
 
     bounds = new Rectangle(x1, y1, x2 - x1, y2 - y1);
 
-    this.traverse(qtree.getRootNode(), new QFunc() {
+    this.traverse(qtree.getRootNode(), new QFunc<>() {
       @Override
-      public void call(QuadTree quadTree, QNode node) {
+      public void call(QuadTree<Set<GamePiece>> quadTree, QNode<Set<GamePiece>> node) {
         set(node.getPoint().getX(), node.getPoint().getY(), node.getPoint().getValue());
       }
     });
@@ -127,7 +127,7 @@ public class VassalMapQuadTree extends QuadTree {
     if (currentLocation != null && bounds.contains(currentLocation)) {
 
       // Grab the list of pieces already at the new location
-      final Set<GamePiece> nodePieces = (Set<GamePiece>) get(currentLocation.x, currentLocation.y, new HashSet<>());
+      final Set<GamePiece> nodePieces = get(currentLocation.x, currentLocation.y, new HashSet<>());
 
       // Add this piece to the new location and write it back.
       if (!nodePieces.contains(p)) {
@@ -153,7 +153,7 @@ public class VassalMapQuadTree extends QuadTree {
     if (lastLocation != null) {
 
       // Grab the list of pieces at that location
-      final Set<GamePiece> nodePieces = (Set<GamePiece>) get(lastLocation.x, lastLocation.y, null);
+      final Set<GamePiece> nodePieces = get(lastLocation.x, lastLocation.y, null);
 
       // Should not be null, but make sure we don't NPE
       if (nodePieces != null) {
@@ -178,8 +178,8 @@ public class VassalMapQuadTree extends QuadTree {
   public List<GamePiece> getPiecesInRange(Point pos, int range) {
     final List<GamePiece> pieces = new ArrayList<>();
 
-    for (final QPoint q : searchWithin(pos.x - range, pos.y - range, pos.x + range, pos.y + range)) {
-      pieces.addAll((Set<GamePiece>) q.getValue());
+    for (final QPoint<Set<GamePiece>> q : searchWithin(pos.x - range, pos.y - range, pos.x + range, pos.y + range)) {
+      pieces.addAll(q.getValue());
     }
 
     return pieces;

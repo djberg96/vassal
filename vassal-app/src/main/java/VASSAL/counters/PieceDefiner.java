@@ -1295,7 +1295,7 @@ public class PieceDefiner extends JPanel {
 
     @Override
     public Component getListCellRendererComponent(
-            JList list, Object value, int index, boolean selected, boolean hasFocus) {
+            JList<?> list, Object value, int index, boolean selected, boolean hasFocus) {
 
       // DO NOT pass value to super.getListCellRendererComponent()
       // It is incredibly inefficient for GamePieces and is not needed
@@ -1337,7 +1337,7 @@ public class PieceDefiner extends JPanel {
 
     @Override
     public Component getListCellRendererComponent(
-      JList list, Object value, int index, boolean selected, boolean hasFocus) {
+      JList<?> list, Object value, int index, boolean selected, boolean hasFocus) {
 
       // DO NOT pass value to super.getListCellRendererComponent()
       // It is incredibly inefficient for GamePieces and is not needed
@@ -1419,7 +1419,7 @@ public class PieceDefiner extends JPanel {
       }
       else {
         // No drop allowed above BasicPiece in InUseList
-        final JList<GamePiece> list = (JList<GamePiece>) info.getComponent();
+        final JList<?> list = (JList<?>) info.getComponent();
 
         if (list.getModel().getSize() > 0 && list.getModel().getElementAt(0).getClass() == BasicPiece.class && info.getDropLocation().getDropPoint().y < 10) {
           return false;
@@ -1433,7 +1433,7 @@ public class PieceDefiner extends JPanel {
      */
     @Override
     protected Transferable createTransferable(JComponent c) {
-      final JList<GamePiece> list = (JList<GamePiece>) c;
+      final JList<?> list = (JList<?>) c;
       setFromIndex(list.getSelectedIndex());
       setFromList(list.getName());
 
@@ -1535,4 +1535,3 @@ public class PieceDefiner extends JPanel {
     return Collections.list(availableModel.elements());
   }
 }
-

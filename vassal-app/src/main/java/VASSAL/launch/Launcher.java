@@ -89,7 +89,7 @@ public abstract class Launcher {
 
     createMenuManager();
 
-    final SimpleRunnableFuture<Void> fut = new SimpleRunnableFuture() {
+    final SimpleRunnableFuture<Void> fut = new SimpleRunnableFuture<>() {
       @Override
       public void run() {
         try {

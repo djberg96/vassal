@@ -511,7 +511,7 @@ public class ModuleManagerWindow extends JFrame {
       pd.setStringPainted(false);
       pd.setLocationRelativeTo(ModuleManagerWindow.this);
 
-      final SwingWorker task = new SwingWorker<Void, Void>() {
+      final SwingWorker<Void, Void> task = new SwingWorker<>() {
         @Override
         public Void doInBackground() throws InterruptedException, IOException {
           // clear tiles in both old (conf) and new (cache) locations
@@ -576,7 +576,7 @@ public class ModuleManagerWindow extends JFrame {
       pd.setStringPainted(false);
       pd.setLocationRelativeTo(ModuleManagerWindow.this);
 
-      final SwingWorker task = new SwingWorker<Void, Void>() {
+      final SwingWorker<Void, Void> task = new SwingWorker<>() {
         @Override
         public Void doInBackground() throws InterruptedException, IOException {
           final Set<String> known = getModuleTileCacheNames();
@@ -2412,4 +2412,3 @@ public class ModuleManagerWindow extends JFrame {
     }
   }
 }
-

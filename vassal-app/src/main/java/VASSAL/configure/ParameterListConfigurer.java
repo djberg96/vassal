@@ -267,10 +267,12 @@ public class ParameterListConfigurer extends Configurer implements ConfigurableL
     return encode(getParameterListValue());
   }
 
+  @SuppressWarnings("unchecked")
   public List<Object> getListValue() {
     return (List<Object>) getValue();
   }
 
+  @SuppressWarnings("unchecked")
   public List<Parameter> getParameterListValue() {
     return (List<Parameter>) getValue();
   }
