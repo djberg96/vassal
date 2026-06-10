@@ -75,7 +75,7 @@ public interface TranslatableString {
      */
     public Impl(String propertyName, Object source) { //NOPMD
       this.propertyName = propertyName;
-      propSupport = new PropertyChangeSupport(this);
+      propSupport = new PropertyChangeSupport(source);
     }
 
     public void addTo(TranslatableStringContainer c) {

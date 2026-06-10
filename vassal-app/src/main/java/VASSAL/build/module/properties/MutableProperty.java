@@ -86,7 +86,7 @@ public interface MutableProperty {
      */
     public Impl(String propertyName, Object source) { //NOPMD
       this.propertyName = propertyName;
-      propSupport = new PropertyChangeSupport(this);
+      propSupport = new PropertyChangeSupport(source);
     }
 
     @Override
