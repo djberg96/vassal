@@ -23,6 +23,7 @@ import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Insets;
+import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import javax.swing.JTextField;
@@ -37,11 +38,23 @@ import VASSAL.tools.swing.SwingUtils;
  */
 public class HintTextField extends JTextField implements FocusListener {
   private static final long serialVersionUID = 1L;
+  private static final FocusListener HINT_REPAINTER = new FocusAdapter() {
+    @Override
+    public void focusGained(FocusEvent e) {
+      e.getComponent().repaint();
+    }
+
+    @Override
+    public void focusLost(FocusEvent e) {
+      e.getComponent().repaint();
+    }
+  };
 
   private String hint;
   private Color hintColor;
   private Font hintFont;
   private boolean focusOnly;
+  private boolean hintListenerRegistered;
 
   /**
    * Create a new HintTextField with a length and specified hint
@@ -51,9 +64,7 @@ public class HintTextField extends JTextField implements FocusListener {
    */
   public HintTextField(int length, String hint) {
     super(length);
-    setHint(hint);
-    setFocusOnly(false);
-    addFocusListener(this);
+    this.hint = hint;
   }
 
   /**
@@ -63,9 +74,25 @@ public class HintTextField extends JTextField implements FocusListener {
    */
   public HintTextField(String hint) {
     super();
-    setHint(hint);
-    setFocusOnly(false);
-    addFocusListener(this);
+    this.hint = hint;
+  }
+
+  @Override
+  public void addNotify() {
+    super.addNotify();
+    if (!hintListenerRegistered) {
+      addFocusListener(HINT_REPAINTER);
+      hintListenerRegistered = true;
+    }
+  }
+
+  @Override
+  public void removeNotify() {
+    if (hintListenerRegistered) {
+      removeFocusListener(HINT_REPAINTER);
+      hintListenerRegistered = false;
+    }
+    super.removeNotify();
   }
 
   @Override
