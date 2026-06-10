@@ -42,12 +42,7 @@ public class Comment extends Decorator implements EditablePiece {
   private String comment;
 
   public Comment() {
-    this(ID, null);
-  }
-
-  public Comment(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeFromType(ID);
   }
 
   @Override
@@ -67,6 +62,10 @@ public class Comment extends Decorator implements EditablePiece {
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     type = type.substring(ID.length());
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     comment = st.nextToken("");

@@ -55,16 +55,15 @@ public class Clone extends Decorator implements TranslatablePiece {
   protected String description = "";
 
   public Clone() {
-    this(ID + Resources.getString("Editor.Clone.clone") + ";C", null); // NON-NLS
-  }
-
-  public Clone(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeFromType(ID + Resources.getString("Editor.Clone.clone") + ";C"); // NON-NLS
   }
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     type = type.substring(ID.length());
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     commandName = st.nextToken();

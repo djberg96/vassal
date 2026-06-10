@@ -163,13 +163,31 @@ public class DecoratorTest {
    */
   public void constructorTest(String test, Decorator referenceTrait) throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException {
     // Build a new trait using the Type from the reference trait
-    Constructor<? extends Decorator>  constructor = referenceTrait.getClass().getConstructor(String.class, GamePiece.class);
-    Decorator constructedTrait = constructor.newInstance(referenceTrait.myGetType(), createBasicPiece());
+    Decorator constructedTrait = constructTrait(referenceTrait, createBasicPiece());
 
     // Inject the state
     constructedTrait.mySetState(referenceTrait.myGetState());
 
     // Test constructed trait is equivalent to the reference trait
     assertThat("Constructor Test: " + test, referenceTrait.testEquals(constructedTrait), is(true)); // NON-NLS
+  }
+
+  private Decorator constructTrait(Decorator referenceTrait, GamePiece inner)
+      throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException {
+    try {
+      final Decorator constructedTrait = referenceTrait.getClass().getConstructor().newInstance();
+      constructedTrait.mySetType(referenceTrait.myGetType());
+      constructedTrait.setInner(inner);
+      return constructedTrait;
+    }
+    catch (NoSuchMethodException e) {
+      return constructTraitWithLegacyConstructor(referenceTrait, inner);
+    }
+  }
+
+  private Decorator constructTraitWithLegacyConstructor(Decorator referenceTrait, GamePiece inner)
+      throws IllegalAccessException, InvocationTargetException, InstantiationException, NoSuchMethodException {
+    final Constructor<? extends Decorator> constructor = referenceTrait.getClass().getConstructor(String.class, GamePiece.class);
+    return constructor.newInstance(referenceTrait.myGetType(), inner);
   }
 }

@@ -47,12 +47,7 @@ public class SubMenu extends Decorator implements TranslatablePiece {
   private String description = "";
 
   public SubMenu() {
-    this(ID + Resources.getString("Editor.SubMenu.default_menu_name") + ";", null);
-  }
-
-  public SubMenu(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    subMenu = Resources.getString("Editor.SubMenu.default_menu_name");
   }
 
   @Override
@@ -81,6 +76,10 @@ public class SubMenu extends Decorator implements TranslatablePiece {
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     st.nextToken();
     subMenu = st.nextToken();
@@ -93,6 +92,7 @@ public class SubMenu extends Decorator implements TranslatablePiece {
 
   @Override
   protected KeyCommand[] myGetKeyCommands() {
+    keyCommands[0] = getKeyCommandSubMenu();
     return keyCommands;
   }
 
@@ -112,7 +112,7 @@ public class SubMenu extends Decorator implements TranslatablePiece {
 
   public String[] getSubcommands() {
     final List<String> l = new ArrayList<>();
-    for (final Iterator<String> i = keyCommandSubMenu.getCommands(); i.hasNext(); ) {
+    for (final Iterator<String> i = getKeyCommandSubMenu().getCommands(); i.hasNext(); ) {
       l.add(i.next());
     }
     return l.toArray(new String[0]);
@@ -120,6 +120,14 @@ public class SubMenu extends Decorator implements TranslatablePiece {
 
   public String getMenuName() {
     return subMenu;
+  }
+
+  private KeyCommandSubMenu getKeyCommandSubMenu() {
+    if (keyCommandSubMenu == null) {
+      keyCommandSubMenu = new KeyCommandSubMenu(subMenu, this, this);
+      keyCommands[0] = keyCommandSubMenu;
+    }
+    return keyCommandSubMenu;
   }
 
   @Override

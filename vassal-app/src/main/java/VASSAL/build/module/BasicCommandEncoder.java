@@ -85,6 +85,7 @@ import VASSAL.tools.SequenceEncoder;
 
 import java.awt.Point;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Although it is the {@link CommandEncoder} which handles the basic commands: {@link AddPiece},
@@ -184,10 +185,10 @@ public class BasicCommandEncoder implements CommandEncoder, Buildable {
     Map.entry(ReturnToDeck.ID, ReturnToDeck::new),
     Map.entry(SendToLocation.ID, SendToLocation::new),
     Map.entry(UsePrototype.ID, UsePrototype::new),
-    Map.entry(Clone.ID, Clone::new),
-    Map.entry(Delete.ID, Delete::new),
-    Map.entry(SubMenu.ID, SubMenu::new),
-    Map.entry(MenuSeparator.ID, MenuSeparator::new),
+    Map.entry(Clone.ID, decoratorFactory(Clone::new)),
+    Map.entry(Delete.ID, decoratorFactory(Delete::new)),
+    Map.entry(SubMenu.ID, decoratorFactory(SubMenu::new)),
+    Map.entry(MenuSeparator.ID, decoratorFactory(MenuSeparator::new)),
     Map.entry(Translate.ID, Translate::new),
     Map.entry(AreaOfEffect.ID, AreaOfEffect::new),
     Map.entry(CounterGlobalKeyCommand.ID, CounterGlobalKeyCommand::new),
@@ -199,7 +200,7 @@ public class BasicCommandEncoder implements CommandEncoder, Buildable {
     Map.entry(RestrictCommands.ID, RestrictCommands::new),
     Map.entry(PlaySound.ID, PlaySound::new),
     Map.entry(ActionButton.ID, ActionButton::new),
-    Map.entry(GlobalHotKey.ID, GlobalHotKey::new),
+    Map.entry(GlobalHotKey.ID, decoratorFactory(GlobalHotKey::new)),
     Map.entry(Deselect.ID, Deselect::new),
     Map.entry(Mat.ID, Mat::new),
     Map.entry(MatCargo.ID, MatCargo::new),
@@ -207,8 +208,17 @@ public class BasicCommandEncoder implements CommandEncoder, Buildable {
     Map.entry(BorderOutline.ID, BorderOutline::new),
     Map.entry(Attachment.ID, Attachment::new),
     Map.entry(MultiLocationCommand.ID, MultiLocationCommand::new),
-    Map.entry(Comment.ID, Comment::new)
+    Map.entry(Comment.ID, decoratorFactory(Comment::new))
   );
+
+  private static <T extends Decorator> DecoratorFactory decoratorFactory(Supplier<T> supplier) {
+    return (type, inner) -> {
+      final T decorator = supplier.get();
+      decorator.mySetType(type);
+      decorator.setInner(inner);
+      return decorator;
+    };
+  }
 
   /**
    * Fallthrough factory to catch unknown types.

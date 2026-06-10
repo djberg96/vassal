@@ -53,16 +53,15 @@ public class Delete extends Decorator implements TranslatablePiece {
   protected String description = "";
 
   public Delete() {
-    this(ID + Resources.getString("Editor.Delete.delete") + ";D", null); // NON-NLS
-  }
-
-  public Delete(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeFromType(ID + Resources.getString("Editor.Delete.delete") + ";D"); // NON-NLS
   }
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     type = type.substring(ID.length());
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     commandName = st.nextToken();

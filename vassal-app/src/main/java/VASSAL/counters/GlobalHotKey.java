@@ -37,12 +37,7 @@ public class GlobalHotKey extends Decorator implements TranslatablePiece {
   protected String description = "";
 
   public GlobalHotKey() {
-    this(ID, null);
-  }
-
-  public GlobalHotKey(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeFromType(ID);
   }
 
   @Override
@@ -132,6 +127,10 @@ public class GlobalHotKey extends Decorator implements TranslatablePiece {
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     final SequenceEncoder.Decoder sd = new SequenceEncoder.Decoder(type.substring(ID.length()), ';');
     commandName = sd.nextToken();
     commandKey = sd.nextNamedKeyStroke('H');

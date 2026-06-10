@@ -47,16 +47,15 @@ public class MenuSeparator extends Decorator implements TranslatablePiece {
   protected KeyCommand separatorCommand;
 
   public MenuSeparator() {
-    this(ID + ";", null);
-  }
-
-  public MenuSeparator(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+    initializeFromType(ID + ";");
   }
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     type = type.substring(ID.length());
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     desc        = st.nextToken();
