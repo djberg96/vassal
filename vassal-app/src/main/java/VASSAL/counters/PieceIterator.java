@@ -17,7 +17,6 @@
  */
 package VASSAL.counters;
 
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.function.Predicate;
 
@@ -75,11 +74,6 @@ public class PieceIterator {
     };
   }
 
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  public <T extends GamePiece> PieceIterator(Enumeration<T> e, PieceFilter f) {
-    this(e.asIterator(), f);
-  }
-
   public GamePiece nextPiece() {
     return pi.hasNext() ? pi.next() : null;
   }
@@ -93,10 +87,5 @@ public class PieceIterator {
 
   public static <T extends GamePiece> PieceIterator visible(Iterator<T> i) {
     return new PieceIterator(i, VISIBLE::test);
-  }
-
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  public static <T extends GamePiece> PieceIterator visible(Enumeration<T> e) {
-    return visible(e.asIterator());
   }
 }
