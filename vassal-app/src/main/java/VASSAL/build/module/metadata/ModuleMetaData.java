@@ -54,7 +54,7 @@ public class ModuleMetaData extends AbstractMetaData {
   protected Attribute nameAttr;
 
   public ModuleMetaData(ZipFile zip) {
-    read(zip);
+    readFrom(zip);
   }
 
   public ModuleMetaData(GameModule module) {
@@ -111,6 +111,10 @@ public class ModuleMetaData extends AbstractMetaData {
    * @param zip Module File
    */
   public void read(ZipFile zip) {
+    readFrom(zip);
+  }
+
+  private void readFrom(ZipFile zip) {
     version = "";
 
     try (zip) {

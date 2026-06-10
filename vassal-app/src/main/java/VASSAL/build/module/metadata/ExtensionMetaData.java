@@ -60,9 +60,8 @@ public class ExtensionMetaData extends AbstractMetaData {
    */
   public ExtensionMetaData(ModuleExtension ext) {
     super();
-    setVersion(ext.getVersion());
-    setDescription(
-      new Attribute(ModuleExtension.DESCRIPTION, ext.getDescription()));
+    version = ext.getVersion();
+    descriptionAttr = new Attribute(ModuleExtension.DESCRIPTION, ext.getDescription());
     universal = ext.getUniversal();
   }
 
@@ -72,7 +71,7 @@ public class ExtensionMetaData extends AbstractMetaData {
    * @param zip the archive
    */
   public ExtensionMetaData(ZipFile zip) {
-    read(zip);
+    readFrom(zip);
   }
 
   public String getModuleName() {
@@ -141,13 +140,17 @@ public class ExtensionMetaData extends AbstractMetaData {
    * @param zip Module File
    */
   public void read(ZipFile zip) {
+    readFrom(zip);
+  }
+
+  private void readFrom(ZipFile zip) {
     try (zip) {
       // Try to parse the metadata. Failure is not catastrophic, we can
       // treat it like an old-style module with no metadata and parse
       // the first lines of the buildFile.
       final DefaultHandler handler;
 
-      ZipEntry data = zip.getEntry(getZipEntryName());
+      ZipEntry data = zip.getEntry(ZIP_ENTRY_NAME);
       if (data == null) {
         data = zip.getEntry(GameModule.BUILDFILE_OLD);
         handler = new ExtensionBuildFileXMLHandler();

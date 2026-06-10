@@ -143,7 +143,7 @@ public class SaveMetaData extends AbstractMetaData {
   }
 
   public SaveMetaData(ZipFile zip) {
-    read(zip);
+    readFrom(zip);
   }
 
   public String getModuleName() {
@@ -211,10 +211,14 @@ public class SaveMetaData extends AbstractMetaData {
    * @param zip Saved Game File
    */
   public void read(ZipFile zip) {
+    readFrom(zip);
+  }
+
+  private void readFrom(ZipFile zip) {
     try (zip) {
       // Try to parse the metadata. Failure is not catastrophic, we can
       // treat it like an old-style save with no metadata.
-      final ZipEntry data = zip.getEntry(getZipEntryName());
+      final ZipEntry data = zip.getEntry(ZIP_ENTRY_NAME);
       if (data == null) return;
 
       // set up the handler
