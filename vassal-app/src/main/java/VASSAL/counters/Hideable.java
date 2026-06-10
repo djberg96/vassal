@@ -332,23 +332,6 @@ public class Hideable extends Decorator implements TranslatablePiece {
     return new Ed(this);
   }
 
-  /**
-   * If true, then all hidden pieces are considered invisible to all players.
-   * Used to temporarily draw pieces as they appear to other players
-   *
-   * @param allHidden true if all pieces should be considered hidden
-   * @deprecated
-   */
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  public static void setAllHidden(boolean allHidden) {
-    if (allHidden) {
-      PieceAccess.GlobalAccess.hideAll();
-    }
-    else {
-      PieceAccess.GlobalAccess.revertAll();
-    }
-  }
-
   @Override
   public PieceI18nData getI18nData() {
     return getI18nData(command, Resources.getString("Editor.Hideable.hide_command"));

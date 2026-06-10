@@ -203,24 +203,6 @@ public class FreeRotator extends Decorator
     return useUnrotatedShape ? 0.0 : validAngles[angleIndex];
   }
 
-  // These are deprecated and also don't work because MatCargo also rotates things
-  @Deprecated (since = "2021-12-01", forRemoval = true)
-  public double getCumulativeAngle() {
-    double angle = getAngle();
-    // Add cumulative angle of any other FreeRotator trait in this piece
-    final FreeRotator nextRotation = (FreeRotator) getDecorator(getInner(), FreeRotator.class);
-    if (nextRotation != null) {
-      angle += nextRotation.getCumulativeAngle();
-    }
-    return angle;
-  }
-
-  // These are deprecated and also don't work because MatCargo also rotates things
-  @Deprecated (since = "2021-12-01", forRemoval = true)
-  public double getCumulativeAngleInRadians() {
-    return -PI_180 * getCumulativeAngle();
-  }
-
   public boolean isFreeRotation() {
     return validAngles.length == 1;
   }
@@ -1120,5 +1102,4 @@ public class FreeRotator extends Decorator
     return List.of(setAngleText, rotateCWText, rotateCCWText, rotateRNDText);
   }
 }
-
 

@@ -31,8 +31,6 @@ import java.awt.Component;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -106,12 +104,6 @@ public class MultiImagePicker extends JPanel {
       names.add((((ImagePicker) multiPanel.getComponent(i)).getImageName()));
     }
     return names;
-  }
-
-  /** Use {@link #getImageNameList()} instead. */
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  public Enumeration<String> getImageNames() {
-    return Collections.enumeration(getImageNameList());
   }
 
   public void removeEntryAt(int index) {
