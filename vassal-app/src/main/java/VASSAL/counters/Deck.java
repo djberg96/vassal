@@ -218,16 +218,6 @@ public class Deck extends Stack implements PlayerRoster.SideChangeListener {
   private final GameModule gameModule;
 
   /**
-   * Not for internal use, but required for initial build of module
-   *
-   * @deprecated use {@link #Deck(GameModule)}
-   */
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  public Deck() {
-    this(GameModule.getGameModule());
-  }
-
-  /**
    * Create an empty deck
    * @param gameModule The game module
    */

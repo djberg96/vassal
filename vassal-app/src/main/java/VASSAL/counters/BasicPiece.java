@@ -49,7 +49,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.KeyStroke;
 import java.awt.Component;
 import java.awt.Graphics;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Shape;
@@ -135,15 +134,8 @@ public class BasicPiece extends AbstractImageFinder implements TranslatablePiece
    */
   private java.util.Map<Object, Object> persistentProps;
 
-  /** @deprecated Moved into own traits, retained for backward compatibility */
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  private char cloneKey;
-  /** @deprecated Moved into own traits, retained for backward compatibility */
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  private char deleteKey;
-  /** @deprecated Replaced by #srcOp. */
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  protected Image image;           // BasicPiece's own image
+  private char legacyCloneKey;
+  private char legacyDeleteKey;
   protected String imageName;      // BasicPiece image name
   private String commonName;       // BasicPiece's name for the piece (aka "BasicName" property in Vassal Module)
 
@@ -169,8 +161,8 @@ public class BasicPiece extends AbstractImageFinder implements TranslatablePiece
   public void mySetType(String type) {
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     st.nextToken();
-    cloneKey = st.nextChar('\0');
-    deleteKey = st.nextChar('\0');
+    legacyCloneKey = st.nextChar('\0');
+    legacyDeleteKey = st.nextChar('\0');
     imageName = st.nextToken();
     commonName = st.nextToken();
     imagePainter.setImageName(imageName);
@@ -187,8 +179,8 @@ public class BasicPiece extends AbstractImageFinder implements TranslatablePiece
   @Override
   public String getType() {
     final SequenceEncoder se =
-      new SequenceEncoder(cloneKey > 0 ? String.valueOf(cloneKey) : "", ';');
-    return ID + se.append(deleteKey > 0 ? String.valueOf(deleteKey) : "")
+      new SequenceEncoder(legacyCloneKey > 0 ? String.valueOf(legacyCloneKey) : "", ';');
+    return ID + se.append(legacyDeleteKey > 0 ? String.valueOf(legacyDeleteKey) : "")
                   .append(imageName)
                   .append(commonName).getValue();
   }
@@ -577,11 +569,11 @@ public class BasicPiece extends AbstractImageFinder implements TranslatablePiece
     if (commands == null) {
       final List<KeyCommand> l = new ArrayList<>();
       final GamePiece target = Decorator.getOutermost(this);
-      if (cloneKey > 0) {
-        l.add(new KeyCommand(Resources.getString("Editor.Clone.clone"), KeyStroke.getKeyStroke(cloneKey, InputEvent.CTRL_DOWN_MASK), target));
+      if (legacyCloneKey > 0) {
+        l.add(new KeyCommand(Resources.getString("Editor.Clone.clone"), KeyStroke.getKeyStroke(legacyCloneKey, InputEvent.CTRL_DOWN_MASK), target));
       }
-      if (deleteKey > 0) {
-        l.add(new KeyCommand(Resources.getString("Editor.Delete.delete"), KeyStroke.getKeyStroke(deleteKey, InputEvent.CTRL_DOWN_MASK), target));
+      if (legacyDeleteKey > 0) {
+        l.add(new KeyCommand(Resources.getString("Editor.Delete.delete"), KeyStroke.getKeyStroke(legacyDeleteKey, InputEvent.CTRL_DOWN_MASK), target));
       }
       commands = l.toArray(new KeyCommand[0]);
     }
@@ -763,7 +755,7 @@ public class BasicPiece extends AbstractImageFinder implements TranslatablePiece
     }
     Command comm = null;
     final GamePiece outer = Decorator.getOutermost(this);
-    if (cloneKey != 0 && KeyStroke.getKeyStroke(cloneKey, InputEvent.CTRL_DOWN_MASK).equals(stroke)) {
+    if (legacyCloneKey != 0 && KeyStroke.getKeyStroke(legacyCloneKey, InputEvent.CTRL_DOWN_MASK).equals(stroke)) {
       final GamePiece newPiece = ((AddPiece) GameModule.getGameModule().decode(GameModule.getGameModule().encode(new AddPiece(outer)))).getTarget();
       newPiece.setId(null);
       GameModule.getGameModule().getGameState().addPiece(newPiece);
@@ -789,7 +781,7 @@ public class BasicPiece extends AbstractImageFinder implements TranslatablePiece
         }
       }
     }
-    else if (deleteKey != 0 && KeyStroke.getKeyStroke(deleteKey, InputEvent.CTRL_DOWN_MASK).equals(stroke)) {
+    else if (legacyDeleteKey != 0 && KeyStroke.getKeyStroke(legacyDeleteKey, InputEvent.CTRL_DOWN_MASK).equals(stroke)) {
       comm = new RemovePiece(outer);
       if (getMap() != null && GlobalOptions.getInstance().autoReportEnabled() && !Boolean.TRUE.equals(outer.getProperty(Properties.INVISIBLE_TO_OTHERS))) {
         final String name = outer.getLocalizedName();
@@ -1087,8 +1079,8 @@ public class BasicPiece extends AbstractImageFinder implements TranslatablePiece
     final BasicPiece bp = (BasicPiece) o;
 
     // Check Type
-    if (! Objects.equals(cloneKey, bp.cloneKey)) return false;
-    if (! Objects.equals(deleteKey, bp.deleteKey)) return false;
+    if (! Objects.equals(legacyCloneKey, bp.legacyCloneKey)) return false;
+    if (! Objects.equals(legacyDeleteKey, bp.legacyDeleteKey)) return false;
     if (! Objects.equals(imageName, bp.imageName)) return false;
     if (! Objects.equals(commonName, bp.commonName)) return false;
 
@@ -1141,14 +1133,14 @@ public class BasicPiece extends AbstractImageFinder implements TranslatablePiece
       pieceName = new StringConfigurer(p.commonName);
       panel.add("Editor.name_label", pieceName);
 
-      cloneKeyInput = new KeySpecifier(p.cloneKey);
-      if (p.cloneKey != 0) {
+      cloneKeyInput = new KeySpecifier(p.legacyCloneKey);
+      if (p.legacyCloneKey != 0) {
         panel.add(new JLabel(Resources.getString("Editor.BasicPiece.to_clone")));
         panel.add(cloneKeyInput);
       }
 
-      deleteKeyInput = new KeySpecifier(p.deleteKey);
-      if (p.deleteKey != 0) {
+      deleteKeyInput = new KeySpecifier(p.legacyDeleteKey);
+      if (p.legacyDeleteKey != 0) {
         panel.add(new JLabel(Resources.getString("Editor.BasicPiece.to_delete")));
         panel.add(deleteKeyInput);
       }

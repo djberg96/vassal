@@ -93,7 +93,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -1228,15 +1227,6 @@ public class GameState implements CommandEncoder {
       msg = "!" + msg + ": <b>" + loadComments + "</b>"; //$NON-NLS-1$
     }
     GameModule.getGameModule().warn(msg);
-  }
-
-  /**
-   * @return an Enumeration of all {@link GamePiece}s in the game
-   * @deprecated Use {@link #getAllPieces()} instead.
-   */
-  @Deprecated(since = "2020-08-06", forRemoval = true)
-  public Enumeration<GamePiece> getPieces() {
-    return Collections.enumeration(getAllPieces());
   }
 
   /** @return a Collection of all {@link GamePiece}s in the game */
