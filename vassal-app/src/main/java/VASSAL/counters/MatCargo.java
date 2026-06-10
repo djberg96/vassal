@@ -110,22 +110,29 @@ public class MatCargo extends Decorator implements TranslatablePiece {
   protected boolean useUnrotatedShape;
 
   public MatCargo() {
-    this(ID + ";true", null); //NON-NLS
+    initializeFromType(ID + ";true"); //NON-NLS
   }
 
-  public MatCargo(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+  @Override
+  public void setInner(GamePiece p) {
+    super.setInner(p);
+    checkForConflictingMat(p);
+  }
 
+  private void checkForConflictingMat(GamePiece inner) {
     for (GamePiece check = inner; check instanceof Decorator; check = ((Decorator)check).getInner()) {
       if (check instanceof Mat) {
-        ErrorDialog.dataWarning(new BadDataReport("Same piece must not be both Mat and Mat Cargo -- will create infinite loops", type));
+        ErrorDialog.dataWarning(new BadDataReport("Same piece must not be both Mat and Mat Cargo -- will create infinite loops", myGetType()));
       }
     }
   }
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     type = type.substring(ID.length());
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
     desc = st.nextToken();

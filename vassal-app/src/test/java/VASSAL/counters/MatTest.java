@@ -30,8 +30,8 @@ import org.junit.jupiter.api.Test;
 public class MatTest {
   @Test
   public void getMatContentsReturnsCargoPieces() {
-    final Mat mat = new Mat(Mat.ID + "mat;;", new BasicPiece());
-    final MatCargo cargo = new MatCargo(MatCargo.ID + ";true", new BasicPiece());
+    final Mat mat = Decorator.create(Mat::new, Mat.ID + "mat;;", new BasicPiece());
+    final MatCargo cargo = Decorator.create(MatCargo::new, MatCargo.ID + ";true", new BasicPiece());
 
     mat.addCargo(cargo);
 

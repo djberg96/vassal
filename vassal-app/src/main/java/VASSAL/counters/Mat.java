@@ -74,26 +74,33 @@ public class Mat extends Decorator implements TranslatablePiece {
   }
 
   public Mat() {
-    this(ID + "Mat;;", null); //NON-NLS
+    initializeFromType(ID + "Mat;;"); //NON-NLS
   }
 
   public Mat(String name) {
-    this (ID + name + ";;", null);
+    initializeFromType(ID + name + ";;");
   }
 
-  public Mat(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+  @Override
+  public void setInner(GamePiece p) {
+    super.setInner(p);
+    checkForConflictingCargo(p);
+  }
 
+  private void checkForConflictingCargo(GamePiece inner) {
     for (GamePiece check = inner; check instanceof Decorator; check = ((Decorator)check).getInner()) {
       if (check instanceof MatCargo) {
-        ErrorDialog.dataWarning(new BadDataReport("Same piece must not be both Mat and Mat Cargo -- will create infinite loops", type));
+        ErrorDialog.dataWarning(new BadDataReport("Same piece must not be both Mat and Mat Cargo -- will create infinite loops", myGetType()));
       }
     }
   }
 
   @Override
   public void mySetType(String type) {
+    initializeFromType(type);
+  }
+
+  private void initializeFromType(String type) {
     type = type.substring(ID.length());
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
 
