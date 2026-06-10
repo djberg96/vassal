@@ -101,7 +101,7 @@ public class DoActionButton extends AbstractToolbarItem
   protected int indexStep = 1;
   protected int indexValue;
 
-  protected MutableProperty.Impl loopIndexProperty = new MutableProperty.Impl("", this);
+  protected MutableProperty.Impl loopIndexProperty;
   protected boolean loopPropertyRegistered = false;
 
   public DoActionButton() {
@@ -126,6 +126,13 @@ public class DoActionButton extends AbstractToolbarItem
   @SuppressWarnings("PMD.UnusedFormalParameter")
   protected DoActionButton(boolean dummy) { 
 
+  }
+
+  private MutableProperty.Impl getLoopIndexProperty() {
+    if (loopIndexProperty == null) {
+      loopIndexProperty = new MutableProperty.Impl("", this);
+    }
+    return loopIndexProperty;
   }
 
   public static String getConfigureTypeName() {
@@ -333,7 +340,7 @@ public class DoActionButton extends AbstractToolbarItem
     }
     else if (INDEX_PROPERTY.equals(key)) {
       indexProperty = (String) o;
-      loopIndexProperty.setPropertyName(indexProperty);
+      getLoopIndexProperty().setPropertyName(indexProperty);
       updateLoopPropertyRegistration();
     }
     else if (INDEX_START.equals(key)) {
@@ -480,17 +487,17 @@ public class DoActionButton extends AbstractToolbarItem
   protected void updateLoopPropertyRegistration() {
     final boolean shouldBeRegistered = doLoop && hasIndex && indexProperty.length() > 0;
     if (shouldBeRegistered && !loopPropertyRegistered) {
-      loopIndexProperty.addTo(GameModule.getGameModule());
+      getLoopIndexProperty().addTo(GameModule.getGameModule());
       loopPropertyRegistered = true;
     }
     else if (!shouldBeRegistered && loopPropertyRegistered) {
-      loopIndexProperty.removeFromContainer();
+      getLoopIndexProperty().removeFromContainer();
       loopPropertyRegistered = false;
     }
   }
 
   protected void setIndexPropertyValue() {
-    loopIndexProperty.setPropertyValue(String.valueOf(indexValue));
+    getLoopIndexProperty().setPropertyValue(String.valueOf(indexValue));
   }
 
   protected void doActions() throws RecursionLimitException {

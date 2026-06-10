@@ -91,7 +91,7 @@ public class SpecialDiceButton extends DoActionButton implements CommandEncoder,
   protected String chatResultFormat = "** $" + NAME + "$ = [$result1$] *** &lt;$" + GlobalOptions.PLAYER_NAME + "$&gt;"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
   protected String windowTitleResultFormat = "$" + NAME + "$"; //$NON-NLS-1$ //$NON-NLS-2$
   protected String tooltip = ""; //$NON-NLS-1$
-  protected final MutableProperty.Impl property = new Impl("", this); //$NON-NLS-1$
+  protected MutableProperty.Impl resultProperty;
   protected String description;
 
   public static final String RESULT_CHATTER = "resultChatter"; //$NON-NLS-1$
@@ -123,6 +123,13 @@ public class SpecialDiceButton extends DoActionButton implements CommandEncoder,
     setLaunchButton(makeLaunchButton(desc, desc, "/images/die.gif", rollAction)); //NON-NLS
     setAttribute(NAME, desc);
     setNamePrompt(Resources.getString(Resources.NAME_LABEL));
+  }
+
+  private MutableProperty.Impl getResultProperty() {
+    if (resultProperty == null) {
+      resultProperty = new Impl("", this); //$NON-NLS-1$
+    }
+    return resultProperty;
   }
 
   public static String getConfigureTypeName() {
@@ -203,7 +210,7 @@ public class SpecialDiceButton extends DoActionButton implements CommandEncoder,
     }
     final Command c = msg.length() == 0 ? new NullCommand() : new Chatter.DisplayText(GameModule.getGameModule().getChatter(), msg);
     c.execute();
-    c.append(property.setPropertyValue(String.valueOf(total)));
+    c.append(getResultProperty().setPropertyValue(String.valueOf(total)));
     return c;
   }
 
@@ -351,7 +358,8 @@ public class SpecialDiceButton extends DoActionButton implements CommandEncoder,
     mod.getToolBar().add(lb);
     idMgr.add(this);
     mod.addCommandEncoder(this);
-    property.addTo((MutablePropertiesContainer)parent);
+    getResultProperty().setPropertyName(getConfigureName() + "_result"); //$NON-NLS-1$
+    getResultProperty().addTo((MutablePropertiesContainer)parent);
   }
 
   @Override
@@ -403,8 +411,8 @@ public class SpecialDiceButton extends DoActionButton implements CommandEncoder,
   public void setAttribute(String key, Object o) {
     if (NAME.equals(key)) {
       setConfigureName((String) o);
-      if (property != null) {
-        property.setPropertyName(getConfigureName() + "_result"); //$NON-NLS-1$
+      if (resultProperty != null) {
+        getResultProperty().setPropertyName(getConfigureName() + "_result"); //$NON-NLS-1$
       }
       if (getLaunchButton() != null) {
         getLaunchButton().setToolTipText((String) o);

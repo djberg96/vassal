@@ -106,10 +106,10 @@ public class DiceButton extends AbstractToolbarItem {
   protected static final String KEEP_LESS = "<";
 
   protected String tooltip = ""; //$NON-NLS-1$
-  protected final MutableProperty.Impl property = new Impl("", this);
-  protected final MutableProperty.Impl totalProp = new Impl("", this);
-  protected final MutableProperty.Impl keepProp = new Impl("", this);
-  protected final MutableProperty.Impl summaryProp = new Impl("", this);
+  protected MutableProperty.Impl resultProperty;
+  protected MutableProperty.Impl totalProp;
+  protected MutableProperty.Impl keepProp;
+  protected MutableProperty.Impl summaryProp;
 
   public static final String DEPRECATED_NAME = "label"; //$NON-NLS-1$
   public static final String N_DICE = "nDice"; //$NON-NLS-1$
@@ -139,6 +139,23 @@ public class DiceButton extends AbstractToolbarItem {
 
   public DiceButton() {
     initLaunchButton();
+  }
+
+  private void ensureResultProperties() {
+    if (resultProperty == null) {
+      resultProperty = new Impl("", this);
+      totalProp = new Impl("", this);
+      keepProp = new Impl("", this);
+      summaryProp = new Impl("", this);
+    }
+  }
+
+  private void updateResultPropertyNames() {
+    ensureResultProperties();
+    resultProperty.setPropertyName(getConfigureName() + "_result"); //$NON-NLS-1$
+    totalProp.setPropertyName(getConfigureName() + "_total"); //$NON-NLS-1$
+    keepProp.setPropertyName(getConfigureName() + "_keep"); //$NON-NLS-1$
+    summaryProp.setPropertyName(getConfigureName() + "_summary"); //$NON-NLS-1$
   }
 
   protected void initLaunchButton() {
@@ -333,7 +350,8 @@ public class DiceButton extends AbstractToolbarItem {
     final String report = formatResult(val.toString(), summaryVal.toString());
     Command c = report.isEmpty() ? new NullCommand() : new Chatter.DisplayText(GameModule.getGameModule().getChatter(), report);
     c.execute();
-    c = c.append(property.setPropertyValue(val.toString()))
+    ensureResultProperties();
+    c = c.append(resultProperty.setPropertyValue(val.toString()))
             .append(totalProp.setPropertyValue(Integer.toString(numericTotal)))
             .append(keepProp.setPropertyValue(Integer.toString(keepCount)))
             .append(summaryProp.setPropertyValue(summaryVal.toString()));
@@ -510,8 +528,9 @@ public class DiceButton extends AbstractToolbarItem {
     }
 
     ran = GameModule.getGameModule().getRNG();
-    property.setPropertyValue("1"); // Initialize with a numeric value //$NON-NLS-1$
-    property.addTo((MutablePropertiesContainer)parent);
+    updateResultPropertyNames();
+    resultProperty.setPropertyValue("1"); // Initialize with a numeric value //$NON-NLS-1$
+    resultProperty.addTo((MutablePropertiesContainer)parent);
 
     totalProp.setPropertyValue("0");
     totalProp.addTo((MutablePropertiesContainer)parent);
@@ -532,10 +551,9 @@ public class DiceButton extends AbstractToolbarItem {
     }
     else if (NAME.equals(key)) {
       setConfigureName((String) o);
-      property.setPropertyName(getConfigureName() + "_result"); //$NON-NLS-1$
-      totalProp.setPropertyName(getConfigureName() + "_total"); //$NON-NLS-1$
-      keepProp.setPropertyName(getConfigureName() + "_keep"); //$NON-NLS-1$
-      summaryProp.setPropertyName(getConfigureName() + "_summary"); //$NON-NLS-1$
+      if (resultProperty != null) {
+        updateResultPropertyNames();
+      }
       getLaunchButton().setToolTipText((String) o);
     }
     else if (N_DICE.equals(key)) {
@@ -732,8 +750,9 @@ public class DiceButton extends AbstractToolbarItem {
    */
   @Override
   public List<String> getPropertyNames() {
+    updateResultPropertyNames();
     final List<String> l = new ArrayList<>();
-    l.add(property.getName());
+    l.add(resultProperty.getName());
     l.add(totalProp.getName());
     l.add(keepProp.getName());
     l.add(summaryProp.getName()); // add the summary property name
