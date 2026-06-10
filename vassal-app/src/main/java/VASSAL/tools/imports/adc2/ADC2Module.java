@@ -65,6 +65,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import VASSAL.build.AbstractToolbarItem;
 import VASSAL.build.Configurable;
 import VASSAL.build.GameModule;
 import VASSAL.build.Widget;
@@ -2300,7 +2301,6 @@ public class ADC2Module extends Importer {
 //  }
   }
 
-  @SuppressWarnings("removal")
   private void configureStatusFlagButtons() throws IOException {
     String imageName;
     MassKeyCommand command;
@@ -2308,11 +2308,11 @@ public class ADC2Module extends Importer {
     imageName = StateFlag.ATTACK.getStatusIconName();
     command = new MassKeyCommand();
     insertComponent(command, getMainMap());
-    command.setAttribute(MassKeyCommand.TOOLTIP, "Clear attacked status");
+    command.setAttribute(AbstractToolbarItem.TOOLTIP, "Clear attacked status");
     command.setAttribute(MassKeyCommand.BUTTON_TEXT, "Attacked");
     command.setAttribute(MassKeyCommand.HOTKEY, null);
-    command.setAttribute(MassKeyCommand.ICON, imageName);
-    command.setAttribute(MassKeyCommand.NAME, "Attacked");
+    command.setAttribute(AbstractToolbarItem.ICON, imageName);
+    command.setAttribute(AbstractToolbarItem.NAME, "Attacked");
     command.setAttribute(MassKeyCommand.KEY_COMMAND, NamedKeyStroke.of(KeyStroke.getKeyStroke('A', InputEvent.CTRL_DOWN_MASK)));
     command.setAttribute(MassKeyCommand.PROPERTIES_FILTER, "Mark Attacked_Active = true");
     command.setAttribute(MassKeyCommand.DECK_COUNT, "-1");
@@ -2322,11 +2322,11 @@ public class ADC2Module extends Importer {
     imageName = StateFlag.DEFEND.getStatusIconName();
     command = new MassKeyCommand();
     insertComponent(command, getMainMap());
-    command.setAttribute(MassKeyCommand.TOOLTIP, "Clear defended status");
+    command.setAttribute(AbstractToolbarItem.TOOLTIP, "Clear defended status");
     command.setAttribute(MassKeyCommand.BUTTON_TEXT, "Defended");
     command.setAttribute(MassKeyCommand.HOTKEY, null);
-    command.setAttribute(MassKeyCommand.ICON, imageName);
-    command.setAttribute(MassKeyCommand.NAME, "Defended");
+    command.setAttribute(AbstractToolbarItem.ICON, imageName);
+    command.setAttribute(AbstractToolbarItem.NAME, "Defended");
     command.setAttribute(MassKeyCommand.KEY_COMMAND, NamedKeyStroke.of(KeyStroke.getKeyStroke('D', InputEvent.CTRL_DOWN_MASK)));
     command.setAttribute(MassKeyCommand.PROPERTIES_FILTER, "Mark Defended_Active = true");
     command.setAttribute(MassKeyCommand.DECK_COUNT, "-1");
@@ -2662,15 +2662,14 @@ public class ADC2Module extends Importer {
     }
   }
 
-  @SuppressWarnings("removal")
   protected void writeToolbarMenuToArchive(GameModule gameModule) {
     final int nHands = forcePools.count(HandPool.class);
     if (nHands == 0)
       return;
     final ToolbarMenu menu = new ToolbarMenu();
     insertComponent(menu, gameModule);
-    menu.setAttribute(ToolbarMenu.BUTTON_TEXT, "Windows");
-    menu.setAttribute(ToolbarMenu.TOOLTIP, "Open trays, decks, charts, and hands.");
+    menu.setAttribute(AbstractToolbarItem.BUTTON_TEXT, "Windows");
+    menu.setAttribute(AbstractToolbarItem.TOOLTIP, "Open trays, decks, charts, and hands.");
     final String[] items = new String[nHands + 3];
     items[0] = TRAY;
     items[1] = DECKS;

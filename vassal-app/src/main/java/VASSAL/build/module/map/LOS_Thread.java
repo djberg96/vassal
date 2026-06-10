@@ -857,7 +857,7 @@ public class LOS_Thread extends AbstractToolbarItem implements
       super.getAttributeTypes(),
       ReportFormatConfig.class,
       PersistenceOptions.class,
-      IconConfig.class,
+      PersistentIconConfig.class,
       GlobalOptions.class,
       Boolean.class,
       Boolean.class,
@@ -871,9 +871,7 @@ public class LOS_Thread extends AbstractToolbarItem implements
     );
   }
 
-  /** @deprecated Use {@link VASSAL.build.AbstractToolbarItem.IconConfig} instead. */
-  @Deprecated(since = "2020-10-01", forRemoval = true)
-  public static class IconConfig implements ConfigurerFactory {
+  public static class PersistentIconConfig implements ConfigurerFactory {
     @Override
     public Configurer getConfigurer(AutoConfigurable c, String key, String name) {
       return new IconConfigurer(key, name, DEFAULT_ICON);

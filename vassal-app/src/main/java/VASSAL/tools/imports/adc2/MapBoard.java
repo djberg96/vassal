@@ -3072,15 +3072,14 @@ public class MapBoard extends Importer {
     return board;
   }
 
-  @SuppressWarnings("removal")
   private ToolbarMenu getToolbarMenu() {
     final List<ToolbarMenu> list = getMainMap().getComponentsOf(ToolbarMenu.class);
     ToolbarMenu menu = null;
     if (list.isEmpty()) {
       menu = new ToolbarMenu();
       insertComponent(menu, getMainMap());
-      menu.setAttribute(ToolbarMenu.BUTTON_TEXT, "View");
-      menu.setAttribute(ToolbarMenu.TOOLTIP, "Toggle visibility of map elements");
+      menu.setAttribute(AbstractToolbarItem.BUTTON_TEXT, "View");
+      menu.setAttribute(AbstractToolbarItem.TOOLTIP, "Toggle visibility of map elements");
     }
     else {
       assert (list.size() == 1);

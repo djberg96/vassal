@@ -30,7 +30,6 @@ import VASSAL.configure.Configurer;
 import VASSAL.configure.ConfigurerFactory;
 import VASSAL.configure.FormattedExpressionConfigurer;
 import VASSAL.configure.GlobalCommandTargetConfigurer;
-import VASSAL.configure.IconConfigurer;
 import VASSAL.configure.IntConfigurer;
 import VASSAL.configure.NamedHotKeyConfigurer;
 import VASSAL.configure.Parameter;
@@ -109,13 +108,6 @@ public class MassKeyCommand extends AbstractToolbarItem
   public static final String SINGLE_MAP = "singleMap"; // NON-NLS
   public static final String SUPPRESS_SOUNDS = "suppressSounds"; //NON-NLS
   public static final String PARAMETERS = "parameters"; //NON-NLS
-
-  // TODO: When these are removed, look for all of the "removal" warning
-  // suppressions we added for them, and remove those.
-  // These 3 identical to AbstractToolbarItem and here for clirr purposes only
-  @Deprecated(since = "2020-10-21", forRemoval = true) public static final String NAME = "name"; // NON-NLS
-  @Deprecated(since = "2020-10-21", forRemoval = true) public static final String ICON = "icon"; // NON-NLS
-  @Deprecated(since = "2020-10-21", forRemoval = true) public static final String TOOLTIP = "tooltip"; // NON-NLS
 
   protected NamedKeyStroke stroke = NamedKeyStroke.NULL_KEYSTROKE;
   protected String[] names = new String[0];
@@ -322,15 +314,6 @@ public class MassKeyCommand extends AbstractToolbarItem
         ReportFormatConfig.class,
         Prompt.class
       );
-    }
-  }
-
-  /** @deprecated Use {@link VASSAL.build.AbstractToolbarItem.IconConfig} instead. */
-  @Deprecated(since = "2020-10-01", forRemoval = true)
-  public static class IconConfig implements ConfigurerFactory {
-    @Override
-    public Configurer getConfigurer(AutoConfigurable c, String key, String name) {
-      return new IconConfigurer(key, name, "/images/keyCommand.gif"); //NON-NLS
     }
   }
 

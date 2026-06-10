@@ -31,8 +31,6 @@ import VASSAL.command.NullCommand;
 import VASSAL.configure.ColorConfigurer;
 import VASSAL.configure.ComponentDescription;
 import VASSAL.configure.Configurer;
-import VASSAL.configure.ConfigurerFactory;
-import VASSAL.configure.IconConfigurer;
 import VASSAL.configure.PlayerIdFormattedExpressionConfigurer;
 import VASSAL.configure.VisibilityCondition;
 import VASSAL.i18n.Resources;
@@ -110,13 +108,6 @@ public class SpecialDiceButton extends DoActionButton implements CommandEncoder,
   public static final String NONE = "&lt;none&gt;"; //$NON-NLS-1$
   public static final String DESCRIPTION = "description"; //NON-NLS
   private static final int[] EMPTY = new int[0];
-
-  // These five identical to AbstractToolbarItem, and are only here for "clirr purposes"
-  @Deprecated(since = "2020-10-21", forRemoval = true) public static final String BUTTON_TEXT = "text"; //$NON-NLS-1$
-  @Deprecated(since = "2020-10-21", forRemoval = true) public static final String TOOLTIP = "tooltip"; //$NON-NLS-1$
-  @Deprecated(since = "2020-10-21", forRemoval = true) public static final String NAME = "name"; //$NON-NLS-1$
-  @Deprecated(since = "2020-10-21", forRemoval = true) public static final String ICON = "icon"; //$NON-NLS-1$
-  @Deprecated(since = "2020-10-21", forRemoval = true) public static final String HOTKEY = "hotkey"; //$NON-NLS-1$
 
   public SpecialDiceButton() {
     super(false); // Make a DoActionButton, but don't call its normal constructor
@@ -288,15 +279,6 @@ public class SpecialDiceButton extends DoActionButton implements CommandEncoder,
       Integer.class,
       Color.class
     );
-  }
-
-  /** @deprecated Use {@link VASSAL.build.AbstractToolbarItem.IconConfig} instead. */
-  @Deprecated(since = "2020-10-01", forRemoval = true)
-  public static class IconConfig implements ConfigurerFactory {
-    @Override
-    public Configurer getConfigurer(AutoConfigurable c, String key, String name) {
-      return new IconConfigurer(key, name, "/images/die.gif"); //$NON-NLS-1$
-    }
   }
 
   public static class ReportFormatConfig implements TranslatableConfigurerFactory {
