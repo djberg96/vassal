@@ -115,6 +115,19 @@ public class QuadTreeTest extends junit.framework.TestCase {
     }
 
     @Test
+    public void testCloneIsIndependent() {
+        QuadTree<String> original = getTree();
+        QuadTree<String> clone = original.clone();
+
+        assertEquals("Clone should remove its own point", "Foo", clone.remove(5, 20));
+
+        assertTrue("Original should still contain (5, 20)", original.contains(5, 20));
+        assertFalse("Clone should no longer contain (5, 20)", clone.contains(5, 20));
+        assertEquals("Original count should be unchanged", 5, original.getCount());
+        assertEquals("Clone count should change independently", 4, clone.getCount());
+    }
+
+    @Test
     public void testRemove() {
         QuadTree<String> qt = getTree();
         assertEquals("(5, 20) should be removed", "Foo", qt.remove(5, 20));

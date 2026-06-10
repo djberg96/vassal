@@ -278,12 +278,26 @@ public class QuadTree<T> implements Cloneable {
    * @return {QuadTree} A clone of the tree.
    */
   @Override
+  @SuppressWarnings("unchecked")
   public QuadTree<T> clone() {
+    final QuadTree<T> clone;
+    try {
+      clone = (QuadTree<T>) super.clone();
+    }
+    catch (CloneNotSupportedException e) {
+      throw new AssertionError(e);
+    }
+
+    if (this.root_ == null) {
+      return clone;
+    }
+
     final double x1 = this.root_.getX();
     final double y1 = this.root_.getY();
     final double x2 = x1 + this.root_.getW();
     final double y2 = y1 + this.root_.getH();
-    final QuadTree<T> clone = new QuadTree<>(x1, y1, x2, y2);
+    clone.root_ = new QNode<>(x1, y1, x2 - x1, y2 - y1, null);
+    clone.count_ = 0;
     // This is inefficient as the clone needs to recalculate the structure of the
     // tree, even though we know it already.  But this is easier and can be
     // optimized when/if needed.
