@@ -580,7 +580,7 @@ public class StackMetrics extends AbstractConfigurable {
   }
 
   public Stack createStack(GamePiece p, boolean force) {
-    return isStackingEnabled() || force ? new Stack(p) : null;
+    return isStackingEnabled() || force ? Stack.containing(p) : null;
   }
 
   public KeyStroke getMoveUpKey() {

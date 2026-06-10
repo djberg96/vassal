@@ -79,20 +79,19 @@ public class Stack extends AbstractImageFinder implements GamePiece, StateMergea
 
   private static StackMetrics defaultMetrics;
 
-  public Stack() {
-    this(null);
-  }
-
   /**
    * Creates a Stack to contain a specific stackable piece.
    * @param p piece to make a stack for
+   * @return a stack containing {@code p}, or an empty stack when {@code p} is null
    */
-  public Stack(GamePiece p) {
+  public static Stack containing(GamePiece p) {
+    final Stack stack = new Stack();
     if (p != null) {
-      setMap(p.getMap());
-      setPosition(new Point(p.getPosition()));
-      add(p);
+      stack.setMap(p.getMap());
+      stack.setPosition(new Point(p.getPosition()));
+      stack.add(p);
     }
+    return stack;
   }
 
   public Iterator<GamePiece> getPiecesIterator() {

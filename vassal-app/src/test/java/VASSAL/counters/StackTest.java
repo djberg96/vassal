@@ -30,7 +30,7 @@ public class StackTest {
   @Test
   public void constructorShouldCreateEmptyStackWhenPassedNull() {
     // run
-    Stack s = new Stack(null);
+    Stack s = new Stack();
 
     // assert
     assertEquals(0, s.pieceCount);
@@ -48,7 +48,7 @@ public class StackTest {
     when(gamePiece.getPosition()).thenReturn(point);
 
     // run
-    Stack s = new Stack(gamePiece);
+    Stack s = Stack.containing(gamePiece);
 
     // assert
     assertEquals(1, s.getPieceCount());
@@ -68,7 +68,7 @@ public class StackTest {
     when(gamePiece1.getPosition()).thenReturn(point);
 
     // run
-    Stack s = new Stack(gamePiece1);
+    Stack s = Stack.containing(gamePiece1);
     s.add(gamePiece2);
 
     // assert
@@ -85,7 +85,7 @@ public class StackTest {
     when(gamePiece.getPosition()).thenReturn(point);
 
     // run
-    Stack s = new Stack(gamePiece);
+    Stack s = Stack.containing(gamePiece);
     s.add(null);
 
     // assert
@@ -103,7 +103,7 @@ public class StackTest {
     when(gamePiece1.getPosition()).thenReturn(point);
 
     // run
-    Stack s = new Stack(gamePiece1);
+    Stack s = Stack.containing(gamePiece1);
     s.add(gamePiece2);
 
     // assert
@@ -121,7 +121,7 @@ public class StackTest {
     when(gamePiece1.getPosition()).thenReturn(point);
 
     // run
-    Stack s = new Stack(gamePiece1);
+    Stack s = Stack.containing(gamePiece1);
     s.add(gamePiece2);
 
     // assert
@@ -331,7 +331,7 @@ public class StackTest {
     when(gamePiece.getPosition()).thenReturn(point);
 
     // run
-    Stack s = new Stack(gamePiece);
+    Stack s = Stack.containing(gamePiece);
     s.remove(gamePiece);
 
     // assert
@@ -363,7 +363,7 @@ public class StackTest {
     when(gamePiece.getPosition()).thenReturn(point);
 
     // run
-    Stack s = new Stack(gamePiece);
+    Stack s = Stack.containing(gamePiece);
     s.setMap(map2);
 
     // assert
@@ -381,7 +381,7 @@ public class StackTest {
     when(gamePiece.getPosition()).thenReturn(point1);
 
     // run
-    Stack s = new Stack(gamePiece);
+    Stack s = Stack.containing(gamePiece);
     s.setPosition(point2);
 
     // assert
