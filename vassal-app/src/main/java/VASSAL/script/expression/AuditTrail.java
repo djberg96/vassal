@@ -156,16 +156,20 @@ public class AuditTrail {
   public AuditTrail(Auditable source, String originalExpression, String sourceField) {
     messages = new ArrayList<>();
 
-    setSource(source);
+    this.source = source;
     if (sourceField != null && ! sourceField.isEmpty()) {
-      addMessage(Resources.getString("Audit.source_field", sourceField));
+      addMessageIfPresent(Resources.getString("Audit.source_field", sourceField));
     }
-    setExpression(originalExpression);
+    addExpressionMessage(originalExpression);
   }
 
   public void setExpression(String expression) {
+    addExpressionMessage(expression);
+  }
+
+  private void addExpressionMessage(String expression) {
     if (expression != null && ! expression.isEmpty()) {
-      addMessage(Resources.getString("Audit.expression", expression));
+      addMessageIfPresent(Resources.getString("Audit.expression", expression));
     }
   }
 
@@ -179,6 +183,10 @@ public class AuditTrail {
    * @param message message to record in Audit Trail
    */
   public void addMessage(String message) {
+    addMessageIfPresent(message);
+  }
+
+  private void addMessageIfPresent(String message) {
     if (message != null && !message.isEmpty()) {
       messages.add(message);
     }
@@ -232,4 +240,3 @@ public class AuditTrail {
     return sb.toString();
   }
 }
-

@@ -30,8 +30,8 @@ public class CompoundValidityChecker implements ValidityChecker {
 
   public CompoundValidityChecker(ValidityChecker checker1,
                                  ValidityChecker checker2) {
-    append(checker1);
-    append(checker2);
+    checkers.add(checker1);
+    checkers.add(checker2);
   }
 
   public CompoundValidityChecker append(ValidityChecker checker) {
