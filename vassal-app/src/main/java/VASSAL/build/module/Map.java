@@ -118,7 +118,6 @@ import VASSAL.search.HTMLImageFinder;
 import VASSAL.tools.AdjustableSpeedScrollPane;
 import VASSAL.tools.DebugControls;
 import VASSAL.tools.KeyStrokeSource;
-import VASSAL.tools.LaunchButton;
 import VASSAL.tools.NamedKeyStroke;
 import VASSAL.tools.NamedKeyStrokeListener;
 import VASSAL.tools.ToolBarComponent;
@@ -236,10 +235,6 @@ public class Map extends AbstractToolbarItem implements GameComponent, MouseList
   protected StackMetrics metrics;
   protected Dimension edgeBuffer = new Dimension(0, 0);
   protected Color bgColor = Color.white;
-
-  /** @deprecated use launch from the superclass */
-  @Deprecated(since = "2021-04-03", forRemoval = true)
-  protected LaunchButton launchButton;
 
   protected boolean useLaunchButton = false;     //BR// True if useLaunchButton was active at beginning of SESSION (now used ONLY for should-dock-to-main-window decisions)
   protected boolean useLaunchButtonEdit = false; //BR// True if currently set to use Launch Button.
@@ -731,8 +726,6 @@ public class Map extends AbstractToolbarItem implements GameComponent, MouseList
         }
       }
     ));
-    launchButton = getLaunchButton(); // for binary compatibility
-
     getLaunchButton().setEnabled(false);
     getLaunchButton().setVisible(false);
     getLaunchButton().setAlwaysAcceptKeystroke(true); //BR// Map allows keystroke to exist even if button not shown/enabled
@@ -1325,41 +1318,6 @@ public class Map extends AbstractToolbarItem implements GameComponent, MouseList
      */
   public Dimension getEdgeBuffer() {
     return new Dimension(edgeBuffer);
-  }
-
-  /**
-   * Translate a point from component coordinates (i.e., x,y position on
-   * the JPanel) to map coordinates (i.e., accounting for zoom factor).
-   *
-   * @see #componentCoordinates
-   * @deprecated Use {@link #componentToMap(Point)}
-   */
-  @Deprecated(since = "2020-08-05", forRemoval = true)
-  public Point mapCoordinates(Point p) {
-    return componentToMap(p);
-  }
-
-  /** @deprecated Use {@link #componentToMap(Rectangle)} */
-  @Deprecated(since = "2020-08-05", forRemoval = true)
-  public Rectangle mapRectangle(Rectangle r) {
-    return componentToMap(r);
-  }
-
-  /**
-   * Translate a point from map coordinates to component coordinates
-   *
-   * @see #mapCoordinates
-   * @deprecated Use {@link #mapToComponent(Point)}
-   */
-  @Deprecated(since = "2020-08-05", forRemoval = true)
-  public Point componentCoordinates(Point p) {
-    return mapToComponent(p);
-  }
-
-  /** @deprecated  Use {@link #mapToComponent(Rectangle)} */
-  @Deprecated(since = "2020-08-05", forRemoval = true)
-  public Rectangle componentRectangle(Rectangle r) {
-    return mapToComponent(r);
   }
 
   /**
@@ -3057,16 +3015,6 @@ public class Map extends AbstractToolbarItem implements GameComponent, MouseList
   @Override
   public Command getRestoreCommand() {
     return null;
-  }
-
-  /**
-   * @deprecated use {@link #updateTitleBar()}
-   * @param s String to append to title
-   */
-  @Deprecated(since = "2020-09-16", forRemoval = true)
-  @SuppressWarnings("unused")
-  public void appendToTitle(String s) {
-    // replaced by updateTitleBar()
   }
 
   /**
