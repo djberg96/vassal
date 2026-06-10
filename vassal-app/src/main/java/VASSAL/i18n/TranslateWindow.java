@@ -89,15 +89,15 @@ public class TranslateWindow extends JDialog implements ListSelectionListener,
   protected static final Color TRANSLATION_DONE_COLOR = Color.black;
   protected static final Color NO_TRANSLATION_NEEDED_COLOR = Color.black;
 
-  protected Translatable target;
+  protected transient Translatable target;
 
   protected String[] keys;
   protected JTable keyTable;
-  protected Translatable keyTarget;
+  protected transient Translatable keyTarget;
   protected JTree tree;
-  protected Translation currentTranslation = null;
+  protected transient Translation currentTranslation = null;
   protected JComboBox<String> langBox;
-  protected ActionListener boxListener;
+  protected transient ActionListener boxListener;
   protected int lastSelectedLangIndex;
   protected String currentKey = ""; //$NON-NLS-1$
   protected ConfigureTree myConfigureTree;
@@ -209,8 +209,8 @@ public class TranslateWindow extends JDialog implements ListSelectionListener,
 
   protected static class MyPropertiesWindow extends PropertiesWindow {
     private static final long serialVersionUID = 1L;
-    protected Configurable myTarget;
-    protected TranslateWindow owningWindow;
+    protected transient Configurable myTarget;
+    protected transient TranslateWindow owningWindow;
     public MyPropertiesWindow(Frame owner, boolean modal, final Configurable target, HelpWindow helpWindow, TranslateWindow tw) {
       super(owner, modal, target, helpWindow);
       myTarget = target;
@@ -714,7 +714,7 @@ public class TranslateWindow extends JDialog implements ListSelectionListener,
   class MyTableCellRenderer extends DefaultTableCellRenderer {
 
     private static final long serialVersionUID = 1L;
-    protected Translatable target;
+    protected transient Translatable target;
 
     public MyTableCellRenderer(Translatable target) {
       this.target = target;
@@ -816,7 +816,7 @@ public class TranslateWindow extends JDialog implements ListSelectionListener,
    */
   protected static class MyTreeNode extends DefaultMutableTreeNode {
     private static final long serialVersionUID = 1L;
-    Translatable component;
+    transient Translatable component;
 
     public MyTreeNode(Translatable t) {
       component = t;

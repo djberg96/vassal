@@ -47,9 +47,9 @@ import java.util.Locale;
 
 public class TranslateVassalWindow extends TranslateWindow {
   private static final long serialVersionUID = 1L;
-  protected LocaleConfigurer localeConfig;
+  protected transient LocaleConfigurer localeConfig;
 
-  protected FileChooser fileChooser;
+  protected transient FileChooser fileChooser;
 
   public TranslateVassalWindow(Frame owner,
                                boolean modal,

@@ -37,7 +37,7 @@ import VASSAL.configure.ConfigureTree;
 public class TranslateAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
 
-  protected Configurable target;
+  protected transient Configurable target;
   protected HelpWindow helpWindow;
   protected static final Map<Configurable, TranslateWindow> openWindows = new HashMap<>();
   protected Frame dialogOwner;
