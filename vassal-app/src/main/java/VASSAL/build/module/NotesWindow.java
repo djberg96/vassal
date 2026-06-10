@@ -18,7 +18,6 @@
 package VASSAL.build.module;
 
 import VASSAL.build.AbstractToolbarItem;
-import VASSAL.build.AutoConfigurable;
 import VASSAL.build.Buildable;
 import VASSAL.build.Configurable;
 import VASSAL.build.GameModule;
@@ -29,9 +28,6 @@ import VASSAL.command.Command;
 import VASSAL.command.CommandEncoder;
 import VASSAL.command.NullCommand;
 import VASSAL.configure.ComponentDescription;
-import VASSAL.configure.Configurer;
-import VASSAL.configure.ConfigurerFactory;
-import VASSAL.configure.IconConfigurer;
 import VASSAL.configure.TextConfigurer;
 import VASSAL.i18n.Resources;
 import VASSAL.tools.KeyStrokeSource;
@@ -63,11 +59,6 @@ public class NotesWindow extends AbstractToolbarItem
 
   private static final int TAB_INDEX_SCEN = 0;
   private static final int TAB_INDEX_PUBLIC = 1;
-
-  // These three identical to AbstractToolbarItem, and are only here for "clirr purposes"
-  @Deprecated(since = "2020-10-21", forRemoval = true) public static final String HOT_KEY = "hotkey"; //$NON-NLS-1$
-  @Deprecated(since = "2020-10-21", forRemoval = true) public static final String ICON = "icon"; //$NON-NLS-1$
-  @Deprecated(since = "2020-10-21", forRemoval = true) public static final String TOOLTIP = "tooltip"; //$NON-NLS-1$
 
   protected JDialog frame;
 
@@ -117,15 +108,6 @@ public class NotesWindow extends AbstractToolbarItem
     ));
     frame.pack();
     setup(false);
-  }
-
-  /** @deprecated Use {@link VASSAL.build.AbstractToolbarItem.IconConfig} instead. */
-  @Deprecated(since = "2020-10-01", forRemoval = true)
-  public static class IconConfig implements ConfigurerFactory {
-    @Override
-    public Configurer getConfigurer(AutoConfigurable c, String key, String name) {
-      return new IconConfigurer(key, name, ((NotesWindow) c).launch.getAttributeValueString(ICON));
-    }
   }
 
   @Override

@@ -36,13 +36,6 @@ public class LayerControl extends AbstractToolbarItem implements ComponentDescri
 
   public static final String DESCRIPTION = "description"; //NON-NLS
 
-  // These 5 identical to AbstractToolbarItem and here for clirr purposes only
-  @Deprecated(since = "2020-10-21", forRemoval = true) public static final String NAME = "name"; //NON-NLS
-  @Deprecated(since = "2020-10-21", forRemoval = true) public static final String TOOLTIP = "tooltip"; //NON-NLS
-  @Deprecated(since = "2020-10-21", forRemoval = true) public static final String BUTTON_TEXT = "text"; //NON-NLS
-  @Deprecated(since = "2020-10-21", forRemoval = true) public static final String BUTTON_ICON = "icon"; //NON-NLS
-  @Deprecated(since = "2020-10-21", forRemoval = true) public static final String BUTTON_HOTKEY = "hotkey"; //NON-NLS
-
   protected static final String[] COMMANDS = {CMD_ROTATE_UP, CMD_ROTATE_DN, CMD_ENABLE, CMD_DISABLE, CMD_TOGGLE, CMD_RESET};
   protected static final String[] COMMANDS_DISPLAY_NAMES = {
     "Editor.LayerControl.rotate_layer_order_up",

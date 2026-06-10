@@ -53,6 +53,7 @@ import org.apache.commons.io.FileUtils;
 
 import VASSAL.Info;
 import VASSAL.build.AbstractConfigurable;
+import VASSAL.build.AbstractToolbarItem;
 import VASSAL.build.GameModule;
 import VASSAL.build.module.GlobalOptions;
 import VASSAL.build.module.Inventory;
@@ -154,8 +155,8 @@ public class MapBoard extends Importer {
           // add stack layer control
           final LayerControl control = new LayerControl();
           insertComponent(control, l);
-          control.setAttribute(LayerControl.BUTTON_TEXT, getName());
-          control.setAttribute(LayerControl.TOOLTIP, "Toggle " + getName().toLowerCase() + " visibility");
+          control.setAttribute(AbstractToolbarItem.BUTTON_TEXT, getName());
+          control.setAttribute(AbstractToolbarItem.TOOLTIP, "Toggle " + getName().toLowerCase() + " visibility");
           control.setAttribute(LayerControl.COMMAND, LayerControl.CMD_TOGGLE);
           control.setAttribute(LayerControl.LAYERS, getName());
 
