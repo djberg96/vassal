@@ -208,9 +208,6 @@ public class CounterDetailViewer extends AbstractConfigurable implements Drawabl
   protected double showTerrainZoom = 1.0;
   protected boolean showTerrainSnappy = true;
 
-  @Deprecated(since = "2021-12-01", forRemoval = true)
-  protected static int showDeckDepth = 1; //BR// deprecated (and was-always-broken) field, use showNumberFromDeck instead.
-
   protected int showNumberFromDeck = 1;
   protected boolean showDeckMasked = false;
   protected boolean showOverlap = false;
@@ -250,11 +247,6 @@ public class CounterDetailViewer extends AbstractConfigurable implements Drawabl
   protected JComponent view;
 
   private int excessWidth = 0;
-
-  @Deprecated(since = "2023-02-15", forRemoval = true)
-  public static boolean isDrawingMouseOver() {
-    return Map.getMapList().stream().anyMatch(Map::isDrawingMouseOver);
-  }
 
   public boolean isStopAfterShowing() {
     return stopAfterShowing;
@@ -1085,11 +1077,6 @@ public class CounterDetailViewer extends AbstractConfigurable implements Drawabl
     protected final boolean showDeckMasked;
     protected final boolean showOnlyTopOfStack;
 
-    @Deprecated(since = "2021-12-01", forRemoval = true)
-    public Visitor(Filter filter, Map map, Point pt, boolean showOverlap) {
-      this(filter, map, pt, showOverlap, 1, false);
-    }
-
     public Visitor(Filter filter, Map map, Point pt, boolean showOverlap, int showNumberFromDeck, boolean showDeckMasked) {
       this(filter, map, pt, showOverlap, showNumberFromDeck, showDeckMasked, false);
     }
@@ -1839,7 +1826,6 @@ public class CounterDetailViewer extends AbstractConfigurable implements Drawabl
       if (value instanceof String) {
         value = Integer.valueOf((String) value);
       }
-      showDeckDepth = (Integer) value; // for possible legacy support
       showNumberFromDeck = (Integer) value;
     }
     else if (SHOW_OVERLAP.equals(name)) {
