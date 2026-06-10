@@ -27,7 +27,7 @@ public class PropertyExpression implements PieceFilter {
   }
 
   public PropertyExpression(String s) {
-    setExpression(s);
+    expression = Expression.createPropertyExpression(s);
   }
 
   public void setExpression(String s) {
@@ -130,4 +130,3 @@ public class PropertyExpression implements PieceFilter {
   }
 
 }
-
