@@ -107,7 +107,7 @@ public class BonesDiceServer extends DieServer {
     final String[] rollString = buildInternetRollString(toss);
     final Vector<String> returnString = new Vector<>(); // NOPMD
 
-    final URL url = new URL(rollString[0]);
+    final URL url = URI.create(rollString[0]).toURL();
     final HttpURLConnection connection =
       (HttpURLConnection) url.openConnection();
     connection.setRequestMethod("GET"); //NON-NLS

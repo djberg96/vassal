@@ -18,7 +18,7 @@ package VASSAL.tools.version;
 
 import java.io.InputStream;
 import java.io.IOException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
@@ -49,7 +49,7 @@ public class LiveVersionInfo implements VersionInfo {
   }
 
   private String getVersion(String url) throws IOException {
-    try (InputStream in = new URL(url).openStream()) {
+    try (InputStream in = URI.create(url).toURL().openStream()) {
       return IOUtils.toString(in, StandardCharsets.UTF_8).trim();
     }
   }

@@ -197,7 +197,7 @@ public class ChessClockControl extends AbstractConfigurable
     int added = 0;
     if (r != null) {
       for (final String s : r.getUntranslatedSideList()) {
-        if (!r.isSoloSide(s)) {
+        if (!PlayerRoster.isSoloSide(s)) {
           addChild(new ChessClock(s));
           added++;
         }

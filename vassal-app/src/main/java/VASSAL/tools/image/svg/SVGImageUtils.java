@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.NoSuchFileException;
@@ -307,7 +308,7 @@ public class SVGImageUtils {
   protected static List<String> getExternalReferences(
                           String path, List<String> known) throws IOException {
 
-    final URL here = new URL("file", null, new File(path).getCanonicalPath());
+    final URL here = new File(path).getCanonicalFile().toURI().toURL();
 
     Document doc = null;
     try {
@@ -323,8 +324,9 @@ public class SVGImageUtils {
     final NodeList usenodes = doc.getElementsByTagName("use"); //NON-NLS
     for (int i = 0; i < usenodes.getLength(); ++i) {
       final Element e = (Element) usenodes.item(i);
-      final URL url = new URL(new URL(e.getBaseURI()),
-                              XLinkSupport.getXLinkHref(e));
+      final URL url = URI.create(e.getBaseURI())
+        .resolve(XLinkSupport.getXLinkHref(e))
+        .toURL();
       // balk (for now) unless file is available on our filesystem
       if (url.getProtocol().equals("file")) { //NON-NLS
         final String refpath = url.getPath();
@@ -360,7 +362,7 @@ public class SVGImageUtils {
       XMLResourceDescriptor.getXMLParserClassName()
     );
 
-    final URL here = new URL("file", null, new File(path).getCanonicalPath());
+    final URL here = new File(path).getCanonicalFile().toURI().toURL();
     final StringWriter sw = new StringWriter();
 
     try {
@@ -388,14 +390,15 @@ public class SVGImageUtils {
     // relativize the xlink:href attribute if there is one
     if (e.hasAttributeNS(XLinkSupport.XLINK_NAMESPACE_URI, "href")) { //NON-NLS
       try {
-        final URL url = new URL(new URL(e.getBaseURI()),
-                                XLinkSupport.getXLinkHref(e));
+        final URL url = URI.create(e.getBaseURI())
+          .resolve(XLinkSupport.getXLinkHref(e))
+          .toURL();
         final String anchor = url.getRef();
         final String name = new File(url.getPath()).getName();
         XLinkSupport.setXLinkHref(e, name + '#' + anchor);
       }
       // FIXME: review error message
-      catch (MalformedURLException ex) {
+      catch (IllegalArgumentException | MalformedURLException ex) {
 //        ErrorLog.warn(ex);
       }
     }

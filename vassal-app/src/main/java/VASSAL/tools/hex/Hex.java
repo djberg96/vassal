@@ -73,7 +73,7 @@ public class Hex {
   }
 
   public int length() {
-    return (int)((Math.abs(q) + Math.abs(r) + Math.abs(s)) / 2);
+    return (Math.abs(q) + Math.abs(r) + Math.abs(s)) / 2;
   }
 
   public int distance(Hex b) {

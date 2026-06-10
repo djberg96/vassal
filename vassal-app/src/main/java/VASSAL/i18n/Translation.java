@@ -45,7 +45,7 @@ public class Translation extends AbstractConfigurable
   protected Properties localProperties;
 
   public Translation() {
-    locale = new Locale(Locale.getDefault().getLanguage());
+    locale = Locale.of(Locale.getDefault().getLanguage());
   }
 
   @Override
@@ -268,6 +268,11 @@ public class Translation extends AbstractConfigurable
   @Override
   public boolean equals(Object obj) {
     return (obj instanceof Translation) && compareTo((Translation) obj) == 0;
+  }
+
+  @Override
+  public int hashCode() {
+    return getDescription().hashCode();
   }
 
   @Override

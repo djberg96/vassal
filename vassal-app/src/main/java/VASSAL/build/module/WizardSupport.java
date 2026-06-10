@@ -85,7 +85,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -161,7 +161,7 @@ public class WizardSupport {
 
     Action help = null;
     try {
-      help = new ShowHelpAction(new URL("https://vassalengine.org/wiki/Getting_Started"), null);  //NON-NLS
+      help = new ShowHelpAction(URI.create("https://vassalengine.org/wiki/Getting_Started").toURL(), null);  //NON-NLS
     }
     catch (MalformedURLException e) {
       ErrorDialog.bug(e);

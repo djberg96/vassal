@@ -49,7 +49,7 @@ public class ConsoleAppender extends AppenderBase<ILoggingEvent> {
   protected void append(ILoggingEvent event) {
     final GameModule module = GameModule.getGameModule();
     if (module == null) return;
-    if (!module.isErrorLogToChat()) {
+    if (!GameModule.isErrorLogToChat()) {
       return;
     }
     module.warn(patternLayout.doLayout(event));

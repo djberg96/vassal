@@ -83,6 +83,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -951,7 +952,7 @@ public class GameState implements CommandEncoder {
       if (flavor.isFlavorTextType()) {
         try {
           final String text = transferable.getTransferData(flavor).toString();
-          final URL url = new URL(text);
+          final URL url = URI.create(text).toURL();
           final URLConnection uc = url.openConnection();
 
           final int optionToSave = maybeSaveGame();
@@ -984,7 +985,7 @@ public class GameState implements CommandEncoder {
                 GameModule.getGameModule().setLoadOverSemaphore(false); // Resume normal UI updates
               }
             }
-            catch (MalformedURLException e) {
+            catch (MalformedURLException | IllegalArgumentException e) {
               // Do nothing, this must not have been a URL
             }
           }

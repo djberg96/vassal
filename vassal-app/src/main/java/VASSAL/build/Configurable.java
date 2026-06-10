@@ -75,7 +75,7 @@ public interface Configurable extends Translatable {
    * right-clicking on the component and selecting the appropriate "Add"
    * option.
    */
-  Class[] getAllowableConfigureComponents();
+  Class<?>[] getAllowableConfigureComponents();
 
   /**
    * Add a PropertyChangeListener.  A PropertyChangeEvent should be fired

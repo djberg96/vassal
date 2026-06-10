@@ -87,14 +87,14 @@ public class TranslateVassalWindow extends TranslateWindow {
     final JPanel headPanel = new JPanel();
     localeConfig =
       new LocaleConfigurer(null, "",
-        new Locale(Locale.getDefault().getLanguage()));
+        Locale.of(Locale.getDefault().getLanguage()));
 
     localeConfig.addPropertyChangeListener(new PropertyChangeListener() {
       @Override
       public void propertyChange(PropertyChangeEvent evt) {
         Locale l = localeConfig.getValueLocale();
         if (!Resources.getSupportedLocales().contains(l)) {
-          l = new Locale(l.getLanguage());
+          l = Locale.of(l.getLanguage());
         }
 
         if (Resources.getSupportedLocales().contains(l)) {
@@ -191,7 +191,7 @@ public class TranslateVassalWindow extends TranslateWindow {
       if (file.getName().charAt(9) == '_') {
         country = file.getName().substring(10, 12);
       }
-      final Locale locale = new Locale(language, country);
+      final Locale locale = Locale.of(language, country);
       localeConfig.setValue(locale);
     }
 

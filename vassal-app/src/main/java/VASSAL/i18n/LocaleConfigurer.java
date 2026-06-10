@@ -89,7 +89,7 @@ public class LocaleConfigurer extends Configurer {
   }
 
   protected void setLanguage(String l) {
-    final String lang = (new Locale(l, "")).getDisplayLanguage(Locale.getDefault());
+    final String lang = Locale.of(l, "").getDisplayLanguage(Locale.getDefault());
     langBox.setSelectedItem(lang);
   }
 
@@ -99,7 +99,7 @@ public class LocaleConfigurer extends Configurer {
       country = ANY_COUNTRY;
     }
     else {
-      country = (new Locale(Locale.getDefault().getLanguage(), c)).getDisplayCountry(Locale.getDefault());
+      country = Locale.of(Locale.getDefault().getLanguage(), c).getDisplayCountry(Locale.getDefault());
     }
     countryBox.setSelectedItem(country);
   }
@@ -137,7 +137,7 @@ public class LocaleConfigurer extends Configurer {
       final String[] langs = Locale.getISOLanguages();
       final List<String> sortedLangs = new ArrayList<>();
       for (final String s : langs) {
-        final String lang = (new Locale(s)).getDisplayLanguage(Locale.getDefault());
+        final String lang = Locale.of(s).getDisplayLanguage(Locale.getDefault());
         languages.put(lang, s);
         sortedLangs.add(lang);
       }
@@ -153,7 +153,7 @@ public class LocaleConfigurer extends Configurer {
       final List<String> sortedCountries = new ArrayList<>();
       for (final String s : c) {
         final String country =
-                (new Locale("en", s)).getDisplayCountry(Locale.getDefault()); //NON-NLS
+                Locale.of("en", s).getDisplayCountry(Locale.getDefault()); //NON-NLS
         countries.put(country, s);
         sortedCountries.add(country);
       }
@@ -167,7 +167,7 @@ public class LocaleConfigurer extends Configurer {
 
   public static Locale stringToLocale(String s) {
     final SequenceEncoder.Decoder sd = new SequenceEncoder.Decoder(s, ',');
-    return new Locale(sd.nextToken(""), sd.nextToken(""));
+    return Locale.of(sd.nextToken(""), sd.nextToken(""));
   }
 
   public static String localeToString(Locale l) {

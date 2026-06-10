@@ -33,6 +33,7 @@ public class ArrayIterator<T> implements Iterator<T> {
   private final T[] array;
   private int pos = 0;
 
+  @SafeVarargs
   public ArrayIterator(T... array) {
     this.array = array;
   }

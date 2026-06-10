@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 import org.apache.batik.anim.dom.SVGDOMImplementation;
@@ -171,7 +172,7 @@ public class SVGRenderer {
     @Override
     public Document loadDocument(String uri)
         throws MalformedURLException, IOException {
-      final String file = new File((new URL(uri)).getPath()).getName();
+      final String file = new File(URI.create(uri).toURL().getPath()).getName();
       final DataArchive mda = GameModule.getGameModule().getDataArchive();
       try (InputStream inner = mda.getInputStream(file);
            BufferedInputStream in = new BufferedInputStream(inner)) {

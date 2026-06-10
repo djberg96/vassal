@@ -19,6 +19,7 @@ package VASSAL.tools;
 
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 
 /**
@@ -72,6 +73,6 @@ public class URLUtils {
     // As as workaround for Sun Bug 4523159, we urlencode all '!' in
     // our inner URL to prevent these from being misinterpreted by
     // Class.getResourceAsStream() as the JAR marker "!/".
-    return new URL("jar:" + toURL(f).toString().replace("!", "%21") + "!/");
+    return URI.create("jar:" + toURL(f).toString().replace("!", "%21") + "!/").toURL();
   }
 }

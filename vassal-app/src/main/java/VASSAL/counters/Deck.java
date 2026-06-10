@@ -1762,6 +1762,11 @@ public class Deck extends Stack implements PlayerRoster.SideChangeListener {
         if (! (o instanceof AvailablePiece)) return false;
         return ((AvailablePiece)o).piece.equals(piece);
       }
+
+      @Override
+      public int hashCode() {
+        return piece.hashCode();
+      }
     }
 
     final AvailablePiece[] pieces = new AvailablePiece[getPieceCount()];

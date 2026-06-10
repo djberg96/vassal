@@ -20,6 +20,7 @@ import java.io.Closeable;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.NoSuchFileException;
 import java.security.AllPermission;
@@ -233,7 +234,7 @@ public class DataArchive extends SecureClassLoader implements Closeable {
     }
 
     if (archive.contains(fileName)) {
-      return new URL(getURL(), fileName);
+      return URI.create(getURL().toExternalForm() + fileName).toURL();
     }
 
     for (final DataArchive ext : extensions) {

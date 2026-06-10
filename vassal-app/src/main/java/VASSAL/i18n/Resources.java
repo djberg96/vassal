@@ -124,7 +124,7 @@ public class Resources {
       myLocale = supportedLocales.iterator().next();
     }
     else {
-      myLocale = new Locale(savedLocale);
+      myLocale = Locale.of(savedLocale);
     }
 
     setInstanceLocale(myLocale);
@@ -145,9 +145,9 @@ public class Resources {
             public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
               final JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
               if (current == null) {
-                current = new Locale(getValueString());
+                current = Locale.of(getValueString());
               }
-              final Locale locale = new Locale((String)value);
+              final Locale locale = Locale.of((String)value);
               l.setText((locale.getDisplayLanguage(current)) + " (" + locale.getDisplayLanguage(locale) + ")"); //NON-NLS
               return l;
             }
@@ -186,7 +186,7 @@ public class Resources {
   }
 
   private void addLocale(Locale l) {
-    l = new Locale(l.getLanguage());
+    l = Locale.of(l.getLanguage());
     if (!supportedLocales.contains(l)) {
       supportedLocales.add(0, l);
       final StringEnumConfigurer config = (StringEnumConfigurer) Prefs

@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
@@ -226,7 +227,7 @@ public abstract class DieServer implements Auditable {
     //                    + "&number4=0&type4=2&number5=0&type5=2&number6=0&type6=2&number7=0&type7=2"
     //                    + "&number8=0&type8=2&number9=0&type9=2&number10=0&type10=2"
     //                    + "&emails=&email=b.easton@uws.edu.au&password=IG42506&Submit=Throw+Dice";
-    final URL url = new URL(serverURL);
+    final URL url = URI.create(serverURL).toURL();
 
     final URLConnection connection = url.openConnection();
     connection.setDoOutput(true);

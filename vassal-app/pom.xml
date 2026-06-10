@@ -431,4 +431,25 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>warnings</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <configuration>
+                            <compilerArgs>
+                                <arg>-Xlint:all</arg>
+                                <arg>-Xmaxwarns</arg>
+                                <arg>10000</arg>
+                            </compilerArgs>
+                            <showWarnings>true</showWarnings>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

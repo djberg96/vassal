@@ -61,6 +61,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -144,9 +145,9 @@ public class BrowserHelpFile extends AbstractBuildable implements Configurable {
   /** No HTML found in the module, generate an External URL from the starting page */
   private void setFallbackUrl() {
     try {
-      url = new URL(evaluateStartingPage());
+      url = URI.create(evaluateStartingPage()).toURL();
     }
-    catch (MalformedURLException e) {
+    catch (IllegalArgumentException | MalformedURLException e) {
       logger.error("Malformed URL: {}", startingPage, e); //NON-NLS
     }
   }
@@ -184,9 +185,9 @@ public class BrowserHelpFile extends AbstractBuildable implements Configurable {
   protected URL regenerateUrl() {
     if (externalTempFile == null) {
       try {
-        return new URL(evaluateStartingPage());
+        return URI.create(evaluateStartingPage()).toURL();
       }
-      catch (MalformedURLException e) {
+      catch (IllegalArgumentException | MalformedURLException e) {
         logger.error("Malformed URL: {}", startingPage, e); //NON-NLS
       }
     }

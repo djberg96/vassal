@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -158,14 +159,14 @@ public class HTTPPostBuilder {
   /**
    * Submits an HTTP POST request to the given URL.
    * This convenience method is equivalent to
-   * <code>HTTPPostBuilder.post(new URL(url))</code>.
+   * <code>HTTPPostBuilder.post(URI.create(url).toURL())</code>.
    *
    * @param url the URL to receive the POST request
    * @return the reply
    * @throws IOException in case of failure
    */
   public InputStream post(String url) throws IOException {
-    return post(new URL(url));
+    return post(URI.create(url).toURL());
   }
 
   /**

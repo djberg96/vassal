@@ -63,7 +63,7 @@ public class BugUtils {
     final GameModule g = GameModule.getGameModule();
     return
       description + "\n\n" +
-      (g == null ? "" : g.getGameName() + " v" + g.getGameModule().getGameVersion() + " ") +
+      (g == null ? "" : g.getGameName() + " v" + g.getGameVersion() + " ") +
       Info.getVersion() + "\n\n" + //NON-NLS
       getStackTraceSummary(errorLog);
   }

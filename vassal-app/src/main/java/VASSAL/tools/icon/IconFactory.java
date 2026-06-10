@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.IOException;
 import java.net.JarURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -273,7 +274,7 @@ public final class IconFactory {
       // so look for an Icon we know must exist there.
       // imageUrl = jar.getURL(DataArchive.IMAGE_DIR
       imageUrl = jar.getURL(DataArchive.IMAGE_DIR + ApplicationIcons.VASSAL_ICON_LARGE);
-      imageUrl = new URL(imageUrl.toString().substring(0, imageUrl.toString().length() - ApplicationIcons.VASSAL_ICON_LARGE.length()));
+      imageUrl = URI.create(imageUrl.toString().substring(0, imageUrl.toString().length() - ApplicationIcons.VASSAL_ICON_LARGE.length())).toURL();
 
       logger.debug("VASSAL images folder found at " + imageUrl); //NON-NLS
 

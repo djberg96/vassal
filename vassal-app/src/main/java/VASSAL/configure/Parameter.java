@@ -20,6 +20,8 @@ package VASSAL.configure;
 
 import VASSAL.tools.SequenceEncoder;
 
+import java.util.Objects;
+
 /**
  * A Description of a Parameter to be set in a target gamepiece
  * - A Dynamic property name
@@ -66,5 +68,10 @@ public class Parameter {
     final Parameter p = (Parameter) obj;
 
     return getPropertyName().equals(p.getPropertyName()) && getValue().equals(p.getValue());
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(getPropertyName(), getValue());
   }
 }
