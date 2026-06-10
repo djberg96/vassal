@@ -22,7 +22,6 @@ import VASSAL.build.AutoConfigurable;
 import VASSAL.configure.Configurer;
 import VASSAL.configure.ConfigurerFactory;
 import VASSAL.configure.IconConfigurer;
-import VASSAL.tools.LaunchButton;
 import VASSAL.tools.swing.SwingUtils;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -63,10 +62,6 @@ import VASSAL.tools.swing.ProgressDialog;
  * a PNG file.
  */
 public class ImageSaver extends AbstractToolbarItem {
-  /** @deprecated use launch from the superclass */
-  @Deprecated(since = "2021-04-03", forRemoval = true)
-  protected LaunchButton launch;
-
   protected Map map;
   protected boolean promptToSplit = false;
   protected static final String DEFAULT_ICON = "/images/camera.gif"; //NON-NLS
@@ -92,7 +87,6 @@ public class ImageSaver extends AbstractToolbarItem {
       DEFAULT_ICON,
       e -> writeMapAsImage()
     ));
-    launch = getLaunchButton(); // for compatibility
   }
 
   public ImageSaver(Map m) {

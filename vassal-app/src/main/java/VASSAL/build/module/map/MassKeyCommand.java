@@ -55,7 +55,6 @@ import VASSAL.script.expression.AuditTrail;
 import VASSAL.script.expression.Auditable;
 import VASSAL.script.expression.FormattedStringExpression;
 import VASSAL.tools.FormattedString;
-import VASSAL.tools.LaunchButton;
 import VASSAL.tools.NamedKeyStroke;
 import VASSAL.tools.RecursionLimiter;
 import VASSAL.tools.ToolBarComponent;
@@ -118,10 +117,6 @@ public class MassKeyCommand extends AbstractToolbarItem
   @Deprecated(since = "2020-10-21", forRemoval = true) public static final String ICON = "icon"; // NON-NLS
   @Deprecated(since = "2020-10-21", forRemoval = true) public static final String TOOLTIP = "tooltip"; // NON-NLS
 
-  /** @deprecated use launch from the superclass */
-  @Deprecated(since = "2020-10-21", forRemoval = true)
-  protected LaunchButton launch; // Exists for clirr - but use getLaunchButton()
-
   protected NamedKeyStroke stroke = NamedKeyStroke.NULL_KEYSTROKE;
   protected String[] names = new String[0];
   protected String condition;
@@ -159,7 +154,6 @@ public class MassKeyCommand extends AbstractToolbarItem
       e -> apply()
     ));
 
-    launch = getLaunchButton(); // for compatibility
   }
 
   /**

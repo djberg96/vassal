@@ -37,7 +37,6 @@ import VASSAL.counters.DeckVisitorDispatcher;
 import VASSAL.counters.GamePiece;
 import VASSAL.counters.Stack;
 import VASSAL.i18n.Resources;
-import VASSAL.tools.LaunchButton;
 
 /** Adds a button to a Maps toolbar that adjusts the positions of all pieces
  * so that their centroid is at the center of the map
@@ -48,10 +47,6 @@ public class PieceRecenterer extends AbstractToolbarItem implements DeckVisitor 
   @Deprecated(since = "2020-10-21", forRemoval = true) public static final String ICON = "icon"; //NON-NLS
   @Deprecated(since = "2020-10-21", forRemoval = true) public static final String HOTKEY = "hotkey"; //NON-NLS
   @Deprecated(since = "2020-10-21", forRemoval = true) public static final String TOOLTIP = "tooltip"; //NON-NLS
-
-  /** @deprecated use launch from the superclass */
-  @Deprecated(since = "2021-04-03", forRemoval = true)
-  protected LaunchButton launch;
 
   protected Map map;
   protected DeckVisitorDispatcher dispatcher;
@@ -65,8 +60,6 @@ public class PieceRecenterer extends AbstractToolbarItem implements DeckVisitor 
       "/images/recenter.gif", //NON-NLS
       e -> GameModule.getGameModule().sendAndLog(recenter(map))
     ));
-    launch = getLaunchButton(); // for compatibility
-
     dispatcher = new DeckVisitorDispatcher(this);
   }
 

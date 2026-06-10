@@ -35,7 +35,6 @@ import VASSAL.configure.IconConfigurer;
 import VASSAL.configure.TextConfigurer;
 import VASSAL.i18n.Resources;
 import VASSAL.tools.KeyStrokeSource;
-import VASSAL.tools.LaunchButton;
 import VASSAL.tools.swing.SwingUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -71,10 +70,6 @@ public class NotesWindow extends AbstractToolbarItem
   @Deprecated(since = "2020-10-21", forRemoval = true) public static final String TOOLTIP = "tooltip"; //$NON-NLS-1$
 
   protected JDialog frame;
-
-  /** @deprecated use launch from the superclass */
-  @Deprecated(since = "2021-04-03", forRemoval = true)
-  protected LaunchButton launch;
 
   protected JTabbedPane tab;
 
@@ -120,8 +115,6 @@ public class NotesWindow extends AbstractToolbarItem
         }
       }
     ));
-    launch = getLaunchButton();
-
     frame.pack();
     setup(false);
   }

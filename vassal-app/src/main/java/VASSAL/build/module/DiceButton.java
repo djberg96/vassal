@@ -40,7 +40,6 @@ import VASSAL.i18n.Resources;
 import VASSAL.i18n.TranslatableConfigurerFactory;
 import VASSAL.search.HTMLImageFinder;
 import VASSAL.tools.FormattedString;
-import VASSAL.tools.LaunchButton;
 import VASSAL.tools.swing.SwingUtils;
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -106,10 +105,6 @@ public class DiceButton extends AbstractToolbarItem {
   protected static final String KEEP_EQUAL = "=";
   protected static final String KEEP_GREATER = ">";
   protected static final String KEEP_LESS = "<";
-
-  /** @deprecated use launch from the superclass */
-  @Deprecated(since = "2021-04-03", forRemoval = true)
-  protected LaunchButton launch;
 
   protected String tooltip = ""; //$NON-NLS-1$
   protected final MutableProperty.Impl property = new Impl("", this);
@@ -220,8 +215,6 @@ public class DiceButton extends AbstractToolbarItem {
             "/images/die.gif", //NON-NLS
             rollAction
     ));
-    launch = getLaunchButton(); // for compatibility
-
     setAttribute(AbstractToolbarItem.NAME, Resources.getString("Editor.DiceButton.dice_name")); //NON-NLS
   }
 

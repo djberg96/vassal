@@ -32,7 +32,6 @@ import VASSAL.i18n.Resources;
 import VASSAL.i18n.TranslatableConfigurerFactory;
 import VASSAL.script.expression.Expression;
 import VASSAL.tools.FormattedString;
-import VASSAL.tools.LaunchButton;
 
 import java.awt.Component;
 import java.util.ArrayList;
@@ -60,10 +59,6 @@ public class ChangePropertyButton extends AbstractToolbarItem implements Propert
   public static final String NEW_VALUE_FORMAT = "newValue"; //NON-NLS
   public static final String DESCRIPTION_FORMAT = "description"; //NON-NLS
 
-  /** @deprecated use launch from the superclass */
-  @Deprecated(since = "2021-04-03", forRemoval = true)
-  protected LaunchButton launch;
-
   protected FormattedString report = new FormattedString();
   protected GlobalProperty property;
   protected PropertyChangerConfigurer propChangeConfig = new PropertyChangerConfigurer(null, null, this);
@@ -79,7 +74,6 @@ public class ChangePropertyButton extends AbstractToolbarItem implements Propert
       e -> launch()
     ));
 
-    launch = getLaunchButton(); // for compatibility
     propChangeConfig.setContext(getAncestor());
   }
 

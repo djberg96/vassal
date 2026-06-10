@@ -111,10 +111,6 @@ public class Inventory extends AbstractToolbarItem
                        implements GameComponent,
                                   PlayerRoster.SideChangeListener {
 
-  /** @deprecated use launch from the superclass */
-  @Deprecated(since = "2021-04-03", forRemoval = true)
-  protected LaunchButton launch;
-
   public static final String REFRESH_HOTKEY = "refreshHotkey"; //NON-NLS
   protected NamedKeyStrokeListener refreshListener;
 
@@ -233,8 +229,6 @@ public class Inventory extends AbstractToolbarItem
       "/images/inventory.gif", //NON-NLS
       e -> launch()
     ));
-    launch = getLaunchButton(); // for compatibility
-
     refreshListener = new NamedKeyStrokeListener(e -> refresh());
     GameModule.getGameModule().addKeyStrokeListener(refreshListener);
 

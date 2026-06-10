@@ -44,7 +44,6 @@ import VASSAL.i18n.Resources;
 import VASSAL.i18n.TranslatableConfigurerFactory;
 import VASSAL.search.HTMLImageFinder;
 import VASSAL.tools.FormattedString;
-import VASSAL.tools.LaunchButton;
 import VASSAL.tools.LoopControl;
 import VASSAL.tools.NamedKeyStroke;
 import VASSAL.tools.RecursionLimitException;
@@ -91,10 +90,6 @@ public class DoActionButton extends AbstractToolbarItem
   @Deprecated(since = "2020-10-21", forRemoval = true) public static final String HOTKEY = "hotkey"; //$NON-NLS-1$
   @Deprecated(since = "2020-10-21", forRemoval = true) public static final String ICON = "icon"; //$NON-NLS-1$
 
-  /** @deprecated use launch from the superclass */
-  @Deprecated(since = "2021-04-03", forRemoval = true)
-  protected LaunchButton launch;
-
   protected boolean doReport = false;
   protected FormattedString reportFormat =
     new FormattedString(GameModule.getGameModule());
@@ -134,7 +129,6 @@ public class DoActionButton extends AbstractToolbarItem
       "",
       rollAction
     ));
-    launch = getLaunchButton(); // for compatibility
   }
 
   // This only exists so SpecialDiceButton can avoid calling the other constructor

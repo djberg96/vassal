@@ -44,7 +44,6 @@ import VASSAL.i18n.Resources;
 import VASSAL.i18n.TranslatableConfigurerFactory;
 import VASSAL.search.HTMLImageFinder;
 import VASSAL.tools.FormattedString;
-import VASSAL.tools.LaunchButton;
 import VASSAL.tools.SequenceEncoder;
 import VASSAL.tools.UniqueIdManager;
 import VASSAL.tools.swing.SwingUtils;
@@ -130,10 +129,6 @@ public class LOS_Thread extends AbstractToolbarItem implements
   protected boolean retainAfterRelease = false;
   protected long lastRelease = 0;
 
-  /** @deprecated use launch from the superclass */
-  @Deprecated(since = "2021-04-03", forRemoval = true)
-  protected LaunchButton launch;
-
   protected Map map;
   protected KeyStroke hotkey;
   protected Point anchor;
@@ -188,7 +183,6 @@ public class LOS_Thread extends AbstractToolbarItem implements
       DEFAULT_ICON,
       e -> launch()
     ));
-    launch = getLaunchButton(); // for compatibility
   }
 
   /**

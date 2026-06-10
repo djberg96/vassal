@@ -99,10 +99,6 @@ public class MapShader extends AbstractToolbarItem implements GameComponent, Dra
   @Deprecated(since = "2023-08-13")
   protected static final UniqueIdManager idMgr = new UniqueIdManager("MapShader"); //NON-NLS
 
-  /** @deprecated use launch from the superclass */
-  @Deprecated(since = "2021-04-03", forRemoval = true)
-  protected LaunchButton launch;
-
   protected boolean alwaysOn = false;
   protected boolean startsOn = false;
   protected String boardSelection = ALL_BOARDS;
@@ -180,8 +176,6 @@ public class MapShader extends AbstractToolbarItem implements GameComponent, Dra
       "",
       e -> toggleShading()
     ));
-    launch = getLaunchButton(); // for compatibility
-
     getLaunchButton().setEnabled(false);
     setLaunchButtonVisibility();
     setConfigureName(Resources.getString("Editor.MapShader.configure_name"));

@@ -37,7 +37,6 @@ import VASSAL.configure.ConfigurerFactory;
 import VASSAL.configure.IconConfigurer;
 import VASSAL.counters.GamePiece;
 import VASSAL.i18n.Resources;
-import VASSAL.tools.LaunchButton;
 import VASSAL.tools.WriteErrorDialog;
 import VASSAL.tools.filechooser.FileChooser;
 
@@ -52,10 +51,6 @@ public class TextSaver extends AbstractToolbarItem {
 
   protected Map map;
 
-  /** @deprecated use launch from the superclass */
-  @Deprecated(since = "2021-04-03", forRemoval = true)
-  protected LaunchButton launch;
-
   public TextSaver() {
     setNameKey("");
     setButtonTextKey(BUTTON_TEXT);
@@ -67,7 +62,6 @@ public class TextSaver extends AbstractToolbarItem {
       "",
       e -> apply()
     ));
-    launch = getLaunchButton(); // for compatibility
   }
 
   /** @deprecated Use {@link VASSAL.build.AbstractToolbarItem.IconConfig} instead. */
