@@ -40,7 +40,7 @@ public class MessageViewer extends JPanel {
   private JTable msgTable;
   private DefaultTableModel model;
   private JTextArea msgText;
-  private final List<Message> msgList = new ArrayList<>();
+  private final transient List<Message> msgList = new ArrayList<>();
 
   public MessageViewer() {
     initComponents();

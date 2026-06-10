@@ -376,7 +376,7 @@ public class ServerAddressBook {
 
   private class MenuAction extends AbstractAction {
     private static final long serialVersionUID = 1L;
-    private final AddressBookEntry entry;
+    private final transient AddressBookEntry entry;
 
     public MenuAction(AddressBookEntry e) {
       super(e.toString());

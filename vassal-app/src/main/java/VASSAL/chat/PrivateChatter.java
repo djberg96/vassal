@@ -26,8 +26,8 @@ import VASSAL.build.module.ServerConnection;
 public class PrivateChatter extends Chatter {
   private static final long serialVersionUID = 1L;
 
-  private final ChatServerConnection client;
-  private final Player other;
+  private final transient ChatServerConnection client;
+  private final transient Player other;
 
   public PrivateChatter(Player other, ChatServerConnection client) {
     this.other = other;
