@@ -46,7 +46,7 @@ public class KeyStrokeListener {
 
   public KeyStrokeListener(ActionListener l, KeyStroke key) {
     this.l = l;
-    setKeyStroke(key);
+    this.key = normalizeKeyStroke(key);
   }
 
   public KeyStrokeListener(ActionListener l) {
@@ -54,9 +54,7 @@ public class KeyStrokeListener {
   }
 
   public void setKeyStroke(KeyStroke newKey) {
-    if (newKey != null && newKey.getKeyCode() == 0) {
-      newKey = null;
-    }
+    newKey = normalizeKeyStroke(newKey);
 
     if (key != null && !NamedKeyManager.isNamed(key)) {
       final KeyStroke sysKey = SwingUtils.genericToSystem(key);
@@ -72,6 +70,10 @@ public class KeyStrokeListener {
         registerKey(l, s, sysKey);
       }
     }
+  }
+
+  private static KeyStroke normalizeKeyStroke(KeyStroke key) {
+    return key != null && key.getKeyCode() == 0 ? null : key;
   }
 
   public KeyStroke getKeyStroke() {

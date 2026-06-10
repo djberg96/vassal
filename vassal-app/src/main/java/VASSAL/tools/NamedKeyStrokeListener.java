@@ -35,8 +35,8 @@ public class NamedKeyStrokeListener extends KeyStrokeListener {
   }
 
   public NamedKeyStrokeListener(ActionListener l, NamedKeyStroke key) {
-    this(l);
-    setKeyStroke(key);
+    super(l, key == null ? null : key.getKeyStroke());
+    namedKeyStroke = key;
   }
 
   @Override
