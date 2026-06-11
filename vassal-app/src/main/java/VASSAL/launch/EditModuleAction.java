@@ -34,13 +34,15 @@ public class EditModuleAction extends LoadModuleAction {
   private static final long serialVersionUID = 1L;
 
   public EditModuleAction(Component comp) {
-    super(comp);
-    putValue(NAME, Resources.getString("Main.edit_module"));
+    this(Resources.getString("Main.edit_module"), comp);
   }
 
   public EditModuleAction(File moduleFile) {
-    super(moduleFile);
-    putValue(NAME, Resources.getString("Main.edit_module"));
+    super(Resources.getString("Main.edit_module"), moduleFile);
+  }
+
+  protected EditModuleAction(String name, Component comp) {
+    super(name, comp);
   }
 
   @Override

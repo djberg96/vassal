@@ -36,17 +36,15 @@ import VASSAL.tools.swing.SwingUtils;
  *
  * @author rodneykinney
  */
-public class EditExtensionAction extends LoadModuleAction {
+public final class EditExtensionAction extends LoadModuleAction {
   private static final long serialVersionUID = 1L;
 
   public EditExtensionAction(Component comp) {
-    super(comp);
-    putValue(NAME, Resources.getString("Editor.edit_extension"));
+    super(Resources.getString("Editor.edit_extension"), comp);
   }
 
   public EditExtensionAction(File extFile) {
-    super(extFile);
-    putValue(NAME, Resources.getString("Editor.edit_extension"));
+    super(Resources.getString("Editor.edit_extension"), extFile);
   }
 
   @Override

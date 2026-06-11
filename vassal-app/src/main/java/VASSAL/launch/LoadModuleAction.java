@@ -44,11 +44,19 @@ public class LoadModuleAction extends GameModuleAction {
   protected transient FileChooser fc;
 
   public LoadModuleAction(Component comp) {
-    super(Resources.getString("Main.play_module"), comp);
+    this(Resources.getString("Main.play_module"), comp);
   }
 
   public LoadModuleAction(File moduleFile) {
-    super(Resources.getString("Main.play_module"), null);
+    this(Resources.getString("Main.play_module"), moduleFile);
+  }
+
+  protected LoadModuleAction(String name, Component comp) {
+    super(name, comp);
+  }
+
+  protected LoadModuleAction(String name, File moduleFile) {
+    super(name, null);
     this.moduleFile = moduleFile;
   }
 

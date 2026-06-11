@@ -56,8 +56,7 @@ public final class ImportAction extends EditModuleAction {
   private static final long serialVersionUID = 1L;
 
   public ImportAction(Component comp) {
-    super(comp);
-    putValue(NAME, Resources.getString("Editor.import_module"));
+    super(Resources.getString("Editor.import_module"), comp);
   }
 
   /*
