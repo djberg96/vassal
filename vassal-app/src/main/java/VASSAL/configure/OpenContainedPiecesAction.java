@@ -37,13 +37,13 @@ import org.apache.commons.lang3.ArrayUtils;
  * Action to edit all {@link VASSAL.counters.GamePiece}'s within a given component
  * in separate Piece Definer windows
  */
-public class OpenContainedPiecesAction extends AbstractAction {
+public final class OpenContainedPiecesAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
 
   private final transient Configurable target;
-  protected transient HelpWindow helpWindow;
-  protected transient Frame dialogOwner;
-  protected transient ConfigureTree tree;
+  private final transient HelpWindow helpWindow;
+  private final transient Frame dialogOwner;
+  private final transient ConfigureTree tree;
 
   public OpenContainedPiecesAction(Configurable target, HelpWindow helpWindow, Frame dialogOwner, ConfigureTree tree) {
     super(Resources.getString("Editor.OpenContainedPiecesAction.what_it_does"));

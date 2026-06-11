@@ -69,7 +69,7 @@ import java.util.regex.PatternSyntaxException;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 
-public class RefreshPredefinedSetupsDialog extends JDialog {
+public final class RefreshPredefinedSetupsDialog extends JDialog {
   private static final Logger logger = LoggerFactory.getLogger(RefreshPredefinedSetupsDialog.class);
   private static final long serialVersionUID = 1L;
   private JCheckBox refreshPieces;

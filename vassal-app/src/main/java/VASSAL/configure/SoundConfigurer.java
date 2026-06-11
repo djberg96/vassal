@@ -41,7 +41,7 @@ import java.net.URL;
  * players to override a default sound with their own sound file on their
  * local file system.
  */
-public class SoundConfigurer extends Configurer {
+public final class SoundConfigurer extends Configurer {
   public static final String DEFAULT = "default"; //NON-NLS
   private final String defaultResource;
   private String clipName;
@@ -133,11 +133,11 @@ public class SoundConfigurer extends Configurer {
   }
 
   @FunctionalInterface
-  protected interface AudioClipFactory {
+  private interface AudioClipFactory {
     AudioClip getAudioClip(URL url) throws IOException;
   }
 
-  protected AudioClipFactory createAudioClipFactory() {
+  private AudioClipFactory createAudioClipFactory() {
     return url -> {
       if (url.toString().toLowerCase().endsWith(".mp3")) { //NON-NLS
         return new Mp3AudioClip(url);

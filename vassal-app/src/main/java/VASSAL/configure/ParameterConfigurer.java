@@ -33,11 +33,11 @@ import java.awt.event.FocusListener;
  * A Configurer for the Parameter class
  * The value stored as the value in the Configurer is a Parameter Object
  */
-public class ParameterConfigurer extends Configurer {
+public final class ParameterConfigurer extends Configurer {
 
-  protected StringConfigurer propertyNameConfig;
-  protected FormattedExpressionConfigurer valueConfig;
-  protected JPanel controls;
+  private final StringConfigurer propertyNameConfig;
+  private final FormattedExpressionConfigurer valueConfig;
+  private JPanel controls;
 
   public ParameterConfigurer() {
     this(null);
@@ -114,7 +114,7 @@ public class ParameterConfigurer extends Configurer {
     noUpdate = false;
   }
 
-  protected void buildControls() {
+  private void buildControls() {
     controls = new JPanel(new MigLayout("ins panel," + ConfigurerLayout.STANDARD_GAPY + ",hidemode 3", "[]rel[][]rel[]")); // NON-NLS
     controls.setBorder(BorderFactory.createEtchedBorder());
 
