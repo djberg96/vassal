@@ -47,7 +47,7 @@ import VASSAL.tools.menu.MenuBarProxy;
 import VASSAL.tools.menu.MenuManager;
 import VASSAL.tools.version.VersionUtils;
 
-public class Editor extends Launcher {
+public final class Editor extends Launcher {
   public static void main(String[] args) throws IOException {
     Info.setConfig(new StandardConfig());
     new Editor(args);
@@ -55,8 +55,7 @@ public class Editor extends Launcher {
 
   private static final Logger logger = LoggerFactory.getLogger(Editor.class);
 
-  protected Editor(String[] args) {
-    // the ctor is protected to enforce that it's called via main()
+  private Editor(String[] args) {
     super(args);
   }
 
@@ -99,7 +98,7 @@ public class Editor extends Launcher {
     }
   }
 
-  public static class NewModuleLaunchAction extends AbstractLaunchAction {
+  public static final class NewModuleLaunchAction extends AbstractLaunchAction {
     private static final long serialVersionUID = 1L;
 
     public NewModuleLaunchAction(ModuleManagerWindow mm) {
@@ -167,20 +166,15 @@ public class Editor extends Launcher {
     }
   }
 
-  public static class LaunchAction extends AbstractLaunchAction {
+  private abstract static class AbstractEditorLaunchAction extends AbstractLaunchAction {
     private static final long serialVersionUID = 1L;
 
-    public LaunchAction(ModuleManagerWindow mm, File module) {
-      super(Resources.getString("Main.edit_module_specific"), mm,
-        Editor.class.getName(),
-        new LaunchRequest(LaunchRequest.Mode.EDIT, module)
-      );
-      setEnabled(!isInUse(module));
+    protected AbstractEditorLaunchAction(String name, ModuleManagerWindow mm, File module) {
+      super(name, mm, Editor.class.getName(), new LaunchRequest(LaunchRequest.Mode.EDIT, module));
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      if (isInUse(lr.module)) return;
+    protected final boolean prepareLaunch() {
+      if (isInUse(lr.module)) return false;
 
       final AbstractMetaData data = MetaDataFactory.buildMetaData(lr.module);
       if (data != null) {
@@ -194,12 +188,12 @@ public class Editor extends Launcher {
             vv,
             Info.getVersion()
           );
-          return;
+          return false;
         }
 
         if (data instanceof ModuleMetaData) {
           if (!checkModuleLoadable((ModuleMetaData)data)) {
-            return;
+            return false;
           }
         }
 
@@ -223,16 +217,16 @@ public class Editor extends Launcher {
           );
           lr.module = null;
         }
-        return;
+        return false;
       }
 
       // register that this module is being edited
       markEditing(lr.module);
-      super.actionPerformed(e);
+      return true;
     }
 
     @Override
-    protected LaunchTask getLaunchTask() {
+    protected final LaunchTask getLaunchTask() {
       return new LaunchTask() {
         @Override
         protected void done() {
@@ -246,26 +240,42 @@ public class Editor extends Launcher {
     }
   }
 
-  public static class ListLaunchAction extends LaunchAction {
+  public static final class LaunchAction extends AbstractEditorLaunchAction {
     private static final long serialVersionUID = 1L;
 
-    public ListLaunchAction(ModuleManagerWindow mm, File module) {
-      super(mm, module);
+    public LaunchAction(ModuleManagerWindow mm, File module) {
+      super(Resources.getString("Main.edit_module_specific"), mm, module);
+      setEnabled(!isInUse(module));
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
+      if (!prepareLaunch()) return;
+      super.actionPerformed(e);
+    }
+  }
+
+  public static final class ListLaunchAction extends AbstractEditorLaunchAction {
+    private static final long serialVersionUID = 1L;
+
+    public ListLaunchAction(ModuleManagerWindow mm, File module) {
+      super(Resources.getString("Main.edit_module_specific"), mm, module);
+      setEnabled(!isInUse(module));
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      if (!prepareLaunch()) return;
       super.actionPerformed(e);
       setEnabled(false);
     }
   }
 
-  public static class PromptLaunchAction extends LaunchAction {
+  public static final class PromptLaunchAction extends AbstractEditorLaunchAction {
     private static final long serialVersionUID = 1L;
 
     public PromptLaunchAction(ModuleManagerWindow mm) {
-      super(mm, null);
-      putValue(NAME, Resources.getString("Main.edit_module"));
+      super(Resources.getString("Main.edit_module"), mm, null);
     }
 
     @Override
@@ -273,6 +283,7 @@ public class Editor extends Launcher {
       // prompt the user to pick a module
       if (promptForFile() == null) return;
 
+      if (!prepareLaunch()) return;
       super.actionPerformed(e);
     }
   }
