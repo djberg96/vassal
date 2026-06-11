@@ -53,7 +53,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Shows the current status of connections to the server
  */
-public class ServerStatusView extends JTabbedPane implements ChangeListener, TreeSelectionListener {
+public final class ServerStatusView extends JTabbedPane implements ChangeListener, TreeSelectionListener {
   private static final long serialVersionUID = 1L;
 
   public static final String SELECTION_PROPERTY = "ServerStatusView.selection"; //$NON-NLS-1$
