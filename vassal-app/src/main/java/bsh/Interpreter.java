@@ -33,7 +33,6 @@
 
 package bsh;
 
-import java.util.Vector;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;

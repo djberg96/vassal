@@ -37,8 +37,6 @@ import java.util.*;
 import java.util.zip.*;
 import java.io.*;
 import java.net.*;
-import java.io.File;
-import bsh.ConsoleInterface;
 import bsh.StringUtil;
 import bsh.ClassPathException;
 import java.lang.ref.WeakReference;

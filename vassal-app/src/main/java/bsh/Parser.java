@@ -2,7 +2,6 @@
 package bsh;
 
 import java.io.*;
-import java.util.Vector;
 
 /**
 	This is the BeanShell parser.  It is used internally by the Interpreter

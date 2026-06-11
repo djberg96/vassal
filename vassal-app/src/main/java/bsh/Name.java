@@ -35,7 +35,6 @@
 package bsh;
 
 import java.lang.reflect.Array;
-import java.util.Hashtable;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
