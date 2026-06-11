@@ -41,7 +41,7 @@ import java.util.List;
 /**
  * Adds a button to a Maps toolbar that moves the view/camera to a specific point
  */
-public class MoveCameraButton extends AbstractToolbarItem {
+public final class MoveCameraButton extends AbstractToolbarItem {
   public static final String MOVE_CAMERA_MODE = "moveCameraMode"; //NON-NLS
   public static final String ZOOM = "zoom"; // NON-NLS
   public static final String BOARD_NAME = "boardName"; //NON-NLS
@@ -54,21 +54,21 @@ public class MoveCameraButton extends AbstractToolbarItem {
   public static final String X_OFFSET = "xOffset"; //NON-NLS
   public static final String Y_OFFSET = "yOffset"; //NON-NLS
 
-  protected String moveCameraMode = SendToLocation.DEST_LOCATION;
-  protected FormattedString zoom = new FormattedString("");
-  protected FormattedString board = new FormattedString("");
-  protected FormattedString x = new FormattedString("");
-  protected FormattedString y = new FormattedString("");
-  protected FormattedString gridLocation = new FormattedString("");
-  protected FormattedString zone = new FormattedString("");
-  protected FormattedString region = new FormattedString("");
-  protected FormattedString xOffset = new FormattedString("0");
-  protected FormattedString yOffset = new FormattedString("0");
-  protected PropertyExpression propertyFilter = new PropertyExpression("");
+  private String moveCameraMode = SendToLocation.DEST_LOCATION;
+  private final FormattedString zoom = new FormattedString("");
+  private final FormattedString board = new FormattedString("");
+  private final FormattedString x = new FormattedString("");
+  private final FormattedString y = new FormattedString("");
+  private final FormattedString gridLocation = new FormattedString("");
+  private final FormattedString zone = new FormattedString("");
+  private final FormattedString region = new FormattedString("");
+  private final FormattedString xOffset = new FormattedString("0");
+  private final FormattedString yOffset = new FormattedString("0");
+  private final PropertyExpression propertyFilter = new PropertyExpression("");
 
-  protected Map map;
+  private Map map;
 
-  public static class EmptyFormatConfig implements ConfigurerFactory {
+  public static final class EmptyFormatConfig implements ConfigurerFactory {
     @Override
     public Configurer getConfigurer(AutoConfigurable c, String key, String name) {
       return new FormattedExpressionConfigurer(key, name, new String[] { });
@@ -88,7 +88,7 @@ public class MoveCameraButton extends AbstractToolbarItem {
 
   private void offsetDest(Point dest) {
     final String dxString = xOffset.getText(map, "0", this, AuditTrail.create(this, xOffset.getFormat(), "X Offset")); //NON-NLS
-    final String dyString = xOffset.getText(map, "0", this, AuditTrail.create(this, yOffset.getFormat(), "Y Offset")); //NON-NLS
+    final String dyString = yOffset.getText(map, "0", this, AuditTrail.create(this, yOffset.getFormat(), "Y Offset")); //NON-NLS
 
     final int dx;
     final int dy;
@@ -157,7 +157,7 @@ public class MoveCameraButton extends AbstractToolbarItem {
     map.getToolBar().add(getLaunchButton());
   }
 
-  public static class DestConfig extends TranslatableStringEnum {
+  public static final class DestConfig extends TranslatableStringEnum {
     @Override
     public String[] getValidValues(AutoConfigurable target) {
       return SendToLocation.destOptions();
