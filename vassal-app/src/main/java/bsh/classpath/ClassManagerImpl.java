@@ -140,7 +140,7 @@ public class ClassManagerImpl extends BshClassManager
 		Used by BshClassManager singleton constructor
 	*/
 	public ClassManagerImpl() {
-		reset();
+		initializeClassLoadingState();
 	}
 
 	/**
@@ -298,10 +298,14 @@ public class ClassManagerImpl extends BshClassManager
 	*/
 	public void reset()
 	{
+		initializeClassLoadingState();
+		classLoaderChanged(); // calls clearCaches() for us.
+	}
+
+	private void initializeClassLoadingState() {
 		baseClassPath = new BshClassPath("baseClassPath");
 		baseLoader = null;
 		loaderMap = new HashMap<>();
-		classLoaderChanged(); // calls clearCaches() for us.
 	}
 
 	/**
