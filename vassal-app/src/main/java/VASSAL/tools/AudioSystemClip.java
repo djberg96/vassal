@@ -31,13 +31,13 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AudioSystemClip implements AudioClip {
+public final class AudioSystemClip implements AudioClip {
 
   private static final Logger log = LoggerFactory.getLogger(AudioSystemClip.class);
 
-  protected Clip the_clip;
+  private final Clip clip;
 
-  protected Clip getClip(InputStream in) throws IOException {
+  private static Clip getClip(InputStream in) throws IOException {
     if (!in.markSupported()) {
       // AudioInputStream requires a stream which is markable
       in = new BufferedInputStream(in);
@@ -98,17 +98,17 @@ public class AudioSystemClip implements AudioClip {
 
   public AudioSystemClip(URL url) throws IOException {
     try (InputStream in = url.openStream()) {
-      the_clip = getClip(in);
+      clip = getClip(in);
     }
   }
 
   public AudioSystemClip(InputStream in) throws IOException {
-    the_clip = getClip(in);
+    clip = getClip(in);
   }
 
   @Override
   public void play() {
-    the_clip.setFramePosition(0);
-    the_clip.start();
+    clip.setFramePosition(0);
+    clip.start();
   }
 }
