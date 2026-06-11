@@ -63,7 +63,7 @@ import java.util.Objects;
  * module.
  *
  */
-public class UsePrototype extends Decorator implements EditablePiece, Loopable {
+public final class UsePrototype extends Decorator implements EditablePiece, Loopable {
   public static final String ID = "prototype;"; // NON-NLS
   private String prototypeName;
   private String lastCachedPrototype;
@@ -255,7 +255,7 @@ public class UsePrototype extends Decorator implements EditablePiece, Loopable {
     return new Editor(this);
   }
 
-  public static class Editor implements PieceEditor {
+  public static final class Editor implements PieceEditor {
     private final TraitConfigPanel controls;
     private final StringConfigurer nameConfig;
     private final Validator validator = new Validator(this);

@@ -130,9 +130,13 @@ public class PrototypesContainer extends AbstractConfigurable {
 
   public static PrototypesContainer findInstance() {
     if (instance == null) {
+      final GameModule gameModule = GameModule.getGameModule();
+      if (gameModule == null) {
+        return null;
+      }
+
       final Iterator<PrototypesContainer> i =
-        GameModule.getGameModule()
-          .getComponentsOf(PrototypesContainer.class)
+        gameModule.getComponentsOf(PrototypesContainer.class)
           .iterator();
       if (i.hasNext()) {
         instance = i.next();
