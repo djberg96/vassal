@@ -13,8 +13,8 @@ public abstract class ClassGenerator
 		if ( cg == null ) 
 		{
 			try {
-				Class clas = Class.forName( "bsh.ClassGeneratorImpl" );
-				cg = (ClassGenerator)clas.newInstance();
+				Class<?> clas = Class.forName( "bsh.ClassGeneratorImpl" );
+				cg = (ClassGenerator)clas.getDeclaredConstructor().newInstance();
 			} catch ( Exception e ) {
 				throw new Unavailable("ClassGenerator unavailable: "+e);
 			}
@@ -26,9 +26,9 @@ public abstract class ClassGenerator
 	/**
 		Parse the BSHBlock for the class definition and generate the class.
 	*/
-	public abstract Class generateClass( 
+	public abstract Class<?> generateClass( 
 		String name, Modifiers modifiers, 
-		Class [] interfaces, Class superClass, BSHBlock block, 
+		Class<?> [] interfaces, Class<?> superClass, BSHBlock block, 
 		boolean isInterface, CallStack callstack, Interpreter interpreter 
 	)
 		throws EvalError;

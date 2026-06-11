@@ -11,9 +11,9 @@ import java.lang.reflect.Method;
 */
 public class ClassGeneratorImpl extends ClassGenerator
 {
-	public Class generateClass( 
+	public Class<?> generateClass( 
 		String name, Modifiers modifiers, 
-		Class [] interfaces, Class superClass, BSHBlock block, 
+		Class<?> [] interfaces, Class<?> superClass, BSHBlock block, 
 		boolean isInterface, CallStack callstack, Interpreter interpreter 
 	)
 		throws EvalError
@@ -50,9 +50,9 @@ public class ClassGeneratorImpl extends ClassGenerator
 		Parse the BSHBlock for for the class definition and generate the class
 		using ClassGenerator.
 	*/
-	public static Class generateClassImpl( 
+	public static Class<?> generateClassImpl( 
 		String name, Modifiers modifiers, 
-		Class [] interfaces, Class superClass, BSHBlock block, 
+		Class<?> [] interfaces, Class<?> superClass, BSHBlock block, 
 		boolean isInterface, CallStack callstack, Interpreter interpreter 
 	)
 		throws EvalError
@@ -114,7 +114,7 @@ public class ClassGeneratorImpl extends ClassGenerator
 		} catch ( IOException e ) { }
 
 		// Define the new class in the classloader
-		Class genClass = bcm.defineClass( fqClassName, code );
+		Class<?> genClass = bcm.defineClass( fqClassName, code );
 
 		// import the unq name into parent
 		enclosingNameSpace.importClass( fqClassName.replace('$','.') );
@@ -159,7 +159,7 @@ public class ClassGeneratorImpl extends ClassGenerator
 		String defaultPackage 
 	) 
 	{
-		List vars = new ArrayList();
+		List<Variable> vars = new ArrayList<>();
 		for( int child=0; child<body.jjtGetNumChildren(); child++ )
 		{
 			SimpleNode node = (SimpleNode)body.jjtGetChild(child);
@@ -187,7 +187,7 @@ public class ClassGeneratorImpl extends ClassGenerator
 			}
 		}
 
-		return (Variable [])vars.toArray( new Variable[0] );
+		return vars.toArray( new Variable[0] );
 	}
 
 	static DelayedEvalBshMethod [] getDeclaredMethods( 
@@ -196,7 +196,7 @@ public class ClassGeneratorImpl extends ClassGenerator
 	)
 		throws EvalError
 	{
-		List methods = new ArrayList();
+		List<DelayedEvalBshMethod> methods = new ArrayList<>();
 		for( int child=0; child<body.jjtGetNumChildren(); child++ )
 		{
 			SimpleNode node = (SimpleNode)body.jjtGetChild(child);
@@ -226,8 +226,7 @@ public class ClassGeneratorImpl extends ClassGenerator
 			}
 		}
 
-		return (DelayedEvalBshMethod [])methods.toArray( 
-			new DelayedEvalBshMethod[0] );
+		return methods.toArray( new DelayedEvalBshMethod[0] );
 	}
 
 	/**
@@ -297,7 +296,7 @@ public class ClassGeneratorImpl extends ClassGenerator
 		String superName = ClassGeneratorUtil.BSHSUPER+methodName;
 		
 		// look for the specially named super delegate method
-		Class clas = instance.getClass();
+		Class<?> clas = instance.getClass();
 		Method superMethod = Reflect.resolveJavaMethod(
 			bcm, clas, superName, Types.getTypes(args), false/*onlyStatic*/ );
 		if ( superMethod != null )
@@ -306,7 +305,7 @@ public class ClassGeneratorImpl extends ClassGenerator
 
 		// No super method, try to invoke regular method
 		// could be a superfluous "super." which is legal.
-		Class superClass = clas.getSuperclass();
+		Class<?> superClass = clas.getSuperclass();
 		superMethod = Reflect.resolveExpectedJavaMethod(
 			bcm, superClass, instance, methodName, args, 
 			false/*onlyStatic*/ );

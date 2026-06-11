@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -106,11 +106,11 @@ public class ClassGeneratorUtil implements Constants
 	String className;
 	/** fully qualified class name (with package) e.g. foo/bar/Blah */
 	String fqClassName;
-	Class superClass; 
+	Class<?> superClass; 
 	String superClassName;
-	Class [] interfaces;
+	Class<?> [] interfaces;
 	Variable [] vars;
-	Constructor [] superConstructors;
+	Constructor<?> [] superConstructors;
 	DelayedEvalBshMethod [] constructors;
 	DelayedEvalBshMethod [] methods;
 	NameSpace classStaticNameSpace;
@@ -122,7 +122,7 @@ public class ClassGeneratorUtil implements Constants
 	*/
 	public ClassGeneratorUtil(
 		Modifiers classModifiers, String className, String packageName, 
-		Class superClass, Class [] interfaces, Variable [] vars, 
+		Class<?> superClass, Class<?> [] interfaces, Variable [] vars, 
 		DelayedEvalBshMethod [] bshmethods, NameSpace classStaticNameSpace,
 		boolean isInterface
 	) 
@@ -138,15 +138,15 @@ public class ClassGeneratorUtil implements Constants
 		this.superClass = superClass;
 		this.superClassName = Type.getInternalName( superClass );
 		if ( interfaces == null )
-			interfaces = new Class[0];
+			interfaces = new Class<?>[0];
 		this.interfaces = interfaces;
 		this.vars = vars;
 		this.classStaticNameSpace = classStaticNameSpace;
 		this.superConstructors = superClass.getDeclaredConstructors();
 
 		// Split the methods into constructors and regular method lists
-		List consl = new ArrayList();
-		List methodsl = new ArrayList();
+		List<DelayedEvalBshMethod> consl = new ArrayList<>();
+		List<DelayedEvalBshMethod> methodsl = new ArrayList<>();
 		String classBaseName = getBaseName( className ); // for inner classes
 		for( int i=0; i< bshmethods.length; i++ )
 			if ( bshmethods[i].getName().equals( classBaseName ) )
@@ -154,10 +154,8 @@ public class ClassGeneratorUtil implements Constants
 			else
 				methodsl.add( bshmethods[i] );
 
-		this.constructors = (DelayedEvalBshMethod [])consl.toArray( 
-			new DelayedEvalBshMethod[0] );
-		this.methods = (DelayedEvalBshMethod [])methodsl.toArray( 
-			new DelayedEvalBshMethod[0] );
+		this.constructors = consl.toArray( new DelayedEvalBshMethod[0] );
+		this.methods = methodsl.toArray( new DelayedEvalBshMethod[0] );
 
 		try {
 			classStaticNameSpace.setLocalVariable( 
@@ -625,7 +623,7 @@ public class ClassGeneratorUtil implements Constants
 	}
 
 	boolean classContainsMethod(
-		Class clas, String methodName, String [] paramTypes )
+		Class<?> clas, String methodName, String [] paramTypes )
 	{
 		while( clas != null )
 		{
@@ -860,7 +858,7 @@ public class ClassGeneratorUtil implements Constants
 		NameSpace consArgsNameSpace = 
 			new NameSpace( classStaticThis.getNameSpace(), "consArgs" );
 		String [] consArgNames = constructor.getParameterNames();
-		Class [] consArgTypes = constructor.getParameterTypes();
+		Class<?> [] consArgTypes = constructor.getParameterTypes();
 		for( int i=0; i<consArgs.length; i++ )
 		{
 			try {
@@ -886,14 +884,14 @@ public class ClassGeneratorUtil implements Constants
 				"Error evaluating constructor args: "+e );
 		}
 
-		Class [] argTypes  = Types.getTypes( args );
+		Class<?> [] argTypes  = Types.getTypes( args );
 		args = Primitive.unwrap( args );
-		Class superClass = 
+		Class<?> superClass = 
 			interpreter.getClassManager().classForName( superClassName );
 		if ( superClass == null )
 			throw new InterpreterError(
 				"can't find superclass: "+superClassName );
-		Constructor [] superCons = superClass.getDeclaredConstructors();
+		Constructor<?> [] superCons = superClass.getDeclaredConstructors();
 
 		// find the matching super() constructor for the args
 		if ( altConstructor.equals("super") )
@@ -906,7 +904,7 @@ public class ClassGeneratorUtil implements Constants
 		}
 
 		// find the matching this() constructor for the args
-		Class [][] candidates = new Class [ constructors.length ] [];
+		Class<?> [][] candidates = new Class<?> [ constructors.length ] [];
 		for(int i=0; i< candidates.length; i++ )
 			candidates[i] = constructors[i].getParameterTypes();
 		int i = Reflect.findMostSpecificSignature( argTypes, candidates );
@@ -933,7 +931,7 @@ public class ClassGeneratorUtil implements Constants
 	public static void initInstance( 
 		Object instance, String className, Object [] args )
 	{
-		Class [] sig = Types.getTypes( args );
+		Class<?> [] sig = Types.getTypes( args );
 		CallStack callstack = new CallStack();
 		Interpreter interpreter;
 		NameSpace instanceNameSpace;
@@ -1035,7 +1033,7 @@ public class ClassGeneratorUtil implements Constants
 		Get the static bsh namespace field from the class.
 		@param className may be the name of clas itself or a superclass of clas.
 	*/
-	static This getClassStaticThis( Class clas, String className )
+	static This getClassStaticThis( Class<?> clas, String className )
 	{
 		try {
 			return (This)Reflect.getStaticFieldValue(
@@ -1069,7 +1067,7 @@ public class ClassGeneratorUtil implements Constants
 		return typeDescriptor.length() == 1; // right?
 	}
 
-	static String[] getTypeDescriptors( Class [] cparams )
+	static String[] getTypeDescriptors( Class<?> [] cparams )
 	{
 		String [] sa = new String [cparams.length];
 		for(int i=0; i<sa.length; i++)
