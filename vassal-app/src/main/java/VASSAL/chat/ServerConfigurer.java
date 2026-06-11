@@ -46,13 +46,13 @@ import VASSAL.tools.menu.MacOSXMenuManager;
  * @author rkinney
  *
  */
-public class ServerConfigurer extends Configurer {
+public final class ServerConfigurer extends Configurer {
   private static final String CONNECTED = Resources.getString("Server.please_disconnect"); //$NON-NLS-1$
   private static final String DISCONNECTED = Resources.getString("Server.select_server_type"); //$NON-NLS-1$
   private static final String P2P_BUTTON = Resources.getString("Server.direct"); //$NON-NLS-1$
   private static final String OFFICIAL_BUTTON = Resources.getString("Server.official"); //$NON-NLS-1$
   private static final String ENCODING = "UTF-8"; //$NON-NLS-1$
-  protected JComponent controls;
+  private JComponent controls;
   private final HybridClient client;
   private JRadioButton officialButton;
   private JRadioButton p2pButton;
@@ -108,13 +108,13 @@ public class ServerConfigurer extends Configurer {
     header.setText(connected ? CONNECTED : DISCONNECTED);
   }
 
-  protected Properties buildPeerProperties() {
+  private Properties buildPeerProperties() {
     final Properties p = new Properties();
     p.setProperty(ChatServerFactory.TYPE_KEY, P2PClientFactory.P2P_TYPE);
     return p;
   }
 
-  protected Properties buildLegacyProperties() {
+  private Properties buildLegacyProperties() {
     final Properties p = new Properties();
     p.setProperty(ChatServerFactory.TYPE_KEY, OfficialNodeClientFactory.OFFICIAL_TYPE);
     return p;

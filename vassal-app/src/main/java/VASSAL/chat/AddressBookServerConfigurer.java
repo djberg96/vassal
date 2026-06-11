@@ -36,12 +36,12 @@ import VASSAL.i18n.Resources;
  * commonly visited private servers and P2P clients.
  *
  */
-public class AddressBookServerConfigurer extends Configurer {
+public final class AddressBookServerConfigurer extends Configurer {
   private static final String CONNECTED = Resources.getString("Server.please_disconnect"); //$NON-NLS-1$
   private static final String DISCONNECTED = Resources.getString("ServerAddressBook.select_server"); //$NON-NLS-1$
   private static final String ENCODING = "UTF-8"; //$NON-NLS-1$
-  protected JComponent controls;
-  protected ServerAddressBook addressBook;
+  private JComponent controls;
+  private ServerAddressBook addressBook;
   private final HybridClient client;
   private JLabel header;
 

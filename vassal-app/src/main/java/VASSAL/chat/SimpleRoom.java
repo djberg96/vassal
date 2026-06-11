@@ -37,7 +37,7 @@ public class SimpleRoom implements Room {
 
   public SimpleRoom(String name, Player[] players) {
     this.name = name;
-    setPlayers(players);
+    addPlayers(players);
   }
 
   public SimpleRoom(Room copy) {
@@ -56,13 +56,21 @@ public class SimpleRoom implements Room {
 
   public void setPlayers(Player[] players) {
     this.players.clear();
+    addPlayers(players);
+  }
+
+  private void addPlayers(Player[] players) {
     for (final Player p : players) {
-      addPlayer(p);
+      addPlayerInternal(p);
     }
   }
 
   @Override
   public void addPlayer(Player p) {
+    addPlayerInternal(p);
+  }
+
+  private void addPlayerInternal(Player p) {
     final int index = players.indexOf(p);
     if (index < 0) {
       players.add(p);

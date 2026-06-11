@@ -66,20 +66,18 @@ import javax.swing.ListSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
 
-public class ServerAddressBook {
+public final class ServerAddressBook {
   public static final String CURRENT_SERVER = "currentServer"; //$NON-NLS-1$
-  protected static final String ADDRESS_PREF = "ServerAddressBook"; //$NON-NLS-1$
+  private static final String ADDRESS_PREF = "ServerAddressBook"; //$NON-NLS-1$
 
-  protected static final String OFFICIAL_TYPE = OfficialNodeClientFactory.OFFICIAL_TYPE;
-  protected static final String PRIVATE_TYPE = PrivateNodeClientFactory.PRIVATE_TYPE;
-  protected static final String P2P_TYPE = P2PClientFactory.P2P_TYPE;
+  private static final String OFFICIAL_TYPE = OfficialNodeClientFactory.OFFICIAL_TYPE;
+  private static final String PRIVATE_TYPE = PrivateNodeClientFactory.PRIVATE_TYPE;
+  private static final String P2P_TYPE = P2PClientFactory.P2P_TYPE;
 
-  protected static final String TYPE_KEY = ChatServerFactory.TYPE_KEY;
-  protected static final String DESCRIPTION_KEY = "description"; //$NON-NLS-1$
-  @SuppressWarnings("PMD.FinalFieldCouldBeStatic")
-  protected final int LEAF_ICON_SIZE = IconFamily.SMALL;
-  @SuppressWarnings("PMD.FinalFieldCouldBeStatic")
-  protected final int CONTROLS_ICON_SIZE = IconFamily.XSMALL;
+  private static final String TYPE_KEY = ChatServerFactory.TYPE_KEY;
+  private static final String DESCRIPTION_KEY = "description"; //$NON-NLS-1$
+  private static final int LEAF_ICON_SIZE = IconFamily.SMALL;
+  private static final int CONTROLS_ICON_SIZE = IconFamily.XSMALL;
 
   private boolean frozen;
   private JComponent controls;
@@ -361,7 +359,7 @@ public class ServerAddressBook {
     myList.repaint();
   }
 
-  protected Properties getCurrentServerProperties() {
+  Properties getCurrentServerProperties() {
     return currentEntry.getProperties();
   }
 

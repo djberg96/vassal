@@ -43,7 +43,7 @@ import java.util.concurrent.ExecutionException;
  * UI controls for posting and retrieving messages from a
  * message board.
  */
-public class MessageBoardControls {
+public final class MessageBoardControls {
   private MessageBoard server;
   private String serverName;
   private Action checkMessagesAction;
