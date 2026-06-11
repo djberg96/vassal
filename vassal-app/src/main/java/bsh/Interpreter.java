@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -93,6 +93,8 @@ import java.lang.reflect.InvocationTargetException;
 public class Interpreter 
 	implements Runnable, ConsoleInterface,Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	/* --- Begin static members --- */
 
 	public static final String VERSION = "2.0b4";
@@ -406,12 +408,12 @@ public class Interpreter
         }
     }
 
-	public static void invokeMain( Class clas, String [] args ) 
+	public static void invokeMain( Class<?> clas, String [] args )
 		throws Exception
 	{
     	Method main = Reflect.resolveJavaMethod(
 			null/*BshClassManager*/, clas, "main", 
-			new Class [] { String [].class }, true/*onlyStatic*/ );
+			new Class<?> [] { String [].class }, true/*onlyStatic*/ );
 		if ( main != null )
 			main.invoke( null, new Object [] { args } );
 	}
@@ -976,7 +978,7 @@ public class Interpreter
 		@throws EvalError if the interface cannot be generated because the
 		version of Java does not support the proxy mechanism. 
 	*/
-	public Object getInterface( Class interf ) throws EvalError
+	public Object getInterface( Class<?> interf ) throws EvalError
 	{
 		try {
 			return globalNameSpace.getThis( this ).getInterface( interf );
@@ -1231,4 +1233,3 @@ public class Interpreter
 		return showResults;
 	}
 }
-

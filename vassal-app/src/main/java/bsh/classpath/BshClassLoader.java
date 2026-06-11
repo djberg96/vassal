@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -83,10 +83,10 @@ public class BshClassLoader extends URLClassLoader
 		An exception is for BeanShell core classes which are always loaded from
 		the same classloader as the interpreter.
 	*/
-	public Class loadClass(String name, boolean resolve)
+	public Class<?> loadClass(String name, boolean resolve)
         throws ClassNotFoundException
     {
-        Class c = null;
+        Class<?> c = null;
 
 		/*
 			Check first for classes loaded through this loader.
@@ -129,7 +129,7 @@ public class BshClassLoader extends URLClassLoader
 		Try system ???
 	*/
 	// add some caching for not found classes?
-	protected Class findClass( String name ) 
+	protected Class<?> findClass( String name )
 		throws ClassNotFoundException 
 	{
 		// Deal with this cast somehow... maybe have this class use 
@@ -145,7 +145,7 @@ public class BshClassLoader extends URLClassLoader
 		// Don't add the method to BshClassManager... it's really an impl thing
 		ClassLoader cl = bcm.getLoaderForClass( name );
 
-		Class c;
+		Class<?> c;
 
 		// If there is a designated loader and it's not us delegate to it
 		if ( cl != null && cl != this )

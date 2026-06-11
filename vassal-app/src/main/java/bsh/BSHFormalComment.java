@@ -4,6 +4,8 @@ package bsh;
 
 public class BSHFormalComment extends SimpleNode 
 {
+	private static final long serialVersionUID = 1L;
+
 	public String text;
 
 	public BSHFormalComment(int id) {

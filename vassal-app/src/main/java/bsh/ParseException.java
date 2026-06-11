@@ -45,6 +45,8 @@ package bsh;
 public class ParseException extends EvalError {
 // End BeanShell Modification - public, extend EvalError
 
+	private static final long serialVersionUID = 1L;
+
 	// Begin BeanShell Modification - sourceFile
 
 	String sourceFile = "<unknown>";
