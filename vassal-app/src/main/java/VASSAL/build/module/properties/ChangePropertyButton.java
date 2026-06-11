@@ -45,7 +45,7 @@ import java.util.stream.Stream;
  * @author rkinney
  *
  */
-public class ChangePropertyButton extends AbstractToolbarItem implements PropertyChangerConfigurer.Constraints {
+public final class ChangePropertyButton extends AbstractToolbarItem implements PropertyChangerConfigurer.Constraints {
   public static final String BUTTON_TEXT = "text"; //NON-NLS
   public static final String BUTTON_TOOLTIP = "tooltip"; //NON-NLS
   public static final String BUTTON_ICON = "icon"; //NON-NLS
@@ -59,11 +59,11 @@ public class ChangePropertyButton extends AbstractToolbarItem implements Propert
   public static final String NEW_VALUE_FORMAT = "newValue"; //NON-NLS
   public static final String DESCRIPTION_FORMAT = "description"; //NON-NLS
 
-  protected FormattedString report = new FormattedString();
-  protected GlobalProperty property;
-  protected PropertyChangerConfigurer propChangeConfig = new PropertyChangerConfigurer(null, null, this);
-  protected FormattedString format = new FormattedString();
-  protected String desc = "";
+  private final FormattedString report = new FormattedString();
+  private final PropertyChangerConfigurer propChangeConfig = new PropertyChangerConfigurer(null, null, this);
+  private final FormattedString format = new FormattedString();
+  private GlobalProperty property;
+  private String desc = "";
 
   public ChangePropertyButton() {
     setNameKey("");
