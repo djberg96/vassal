@@ -45,9 +45,9 @@ import VASSAL.tools.ErrorDialog;
  * Pressing the button generates random numbers or strings and displays the
  * result in the Chatter
  */
-public class RandomTextButton extends DiceButton {
-  protected String[] m_faces;               // array with dice faces
-  protected boolean isNumeric;
+public final class RandomTextButton extends DiceButton {
+  private String[] m_faces;               // array with dice faces
+  private boolean isNumeric;
 
   public static final String FACES = "faces"; //$NON-NLS-1$
   public static final String NUMERIC = "numeric"; //$NON-NLS-1$
