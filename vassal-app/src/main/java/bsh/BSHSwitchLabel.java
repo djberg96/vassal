@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -34,6 +34,8 @@
 package bsh;
 
 class BSHSwitchLabel extends SimpleNode {
+  private static final long serialVersionUID = 1L;
+
 	boolean isDefault;
 
 	public BSHSwitchLabel(int id) { super(id); }

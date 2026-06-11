@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -37,6 +37,7 @@ class BSHSwitchStatement
 	extends SimpleNode 
 	implements ParserConstants 
 {
+	private static final long serialVersionUID = 1L;
 
 	public BSHSwitchStatement(int id) { super(id); }
 

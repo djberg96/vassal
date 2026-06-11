@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -40,6 +40,8 @@ package bsh;
 */
 class BSHVariableDeclarator extends SimpleNode
 {
+	private static final long serialVersionUID = 1L;
+
 	// The token.image text of the name... never changes.
     public String name;
 

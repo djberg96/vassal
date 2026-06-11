@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -38,6 +38,8 @@ import java.lang.reflect.InvocationTargetException;
 
 class BSHMethodInvocation extends SimpleNode
 {
+	private static final long serialVersionUID = 1L;
+
 	BSHMethodInvocation (int id) { super(id); }
 
 	BSHAmbiguousName getNameNode() {

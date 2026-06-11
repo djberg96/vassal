@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -40,6 +40,8 @@ package bsh;
 	should not be evaluated in the case where foo is true.
 */
 class BSHTernaryExpression extends SimpleNode {
+  private static final long serialVersionUID = 1L;
+
 
     BSHTernaryExpression(int id) { super(id); }
 

@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -39,6 +39,8 @@ package bsh;
 */
 class BSHWhileStatement extends SimpleNode implements ParserConstants
 {
+	private static final long serialVersionUID = 1L;
+
 	public boolean isDoStatement;
 
     BSHWhileStatement(int id) { super(id); }

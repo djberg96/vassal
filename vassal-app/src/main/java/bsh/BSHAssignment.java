@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -36,6 +36,8 @@ package bsh;
 
 class BSHAssignment extends SimpleNode implements ParserConstants
 {
+	private static final long serialVersionUID = 1L;
+
     public int operator;
 
     BSHAssignment(int id) { super(id); }

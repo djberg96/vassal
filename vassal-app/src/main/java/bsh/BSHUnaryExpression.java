@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -36,6 +36,8 @@ package bsh;
 
 class BSHUnaryExpression extends SimpleNode implements ParserConstants
 {
+	private static final long serialVersionUID = 1L;
+
     public int kind;
 	public boolean postfix = false;
 
@@ -97,7 +99,7 @@ class BSHUnaryExpression extends SimpleNode implements ParserConstants
     private Object primitiveWrapperUnaryOperation(Object val, int kind)
         throws UtilEvalError
     {
-        Class operandType = val.getClass();
+        Class<?> operandType = val.getClass();
         Object operand = Primitive.promoteToInteger(val);
 
         if ( operand instanceof Boolean )

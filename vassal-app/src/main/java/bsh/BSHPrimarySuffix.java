@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -40,6 +40,8 @@ import java.lang.reflect.InvocationTargetException;
 
 class BSHPrimarySuffix extends SimpleNode
 {
+	private static final long serialVersionUID = 1L;
+
 	public static final int
 		CLASS = 0,
 		INDEX = 1,

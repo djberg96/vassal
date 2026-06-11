@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -36,6 +36,8 @@ package bsh;
 
 class BSHImportDeclaration extends SimpleNode
 {
+	private static final long serialVersionUID = 1L;
+
 	public boolean importPackage;
 	public boolean staticImport;
 	public boolean superImport;
@@ -58,7 +60,7 @@ class BSHImportDeclaration extends SimpleNode
 			{
 				if ( importPackage )
 				{
-					Class clas = ((BSHAmbiguousName)jjtGetChild(0)).toClass( 
+					Class<?> clas = ((BSHAmbiguousName)jjtGetChild(0)).toClass( 
 						callstack, interpreter );
 					namespace.importStatic( clas );
 				} else
@@ -78,4 +80,3 @@ class BSHImportDeclaration extends SimpleNode
         return Primitive.VOID;
 	}
 }
-

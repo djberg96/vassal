@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -40,6 +40,8 @@ package bsh;
  * @see Primitive.binaryOperation
  */
 class BSHBinaryExpression extends SimpleNode implements ParserConstants {
+  private static final long serialVersionUID = 1L;
+
   public int kind;
 
   BSHBinaryExpression(int id) {
@@ -58,7 +60,7 @@ class BSHBinaryExpression extends SimpleNode implements ParserConstants {
       if (lhs == Primitive.NULL)
         return new Primitive(false);
 
-      Class rhs = ((BSHType) jjtGetChild(1)).getType(callstack, interpreter);
+      Class<?> rhs = ((BSHType) jjtGetChild(1)).getType(callstack, interpreter);
       /*
        * // primitive (number or void) cannot be tested for instanceof if (lhs
        * instanceof Primitive) throw new

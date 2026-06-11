@@ -15,6 +15,8 @@ import java.util.*;
 */
 class BSHEnhancedForStatement extends SimpleNode implements ParserConstants 
 {
+	private static final long serialVersionUID = 1L;
+
 	String varName;
 
     BSHEnhancedForStatement(int id) { super(id); }
@@ -22,7 +24,7 @@ class BSHEnhancedForStatement extends SimpleNode implements ParserConstants
     public Object eval( CallStack callstack , Interpreter interpreter )
 		throws EvalError 
 	{
-		Class elementType = null;
+		Class<?> elementType = null;
 		SimpleNode expression, statement=null;
 
 		NameSpace enclosingNameSpace = callstack.top();

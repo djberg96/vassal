@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -36,6 +36,8 @@ package bsh;
 
 class BSHReturnStatement extends SimpleNode implements ParserConstants
 {
+	private static final long serialVersionUID = 1L;
+
 	public int kind;
 
 	BSHReturnStatement(int id) { super(id); }
