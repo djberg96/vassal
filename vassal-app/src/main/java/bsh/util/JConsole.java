@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -64,14 +64,16 @@ public class JConsole extends JScrollPane
 	implements GUIConsoleInterface, Runnable, KeyListener,
 	MouseListener, ActionListener, PropertyChangeListener 
 {
+	private static final long serialVersionUID = 1L;
+
     private final static String	CUT = "Cut";
     private final static String	COPY = "Copy";
     private final static String	PASTE =	"Paste";
 
-	private	OutputStream outPipe;
-	private	InputStream inPipe;
-	private	InputStream in;
-	private	PrintStream out;
+	private transient OutputStream outPipe;
+	private transient InputStream inPipe;
+	private transient InputStream in;
+	private transient PrintStream out;
 
 	public InputStream getInputStream() { return in; }
 	public Reader getIn() { return new InputStreamReader(in); }
@@ -79,15 +81,15 @@ public class JConsole extends JScrollPane
 	public PrintStream getErr() { return out;	}
 
     private int	cmdStart = 0;
-	private	Vector history = new Vector();
+	private	Vector<String> history = new Vector<>();
 	private	String startedLine;
 	private	int histLine = 0;
 
-    private JPopupMenu menu;
-    private JTextPane text;
-    private DefaultStyledDocument doc;
+    private transient JPopupMenu menu;
+    private transient JTextPane text;
+    private transient DefaultStyledDocument doc;
 
-	NameCompletion nameCompletion;
+	transient NameCompletion nameCompletion;
 	final int SHOW_AMBIG_MAX = 10;
 
 	// hack to prevent key repeat for some reason?
@@ -230,7 +232,7 @@ public class JConsole extends JScrollPane
 				break;
 
 			case ( KeyEvent.VK_U ):	// clear line
-				if ( (e.getModifiers() & InputEvent.CTRL_MASK) > 0 ) {
+				if ( (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) > 0 ) {
 					replaceRange( "", cmdStart, textLength());
 					histLine = 0;
 					e.consume();
@@ -266,7 +268,7 @@ public class JConsole extends JScrollPane
 			// Control-C
 			case ( KeyEvent.VK_C ):
 				if (text.getSelectedText() == null) {
-				    if (( (e.getModifiers() & InputEvent.CTRL_MASK) > 0	)
+				    if (( (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) > 0	)
 					&& (e.getID() == KeyEvent.KEY_PRESSED))	{
 						append("^C");
 					}
@@ -284,9 +286,9 @@ public class JConsole extends JScrollPane
 
 			default:
 				if ( 
-					(e.getModifiers() & 
-					(InputEvent.CTRL_MASK 
-					| InputEvent.ALT_MASK | InputEvent.META_MASK)) == 0 ) 
+					(e.getModifiersEx() & 
+					(InputEvent.CTRL_DOWN_MASK 
+					| InputEvent.ALT_DOWN_MASK | InputEvent.META_DOWN_MASK)) == 0 ) 
 				{
 					// plain character
 					forceCaretMoveToEnd();
@@ -448,7 +450,7 @@ public class JConsole extends JScrollPane
 		if ( histLine == 0 )
 			showline = startedLine;
 		else
-			showline = (String)history.elementAt( history.size() - histLine	);
+			showline = history.elementAt( history.size() - histLine	);
 
 		replaceRange( showline,	cmdStart, textLength() );
 		text.setCaretPosition(textLength());
@@ -801,5 +803,4 @@ public class JConsole extends JScrollPane
 	private int textLength() { return text.getDocument().getLength(); }
 
 }
-
 

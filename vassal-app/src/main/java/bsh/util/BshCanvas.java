@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -48,8 +48,10 @@ import bsh.*;
 
 */
 public class BshCanvas extends JComponent {
-	This ths;
-	Image imageBuffer;
+	private static final long serialVersionUID = 1L;
+
+	transient This ths;
+	transient Image imageBuffer;
 
 	public BshCanvas () { }
 
@@ -89,4 +91,3 @@ public class BshCanvas extends JComponent {
 	}
 
 }
-

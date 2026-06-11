@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -83,13 +83,14 @@ import bsh.*;
 */
 public class AWTConsole extends TextArea 
 	implements ConsoleInterface, Runnable, KeyListener {
+	private static final long serialVersionUID = 1L;
 
-	private OutputStream outPipe;
-	private InputStream inPipe;
+	private transient OutputStream outPipe;
+	private transient InputStream inPipe;
 
 	// formerly public
-	private InputStream in;
-	private PrintStream out;
+	private transient InputStream in;
+	private transient PrintStream out;
 
 	public Reader getIn() { return new InputStreamReader(in); }
 	public PrintStream getOut() { return out; }
@@ -98,7 +99,7 @@ public class AWTConsole extends TextArea
 	private StringBuffer line = new StringBuffer();
 	private String startedLine;
 	private int textLength = 0;
-	private Vector history = new Vector();
+	private Vector<String> history = new Vector<>();
 	private int histLine = 0;
 
 	public AWTConsole( int rows, int cols, InputStream cin, OutputStream cout ) {
@@ -125,7 +126,7 @@ public class AWTConsole extends TextArea
 	}
 
 	public void keyPressed( KeyEvent e ) {
-		type( e.getKeyCode(), e.getKeyChar(), e.getModifiers() );
+		type( e.getKeyCode(), e.getKeyChar(), e.getModifiersEx() );
 		e.consume();
 	}
 
@@ -149,7 +150,7 @@ public class AWTConsole extends TextArea
 				enter();
 				break;
 			case ( KeyEvent.VK_U ):
-				if ( (modifiers & InputEvent.CTRL_MASK) > 0 ) {
+				if ( (modifiers & InputEvent.CTRL_DOWN_MASK) > 0 ) {
 					int len = line.length();
 					replaceRange( "", textLength-len, textLength );
 					line.setLength( 0 );
@@ -176,7 +177,7 @@ public class AWTConsole extends TextArea
 */
 			// Control-C
 			case ( KeyEvent.VK_C ):
-				if ( (modifiers & InputEvent.CTRL_MASK) > 0 ) {
+				if ( (modifiers & InputEvent.CTRL_DOWN_MASK) > 0 ) {
 					line.append("^C");
 					append("^C");
 					textLength += 2;
@@ -260,7 +261,7 @@ public class AWTConsole extends TextArea
 		if ( histLine == 0 )
 			showline = startedLine;
 		else
-			showline = (String)history.elementAt( history.size() - histLine );
+			showline = history.elementAt( history.size() - histLine );
 
 		replaceRange( showline, textLength-line.length(), textLength );
 		line = new StringBuffer(showline);
@@ -325,7 +326,7 @@ public class AWTConsole extends TextArea
 		final Frame f = new Frame("Bsh Console");
 		f.add(console, "Center");
 		f.pack();
-		f.show();
+		f.setVisible(true);
 		f.addWindowListener( new WindowAdapter() {
 			public void windowClosing( WindowEvent e ) {
 				f.dispose();
