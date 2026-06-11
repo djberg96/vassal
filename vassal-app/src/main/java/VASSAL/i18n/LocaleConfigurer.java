@@ -38,17 +38,17 @@ import javax.swing.JPanel;
  * @author Brent Easton
  *
  */
-public class LocaleConfigurer extends Configurer {
+public final class LocaleConfigurer extends Configurer {
   //FIXME needs an i18n strategy
-  protected static final String ANY_COUNTRY = "[Any Country]";
-  protected JPanel panel;
-  protected static final Map<String, String> languages = new HashMap<>();
-  protected static String[] languageList;
-  protected static final Map<String, String> countries = new HashMap<>();
-  protected static String[] countryList;
+  private static final String ANY_COUNTRY = "[Any Country]";
+  private static final Map<String, String> languages = new HashMap<>();
+  private static String[] languageList;
+  private static final Map<String, String> countries = new HashMap<>();
+  private static String[] countryList;
 
-  protected JComboBox<String> langBox;
-  protected JComboBox<String> countryBox;
+  private JPanel panel;
+  private JComboBox<String> langBox;
+  private JComboBox<String> countryBox;
 
   public LocaleConfigurer(String key, String name) {
     this(key, name, "");
@@ -88,12 +88,12 @@ public class LocaleConfigurer extends Configurer {
     setValue((Object) s);
   }
 
-  protected void setLanguage(String l) {
+  private void setLanguage(String l) {
     final String lang = Locale.of(l, "").getDisplayLanguage(Locale.getDefault());
     langBox.setSelectedItem(lang);
   }
 
-  protected void setCountry(String c) {
+  private void setCountry(String c) {
     final String country;
     if (c.length() == 0) {
       country = ANY_COUNTRY;
@@ -125,14 +125,14 @@ public class LocaleConfigurer extends Configurer {
     return panel;
   }
 
-  protected void updateValue() {
+  private void updateValue() {
     final String language = languages.get(langBox.getSelectedItem());
     final String country = countries.get(countryBox.getSelectedItem());
 
     setValue(language + "," + country);
   }
 
-  protected String[] getLanguageList() {
+  private static String[] getLanguageList() {
     if (languageList == null) {
       final String[] langs = Locale.getISOLanguages();
       final List<String> sortedLangs = new ArrayList<>();
@@ -147,7 +147,7 @@ public class LocaleConfigurer extends Configurer {
     return languageList;
   }
 
-  protected String[] getCountryList() {
+  private static String[] getCountryList() {
     if (countryList == null) {
       final String[] c = Locale.getISOCountries();
       final List<String> sortedCountries = new ArrayList<>();
