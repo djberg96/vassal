@@ -35,14 +35,14 @@ import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 
-public class DynamicKeyCommandListConfigurer extends Configurer implements ConfigurableList {
+public final class DynamicKeyCommandListConfigurer extends Configurer implements ConfigurableList {
 
   // The number of Components added to the header of the Controls panel
   private static final int HEADER_COMPONENT_COUNT = 4;
   // The number of Components added to the Controls panel for each Entry
   private static final int COMPONENT_COUNT = 6;
 
-  private DynamicProperty target;
+  private final DynamicProperty target;
   private ConfigurableListController controller;
   private int selectedEntryIndex = -1;
   private JPanel panel;
@@ -53,7 +53,7 @@ public class DynamicKeyCommandListConfigurer extends Configurer implements Confi
 
   public DynamicKeyCommandListConfigurer(String key, String name,  DynamicProperty target, boolean remote) {
     super(key, name);
-    setTarget(target);
+    this.target = target;
     value = new ArrayList<>(0);
     this.remote = remote;
   }
@@ -69,10 +69,6 @@ public class DynamicKeyCommandListConfigurer extends Configurer implements Confi
 
   public DynamicProperty getTarget() {
     return target;
-  }
-
-  public void setTarget(DynamicProperty target) {
-    this.target = target;
   }
 
   @Override

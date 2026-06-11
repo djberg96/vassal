@@ -35,12 +35,12 @@ import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 
-public class DynamicKeyCommandConfigurer extends Configurer {
-  protected final NamedHotKeyConfigurer keyConfig;
-  protected PropertyChangerConfigurer propChangeConfig;
-  protected StringConfigurer commandConfig;
-  protected JPanel controls;
-  protected DynamicProperty target;
+public final class DynamicKeyCommandConfigurer extends Configurer {
+  private final NamedHotKeyConfigurer keyConfig;
+  private final PropertyChangerConfigurer propChangeConfig;
+  private final StringConfigurer commandConfig;
+  private final DynamicProperty target;
+  private JPanel controls;
 
   public DynamicKeyCommandConfigurer(DynamicProperty target) {
     super(target.getKey(), target.getKey(),
@@ -53,6 +53,7 @@ public class DynamicKeyCommandConfigurer extends Configurer {
       )
     );
 
+    this.target = target;
     commandConfig = new StringConfigurer("", "", 12);
     commandConfig.setHint(Resources.getString("Editor.menu_command_hint"));
     keyConfig = new NamedHotKeyConfigurer(NamedKeyStroke.NULL_KEYSTROKE, 12);
@@ -65,15 +66,10 @@ public class DynamicKeyCommandConfigurer extends Configurer {
       updateValue();
       repack(commandConfig.getControls());
     });
-    this.target = target;
   }
 
   public DynamicProperty getTarget() {
     return target;
-  }
-
-  public void setTarget(DynamicProperty target) {
-    this.target = target;
   }
 
   @Override

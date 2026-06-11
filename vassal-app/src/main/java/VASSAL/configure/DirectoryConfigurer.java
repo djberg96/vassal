@@ -57,6 +57,7 @@ public class DirectoryConfigurer extends FileConfigurer {
   @Override
   public void chooseNewValue() {
     getControls();
+    final FileChooser fc = getFileChooser();
     if (getValue() != null) {
       fc.setCurrentDirectory((File) getValue());
     }

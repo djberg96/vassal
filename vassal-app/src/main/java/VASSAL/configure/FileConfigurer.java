@@ -56,16 +56,21 @@ public class FileConfigurer extends Configurer {
    */
   public FileConfigurer(String key, String name, DirectoryConfigurer startingDirectory) {
     super(key, name);
-    setValue(null);
     editable = true;
     this.startingDirectory = startingDirectory;
-    fc = initFileChooser();
   }
 
   protected FileChooser initFileChooser() {
     final FileChooser fc = FileChooser.createFileChooser(null, startingDirectory);
     if (startingDirectory == null && GameModule.getGameModule() != null) {
       fc.setCurrentDirectory((File) Prefs.getGlobalPrefs().getValue(Prefs.MODULES_DIR_KEY));
+    }
+    return fc;
+  }
+
+  protected FileChooser getFileChooser() {
+    if (fc == null) {
+      fc = initFileChooser();
     }
     return fc;
   }
@@ -181,6 +186,7 @@ public class FileConfigurer extends Configurer {
   }
 
   public void chooseNewValue() {
+    final FileChooser fc = getFileChooser();
     if (fc.showOpenDialog(getControls()) != FileChooser.APPROVE_OPTION) {
       setValue((Object) null);
     }
