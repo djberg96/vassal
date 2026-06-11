@@ -82,8 +82,8 @@ import java.util.List;
 /**
  * Window for editing translations of a {@link Configurable} object
  */
-public class TranslateWindow extends JDialog implements ListSelectionListener,
-    TreeSelectionListener {
+public sealed class TranslateWindow extends JDialog implements ListSelectionListener,
+    TreeSelectionListener permits TranslateVassalWindow {
   private static final long serialVersionUID = 1L;
   protected static final Color TRANSLATION_NEEDED_COLOR = Color.black;
   protected static final Color TRANSLATION_DONE_COLOR = Color.black;

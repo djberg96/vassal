@@ -45,11 +45,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class TranslateVassalWindow extends TranslateWindow {
+public final class TranslateVassalWindow extends TranslateWindow {
   private static final long serialVersionUID = 1L;
-  protected transient LocaleConfigurer localeConfig;
+  private transient LocaleConfigurer localeConfig;
 
-  protected transient FileChooser fileChooser;
+  private transient FileChooser fileChooser;
 
   public TranslateVassalWindow(Frame owner,
                                boolean modal,

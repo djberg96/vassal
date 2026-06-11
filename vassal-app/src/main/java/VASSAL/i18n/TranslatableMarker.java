@@ -32,9 +32,9 @@ import VASSAL.counters.PlaceMarker;
  *
  * A dummy AbstractConfigurable to hold a PlaceMarker or Replace definition while translating
  */
-public class TranslatableMarker extends AbstractConfigurable {
+public final class TranslatableMarker extends AbstractConfigurable {
 
-  protected GamePiece markerDefinition;
+  private final GamePiece markerDefinition;
 
   public TranslatableMarker(PlaceMarker p) {
     markerDefinition = p.createBaseMarker();

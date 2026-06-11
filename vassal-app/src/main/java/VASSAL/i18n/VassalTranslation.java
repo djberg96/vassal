@@ -37,10 +37,10 @@ import VASSAL.tools.ReadErrorDialog;
  *
  * @author Brent Easton
  */
-public class VassalTranslation extends Translation {
-  protected String[] allKeys;
+public final class VassalTranslation extends Translation {
+  private String[] allKeys;
 
-  protected Properties baseValues = new Properties();
+  private final Properties baseValues = new Properties();
 
   public VassalTranslation() {
     setConfigureName(Resources.VASSAL);
