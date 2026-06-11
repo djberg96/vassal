@@ -51,7 +51,7 @@ import java.awt.event.WindowEvent;
  * notes, and each player has a set of private notes visible only to
  * him
  */
-public class NotesWindow extends AbstractToolbarItem
+public final class NotesWindow extends AbstractToolbarItem
     implements GameComponent, CommandEncoder, ComponentDescription {
 
   public static final String BUTTON_TEXT = "buttonText"; //NON-NLS // non-standard legacy difference from AbstractToolbarItem
@@ -60,20 +60,20 @@ public class NotesWindow extends AbstractToolbarItem
   private static final int TAB_INDEX_SCEN = 0;
   private static final int TAB_INDEX_PUBLIC = 1;
 
-  protected JDialog frame;
+  private final JDialog frame;
 
-  protected JTabbedPane tab;
+  private JTabbedPane tab;
 
-  protected TextConfigurer scenarioNotes;
-  protected TextConfigurer publicNotes;
-  protected PrivateNotesController privateNotes;
-  protected SecretNotesController secretNotes;
-  protected static final String SCENARIO_NOTE_COMMAND_PREFIX = "NOTES\t"; //$NON-NLS-1$
-  protected static final String PUBLIC_NOTE_COMMAND_PREFIX = "PNOTES\t"; //$NON-NLS-1$
+  private TextConfigurer scenarioNotes;
+  private TextConfigurer publicNotes;
+  private final PrivateNotesController privateNotes;
+  private final SecretNotesController secretNotes;
+  private static final String SCENARIO_NOTE_COMMAND_PREFIX = "NOTES\t"; //$NON-NLS-1$
+  private static final String PUBLIC_NOTE_COMMAND_PREFIX = "PNOTES\t"; //$NON-NLS-1$
 
-  protected String lastSavedScenarioNotes;
-  protected String lastSavedPublicNotes;
-  protected String description;
+  private String lastSavedScenarioNotes;
+  private String lastSavedPublicNotes;
+  private String description;
 
   public NotesWindow() {
     privateNotes = new PrivateNotesController();
@@ -118,25 +118,25 @@ public class NotesWindow extends AbstractToolbarItem
   /**
    * Capture this object's state, to be restored if the user hits "Cancel"
    */
-  protected void captureState() {
+  private void captureState() {
     lastSavedScenarioNotes = (String) scenarioNotes.getValue();
     lastSavedPublicNotes = (String) publicNotes.getValue();
     privateNotes.captureState();
     secretNotes.captureState();
   }
 
-  public void cancel() {
+  private void cancel() {
     restoreState();
     privateNotes.restoreState();
     secretNotes.restoreState();
   }
 
-  protected void restoreState() {
+  private void restoreState() {
     scenarioNotes.setValue(lastSavedScenarioNotes);
     publicNotes.setValue(lastSavedPublicNotes);
   }
 
-  protected void save() {
+  private void save() {
     final Command c = new NullCommand();
     if (!lastSavedScenarioNotes.equals(scenarioNotes.getValue())) {
       c.append(new SetScenarioNote(scenarioNotes.getValueString()));
@@ -149,17 +149,17 @@ public class NotesWindow extends AbstractToolbarItem
     GameModule.getGameModule().sendAndLog(c);
   }
 
-  protected class NotesDialog extends JDialog {
+  private final class NotesDialog extends JDialog {
 
     private static final long serialVersionUID = 1L;
 
-    protected NotesDialog() {
+    private NotesDialog() {
       super(GameModule.getGameModule().getPlayerWindow());
       initComponents();
       setLocationRelativeTo(getOwner());
     }
 
-    protected void initComponents() {
+    private void initComponents() {
       setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
       setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
       addWindowListener(new WindowAdapter() {
@@ -357,10 +357,10 @@ public class NotesWindow extends AbstractToolbarItem
     return c;
   }
 
-  protected class SetScenarioNote extends Command {
-    protected String msg;
+  private final class SetScenarioNote extends Command {
+    private final String msg;
 
-    protected SetScenarioNote(String s) {
+    private SetScenarioNote(String s) {
       msg = s;
     }
 
@@ -375,10 +375,10 @@ public class NotesWindow extends AbstractToolbarItem
     }
   }
 
-  protected class SetPublicNote extends Command {
-    protected String msg;
+  private final class SetPublicNote extends Command {
+    private final String msg;
 
-    protected SetPublicNote(String s) {
+    private SetPublicNote(String s) {
       msg = s;
     }
 
