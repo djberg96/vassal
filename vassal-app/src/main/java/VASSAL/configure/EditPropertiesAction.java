@@ -41,11 +41,11 @@ import VASSAL.i18n.Resources;
 public class EditPropertiesAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
 
-  protected transient Configurable target;
-  protected transient HelpWindow helpWindow;
+  private final transient Configurable target;
+  private final transient HelpWindow helpWindow;
   private static final Map<Configurable, PropertiesWindow> openWindows = new HashMap<>();
-  protected transient Frame dialogOwner;
-  protected transient ConfigureTree tree;
+  private final transient Frame dialogOwner;
+  private transient ConfigureTree tree;
 
   protected static PropertiesWindow getOpenWindow(Configurable target) {
     return openWindows.get(target);
@@ -64,7 +64,6 @@ public class EditPropertiesAction extends AbstractAction {
     this.helpWindow = helpWindow;
     this.target = target;
     this.dialogOwner = dialogOwner;
-    setEnabled(target.getConfigurer() != null);
   }
 
   /*
@@ -73,6 +72,23 @@ public class EditPropertiesAction extends AbstractAction {
   public EditPropertiesAction(Configurable target, HelpWindow helpWindow, Frame dialogOwner, ConfigureTree tree) {
     this(target, helpWindow, dialogOwner);
     this.tree = tree;
+  }
+
+  protected Configurable getTarget() {
+    return target;
+  }
+
+  protected HelpWindow getHelpWindow() {
+    return helpWindow;
+  }
+
+  protected Frame getDialogOwner() {
+    return dialogOwner;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return target.getConfigurer() != null;
   }
 
   @Override

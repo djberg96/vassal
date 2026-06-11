@@ -33,12 +33,12 @@ import java.awt.event.WindowEvent;
  * A Window for displaying a {@link Configurer}.  The title of the window
  * changes with the name of the Configurer
  */
-public class ConfigurerWindow extends JDialog {
+public final class ConfigurerWindow extends JDialog {
   private static final long serialVersionUID = 1L;
 
-  protected JButton okButton = new JButton(Resources.getString("General.ok"));
-  protected JButton canButton = new JButton(Resources.getString("General.cancel"));
-  protected boolean cancelled;
+  private final JButton okButton = new JButton(Resources.getString("General.ok"));
+  private final JButton canButton = new JButton(Resources.getString("General.cancel"));
+  private boolean cancelled;
 
   public ConfigurerWindow(Configurer c) {
     this(c, true);
@@ -97,7 +97,6 @@ public class ConfigurerWindow extends JDialog {
     return cancelled;
   }
 }
-
 
 
 

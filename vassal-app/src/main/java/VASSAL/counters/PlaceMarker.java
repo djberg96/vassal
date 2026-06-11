@@ -30,7 +30,7 @@ import VASSAL.command.AddPiece;
 import VASSAL.command.ChangeTracker;
 import VASSAL.command.Command;
 import VASSAL.configure.BooleanConfigurer;
-import VASSAL.configure.ChooseComponentPathDialog;
+import VASSAL.configure.ChooseComponentDialog;
 import VASSAL.configure.FormattedExpressionConfigurer;
 import VASSAL.configure.IntConfigurer;
 import VASSAL.configure.NamedHotKeyConfigurer;
@@ -710,7 +710,11 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
       adjustVisualiserSize();
 
       selectButton.addActionListener(e -> {
-        final ChoosePieceDialog d = new ChoosePieceDialog((Frame) SwingUtilities.getAncestorOfClass(Frame.class, p), PieceSlot.class);
+        final ChooseComponentDialog d = ChooseComponentDialog.withPath(
+          (Frame) SwingUtilities.getAncestorOfClass(Frame.class, p),
+          PieceSlot.class,
+          selected -> selected instanceof CardSlot
+        );
         d.setVisible(true);
         if (d.getTarget() instanceof PieceSlot) {
           pieceInput.setPiece(((PieceSlot) d.getTarget()).getPiece());
@@ -867,18 +871,6 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
               .append(parameterListConfig.getValueString())
               .append(PLACEMARKER_VERSION);
       return ID + se.getValue();
-    }
-    public static class ChoosePieceDialog extends ChooseComponentPathDialog {
-      private static final long serialVersionUID = 1L;
-
-      public ChoosePieceDialog(Frame owner, Class<PieceSlot> targetClass) {
-        super(owner, targetClass);
-      }
-
-      @Override
-      protected boolean isValidTarget(Object selected) {
-        return super.isValidTarget(selected) || selected instanceof CardSlot;
-      }
     }
   }
 

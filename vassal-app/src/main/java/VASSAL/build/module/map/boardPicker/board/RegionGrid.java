@@ -1178,9 +1178,10 @@ public class RegionGrid extends AbstractConfigurable implements MapGrid, Configu
 
       @Override
       public void actionPerformed(ActionEvent evt) {
+        final Region target = region;
         PropertiesWindow w = getOpenWindow(target);
         if (w == null) {
-          w = new PropertiesWindow(dialogOwner, false, target, helpWindow);
+          w = new PropertiesWindow(getDialogOwner(), false, target, getHelpWindow());
           w.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
