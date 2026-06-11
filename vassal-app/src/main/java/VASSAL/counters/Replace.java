@@ -222,7 +222,7 @@ public class Replace extends PlaceMarker {
 
   @Override
   public PieceI18nData getI18nData() {
-    return getI18nData(command.getName(), getCommandDescription(description, Resources.getString("Editor.Replace.replace_command")));
+    return getI18nData(commandName, getCommandDescription(description, Resources.getString("Editor.Replace.replace_command")));
   }
 
   protected static class Ed extends PlaceMarker.Ed {

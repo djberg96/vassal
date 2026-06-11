@@ -17,6 +17,7 @@
 
 package VASSAL.counters;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -61,6 +62,15 @@ public class ReplaceTest extends DecoratorTest {
     serializeTest("NamedKeyStroke", trait); // NON-NLS
 
 
+  }
+
+  @Test
+  public void i18nDataUsesConfiguredCommandBeforeKeyCommandIsBuilt() {
+    final Replace trait = createTrait();
+    trait.commandName = "Replace unit"; // NON-NLS
+    trait.command = null;
+
+    assertEquals("Replace unit", trait.getI18nData().getProperties().get(0).getName()); // NON-NLS
   }
 
   // Don't even try and run the editorTest on Replace!
