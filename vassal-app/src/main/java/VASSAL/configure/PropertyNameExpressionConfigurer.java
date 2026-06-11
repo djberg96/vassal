@@ -24,7 +24,7 @@ import javax.swing.JDialog;
 
 import VASSAL.counters.EditablePiece;
 import VASSAL.counters.GamePiece;
-import VASSAL.script.expression.PropertyNameExpressionBuilder;
+import VASSAL.script.expression.ExpressionBuilder;
 
 /**
  * A Configurer for Java Expressions
@@ -71,7 +71,7 @@ public class PropertyNameExpressionConfigurer extends FormattedExpressionConfigu
 
     @Override
     public void actionPerformed(ActionEvent e) {
-      new PropertyNameExpressionBuilder(config, (JDialog) getTopLevelAncestor(), piece).setVisible(true);
+      ExpressionBuilder.propertyNameExpression(config, (JDialog) getTopLevelAncestor(), piece).setVisible(true);
     }
 
 

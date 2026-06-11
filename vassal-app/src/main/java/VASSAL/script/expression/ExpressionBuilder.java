@@ -22,6 +22,7 @@ import VASSAL.build.module.documentation.HelpFile;
 import VASSAL.configure.BeanShellExpressionConfigurer;
 import VASSAL.configure.Configurer;
 import VASSAL.counters.EditablePiece;
+import VASSAL.counters.PropertiesPieceFilter;
 import VASSAL.i18n.Resources;
 import VASSAL.tools.BrowserSupport;
 import VASSAL.tools.ButtonFactory;
@@ -33,29 +34,65 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.function.Function;
 
 /**
  * Interactively build inline(beanshell) expressions
  */
-public class ExpressionBuilder extends JDialog {
+public final class ExpressionBuilder extends JDialog {
 
   private static final long serialVersionUID = 1L;
-  protected transient BeanShellExpressionConfigurer expression;
-  protected String save;
-  protected transient Configurer target;
-  protected transient EditablePiece pieceTarget;
-  protected transient AbstractBuildable context;
+  private transient BeanShellExpressionConfigurer expression;
+  private transient Configurer target;
+  private transient EditablePiece pieceTarget;
+  private transient AbstractBuildable context;
+  private final boolean propertyNameExpression;
+  private final BeanShellExpressionConfigurer.Option expressionOption;
 
   public ExpressionBuilder(Configurer c, JDialog parent) {
     this(c, parent, null);
   }
 
   public ExpressionBuilder(Configurer c, JDialog parent, EditablePiece piece) {
+    this(c, parent, piece, ExpressionBuilder::convertFormattedExpression, BeanShellExpressionConfigurer.Option.NONE, false);
+  }
+
+  public static ExpressionBuilder propertyExpression(Configurer c, JDialog parent, EditablePiece piece) {
+    return new ExpressionBuilder(
+      c,
+      parent,
+      piece,
+      PropertiesPieceFilter::toBeanShellString,
+      BeanShellExpressionConfigurer.Option.PME,
+      false
+    );
+  }
+
+  public static ExpressionBuilder propertyNameExpression(Configurer c, JDialog parent, EditablePiece piece) {
+    return new ExpressionBuilder(
+      c,
+      parent,
+      piece,
+      BeanShellExpression::convertProperty,
+      BeanShellExpressionConfigurer.Option.NONE,
+      true
+    );
+  }
+
+  private ExpressionBuilder(
+    Configurer c,
+    JDialog parent,
+    EditablePiece piece,
+    Function<String, String> converter,
+    BeanShellExpressionConfigurer.Option expressionOption,
+    boolean propertyNameExpression
+  ) {
     super(parent, Resources.getString("Editor.ExpressionBuilder.component_type"), true);
     target = c;
     pieceTarget = piece;
     context = c.getContext();
-    save = target.getValueString();
+    this.expressionOption = expressionOption;
+    this.propertyNameExpression = propertyNameExpression;
     setLayout(new MigLayout("ins 0,filly", "[]", "[grow]rel[]"));
     final JPanel p = new JPanel(new MigLayout("wrap 1,filly", "[]", "[grow]rel[]")); //NON-NLS
 
@@ -65,7 +102,7 @@ public class ExpressionBuilder extends JDialog {
       setExpression(value.substring(1, value.length() - 1));
     }
     else {
-      setExpression(convert(value));
+      setExpression(converter.apply(value));
     }
 
     p.add(expression.getControls(), "grow"); //NON-NLS
@@ -106,6 +143,21 @@ public class ExpressionBuilder extends JDialog {
    */
   public void save() {
     final String expr = expression.getValueString().trim();
+    if (propertyNameExpression) {
+      if (BeanShellExpression.isJavaIdentifier(expr)) {
+        target.setValue(expr);
+        dispose();
+        return;
+      }
+
+      if (expr.startsWith("GetProperty(\"") && expr.endsWith("\")") && //NON-NLS
+          (expr.length() - expr.replaceAll("\"", "").length()) == 2) {
+        target.setValue(expr.substring(13, expr.length() - 2));
+        dispose();
+        return;
+      }
+    }
+
     if (expr.startsWith("{") && expr.endsWith("}")) {
       target.setValue(expr);
     }
@@ -124,7 +176,7 @@ public class ExpressionBuilder extends JDialog {
    * @param s Old-style string
    * @return expression
    */
-  public String convert(String s) {
+  private static String convertFormattedExpression(String s) {
     return Expression.createExpression(s).toBeanShellString();
   }
 
@@ -134,6 +186,7 @@ public class ExpressionBuilder extends JDialog {
       expression = new BeanShellExpressionConfigurer(null, prompt, value, pieceTarget);
     }
     expression.setValue(value);
+    expression.setOption(expressionOption);
     expression.setContext(context);
     expression.setContextLevel(target.getContextLevel());
   }

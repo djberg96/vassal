@@ -44,21 +44,19 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FunctionBuilder extends JDialog {
+public final class FunctionBuilder extends JDialog {
 
   private static final long serialVersionUID = 1L;
-  protected String save;
-  protected transient StringConfigurer target;
-  protected String function;
-  protected transient List<BeanShellExpressionConfigurer> configs = new ArrayList<>();
-  protected transient EditablePiece targetPiece;
-  protected transient BeanShellExpressionConfigurer result;
+  private final transient StringConfigurer target;
+  private final String function;
+  private final transient List<BeanShellExpressionConfigurer> configs = new ArrayList<>();
+  private final transient EditablePiece targetPiece;
+  private final transient BeanShellExpressionConfigurer result;
 
   public FunctionBuilder(StringConfigurer c, JDialog parent, String function, String desc, String[] parmDesc, EditablePiece piece, String[] hints, BeanShellExpressionConfigurer.Option[] options, String selectedText) {
     super(parent, Resources.getString("Editor.FunctionBuilder.component_type") + " - " + function, true);
     target = c;
     targetPiece = piece;
-    save = target.getValueString();
     this.function = function;
     setLayout(new MigLayout("fillx,ins 0")); //NON-NLS
 

@@ -20,7 +20,6 @@ import VASSAL.counters.Labeler;
 import VASSAL.counters.PieceDefiner;
 import VASSAL.i18n.Resources;
 import VASSAL.script.expression.FunctionBuilder;
-import VASSAL.script.expression.IntBuilder;
 import VASSAL.script.expression.StrBuilder;
 import VASSAL.tools.menu.MenuScroller;
 import VASSAL.tools.swing.SwingUtils;
@@ -425,7 +424,7 @@ public class BeanShellFunctionMenu extends JPopupMenu {
 
   protected void buildInteger() {
     final StringConfigurer result = new StringConfigurer(null, "", "");
-    new IntBuilder(result, (JDialog) configurer.getTopLevelAncestor()).setVisible(true);
+    StrBuilder.integer(result, (JDialog) configurer.getTopLevelAncestor()).setVisible(true);
     if (result.getValue() != null && result.getValueString().length() > 0) {
       configurer.insertName(result.getValueString());
     }

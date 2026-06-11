@@ -34,7 +34,7 @@ import bsh.NameSpace;
  * Class encapsulating BeanShell support in Vassal
  *
  */
-public class BeanShell {
+public final class BeanShell {
 
   public static final String TRUE = "true"; // NON-NLS
   public static final String FALSE = "false"; // NON-NLS
@@ -45,21 +45,21 @@ public class BeanShell {
     return instance;
   }
 
-  protected static final String INIT_SCRIPT = "/VASSAL/script/init_script.bsh"; // NON-NLS
+  private static final String INIT_SCRIPT = "/VASSAL/script/init_script.bsh"; // NON-NLS
 
   /*
    * An interpreter for adding script methods to the global NameSpace
    */
-  protected ScriptInterpreter globalInterpreter;
+  private final ScriptInterpreter globalInterpreter;
 
-  public BeanShell() {
-    globalInterpreter = new ScriptInterpreter(this.getClass().getClassLoader());
+  private BeanShell() {
+    globalInterpreter = new ScriptInterpreter(BeanShell.class.getClassLoader());
     init();
   }
 
   public void init() {
     // Read in the Vassal Script init script
-    final URL ini = instance.getClass().getResource(INIT_SCRIPT);
+    final URL ini = BeanShell.class.getResource(INIT_SCRIPT);
     try (BufferedReader in = new BufferedReader(
       new InputStreamReader(ini.openStream(), StandardCharsets.UTF_8))) {
 

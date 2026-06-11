@@ -22,7 +22,7 @@ import VASSAL.build.module.properties.PropertySource;
 import bsh.EvalError;
 import bsh.NameSpace;
 
-public class ScriptInterpreter extends AbstractInterpreter {
+public final class ScriptInterpreter extends AbstractInterpreter {
 
   private static final long serialVersionUID = 1L;
 
