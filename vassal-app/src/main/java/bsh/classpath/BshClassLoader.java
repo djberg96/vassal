@@ -34,8 +34,6 @@
 package bsh.classpath;
 
 import java.net.*;
-import java.util.*;
-import java.io.*;
 import bsh.BshClassManager;
 
 /**
@@ -144,8 +142,6 @@ public class BshClassLoader extends URLClassLoader
 		// ClassManagerImpl type directly.
 		// Don't add the method to BshClassManager... it's really an impl thing
 		ClassLoader cl = bcm.getLoaderForClass( name );
-
-		Class<?> c;
 
 		// If there is a designated loader and it's not us delegate to it
 		if ( cl != null && cl != this )

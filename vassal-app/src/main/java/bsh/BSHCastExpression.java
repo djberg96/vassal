@@ -52,7 +52,6 @@ class BSHCastExpression extends SimpleNode {
 	public Object eval(
 		CallStack callstack, Interpreter interpreter ) throws EvalError
     {
-		NameSpace namespace = callstack.top();
         Class<?> toType = ((BSHType)jjtGetChild(0)).getType( 
 			callstack, interpreter );
 		SimpleNode expression = (SimpleNode)jjtGetChild(1);

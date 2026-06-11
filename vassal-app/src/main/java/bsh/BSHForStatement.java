@@ -50,8 +50,6 @@ class BSHForStatement extends SimpleNode implements ParserConstants
     private SimpleNode forUpdate;
     private SimpleNode statement;
 
-    private boolean parsed;
-
     BSHForStatement(int id) { super(id); }
 
     public Object eval(CallStack callstack , Interpreter interpreter)  

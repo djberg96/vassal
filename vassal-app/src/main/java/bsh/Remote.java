@@ -36,7 +36,6 @@ package bsh;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.text.*;
 /**
 	Remote executor class. Posts a script from the command line to a BshServlet
  	or embedded  interpreter using (respectively) HTTP or the bsh telnet

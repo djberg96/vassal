@@ -1,8 +1,5 @@
 package bsh;
 
-// Just testing...
-import java.util.*;
-
 /**
 	 Implementation of the enhanced for(:) statement.  
 	 This statement uses BshIterable to support iteration over a wide variety

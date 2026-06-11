@@ -89,9 +89,8 @@ class BSHTryStatement extends SimpleNode
 		}
 		catch( TargetError e ) {
 			target = e;
-			String stackInfo = "Bsh Stack: ";
 			while ( callstack.depth() > callstackDepth )
-				stackInfo += "\t" + callstack.pop() +"\n";
+				callstack.pop();
 		}
 
 		// unwrap the target error
@@ -152,7 +151,6 @@ class BSHTryStatement extends SimpleNode
 					else
 					{
 						// set a typed variable (directly in the block)
-						Modifiers modifiers = new Modifiers();
 						cbNameSpace.setTypedVariable(
 							fp.name, fp.type, thrown, new Modifiers()/*none*/ );
 					}

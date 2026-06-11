@@ -35,9 +35,7 @@
 package bsh;
 
 import java.awt.event.*;
-import javax.swing.*;
 import javax.swing.event.*;
-import java.io.*;
 import java.beans.*;
 
 /**
@@ -63,7 +61,7 @@ class JThis extends This implements
 	// All core AWT listeners
 	ActionListener, AdjustmentListener, ComponentListener,
 	ContainerListener, FocusListener, ItemListener, KeyListener,
-	MouseListener, MouseMotionListener, TextListener, WindowListener,
+	TextListener, WindowListener,
 	PropertyChangeListener, 
 	// All listeners in javax.swing.event as of Swing 1.1
 	AncestorListener, CaretListener, CellEditorListener, ChangeListener,

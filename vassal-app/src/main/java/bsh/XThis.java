@@ -36,7 +36,6 @@ package bsh;
 
 import java.lang.reflect.*;
 import java.lang.reflect.InvocationHandler;
-import java.io.*;
 import java.util.Hashtable;
 
 /**
@@ -200,4 +199,3 @@ public class XThis extends This
 		}
 	};
 }
-

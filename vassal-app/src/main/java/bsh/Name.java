@@ -35,9 +35,7 @@
 package bsh;
 
 import java.lang.reflect.Array;
-import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
 	What's in a name?  I'll tell you...
@@ -916,8 +914,6 @@ class Name implements java.io.Serializable
 		// If defined, invoke it
         if ( meth != null )
 			return meth.invoke( args, interpreter, callstack, callerInfo );
-
-		BshClassManager bcm = interpreter.getClassManager();
 
 		// Look for a BeanShell command
 

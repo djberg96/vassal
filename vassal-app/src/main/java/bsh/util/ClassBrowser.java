@@ -34,12 +34,10 @@
 package bsh.util;
 
 import java.util.*;
-import java.util.zip.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
-import java.io.*;
 import java.awt.*;
 import java.lang.reflect.*;
 import java.util.List;
@@ -50,7 +48,6 @@ import bsh.classpath.BshClassPath;
 import bsh.classpath.ClassPathListener;
 import bsh.ClassPathException;
 import bsh.StringUtil;
-import bsh.ConsoleInterface;
 import bsh.classpath.ClassManagerImpl;
 
 /**

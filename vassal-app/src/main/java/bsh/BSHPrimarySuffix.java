@@ -34,7 +34,6 @@
 
 package bsh;
 
-import java.util.Hashtable;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 
@@ -79,7 +78,6 @@ class BSHPrimarySuffix extends SimpleNode
 				if ( toLHS )
 					throw new EvalError("Can't assign .class", 
 						this, callstack );
-				NameSpace namespace = callstack.top();
 				return ((BSHType)obj).getType( callstack, interpreter );
 			} else
 				throw new EvalError(
@@ -304,4 +302,3 @@ class BSHPrimarySuffix extends SimpleNode
 		}
 	}
 }
-

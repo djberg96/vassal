@@ -33,8 +33,6 @@
 
 package bsh.util;
 
-import java.util.*;
-
 /**
 	The interface for name completion.
 */

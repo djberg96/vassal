@@ -33,9 +33,7 @@
 
 package bsh.classpath;
 
-import java.io.*;
 import java.util.*;
-import java.awt.*;
 import bsh.BshClassManager;
 import bsh.classpath.BshClassPath.ClassSource;
 

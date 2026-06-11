@@ -46,10 +46,6 @@ import java.awt.Cursor;
 import javax.swing.text.*;
 import javax.swing.*;
 
-// Things that are not in the core packages
-
-import bsh.util.NameCompletion;
-
 /**
 	A JFC/Swing based console for the BeanShell desktop.
 	This is a descendant of the old AWTConsole.
@@ -803,4 +799,3 @@ public class JConsole extends JScrollPane
 	private int textLength() { return text.getDocument().getLength(); }
 
 }
-
