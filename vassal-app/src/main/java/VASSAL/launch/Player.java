@@ -57,11 +57,10 @@ public final class Player extends Launcher {
   }
 
   private Player(String[] args) {
-    super(args);
+    super(args, createMenuManager());
   }
 
-  @Override
-  protected MenuManager createMenuManager() {
+  private static MenuManager createMenuManager() {
     return SystemUtils.IS_OS_MAC ?
       new MacOSXMenuManager() : new PlayerMenuManager();
   }

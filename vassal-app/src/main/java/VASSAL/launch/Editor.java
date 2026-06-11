@@ -56,11 +56,10 @@ public final class Editor extends Launcher {
   private static final Logger logger = LoggerFactory.getLogger(Editor.class);
 
   private Editor(String[] args) {
-    super(args);
+    super(args, createMenuManager());
   }
 
-  @Override
-  protected MenuManager createMenuManager() {
+  private static MenuManager createMenuManager() {
     return SystemUtils.IS_OS_MAC ?
       new MacOSXMenuManager() : new EditorMenuManager();
   }

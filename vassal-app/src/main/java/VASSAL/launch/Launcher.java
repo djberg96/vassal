@@ -41,6 +41,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
@@ -59,9 +60,10 @@ public abstract class Launcher {
     return instance;
   }
 
-  protected Launcher(String[] args) {
+  protected Launcher(String[] args, MenuManager menuManager) {
     if (instance != null) throw new IllegalStateException();
     instance = this;
+    Objects.requireNonNull(menuManager);
 
     LaunchRequest lreq = null;
     try {
@@ -86,8 +88,6 @@ public abstract class Launcher {
     logger.info(getClass().getSimpleName());
     Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
     start.initSystemProperties();
-
-    createMenuManager();
 
     final SimpleRunnableFuture<Void> fut = new SimpleRunnableFuture<>() {
       @Override
@@ -206,6 +206,4 @@ public abstract class Launcher {
   }
 
   protected abstract void launch() throws IOException;
-
-  protected abstract MenuManager createMenuManager();
 }
