@@ -33,11 +33,11 @@ import VASSAL.i18n.Resources;
  * @author rkinney
  *
  */
-public class RoomTree extends JTree {
+public final class RoomTree extends JTree {
   private static final long serialVersionUID = 1L;
 
-  protected DefaultTreeModel model;
-  protected DefaultMutableTreeNode root;
+  private final DefaultTreeModel model;
+  private final DefaultMutableTreeNode root;
 
   public RoomTree() {
     setRootVisible(false);
@@ -108,7 +108,7 @@ public class RoomTree extends JTree {
     }
   }
 
-  protected Room roomAt(int index) {
+  private Room roomAt(int index) {
     return (Room) ((DefaultMutableTreeNode) root.getChildAt(index)).getUserObject();
   }
 }

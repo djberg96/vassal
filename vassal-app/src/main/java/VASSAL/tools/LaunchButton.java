@@ -38,23 +38,24 @@ import java.awt.event.ActionListener;
  * Handles configuration of a hotkey shortcut, maintains appropriate
  * tooltip text, etc.
  */
-public class LaunchButton extends JButton implements Auditable {
+public final class LaunchButton extends JButton implements Auditable {
   private static final long serialVersionUID = 1L;
   public static final String UNTRANSLATED_TEXT = "unTranslatedText"; //$NON-NLS-1$
-  protected String tooltipAtt;
-  protected String nameAtt;
-  protected String keyAtt;
-  protected String iconAtt;
-  protected transient IconConfigurer iconConfig;
-  protected String toolTipText;
-  protected transient NamedKeyStrokeListener keyListener;
-  protected transient Configurer nameConfig, keyConfig;
-  protected boolean alwaysAcceptKeystroke;
-  protected boolean forceVisible = false;
-  protected boolean forceInvisible = false;
-  protected boolean allowExpression;
-  protected boolean usesExpression = false;
-  protected transient FormattedString formatted = new FormattedString("");
+  private String tooltipAtt;
+  private final String nameAtt;
+  private final String keyAtt;
+  private final String iconAtt;
+  private final transient IconConfigurer iconConfig;
+  private String toolTipText;
+  private final transient NamedKeyStrokeListener keyListener;
+  private transient Configurer nameConfig;
+  private transient Configurer keyConfig;
+  private boolean alwaysAcceptKeystroke;
+  private boolean forceVisible = false;
+  private boolean forceInvisible = false;
+  private final boolean allowExpression;
+  private boolean usesExpression = false;
+  private final transient FormattedString formatted = new FormattedString("");
 
   public LaunchButton(String text, String textAttribute,
                       String hotkeyAttribute, ActionListener al) {
