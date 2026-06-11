@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -38,6 +38,8 @@ import java.lang.reflect.Array;
 
 class BSHArrayInitializer extends SimpleNode
 {
+	private static final long serialVersionUID = 1L;
+
     BSHArrayInitializer(int id) { super(id); }
 
     public Object eval( CallStack callstack, Interpreter interpreter )
@@ -54,7 +56,7 @@ class BSHArrayInitializer extends SimpleNode
 		@param dimensions the top number of dimensions of the array 
 			e.g. 2 for a String [][];
 	*/
-    public Object eval( Class baseType, int dimensions, 
+    public Object eval( Class<?> baseType, int dimensions, 
 						CallStack callstack, Interpreter interpreter ) 
 		throws EvalError
     {
@@ -128,7 +130,7 @@ class BSHArrayInitializer extends SimpleNode
     }
 
 	private void throwTypeError( 
-		Class baseType, Object initializer, int argNum, CallStack callstack ) 
+		Class<?> baseType, Object initializer, int argNum, CallStack callstack ) 
 		throws EvalError
 	{
 		String rhsType;

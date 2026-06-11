@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -42,7 +42,9 @@ import java.lang.reflect.Array;
 */
 class BSHArrayDimensions extends SimpleNode
 {
-	public Class baseType;
+	private static final long serialVersionUID = 1L;
+
+	public Class<?> baseType;
     public int numDefinedDims;
     public int numUndefinedDims;
 	/** 
@@ -58,7 +60,7 @@ class BSHArrayDimensions extends SimpleNode
     public void addUndefinedDimension() { numUndefinedDims++; }
 
     public Object eval( 
-			Class type, CallStack callstack, Interpreter interpreter ) 
+			Class<?> type, CallStack callstack, Interpreter interpreter ) 
 		throws EvalError 
 	{
 		if ( Interpreter.DEBUG ) Interpreter.debug("array base type = "+type);
@@ -100,7 +102,7 @@ class BSHArrayDimensions extends SimpleNode
 			Object initValue = ((BSHArrayInitializer)child).eval(
 				baseType, numUndefinedDims, callstack, interpreter);
 
-			Class arrayClass = initValue.getClass();
+			Class<?> arrayClass = initValue.getClass();
 			int actualDimensions = Reflect.getArrayDimensions(arrayClass);
 			definedDimensions = new int[ actualDimensions ];
 

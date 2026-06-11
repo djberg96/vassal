@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -37,6 +37,8 @@ package bsh;
 */
 class BSHClassDeclaration extends SimpleNode
 {
+	private static final long serialVersionUID = 1L;
+
 	/**
 		The class instance initializer method name.
 		A BshMethod by this name is installed by the class delcaration into 
@@ -63,7 +65,7 @@ class BSHClassDeclaration extends SimpleNode
 		int child = 0;
 
 		// resolve superclass if any
-		Class superClass = null;
+		Class<?> superClass = null;
 		if ( extend ) 
 		{
 			BSHAmbiguousName superNode = (BSHAmbiguousName)jjtGetChild(child++);
@@ -71,7 +73,7 @@ class BSHClassDeclaration extends SimpleNode
 		}
 
 		// Get interfaces
-		Class [] interfaces = new Class[numInterfaces];
+		Class<?> [] interfaces = new Class<?>[numInterfaces];
 		for( int i=0; i<numInterfaces; i++) {
 			BSHAmbiguousName node = (BSHAmbiguousName)jjtGetChild(child++);
 			interfaces[i] = node.toClass(callstack, interpreter);

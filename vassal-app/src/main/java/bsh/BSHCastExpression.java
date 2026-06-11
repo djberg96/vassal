@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -42,6 +42,7 @@ package bsh;
 	into it.
 */
 class BSHCastExpression extends SimpleNode {
+	private static final long serialVersionUID = 1L;
 
     public BSHCastExpression(int id) { super(id); }
 
@@ -52,13 +53,13 @@ class BSHCastExpression extends SimpleNode {
 		CallStack callstack, Interpreter interpreter ) throws EvalError
     {
 		NameSpace namespace = callstack.top();
-        Class toType = ((BSHType)jjtGetChild(0)).getType( 
+        Class<?> toType = ((BSHType)jjtGetChild(0)).getType( 
 			callstack, interpreter );
 		SimpleNode expression = (SimpleNode)jjtGetChild(1);
 
         // evaluate the expression
         Object fromValue = expression.eval(callstack, interpreter);
-        Class fromType = fromValue.getClass();
+        Class<?> fromType = fromValue.getClass();
 
 		// TODO: need to add isJavaCastable() test for strictJava
 		// (as opposed to isJavaAssignable())
