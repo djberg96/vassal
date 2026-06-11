@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -36,6 +36,8 @@ package bsh;
 
 class BSHAmbiguousName extends SimpleNode
 {
+	private static final long serialVersionUID = 1L;
+
     public String text;
 
     BSHAmbiguousName(int id) { super(id); }
@@ -65,7 +67,7 @@ class BSHAmbiguousName extends SimpleNode
 		}
     }
 
-    public Class toClass( CallStack callstack, Interpreter interpreter ) 
+    public Class<?> toClass( CallStack callstack, Interpreter interpreter ) 
 		throws EvalError
     {
 		try {
@@ -104,4 +106,3 @@ class BSHAmbiguousName extends SimpleNode
 		return "AmbigousName: "+text;
 	}
 }
-

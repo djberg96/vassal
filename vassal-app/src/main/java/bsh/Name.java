@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -97,6 +97,8 @@ import java.lang.reflect.Method;
 */
 class Name implements java.io.Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	// These do not change during evaluation
 	public NameSpace namespace;
 	String value = null;
@@ -114,7 +116,7 @@ class Name implements java.io.Serializable
 	*/
 	private String lastEvalName;
 	private static String FINISHED = null; // null evalname and we're finished
-	private Object evalBaseObject;	// base object for current eval
+	private transient Object evalBaseObject;	// base object for current eval
 
 	private int callstackDepth;		// number of times eval hit 'this.caller'
 
@@ -131,12 +133,12 @@ class Name implements java.io.Serializable
 	/** 
 		The result is a class 
 	*/
-	Class asClass;
+	Class<?> asClass;
 
 	/** 
 		The result is a static method call on the following class 
 	*/
-	Class classOfStaticMethod;
+	Class<?> classOfStaticMethod;
 
 	// End Cached result structures
 
@@ -292,7 +294,7 @@ class Name implements java.io.Serializable
 			/*
 				Keep adding parts until we have a class 
 			*/
-			Class clas = null;
+			Class<?> clas = null;
 			int i = 1;
 			String className = null;
 			for(; i <= countParts(evalName); i++)
@@ -373,7 +375,7 @@ class Name implements java.io.Serializable
 		*/
 		if ( evalBaseObject instanceof ClassIdentifier ) 
 		{
-			Class clas = ((ClassIdentifier)evalBaseObject).getTargetClass();
+			Class<?> clas = ((ClassIdentifier)evalBaseObject).getTargetClass();
 			String field = prefix(evalName, 1);
 
 			// Class qualified 'this' reference from inner class.
@@ -411,7 +413,7 @@ class Name implements java.io.Serializable
 			// inner class?
 			if ( obj == null ) {
 				String iclass = clas.getName()+"$"+field;
-				Class c = namespace.getClass( iclass );
+				Class<?> c = namespace.getClass( iclass );
 				if ( c != null )
 					obj = new ClassIdentifier(c);
 			}
@@ -628,7 +630,7 @@ class Name implements java.io.Serializable
 		@throws ClassPathException (type of EvalError) on special case of 
 		ambiguous unqualified name after super import. 
 	*/
-	synchronized public Class toClass() 
+	synchronized public Class<?> toClass() 
 		throws ClassNotFoundException, UtilEvalError
 	{
 		if ( asClass != null )
@@ -641,7 +643,7 @@ class Name implements java.io.Serializable
 			return asClass = null;
 
 		/* Try straightforward class name first */
-		Class clas = namespace.getClass( evalName );
+		Class<?> clas = namespace.getClass( evalName );
 
 		if ( clas == null ) 
 		{
@@ -742,7 +744,7 @@ class Name implements java.io.Serializable
 			try {
 				if ( obj instanceof ClassIdentifier ) 
 				{
-					Class clas = ((ClassIdentifier)obj).getTargetClass();
+					Class<?> clas = ((ClassIdentifier)obj).getTargetClass();
 					lhs = Reflect.getLHSStaticField(clas, evalName);
 					return lhs;
 				} else {
@@ -849,7 +851,7 @@ class Name implements java.io.Serializable
                 // in Name (can't treat primitive like an object message)
                 // but the hole is useful right now.
 				if ( Interpreter.DEBUG )
-                	interpreter.debug(
+                	Interpreter.debug(
 					"Attempt to access method on primitive..." 
 					+ " allowing bsh.Primitive to peek through for debugging");
             }
@@ -865,7 +867,7 @@ class Name implements java.io.Serializable
         if ( Interpreter.DEBUG ) 
         	Interpreter.debug("invokeMethod: trying static - " + targetName);
 
-        Class clas = ((ClassIdentifier)obj).getTargetClass();
+        Class<?> clas = ((ClassIdentifier)obj).getTargetClass();
 
 		// cache the fact that this is a static method invocation on this class
 		classOfStaticMethod = clas;
@@ -901,7 +903,7 @@ class Name implements java.io.Serializable
 				"invokeLocalMethod: interpreter = null");
 
 		String commandName = value;
-		Class [] argTypes = Types.getTypes( args );
+		Class<?> [] argTypes = Types.getTypes( args );
 
         // Check for existing method
         BshMethod meth = null;
@@ -938,7 +940,7 @@ class Name implements java.io.Serializable
 			BshMethod invokeMethod = null;
 			try {
 				invokeMethod = namespace.getMethod( 
-					"invoke", new Class [] { null, null } );
+					"invoke", new Class<?> [] { null, null } );
 			} catch ( UtilEvalError e ) {
 				throw e.toEvalError(
 					"Local method invocation", callerInfo, callstack );
@@ -961,7 +963,7 @@ class Name implements java.io.Serializable
 		if ( commandObject instanceof Class )
 			try {
 				return Reflect.invokeCompiledCommand( 
-					((Class)commandObject), args, interpreter, callstack );
+					((Class<?>)commandObject), args, interpreter, callstack );
 			} catch ( UtilEvalError e ) {
 				throw e.toEvalError("Error invoking compiled command: ",
 				callerInfo, callstack );
@@ -1066,4 +1068,3 @@ class Name implements java.io.Serializable
 	public String toString() { return value; }
 
 }
-
