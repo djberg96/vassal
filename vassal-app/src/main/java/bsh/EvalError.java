@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -46,6 +46,8 @@ package bsh;
 */
 public class EvalError extends Exception 
 {
+	private static final long serialVersionUID = 1L;
+
 	private SimpleNode node;
 
 	// Note: no way to mutate the Throwable message, must maintain our own
@@ -54,8 +56,11 @@ public class EvalError extends Exception
 	private final CallStack callstack;
 
 	public EvalError( String s, SimpleNode node, CallStack callstack, Throwable cause ) {
-		this(s,node,callstack);
-		initCause(cause);
+		super(null, cause);
+		this.message = s;
+		this.node = node;
+		// freeze the callstack for the stack trace.
+		this.callstack = callstack==null ? null : callstack.copy();
 	}
 
 	public EvalError( String s, SimpleNode node, CallStack callstack ) {
@@ -169,4 +174,3 @@ public class EvalError extends Exception
 	}
 
 }
-

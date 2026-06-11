@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -51,6 +51,8 @@ import java.io.PrintStream;
 */
 public class TargetError extends EvalError 
 {
+	private static final long serialVersionUID = 1L;
+
 	Throwable target;
 	boolean inNativeCode;
 
@@ -156,4 +158,3 @@ public class TargetError extends EvalError
 		return inNativeCode; 
 	}
 }
-

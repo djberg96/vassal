@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -35,7 +35,6 @@
 package bsh;
 
 import java.lang.reflect.Field;
-import java.util.Hashtable;
 
 /**
 	An LHS is a wrapper for an variable, field, or property.  It ordinarily 
@@ -52,6 +51,8 @@ import java.util.Hashtable;
 */
 class LHS implements ParserConstants, java.io.Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	NameSpace nameSpace;
 	/** The assignment should be to a local variable */
 	boolean localVar;
@@ -267,4 +268,3 @@ throw new Error("namespace lhs");
 			+(nameSpace!=null ? " nameSpace = "+nameSpace.toString(): "");
 	}
 }
-

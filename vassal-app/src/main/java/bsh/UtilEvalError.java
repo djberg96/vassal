@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -58,6 +58,8 @@ package bsh;
 */
 public class UtilEvalError extends Exception 
 {
+	private static final long serialVersionUID = 1L;
+
 	protected UtilEvalError() {
 	}
 
@@ -91,4 +93,3 @@ public class UtilEvalError extends Exception
 	}
 
 }
-

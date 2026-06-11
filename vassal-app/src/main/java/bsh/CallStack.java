@@ -59,8 +59,10 @@ import java.util.Vector;
 	it exposes) creates a new CallStack for each external call.
 	<p>
 */
-public class CallStack 
+public class CallStack implements java.io.Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	private final Vector<NameSpace> stack = new Vector<>(2);
 
 	public CallStack() { }

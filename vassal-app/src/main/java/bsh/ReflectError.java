@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -36,7 +36,8 @@ package bsh;
 
 class ReflectError extends Exception
 {
+	private static final long serialVersionUID = 1L;
+
 	public ReflectError() { super(); }
 	public ReflectError(String s) { super(s); }
 }
-

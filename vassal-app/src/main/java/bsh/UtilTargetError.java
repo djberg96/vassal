@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -45,6 +45,8 @@ package bsh;
 */
 public class UtilTargetError extends UtilEvalError
 {
+	private static final long serialVersionUID = 1L;
+
 	public Throwable t;
 
 	public UtilTargetError( String message, Throwable t ) {
@@ -70,4 +72,3 @@ public class UtilTargetError extends UtilEvalError
 		return new TargetError( msg, t, node, callstack, false );
 	}
 }
-

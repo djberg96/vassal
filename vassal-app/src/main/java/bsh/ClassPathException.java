@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -34,6 +34,7 @@
 package bsh;
 
 public class ClassPathException extends UtilEvalError {
+	private static final long serialVersionUID = 1L;
+
 	public ClassPathException( String msg ) { super(msg); }
 }
-
