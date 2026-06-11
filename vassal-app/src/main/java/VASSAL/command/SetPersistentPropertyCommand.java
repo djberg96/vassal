@@ -9,19 +9,19 @@ import VASSAL.property.PersistentPropertyContainer;
  * Currently only BasicPiece and Decorator implement PersistentPropertyContainer.
  * The Undo Command is a SetPropertyCommand to set the value back to the original value.
  */
-public class SetPersistentPropertyCommand extends Command {
+public final class SetPersistentPropertyCommand extends Command {
   public static final String COMMAND_PREFIX = "SPP\t"; // NON-NLS
-  protected Object key;
-  protected Object oldValue;
-  protected Object newValue;
-  protected String id;
+  private final Object key;
+  private final Object oldValue;
+  private final Object newValue;
+  private final String id;
 
 
   public SetPersistentPropertyCommand(String id, Object key, Object oldValue, Object newValue) {
-    setKey(key);
-    setOldValue(oldValue);
-    setNewValue(newValue);
-    setId(id);
+    this.id = id;
+    this.key = key;
+    this.oldValue = oldValue;
+    this.newValue = newValue;
   }
 
   @Override
@@ -49,32 +49,15 @@ public class SetPersistentPropertyCommand extends Command {
     return key;
   }
 
-  public void setKey(Object key) {
-    this.key = key;
-  }
-
   public Object getOldValue() {
     return oldValue;
-  }
-
-  public void setOldValue(Object oldValue) {
-    this.oldValue = oldValue;
   }
 
   public Object getNewValue() {
     return newValue;
   }
 
-  public void setNewValue(Object newValue) {
-    this.newValue = newValue;
-  }
-
   public String getId() {
     return id;
   }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
 }

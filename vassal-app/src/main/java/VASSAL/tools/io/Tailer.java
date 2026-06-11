@@ -41,18 +41,18 @@ import VASSAL.tools.concurrent.listener.EventListenerSupport;
  * @author Joel Uckelman
  * @since 3.2.0
  */
-public class Tailer {
+public final class Tailer {
   private static final Logger logger = LoggerFactory.getLogger(Tailer.class);
 
-  protected static final long DEFAULT_POLL_INTERVAL = 1000L;
+  private static final long DEFAULT_POLL_INTERVAL = 1000L;
 
-  protected final File file;
-  protected final long poll_interval;
+  private final File file;
+  private final long pollInterval;
 
-  protected long position = 0L;
-  protected volatile boolean tailing = false;
+  private long position = 0L;
+  private volatile boolean tailing = false;
 
-  protected final EventListenerSupport<String> lsup;
+  private final EventListenerSupport<String> lsup;
 
   /**
    * Creates a file tailer with the default polling interval.
@@ -67,14 +67,14 @@ public class Tailer {
    * Creates a file tailer.
    *
    * @param file the file to tail
-   * @param poll_interval the polling interval, in milliseconds
+   * @param pollInterval the polling interval, in milliseconds
    */
-  public Tailer(File file, long poll_interval) {
+  public Tailer(File file, long pollInterval) {
     if (file == null) throw new IllegalArgumentException("file == null");
     if (file.getPath().isEmpty()) throw new IllegalArgumentException("Empty file name");
 
     this.file = file;
-    this.poll_interval = poll_interval;
+    this.pollInterval = pollInterval;
     this.lsup = new DefaultEventListenerSupport<>(this);
   }
 
@@ -82,16 +82,16 @@ public class Tailer {
    * Creates a file tailer.
    *
    * @param file the file to tail
-   * @param poll_interval the polling interval, in milliseconds
+   * @param pollInterval the polling interval, in milliseconds
    * @param lsup the listener support
    */
-  public Tailer(File file, long poll_interval,
+  public Tailer(File file, long pollInterval,
                                            EventListenerSupport<String> lsup) {
     if (file == null) throw new IllegalArgumentException("file == null");
     if (lsup == null) throw new IllegalArgumentException("lsup == null");
 
     this.file = file;
-    this.poll_interval = poll_interval;
+    this.pollInterval = pollInterval;
     this.lsup = lsup;
   }
 
@@ -203,7 +203,7 @@ public class Tailer {
           }
 
           // we have reached EOF, sleep
-          Thread.sleep(poll_interval);
+          Thread.sleep(pollInterval);
         }
       }
       catch (IOException | InterruptedException e) {
