@@ -89,93 +89,93 @@ import java.util.Random;
  * A collection of pieces that behaves like a deck, i.e.: Doesn't move.
  * Can't be expanded. Can be shuffled. Can be turned face-up and face-down.
  */
-public class Deck extends Stack implements PlayerRoster.SideChangeListener {
+public final class Deck extends Stack implements PlayerRoster.SideChangeListener {
   public static final String ID = "deck;"; //$NON-NLS-1$
   public static final String ALWAYS = "Always"; // NON-NLS
   public static final String NEVER = "Never"; // NON-NLS
   public static final String USE_MENU = "Via right-click Menu"; // NON-NLS
   public static final String USE_MENU_UP = "MenuDefaultUp"; //NON-NLS
   public static final String NO_USER = "nobody"; // Dummy user ID for turning // NON-NLS
-  protected static final StackMetrics deckStackMetrics = new StackMetrics(false, 2, 2, 2, 2);
+  static final StackMetrics deckStackMetrics = new StackMetrics(false, 2, 2, 2, 2);
   // cards face down
 
-  protected boolean drawOutline = true;
-  protected Color outlineColor = Color.black;
-  protected Dimension size = new Dimension(40, 40);
-  protected boolean shuffle = true;
-  protected String faceDownOption = ALWAYS;
-  protected String shuffleOption = ALWAYS;
-  protected String shuffleCommand = "";
-  protected boolean allowMultipleDraw = false;
-  protected boolean allowSelectDraw = false;
-  protected boolean reversible = false;
-  protected String reshuffleCommand = ""; //$NON-NLS-1$
-  protected String reshuffleTarget;
-  protected String reshuffleMsgFormat;
-  protected NamedKeyStrokeListener reshuffleListener;
-  protected NamedKeyStroke reshuffleKey;
-  protected String reverseMsgFormat;
-  protected String reverseCommand;
-  protected NamedKeyStroke reverseKey;
-  protected NamedKeyStrokeListener reverseListener;
-  protected String shuffleMsgFormat;
-  protected NamedKeyStrokeListener shuffleListener;
-  protected NamedKeyStroke shuffleKey;
-  protected String faceDownMsgFormat;
-  protected boolean drawFaceUp;
-  protected boolean persistable;
-  protected FormattedString selectDisplayProperty = new FormattedString("$" + BasicPiece.BASIC_NAME + "$");
-  protected String selectSortProperty = "";
-  protected MutableProperty.Impl countProperty =
+  boolean drawOutline = true;
+  Color outlineColor = Color.black;
+  Dimension size = new Dimension(40, 40);
+  boolean shuffle = true;
+  String faceDownOption = ALWAYS;
+  String shuffleOption = ALWAYS;
+  String shuffleCommand = "";
+  boolean allowMultipleDraw = false;
+  boolean allowSelectDraw = false;
+  boolean reversible = false;
+  String reshuffleCommand = ""; //$NON-NLS-1$
+  String reshuffleTarget;
+  String reshuffleMsgFormat;
+  NamedKeyStrokeListener reshuffleListener;
+  NamedKeyStroke reshuffleKey;
+  String reverseMsgFormat;
+  String reverseCommand;
+  NamedKeyStroke reverseKey;
+  NamedKeyStrokeListener reverseListener;
+  String shuffleMsgFormat;
+  NamedKeyStrokeListener shuffleListener;
+  NamedKeyStroke shuffleKey;
+  String faceDownMsgFormat;
+  boolean drawFaceUp;
+  boolean persistable;
+  FormattedString selectDisplayProperty = new FormattedString("$" + BasicPiece.BASIC_NAME + "$");
+  String selectSortProperty = "";
+  private final MutableProperty.Impl countProperty =
     new MutableProperty.Impl("", this);
-  protected List<MutableProperty.Impl> expressionProperties = new ArrayList<>();
+  List<MutableProperty.Impl> expressionProperties = new ArrayList<>();
 
-  protected String deckName;
-  protected String localizedDeckName;
+  String deckName;
+  String localizedDeckName;
 
-  protected boolean faceDown;
-  protected int dragCount = 0;
-  protected int maxStack = 10;
-  protected CountExpression[] countExpressions = new CountExpression[0];
-  protected boolean expressionCounting = false;
-  protected List<GamePiece> nextDraw = null;
-  protected KeyCommand[] commands;
-  protected List<DeckGlobalKeyCommand> globalCommands = new ArrayList<>();
-  protected boolean hotkeyOnEmpty;
-  protected NamedKeyStroke emptyKey;
-  protected boolean restrictOption;
-  protected PropertyExpression restrictExpression = new PropertyExpression();
-  protected PropertySource propertySource;
+  boolean faceDown;
+  int dragCount = 0;
+  int maxStack = 10;
+  CountExpression[] countExpressions = new CountExpression[0];
+  boolean expressionCounting = false;
+  List<GamePiece> nextDraw = null;
+  KeyCommand[] commands;
+  List<DeckGlobalKeyCommand> globalCommands = new ArrayList<>();
+  boolean hotkeyOnEmpty;
+  NamedKeyStroke emptyKey;
+  boolean restrictOption;
+  PropertyExpression restrictExpression = new PropertyExpression();
+  PropertySource propertySource;
 
-  protected String drawMultipleMessage;
-  protected String drawSpecificMessage;
-  protected String faceUpMessage;
-  protected String faceDownMessage;
+  String drawMultipleMessage;
+  String drawSpecificMessage;
+  String faceUpMessage;
+  String faceDownMessage;
 
-  protected String faceUpMsgFormat;
-  protected NamedKeyStroke faceUpKey;
-  protected NamedKeyStroke faceDownKey;
-  protected NamedKeyStroke faceFlipKey;
+  String faceUpMsgFormat;
+  NamedKeyStroke faceUpKey;
+  NamedKeyStroke faceDownKey;
+  NamedKeyStroke faceFlipKey;
 
-  protected String saveMessage = Resources.getString(Resources.SAVE);
-  protected NamedKeyStroke saveKey;
-  protected String saveReport;
+  String saveMessage = Resources.getString(Resources.SAVE);
+  NamedKeyStroke saveKey;
+  String saveReport;
 
-  protected String loadMessage = Resources.getString(Resources.LOAD);
-  protected NamedKeyStroke loadKey;
-  protected String loadReport;
+  String loadMessage = Resources.getString(Resources.LOAD);
+  NamedKeyStroke loadKey;
+  String loadReport;
 
-  protected NamedKeyStrokeListener faceUpListener;
-  protected NamedKeyStrokeListener faceDownListener;
-  protected NamedKeyStrokeListener faceFlipListener;
-  protected NamedKeyStrokeListener saveListener;
-  protected NamedKeyStrokeListener loadListener;
+  NamedKeyStrokeListener faceUpListener;
+  NamedKeyStrokeListener faceDownListener;
+  NamedKeyStrokeListener faceFlipListener;
+  NamedKeyStrokeListener saveListener;
+  NamedKeyStrokeListener loadListener;
 
-  protected boolean restrictAccess;
-  protected String[] owners;
+  boolean restrictAccess;
+  String[] owners;
 
   /** The matching DrawPile that generated this Deck */
-  protected DrawPile myPile;
+  DrawPile myPile;
 
   /**
    * Sends the I-am-empty key for this deck (whether to send it was already determined when the last piece was removed)
@@ -187,7 +187,7 @@ public class Deck extends Stack implements PlayerRoster.SideChangeListener {
   /**
    * Special {@link CommandEncoder} to handle loading/saving Decks from files.
    */
-  protected CommandEncoder commandEncoder = new CommandEncoder() {
+  private final CommandEncoder commandEncoder = new CommandEncoder() {
     /**
      * Deserializes a Deck loaded from a file, turning it into a LoadDeckCommand.
      * @param command String contents of deck
