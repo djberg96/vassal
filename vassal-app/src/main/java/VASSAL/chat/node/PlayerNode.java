@@ -30,12 +30,12 @@ import VASSAL.tools.SequenceEncoder;
  * Reads and writes directly to a socket
  * {@link #getInfo} returns an encoded {@link java.util.Properties} object with real name, profile, etc.
  */
-public class PlayerNode extends Node implements SocketWatcher {
+public final class PlayerNode extends Node implements SocketWatcher {
   private final SocketHandler input;
-  protected String id;
-  protected String info;
+  private String id;
+  private String info;
   private final AsynchronousServerNode server;
-  private static ConnectionLimiter connLimiter = new ConnectionLimiter();
+  private static final ConnectionLimiter CONN_LIMITER = new ConnectionLimiter();
 
   public PlayerNode(Socket socket, AsynchronousServerNode server) throws IOException {
     super(null, null, null);
@@ -129,7 +129,7 @@ public class PlayerNode extends Node implements SocketWatcher {
       }
     }
     else if ((cmd = Protocol.decodeLoginCommand(line)) != null) {
-      connLimiter.register(cmd, input);
+      CONN_LIMITER.register(cmd, input);
     }
   }
 

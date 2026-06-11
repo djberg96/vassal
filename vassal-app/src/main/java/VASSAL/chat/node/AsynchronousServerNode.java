@@ -40,7 +40,7 @@ import VASSAL.tools.PropertiesEncoder;
  * Children of modules represent rooms.
  * Children of rooms represent players.
  */
-public class AsynchronousServerNode extends ServerNode {
+public final class AsynchronousServerNode extends ServerNode {
   private static final Logger logger =
     Logger.getLogger(AsynchronousServerNode.class.getName());
   private StatusReporter statusReporter;
@@ -51,10 +51,11 @@ public class AsynchronousServerNode extends ServerNode {
     init(url);
   }
 
-  protected void init(String url) {
+  private void init(String url) {
     statusReporter = new StatusReporter(
       url == null ? null : new HttpRequestWrapper(url), this);
     contentsReporter = new ReportContentsThread(this);
+    contentsReporter.start();
   }
 
   @Override
@@ -62,16 +63,15 @@ public class AsynchronousServerNode extends ServerNode {
     contentsReporter.markChanged(node);
   }
 
-  public static class ReportContentsThread extends Thread {
+  private static final class ReportContentsThread extends Thread {
     private final AsynchronousServerNode server;
     private final Set<Node> changed;
     private long lastGlobalUpdate;
     private static final long GLOBAL_UPDATE_INTERVAL = 1000L * 120L;
 
-    public ReportContentsThread(AsynchronousServerNode server) {
+    private ReportContentsThread(AsynchronousServerNode server) {
       this.server = server;
       changed = new HashSet<>();
-      start();
     }
 
     @Override
