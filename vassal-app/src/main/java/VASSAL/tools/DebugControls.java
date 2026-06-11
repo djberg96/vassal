@@ -57,28 +57,26 @@ import java.awt.event.ActionListener;
 import java.net.URL;
 import java.util.List;
 
-public class DebugControls extends AbstractBuildable implements ActionListener {
-  protected static final long MEGABYTE = 1024 * 1024;
+public final class DebugControls extends AbstractBuildable implements ActionListener {
+  private JButton launch;
+  private final JPanel controlPanel;
 
-  protected JButton launch;
-  protected JPanel controlPanel;
+  private SplitPane splitPane;
 
-  protected SplitPane splitPane;
+  private Point cursorLocation;
+  private Point cursorLocationBoard;
 
-  protected Point cursorLocation;
-  protected Point cursorLocationBoard;
+  private final JLabel cursorCoordsLabel;
 
-  protected JLabel cursorCoordsLabel;
-
-  protected FlowLabel selectedNameLabel;
-  protected JLabel selectedCoordsLabel;
-  protected JLabel selectedCoordsBoardLabel;
+  private final FlowLabel selectedNameLabel;
+  private final JLabel selectedCoordsLabel;
+  private final JLabel selectedCoordsBoardLabel;
 
   //protected JLabel heapSizeLabel;
   //protected JLabel heapMaxLabel;
   //protected JLabel heapFreeLabel;
 
-  protected Timer timer = new Timer(100, this);
+  private final Timer timer;
 
   private static CheckBoxMenuItemProxy checkbox;
 
@@ -162,7 +160,7 @@ public class DebugControls extends AbstractBuildable implements ActionListener {
     controlPanel.setLayout(new BorderLayout());
     controlPanel.add("Center", leftPanel);  //$NON-NLS-1$
 
-    timer.addActionListener(this);
+    timer = new Timer(100, this);
 
     /*
     toolbar = new JToolBar();
