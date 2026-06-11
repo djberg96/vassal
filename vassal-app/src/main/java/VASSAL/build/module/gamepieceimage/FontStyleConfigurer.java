@@ -29,11 +29,11 @@ import javax.swing.JPanel;
 import VASSAL.configure.Configurer;
 import VASSAL.tools.SequenceEncoder;
 
-public class FontStyleConfigurer extends Configurer {
+public final class FontStyleConfigurer extends Configurer {
 
-  protected JPanel p;
-  protected JPanel fontPanel;
-  protected JComboBox<String> fonts;
+  private JPanel p;
+  private JPanel fontPanel;
+  private JComboBox<String> fonts;
 
   public FontStyleConfigurer(String key, String name) {
     super(key, name);
@@ -80,7 +80,7 @@ public class FontStyleConfigurer extends Configurer {
     return p;
   }
 
-  protected void buildFonts() {
+  private void buildFonts() {
     if (fontPanel == null) {
       return;
     }
@@ -103,7 +103,7 @@ public class FontStyleConfigurer extends Configurer {
 
   }
 
-  protected void updateValue() {
+  private void updateValue() {
     setValue(FontManager.getFontManager().getFontStyle((String) fonts.getSelectedItem()));
   }
 

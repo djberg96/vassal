@@ -29,12 +29,12 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 
-public class Visualizer extends JPanel {
+public final class Visualizer extends JPanel {
   private static final long serialVersionUID = 1L;
 
-  protected static final int OFFSET = 20;
-  protected transient Visualizable observer;
-  protected JPanel visPanel;
+  private static final int OFFSET = 20;
+  private transient Visualizable observer;
+  private JPanel visPanel;
 
   public Visualizer() {
 
