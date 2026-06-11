@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -39,10 +39,12 @@ package bsh;
 */
 class BSHFormalParameter extends SimpleNode
 {
-	public static final Class UNTYPED = null;
+	private static final long serialVersionUID = 1L;
+
+	public static final Class<?> UNTYPED = null;
 	public String name;
 	// unsafe caching of type here
-	public Class type;
+	public Class<?> type;
 
 	BSHFormalParameter(int id) { super(id); }
 
@@ -71,4 +73,3 @@ class BSHFormalParameter extends SimpleNode
 		return type;
 	}
 }
-

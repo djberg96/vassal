@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -36,6 +36,8 @@ package bsh;
 
 class BSHReturnType extends SimpleNode
 {
+	private static final long serialVersionUID = 1L;
+
 	public boolean isVoid;
 
 	BSHReturnType(int id) { super(id); }
@@ -54,7 +56,7 @@ class BSHReturnType extends SimpleNode
 				callstack, interpreter, defaultPackage );
 	}
 
-	public Class evalReturnType( 
+	public Class<?> evalReturnType( 
 		CallStack callstack, Interpreter interpreter ) throws EvalError
 	{
 		if ( isVoid )
@@ -63,4 +65,3 @@ class BSHReturnType extends SimpleNode
 			return getTypeNode().getType( callstack, interpreter );
 	}
 }
-

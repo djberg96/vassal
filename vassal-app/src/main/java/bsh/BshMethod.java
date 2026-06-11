@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -54,6 +54,8 @@ import java.lang.reflect.InvocationTargetException;
 public class BshMethod 
 	implements java.io.Serializable 
 {
+	private static final long serialVersionUID = 1L;
+
 	/* 
 		This is the namespace in which the method is set.
 		It is a back-reference for the node, which needs to execute under this 
@@ -66,12 +68,12 @@ public class BshMethod
 
 	Modifiers modifiers;
 	private String name;
-	private Class creturnType;
+	private Class<?> creturnType;
 
 	// Arguments
 	private String [] paramNames;
 	private int numArgs;
-	private Class [] cparamTypes;
+	private Class<?> [] cparamTypes;
 
 	// Scripted method body
 	BSHBlock methodBody;
@@ -92,8 +94,8 @@ public class BshMethod
 	}
 
 	BshMethod( 
-		String name, Class returnType, String [] paramNames,
-		Class [] paramTypes, BSHBlock methodBody, 
+		String name, Class<?> returnType, String [] paramNames,
+		Class<?> [] paramTypes, BSHBlock methodBody, 
 		NameSpace declaringNameSpace, Modifiers modifiers
 	) {
 		this.name = name;
@@ -131,7 +133,7 @@ public class BshMethod
 		Note: bshmethod needs to re-evaluate arg types here
 		This is broken.
 	*/
-	public Class [] getParameterTypes() { return cparamTypes; }
+	public Class<?> [] getParameterTypes() { return cparamTypes; }
 	public String [] getParameterNames() { return paramNames; }
 
 	/**
@@ -143,7 +145,7 @@ public class BshMethod
 		Note: bshmethod needs to re-evaluate the method return type here.
 		This is broken.
 	*/
-	public Class getReturnType() { return creturnType; }
+	public Class<?> getReturnType() { return creturnType; }
 
 	public Modifiers getModifiers() { return modifiers; }
 
@@ -264,8 +266,8 @@ public class BshMethod
 			SimpleNode callerInfo, boolean overrideNameSpace ) 
 		throws EvalError 
 	{
-		Class returnType = getReturnType();
-		Class [] paramTypes = getParameterTypes();
+		Class<?> returnType = getReturnType();
+		Class<?> [] paramTypes = getParameterTypes();
 
 		// If null callstack
 		if ( callstack == null )
@@ -375,7 +377,7 @@ public class BshMethod
 			retControl = (ReturnControl)ret;
 
 			// Method body can only use 'return' statment type return control.
-			if ( retControl.kind == retControl.RETURN )
+			if ( retControl.kind == ParserConstants.RETURN )
 				ret = ((ReturnControl)ret).value;
 			else 
 				// retControl.returnPoint is the Node of the return statement

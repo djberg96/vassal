@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -38,7 +38,7 @@ import java.util.*;
 public class StringUtil {
 
 	public static String [] split( String s, String delim) {
-		Vector v = new Vector();
+		Vector<String> v = new Vector<>();
 		StringTokenizer st = new StringTokenizer(s, delim);
 		while ( st.hasMoreTokens() )
 			v.addElement( st.nextToken() );
@@ -48,7 +48,7 @@ public class StringUtil {
 	}
 
 	public static String [] bubbleSort( String [] in ) {
-		Vector v = new Vector();
+		Vector<String> v = new Vector<>();
 		for(int i=0; i<in.length; i++)
 			v.addElement(in[i]);
 
@@ -57,9 +57,8 @@ public class StringUtil {
 		while ( swap ) {
 			swap = false;
 			for(int i=0; i<(n-1); i++)
-				if ( ((String)v.elementAt(i)).compareTo(
-						((String)v.elementAt(i+1)) ) > 0 ) {
-					String tmp = (String)v.elementAt(i+1);
+				if ( v.elementAt(i).compareTo( v.elementAt(i+1) ) > 0 ) {
+					String tmp = v.elementAt(i+1);
 					v.removeElementAt( i+1 );
 					v.insertElementAt( tmp, i );
 					swap = true;
@@ -79,14 +78,14 @@ public class StringUtil {
 		return one.substring(0, i-1);
 	}
 
-    public static String methodString(String name, Class[] types)
+    public static String methodString(String name, Class<?>[] types)
     {
         StringBuffer sb = new StringBuffer(name + "(");
         if ( types.length > 0 )
 			sb.append(" ");
         for( int i=0; i<types.length; i++ )
         {
-            Class c = types[i];
+            Class<?> c = types[i];
             sb.append( ( (c == null) ? "null" : c.getName() ) 
 				+ ( i < (types.length-1) ? ", " : " " ) );
         }
@@ -94,7 +93,7 @@ public class StringUtil {
         return sb.toString();
     }
 
-	/**
+	/*
 		Split a filename into dirName, baseName
 		@return String [] { dirName, baseName }
     public String [] splitFileName( String fileName ) 
@@ -115,7 +114,7 @@ public class StringUtil {
 	/**
 		Hack - The real method is in Reflect.java which is not public.
 	*/
-    public static String normalizeClassName( Class type )
+    public static String normalizeClassName( Class<?> type )
 	{
 		return Reflect.normalizeClassName( type );
 	}
