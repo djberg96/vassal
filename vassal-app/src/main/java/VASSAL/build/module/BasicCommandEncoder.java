@@ -206,7 +206,7 @@ public class BasicCommandEncoder implements CommandEncoder, Buildable {
     Map.entry(MatCargo.ID, decoratorFactory(MatCargo::new)),
     Map.entry(BasicName.ID, decoratorFactory(BasicName::new)),
     Map.entry(BorderOutline.ID, BorderOutline::new),
-    Map.entry(Attachment.ID, Attachment::new),
+    Map.entry(Attachment.ID, decoratorFactory(Attachment::new)),
     Map.entry(MultiLocationCommand.ID, decoratorFactory(MultiLocationCommand::new)),
     Map.entry(Comment.ID, decoratorFactory(Comment::new))
   );

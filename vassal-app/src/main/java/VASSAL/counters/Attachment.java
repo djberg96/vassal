@@ -108,7 +108,8 @@ public class Attachment extends Decorator implements TranslatablePiece, Recursio
   protected KeyCommand[] command;
   protected String attachCommandName;
   protected NamedKeyStroke attachKey;
-  protected GlobalAttach globalAttach = new GlobalAttach(this);
+  protected GlobalAttach globalAttach;
+  protected String selectFromDeckExpression = "-1"; // NON-NLS
   protected PropertyExpression propertiesFilter = new PropertyExpression();
   protected boolean restrictRange;
   protected boolean fixedRange = true;
@@ -131,15 +132,43 @@ public class Attachment extends Decorator implements TranslatablePiece, Recursio
 
   private String attachCountName = "";
 
-  private final GlobalDetach globalDetach = new GlobalDetach(this);
+  private GlobalDetach globalDetach;
 
   public Attachment() {
-    this(ID + ";", null);
+    decodeType(ID + ";");
   }
 
-  public Attachment(String type, GamePiece inner) {
-    mySetType(type);
-    setInner(inner);
+  protected GlobalCommandTarget getTarget() {
+    target.setGKCtype(GlobalCommandTarget.GKCtype.COUNTER);
+    target.setCurPiece(this);
+    return target;
+  }
+
+  private GlobalCommandTarget getClearTarget() {
+    clearTarget.setCurPiece(this);
+    return clearTarget;
+  }
+
+  protected GlobalAttach getGlobalAttach() {
+    if (globalAttach == null) {
+      globalAttach = new GlobalAttach(this);
+      globalAttach.setSelectFromDeckExpression(selectFromDeckExpression);
+    }
+    return globalAttach;
+  }
+
+  private void setSelectFromDeckExpression(String expression) {
+    selectFromDeckExpression = expression;
+    if (globalAttach != null) {
+      globalAttach.setSelectFromDeckExpression(expression);
+    }
+  }
+
+  private GlobalDetach getGlobalDetach() {
+    if (globalDetach == null) {
+      globalDetach = new GlobalDetach(this);
+    }
+    return globalDetach;
   }
 
   public boolean isAutoAttach() {
@@ -171,6 +200,10 @@ public class Attachment extends Decorator implements TranslatablePiece, Recursio
 
   @Override
   public void mySetType(String type) {
+    decodeType(type);
+  }
+
+  private void decodeType(String type) {
     type = type.substring(ID.length());
     final SequenceEncoder.Decoder st = new SequenceEncoder.Decoder(type, ';');
 
@@ -186,10 +219,9 @@ public class Attachment extends Decorator implements TranslatablePiece, Recursio
     range = st.nextInt(1);
     fixedRange = st.nextBoolean(true);
     rangeProperty = st.nextToken("");
-    globalAttach.setSelectFromDeckExpression(st.nextToken("-1"));
+    setSelectFromDeckExpression(st.nextToken("-1"));
     target.decode(st.nextToken(""));
     target.setGKCtype(GlobalCommandTarget.GKCtype.COUNTER);
-    target.setCurPiece(this);
 
     clearMatchingCommandName = st.nextToken(Resources.getString("Editor.Attachment.clear_matching_command"));
     clearMatchingKey = st.nextNamedKeyStroke(null);
@@ -218,7 +250,7 @@ public class Attachment extends Decorator implements TranslatablePiece, Recursio
       .append(range)
       .append(fixedRange)
       .append(rangeProperty)
-      .append(globalAttach.getSelectFromDeckExpression())
+      .append(selectFromDeckExpression)
       .append(target.encode())
       .append(clearMatchingCommandName)
       .append(clearMatchingKey)
@@ -309,7 +341,8 @@ public class Attachment extends Decorator implements TranslatablePiece, Recursio
     }
 
     final GamePiece outer = getOutermost(this);
-    globalAttach.setPropertySource(outer); // Doing this here ensures trait is linked into GamePiece before finding source
+    final GlobalAttach attachCommand = getGlobalAttach();
+    attachCommand.setPropertySource(outer); // Doing this here ensures trait is linked into GamePiece before finding source
 
     // Make piece properties filter
     final AuditTrail audit = AuditTrail.create(this, propertiesFilter.getExpression(), Resources.getString("Editor.GlobalKeyCommand.matching_properties"));
@@ -331,7 +364,7 @@ public class Attachment extends Decorator implements TranslatablePiece, Recursio
     }
 
     // Now apply our filter globally & add any matching pieces as attachments
-    c = c.append(globalAttach.apply(Map.getMapList().toArray(new Map[0]), filter, target, audit));
+    c = c.append(attachCommand.apply(Map.getMapList().toArray(new Map[0]), filter, getTarget(), audit));
 
     return c;
   }
@@ -369,18 +402,19 @@ public class Attachment extends Decorator implements TranslatablePiece, Recursio
   public Command clearMatching() {
     final GamePiece outer = getOutermost(this);
 
-    clearTarget.fastMatchLocation = true;
-    clearTarget.fastMatchProperty = false;
-    clearTarget.setTargetType(GlobalCommandTarget.Target.CURATTACH);
-    clearTarget.setCurPiece(this);
-    globalDetach.setPropertySource(outer); // Doing this here ensures trait is linked into GamePiece before finding source
+    final GlobalCommandTarget clear = getClearTarget();
+    clear.fastMatchLocation = true;
+    clear.fastMatchProperty = false;
+    clear.setTargetType(GlobalCommandTarget.Target.CURATTACH);
+    final GlobalDetach detachCommand = getGlobalDetach();
+    detachCommand.setPropertySource(outer); // Doing this here ensures trait is linked into GamePiece before finding source
 
     // Make piece properties filter
     final AuditTrail audit = AuditTrail.create(this, clearMatchingFilter.getExpression(), Resources.getString("Editor.GlobalKeyCommand.matching_properties"));
     final PieceFilter filter = clearMatchingFilter.getFilter(outer, this, audit);
 
     // Now apply our filter globally & add any matching pieces as attachments
-    return globalDetach.apply(Map.getMapList().toArray(new Map[0]), filter, clearTarget, audit);
+    return detachCommand.apply(Map.getMapList().toArray(new Map[0]), filter, clear, audit);
   }
 
   @Override
@@ -658,7 +692,7 @@ public class Attachment extends Decorator implements TranslatablePiece, Recursio
     return attachName;
   }
 
-  void setAttachName(String name) {
+  private void setAttachName(String name) {
     attachName = name;
     attachCountName = name + "_" + ATTACH_COUNT;
   }
@@ -777,7 +811,7 @@ public class Attachment extends Decorator implements TranslatablePiece, Recursio
     if (!Objects.equals(fixedRange, c.fixedRange)) return false;
     if (!Objects.equals(rangeProperty, c.rangeProperty)) return false;
     if (!Objects.equals(target, c.target)) return false;
-    if (!Objects.equals(globalAttach.getSelectFromDeckExpression(), c.globalAttach.getSelectFromDeckExpression())) return false;
+    if (!Objects.equals(selectFromDeckExpression, c.selectFromDeckExpression)) return false;
     if (!Objects.equals(clearMatchingCommandName, c.clearMatchingCommandName)) return false;
     if (!Objects.equals(clearMatchingKey, c.clearMatchingKey)) return false;
     if (!Objects.equals(clearMatchingFilter.getExpression(), c.clearMatchingFilter.getExpression())) return false;
@@ -901,7 +935,7 @@ public class Attachment extends Decorator implements TranslatablePiece, Recursio
       attachKeyLabel = new JLabel(Resources.getString("Editor.Attachment.attach_key_command"));
       traitPanel.add(attachKeyLabel, attachKeyInput);
 
-      targetConfig = new GlobalCommandTargetConfigurer(p.target, p);
+      targetConfig = new GlobalCommandTargetConfigurer(p.getTarget(), p);
       targetLabel = new JLabel(Resources.getString("Editor.GlobalKeyCommand.pre_select"));
       traitPanel.add(targetLabel, targetConfig);
 
@@ -910,7 +944,7 @@ public class Attachment extends Decorator implements TranslatablePiece, Recursio
       traitPanel.add(propertyLabel, propertyMatch);
 
       deckPolicy = new MassKeyCommand.DeckPolicyConfig(false, p);
-      deckPolicy.setValue(p.globalAttach.getSelectFromDeckExpression());
+      deckPolicy.setValue(p.selectFromDeckExpression);
       deckLabel = new JLabel(Resources.getString("Editor.GlobalKeyCommand.deck_policy"));
       traitPanel.add(deckLabel, deckPolicy);
 
@@ -1061,7 +1095,7 @@ public class Attachment extends Decorator implements TranslatablePiece, Recursio
    */
   @Override
   public List<String> getExpressionList() {
-    final List<String> expList = target.getExpressionList();
+    final List<String> expList = getTarget().getExpressionList();
     expList.add(propertiesFilter.getExpression());
     expList.add(clearMatchingFilter.getExpression());
     return expList;
