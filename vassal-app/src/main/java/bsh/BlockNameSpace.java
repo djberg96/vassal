@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -51,6 +51,8 @@ package	bsh;
 */
 class BlockNameSpace extends NameSpace 
 {
+	private static final long serialVersionUID = 1L;
+
     public BlockNameSpace( NameSpace parent ) 
 		throws EvalError
 	{
@@ -109,7 +111,7 @@ class BlockNameSpace extends NameSpace
 		} catch ( UtilEvalError e ) { return false; }
 	}
 
-/**
+/*
 		Get the actual BlockNameSpace 'this' reference.
 		<p/>
 		Normally a 'this' reference to a BlockNameSpace (e.g. if () { } )
@@ -129,7 +131,7 @@ class BlockNameSpace extends NameSpace
 	// Begin methods which simply delegate to our parent (enclosing scope) 
 	//
 
-	/**
+	/*
 		This method recurses to find the nearest non-BlockNameSpace parent.
 
 	public NameSpace getParent() 
@@ -189,4 +191,3 @@ class BlockNameSpace extends NameSpace
 		getParent().setMethod( name, method );
 	}
 }
-

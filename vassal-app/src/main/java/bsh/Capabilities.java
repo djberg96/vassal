@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -98,7 +98,7 @@ public class Capabilities
 		accessibility = true; 
 	}
 
-	private static Hashtable classes = new Hashtable();
+	private static final Hashtable<String, Class<?>> classes = new Hashtable<>();
 	/**
 		Use direct Class.forName() to test for the existence of a class.
 		We should not use BshClassManager here because:
@@ -110,7 +110,7 @@ public class Capabilities
 	*/
 	public static boolean classExists( String name ) 
 	{
-		Object c = classes.get( name );
+		Class<?> c = classes.get( name );
 
 		if ( c == null ) {
 			try {
@@ -123,7 +123,7 @@ public class Capabilities
 			} catch ( ClassNotFoundException e ) { }
 
 			if ( c != null )
-				classes.put(c,"unused");
+				classes.put(name, c);
 		}
 
 		return c != null;
@@ -136,8 +136,9 @@ public class Capabilities
 	*/
 	public static class Unavailable extends UtilEvalError
 	{
+		private static final long serialVersionUID = 1L;
+
 		public Unavailable(String s ){ super(s); }
 	}
 }
-
 

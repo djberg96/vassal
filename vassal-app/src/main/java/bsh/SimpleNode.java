@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -51,6 +51,8 @@ package bsh;
 */
 class SimpleNode implements Node 
 {
+	private static final long serialVersionUID = 1L;
+
 	public static SimpleNode JAVACODE =
 		new SimpleNode( -1 ) {
 			public String getSourceFile() {
@@ -194,7 +196,7 @@ class SimpleNode implements Node
 		return firstToken.beginLine;
 	}
 
-	/**
+	/*
 		Get the ending line number of the starting token
 	public int getEndLineNumber() {
 		return lastToken.endLine;
@@ -221,4 +223,3 @@ class SimpleNode implements Node
 		return text.toString();
 	}
 }
-

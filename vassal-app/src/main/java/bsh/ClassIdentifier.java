@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -35,14 +35,14 @@ package bsh;
 
 public class ClassIdentifier 
 {
-	Class clas;
+	Class<?> clas;
 
-	public ClassIdentifier( Class clas ) {
+	public ClassIdentifier( Class<?> clas ) {
 		this.clas = clas;
 	}
 
 	// Can't call it getClass()
-	public Class getTargetClass() {
+	public Class<?> getTargetClass() {
 		return clas;
 	}
 
@@ -50,4 +50,3 @@ public class ClassIdentifier
 		return "Class Identifier: "+clas.getName();
 	}
 }
-
