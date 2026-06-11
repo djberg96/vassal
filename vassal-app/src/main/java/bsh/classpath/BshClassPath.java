@@ -94,12 +94,12 @@ public class BshClassPath
 
 	public BshClassPath( String name ) { 
 		this.name = name;
-		reset();
+		initializeEmptyPath();
 	}
 
 	public BshClassPath(  String name, URL [] urls ) {
 		this( name );
-		add( urls );
+		addUrls( urls );
 	}
 
 	// end constructors
@@ -123,7 +123,7 @@ public class BshClassPath
 	}
 
 	public void add( URL [] urls ) { 
-		path.addAll( Arrays.asList(urls) );
+		addUrls(urls);
 		if ( mapsInitialized )
 			map( urls );
 	}
@@ -411,9 +411,8 @@ public class BshClassPath
 		Clear everything and reset the path to empty.
 	*/
 	synchronized private void reset() {
-		path = new ArrayList<>();
-		compPaths = null;
-		clearCachedStructures();
+		initializeEmptyPath();
+		nameSpaceChanged();
 	}
 
 	/**
@@ -425,6 +424,19 @@ public class BshClassPath
 		classSource = new HashMap<>();
 		unqNameTable = null;
 		nameSpaceChanged();
+	}
+
+	private void initializeEmptyPath() {
+		path = new ArrayList<>();
+		compPaths = null;
+		mapsInitialized = false;
+		packageMap = new HashMap<>();
+		classSource = new HashMap<>();
+		unqNameTable = null;
+	}
+
+	private void addUrls(URL[] urls) {
+		path.addAll(Arrays.asList(urls));
 	}
 
 	public void classPathChanged() {

@@ -183,7 +183,7 @@ public class Interpreter
 		debug = err;
 		this.parent = parent;
 		if ( parent != null )
-			setStrictJava( parent.getStrictJava() );
+			strictJava = parent.getStrictJava();
 		this.sourceFileInfo = sourceFileInfo;
 
 		BshClassManager bcm = BshClassManager.createClassManager( this );
