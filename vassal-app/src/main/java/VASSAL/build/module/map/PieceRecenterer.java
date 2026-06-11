@@ -37,9 +37,9 @@ import VASSAL.i18n.Resources;
 /** Adds a button to a Maps toolbar that adjusts the positions of all pieces
  * so that their centroid is at the center of the map
  */
-public class PieceRecenterer extends AbstractToolbarItem implements DeckVisitor {
-  protected Map map;
-  protected DeckVisitorDispatcher dispatcher;
+public final class PieceRecenterer extends AbstractToolbarItem implements DeckVisitor {
+  private Map map;
+  private final DeckVisitorDispatcher dispatcher;
 
   public PieceRecenterer() {
     setNameKey("");

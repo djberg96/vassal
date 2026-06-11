@@ -36,11 +36,11 @@ import VASSAL.i18n.Resources;
 import VASSAL.tools.WriteErrorDialog;
 import VASSAL.tools.filechooser.FileChooser;
 
-public class TextSaver extends AbstractToolbarItem {
+public final class TextSaver extends AbstractToolbarItem {
 
-  protected static final String BUTTON_TEXT = "buttonText"; //NON-NLS
+  private static final String BUTTON_TEXT = "buttonText"; //NON-NLS
 
-  protected Map map;
+  private Map map;
 
   public TextSaver() {
     setNameKey("");
@@ -84,7 +84,7 @@ public class TextSaver extends AbstractToolbarItem {
     }
   }
 
-  protected void writeMapAsText() {
+  private void writeMapAsText() {
     final FileChooser fc = GameModule.getGameModule().getFileChooser();
     if (fc.showSaveDialog(map.getView()) != FileChooser.APPROVE_OPTION) return;
 

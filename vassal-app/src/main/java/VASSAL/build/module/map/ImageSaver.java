@@ -57,14 +57,13 @@ import VASSAL.tools.swing.ProgressDialog;
  * This allows the user to capture a snapshot of the entire map into
  * a PNG file.
  */
-public class ImageSaver extends AbstractToolbarItem {
-  protected Map map;
-  protected boolean promptToSplit = false;
-  protected static final String DEFAULT_ICON = "/images/camera.gif"; //NON-NLS
+public final class ImageSaver extends AbstractToolbarItem {
+  private Map map;
+  private static final String DEFAULT_ICON = "/images/camera.gif"; //NON-NLS
 
-  protected static final String BUTTON_TEXT = "buttonText"; //NON-NLS
+  private static final String BUTTON_TEXT = "buttonText"; //NON-NLS
 
-  protected static ProgressDialog dialog;
+  private static ProgressDialog dialog;
 
   public ImageSaver() {
     setNameKey("");
@@ -174,7 +173,7 @@ public class ImageSaver extends AbstractToolbarItem {
    * @param w the width of the map area to write
    * @param h the height of the map area to write
    */
-  protected void writeMapRectAsImage(File file, int x, int y, int w, int h) {
+  private void writeMapRectAsImage(File file, int x, int y, int w, int h) {
     final SnapshotTask task = new SnapshotTask(file, x, y, w, h);
 
     task.addPropertyChangeListener(e -> {
