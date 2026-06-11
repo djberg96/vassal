@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -80,7 +80,7 @@ import java.lang.reflect.Modifier;
 public class BshClassManager
 {
 	/** Identifier for no value item.  Use a hashtable as a Set. */
-	private static Object NOVALUE = new Object(); 
+	private static final Object NOVALUE = new Object();
 	/** 
 		The interpreter which created the class manager 
 		This is used to load scripted classes from source files.
@@ -97,24 +97,24 @@ public class BshClassManager
 		Note: these should probably be re-implemented with Soft references.
 		(as opposed to strong or Weak)
 	*/
-    protected transient Hashtable absoluteClassCache = new Hashtable();
+    protected transient Hashtable<String, Class<?>> absoluteClassCache = new Hashtable<>();
 	/**
 		Global cache for things we know are *not* classes.
 		Note: these should probably be re-implemented with Soft references.
 		(as opposed to strong or Weak)
 	*/
-    protected transient Hashtable absoluteNonClasses = new Hashtable();
+    protected transient Hashtable<String, Object> absoluteNonClasses = new Hashtable<>();
 
 	/**
 		Caches for resolved object and static methods.
 		We keep these maps separate to support fast lookup in the general case
 		where the method may be either.
 	*/
-	protected transient Hashtable resolvedObjectMethods = new Hashtable();
-	protected transient Hashtable resolvedStaticMethods = new Hashtable();
+	protected transient Hashtable<SignatureKey, Method> resolvedObjectMethods = new Hashtable<>();
+	protected transient Hashtable<SignatureKey, Method> resolvedStaticMethods = new Hashtable<>();
 
-	protected transient Hashtable definingClasses = new Hashtable();
-	protected transient Hashtable definingClassesBaseNames = new Hashtable();
+	protected transient Hashtable<String, Object> definingClasses = new Hashtable<>();
+	protected transient Hashtable<String, String> definingClassesBaseNames = new Hashtable<>();
 
 	/**
 		Create a new instance of the class manager.  
@@ -135,8 +135,8 @@ public class BshClassManager
 			try {
 				// Try to load the module
 				// don't refer to it directly here or we're dependent upon it
-				Class clas = Class.forName( "bsh.classpath.ClassManagerImpl" );
-				manager = (BshClassManager)clas.newInstance();
+				Class<?> clas = Class.forName( "bsh.classpath.ClassManagerImpl" );
+				manager = (BshClassManager)clas.getDeclaredConstructor().newInstance();
 			} catch ( Exception e ) {
 				throw new InterpreterError("Error loading classmanager: "+e);
 			}
@@ -161,14 +161,14 @@ public class BshClassManager
 		management package.
 		@return the class or null
 	*/
-	public Class classForName( String name ) 
+	public Class<?> classForName( String name )
 	{
 		if ( isClassBeingDefined( name ) )
 			throw new InterpreterError(
 				"Attempting to load class in the process of being defined: "
 				+name );
 
-		Class clas = null;
+		Class<?> clas = null;
 		try {
 			clas = plainClassForName( name );
 		} catch ( ClassNotFoundException e ) { /*ignore*/ }
@@ -181,7 +181,7 @@ public class BshClassManager
 	}
 	
 	// Move me to classpath/ClassManagerImpl???
-	protected Class loadSourceClass( String name )
+	protected Class<?> loadSourceClass( String name )
 	{
 		String fileName = "/"+name.replace('.','/')+".java";
 		InputStream in = getResourceAsStream( fileName );
@@ -217,10 +217,10 @@ public class BshClassManager
 		@see #classForName( String )
 		@return the class
 	*/
-	public Class plainClassForName( String name ) 
+	public Class<?> plainClassForName( String name )
 		throws ClassNotFoundException
 	{
-		Class c = null;
+		Class<?> c = null;
 
 		try {
 			if ( externalClassLoader != null )
@@ -289,7 +289,7 @@ public class BshClassManager
 			if value is null, set the flag that it is *not* a class to
 			speed later resolution
 	*/
-	public void cacheClassInfo( String name, Class value ) {
+	public void cacheClassInfo( String name, Class<?> value ) {
 		if ( value != null )
 			absoluteClassCache.put( name, value );
 		else
@@ -303,7 +303,7 @@ public class BshClassManager
 		in the general case where either will do.
 	*/
 	public void cacheResolvedMethod( 
-		Class clas, Class [] types, Method method ) 
+		Class<?> clas, Class<?> [] types, Method method )
 	{
 		if ( Interpreter.DEBUG )
 			Interpreter.debug(
@@ -322,15 +322,15 @@ public class BshClassManager
 		@return the Method or null
 	*/
 	protected Method getResolvedMethod( 
-		Class clas, String methodName, Class [] types, boolean onlyStatic  ) 
+		Class<?> clas, String methodName, Class<?> [] types, boolean onlyStatic  )
 	{
 		SignatureKey sk = new SignatureKey( clas, methodName, types );
 
 		// Try static and then object, if allowed
 		// Note that the Java compiler should not allow both.
-		Method method = (Method)resolvedStaticMethods.get( sk );
+		Method method = resolvedStaticMethods.get( sk );
 		if ( method == null && !onlyStatic)
-			method = (Method)resolvedObjectMethods.get( sk );
+			method = resolvedObjectMethods.get( sk );
 
 		if ( Interpreter.DEBUG )
 		{
@@ -350,10 +350,10 @@ public class BshClassManager
 	*/
 	protected void clearCaches() 
 	{
-    	absoluteNonClasses = new Hashtable();
-    	absoluteClassCache = new Hashtable();
-    	resolvedObjectMethods = new Hashtable();
-    	resolvedStaticMethods = new Hashtable();
+    	absoluteNonClasses = new Hashtable<>();
+    	absoluteClassCache = new Hashtable<>();
+    	resolvedObjectMethods = new Hashtable<>();
+    	resolvedStaticMethods = new Hashtable<>();
 	}
 
 	/**
@@ -427,7 +427,7 @@ public class BshClassManager
 		throw cmUnavailable();
 	}
 
-	/**
+	/*
 		This has been removed from the interface to shield the core from the
 		rest of the classpath package. If you need the classpath you will have
 		to cast the classmanager to its impl.
@@ -489,7 +489,7 @@ public class BshClassManager
 		int i = baseName.indexOf("$");
 		if ( i != -1 )
 			baseName = baseName.substring(i+1);
-		String cur = (String)definingClassesBaseNames.get( baseName );
+		String cur = definingClassesBaseNames.get( baseName );
 		if ( cur != null )
 			throw new InterpreterError("Defining class problem: "+className 
 				+": BeanShell cannot yet simultaneously define two or more "
@@ -510,7 +510,7 @@ public class BshClassManager
 	*/
 	protected String getClassBeingDefined( String className ) {
 		String baseName = Name.suffix(className,1);
-		return (String)definingClassesBaseNames.get( baseName );
+		return definingClassesBaseNames.get( baseName );
 	}
 
 	/**
@@ -527,7 +527,7 @@ public class BshClassManager
 		The real implementation in the classpath.ClassManagerImpl handles
 		reloading of the generated classes.
 	*/
-	public Class defineClass( String name, byte [] code ) 
+	public Class<?> defineClass( String name, byte [] code )
 	{
 		throw new InterpreterError("Can't create class ("+name
 			+") without class manager package.");
@@ -538,7 +538,7 @@ public class BshClassManager
 		executions of the script...  
 
 		ClassLoader cl = this.getClass().getClassLoader();
-		Class clas;
+		Class<?> clas;
 		try {
 			clas = (Class)Reflect.invokeObjectMethod( 
 				cl, "defineClass", 
@@ -597,12 +597,12 @@ public class BshClassManager
 	*/
 	static class SignatureKey
 	{
-		Class clas;
-		Class [] types;
+		Class<?> clas;
+		Class<?> [] types;
 		String methodName;
 		int hashCode = 0;
 
-		SignatureKey( Class clas, String methodName, Class [] types ) {
+		SignatureKey( Class<?> clas, String methodName, Class<?> [] types ) {
 			this.clas = clas;
 			this.methodName = methodName;
 			this.types = types;
