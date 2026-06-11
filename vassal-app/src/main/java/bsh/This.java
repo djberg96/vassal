@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -46,6 +46,8 @@ import java.io.IOException;
 */
 public class This implements java.io.Serializable, Runnable 
 {
+	private static final long serialVersionUID = 1L;
+
 	/**
 		The namespace that this This reference wraps.
 	*/
@@ -80,7 +82,7 @@ public class This implements java.io.Serializable, Runnable
 		NameSpace namespace, Interpreter declaringInterpreter ) 
 	{
 		try {
-			Class c;
+			Class<?> c;
 			if ( Capabilities.canGenerateInterfaces() )
 				c = Class.forName( "bsh.XThis" );
 			else if ( Capabilities.haveSwing() )
@@ -104,7 +106,7 @@ public class This implements java.io.Serializable, Runnable
 		If this type of This implements it directly return this,
 		else try complain that we don't have the proxy mechanism.
 	*/
-	public Object getInterface( Class clas ) 
+	public Object getInterface( Class<?> clas ) 
 		throws UtilEvalError
 	{
 		if ( clas.isInstance( this ) )
@@ -118,7 +120,7 @@ public class This implements java.io.Serializable, Runnable
 		Get a version of this scripted object implementing the specified
 		interfaces.
 	*/
-	public Object getInterface( Class [] ca ) 
+	public Object getInterface( Class<?> [] ca ) 
 		throws UtilEvalError
 	{
 		for(int i=0; i<ca.length; i++)
@@ -243,7 +245,7 @@ public class This implements java.io.Serializable, Runnable
 			callerInfo = SimpleNode.JAVACODE;
 
 		// Find the bsh method
-		Class [] types = Types.getTypes( args );
+		Class<?> [] types = Types.getTypes( args );
 		BshMethod bshMethod = null;
 		try {
 			bshMethod = namespace.getMethod( methodName, types, declaredOnly );
@@ -282,7 +284,7 @@ public class This implements java.io.Serializable, Runnable
 		// is that ok?
 		try {
 			bshMethod = namespace.getMethod( 
-				"invoke", new Class [] { null, null } );
+				"invoke", new Class<?> [] { null, null } );
 		} catch ( UtilEvalError e ) { /*leave null*/ }
 
 		// Call script "invoke( String methodName, Object [] args );
@@ -337,4 +339,3 @@ public class This implements java.io.Serializable, Runnable
 	}
 
 }
-
