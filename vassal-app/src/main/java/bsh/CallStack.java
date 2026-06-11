@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -61,12 +61,12 @@ import java.util.Vector;
 */
 public class CallStack 
 {
-	private Vector stack = new Vector(2);
+	private final Vector<NameSpace> stack = new Vector<>(2);
 
 	public CallStack() { }
 
 	public CallStack( NameSpace namespace ) { 
-		push( namespace );
+		stack.insertElementAt( namespace, 0 );
 	}
 
 	public void clear() {
@@ -88,7 +88,7 @@ public class CallStack
 		if ( depth >= depth() )
 			return NameSpace.JAVACODE;
 		else
-			return (NameSpace)(stack.elementAt(depth));
+			return stack.elementAt(depth);
 	}
 	
 	/**
@@ -112,7 +112,7 @@ public class CallStack
 		value.
 	*/
 	public NameSpace swap( NameSpace newTop ) {
-		NameSpace oldTop = (NameSpace)(stack.elementAt(0));
+		NameSpace oldTop = stack.elementAt(0);
 		stack.setElementAt( newTop, 0 );
 		return oldTop;
 	}
@@ -143,7 +143,7 @@ public class CallStack
 	*/
 	public CallStack copy() {
 		CallStack cs = new CallStack();
-		cs.stack = (Vector)this.stack.clone();
+		cs.stack.addAll(this.stack);
 		return cs;
 	}
 }

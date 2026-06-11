@@ -2,17 +2,19 @@
 
 package bsh;
 
+import java.util.Stack;
+
 class JJTParserState {
-  private java.util.Stack nodes;
-  private java.util.Stack marks;
+  private Stack<Node> nodes;
+  private Stack<Integer> marks;
 
   private int sp;		// number of nodes on stack
   private int mk;		// current mark
   private boolean node_created;
 
   JJTParserState() {
-    nodes = new java.util.Stack();
-    marks = new java.util.Stack();
+    nodes = new Stack<>();
+    marks = new Stack<>();
     sp = 0;
     mk = 0;
   }
@@ -36,7 +38,7 @@ class JJTParserState {
   /* Returns the root node of the AST.  It only makes sense to call
      this after a successful parse. */
   Node rootNode() {
-    return (Node)nodes.elementAt(0);
+    return nodes.elementAt(0);
   }
 
   /* Pushes a node on to the stack. */
@@ -49,14 +51,14 @@ class JJTParserState {
      stack.  */
   Node popNode() {
     if (--sp < mk) {
-      mk = ((Integer)marks.pop()).intValue();
+      mk = marks.pop().intValue();
     }
-    return (Node)nodes.pop();
+    return nodes.pop();
   }
 
   /* Returns the node currently on the top of the stack. */
   Node peekNode() {
-    return (Node)nodes.peek();
+    return nodes.peek();
   }
 
   /* Returns the number of children on the stack in the current node
@@ -70,7 +72,7 @@ class JJTParserState {
     while (sp > mk) {
       popNode();
     }
-    mk = ((Integer)marks.pop()).intValue();
+    mk = marks.pop().intValue();
   }
 
 
@@ -86,7 +88,7 @@ class JJTParserState {
      made the children of the definite node.  Then the definite node
      is pushed on to the stack. */
   void closeNodeScope(Node n, int num) {
-    mk = ((Integer)marks.pop()).intValue();
+    mk = marks.pop().intValue();
     while (num-- > 0) {
       Node c = popNode();
       c.jjtSetParent(n);
@@ -106,7 +108,7 @@ class JJTParserState {
   void closeNodeScope(Node n, boolean condition) {
     if (condition) {
       int a = nodeArity();
-      mk = ((Integer)marks.pop()).intValue();
+      mk = marks.pop().intValue();
       while (a-- > 0) {
 	Node c = popNode();
 	c.jjtSetParent(n);
@@ -116,7 +118,7 @@ class JJTParserState {
       pushNode(n);
       node_created = true;
     } else {
-      mk = ((Integer)marks.pop()).intValue();
+      mk = marks.pop().intValue();
       node_created = false;
     }
   }

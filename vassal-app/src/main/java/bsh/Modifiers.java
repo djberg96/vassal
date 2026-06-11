@@ -11,8 +11,10 @@ import java.util.Hashtable;
 */
 public class Modifiers implements java.io.Serializable
 {
+	private static final long serialVersionUID = 1L;
+
 	public static final int CLASS=0, METHOD=1, FIELD=2;
-	Hashtable modifiers;
+	Hashtable<String, Object> modifiers;
 
 	/**
 		@param context is METHOD or FIELD
@@ -20,7 +22,7 @@ public class Modifiers implements java.io.Serializable
 	public void addModifier( int context, String name ) 
 	{
 		if ( modifiers == null )
-			modifiers = new Hashtable();
+			modifiers = new Hashtable<>();
 
 		Object existing = modifiers.put( name, Void.TYPE/*arbitrary flag*/ );
 		if ( existing != null )
@@ -51,7 +53,7 @@ public class Modifiers implements java.io.Serializable
 	public boolean hasModifier( String name ) 
 	{
 		if ( modifiers == null )
-			modifiers = new Hashtable();
+			modifiers = new Hashtable<>();
 		return modifiers.get(name) != null;
 	}
 

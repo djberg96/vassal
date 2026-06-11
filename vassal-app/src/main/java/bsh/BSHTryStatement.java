@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -38,6 +38,8 @@ import java.util.Vector;
 
 class BSHTryStatement extends SimpleNode
 {
+	private static final long serialVersionUID = 1L;
+
 	BSHTryStatement(int id)
 	{
 		super(id);
@@ -48,16 +50,16 @@ class BSHTryStatement extends SimpleNode
 	{
 		BSHBlock tryBlock = ((BSHBlock)jjtGetChild(0));
 
-		Vector catchParams = new Vector();
-		Vector catchBlocks = new Vector();
+		Vector<BSHFormalParameter> catchParams = new Vector<>();
+		Vector<BSHBlock> catchBlocks = new Vector<>();
 
 		int nchild = jjtGetNumChildren();
 		Node node = null;
 		int i=1;
 		while((i < nchild) && ((node = jjtGetChild(i++)) instanceof BSHFormalParameter))
 		{
-			catchParams.addElement(node);
-			catchBlocks.addElement(jjtGetChild(i++));
+			catchParams.addElement((BSHFormalParameter) node);
+			catchBlocks.addElement((BSHBlock) jjtGetChild(i++));
 			node = null;
 		}
 		// finaly block
@@ -104,8 +106,7 @@ class BSHTryStatement extends SimpleNode
 			for(i=0; i<n; i++)
 			{
 				// Get catch block
-				BSHFormalParameter fp = 
-					(BSHFormalParameter)catchParams.elementAt(i);
+				BSHFormalParameter fp = catchParams.elementAt(i);
 
 				// Should cache this subject to classloader change message
 				// Evaluation of the formal parameter simply resolves its
@@ -134,7 +135,7 @@ class BSHTryStatement extends SimpleNode
 					}
 
 				// Found match, execute catch block
-				BSHBlock cb = (BSHBlock)(catchBlocks.elementAt(i));
+				BSHBlock cb = catchBlocks.elementAt(i);
 
 				// Prepare to execute the block.
 				// We must create a new BlockNameSpace to hold the catch
