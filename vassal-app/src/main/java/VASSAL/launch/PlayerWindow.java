@@ -43,7 +43,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class PlayerWindow extends JFrame {
+public final class PlayerWindow extends JFrame {
 
   private static final long serialVersionUID = 1L;
 
@@ -55,8 +55,8 @@ public class PlayerWindow extends JFrame {
     return controlPanel;
   }
 
-  protected final JToolBar toolBar = new JToolBar();
-  protected final JPanel controlPanel = new JPanel();
+  private final JToolBar toolBar = new JToolBar();
+  private final JPanel controlPanel = new JPanel();
 
   public PlayerWindow() {
     setTitle(Resources.getString("General.VASSAL"));

@@ -62,7 +62,7 @@ import VASSAL.tools.menu.MacOSXMenuManager;
  * @author rodneykinney
  * @since 3.1.0
  */
-public class ModuleManager {
+public final class ModuleManager {
   private static final Logger logger =
     LoggerFactory.getLogger(ModuleManager.class);
 
@@ -373,7 +373,7 @@ public class ModuleManager {
     lout.close();
   }
 
-  protected void launch() {
+  private void launch() {
     logger.info("Manager"); //NON-NLS
     final ModuleManagerWindow window = ModuleManagerWindow.getInstance();
     window.setVisible(true);
@@ -383,7 +383,7 @@ public class ModuleManager {
     if (isFirstTime) new FirstTimeDialog(window).setVisible(true);
   }
 
-  protected String execute(Object req) {
+  String execute(Object req) {
     if (req instanceof LaunchRequest) {
       final LaunchRequest lr = (LaunchRequest) req;
 

@@ -31,11 +31,10 @@ import VASSAL.tools.DataArchive;
 import VASSAL.tools.WriteErrorDialog;
 import VASSAL.tools.menu.MenuManager;
 
-public class ExtensionEditorWindow extends EditorWindow {
+public final class ExtensionEditorWindow extends EditorWindow {
 
   private static final long serialVersionUID = 1L;
-  protected static ExtensionEditorWindow instance = null;
-  protected transient ModuleExtension extension;
+  private final transient ModuleExtension extension;
 
   public ExtensionEditorWindow(GameModule mod, ModuleExtension ext) {
     super();

@@ -75,7 +75,8 @@ import VASSAL.tools.menu.MenuProxy;
  *
  * @author Brent Easton
  */
-public abstract class EditorWindow extends JFrame {
+public abstract sealed class EditorWindow extends JFrame
+  permits ExtensionEditorWindow, ModuleEditorWindow {
   private static final long serialVersionUID = 1L;
 
   protected SaveAction saveAction;
@@ -99,7 +100,6 @@ public abstract class EditorWindow extends JFrame {
   private ListKeyCommandsDialog listKeyCommands = null;
 
   protected EditorWindow() {
-    updateWindowTitle();
     setLayout(new BorderLayout());
 
     ApplicationIcons.setFor(this);

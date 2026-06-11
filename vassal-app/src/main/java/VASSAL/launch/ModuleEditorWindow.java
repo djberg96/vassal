@@ -31,10 +31,10 @@ import VASSAL.configure.SavedGameUpdaterDialog;
 import VASSAL.i18n.Resources;
 import VASSAL.tools.menu.MenuManager;
 
-public class ModuleEditorWindow extends EditorWindow {
+public final class ModuleEditorWindow extends EditorWindow {
   private static final long serialVersionUID = 1L;
 
-  protected transient Action updateSavedGame;
+  private final transient Action updateSavedGame;
 
   public ModuleEditorWindow(GameModule mod) {
     super();
