@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -55,10 +55,10 @@ public abstract class ReflectManager
 	{
 		if ( rfm == null ) 
 		{
-			Class clas;
+			Class<?> clas;
 			try {
 				clas = Class.forName( "bsh.reflect.ReflectManagerImpl" );
-				rfm = (ReflectManager)clas.newInstance();
+				rfm = (ReflectManager)clas.getDeclaredConstructor().newInstance();
 			} catch ( Exception e ) {
 				throw new Unavailable("Reflect Manager unavailable: "+e);
 			}
@@ -85,4 +85,3 @@ public abstract class ReflectManager
 	*/
 	public abstract boolean setAccessible( Object o );
 }
-

@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -56,10 +56,10 @@ public class CollectionManager
 		if ( manager == null 
 			&& Capabilities.classExists("java.util.Collection") ) 
 		{
-			Class clas;
+			Class<?> clas;
 			try {
 				clas = Class.forName( "bsh.collection.CollectionManagerImpl" );
-				manager = (CollectionManager)clas.newInstance();
+				manager = (CollectionManager)clas.getDeclaredConstructor().newInstance();
 			} catch ( Exception e ) {
 				Interpreter.debug("unable to load CollectionManagerImpl: "+e);
 			}
@@ -95,15 +95,20 @@ public class CollectionManager
 	}
 
 	public Object getFromMap( Object map, Object key ) {
-		return ((Hashtable)map).get(key);
+		return asHashtable(map).get(key);
 	}
 
 	public Object putInMap( Object map, Object key, Object value ) 
 	{
-		return ((Hashtable)map).put(key, value);
+		return asHashtable(map).put(key, value);
 	}
 
-	/**
+	@SuppressWarnings("unchecked")
+	private static Hashtable<Object, Object> asHashtable(Object map) {
+		return (Hashtable<Object, Object>) map;
+	}
+
+	/*
 		Determine dynamically if the target is an iterator by the presence of a
 		pair of next() and hasNext() methods.
 	public static boolean isIterator() { }
@@ -114,7 +119,7 @@ public class CollectionManager
 	 */
 	public static class BasicBshIterator implements BshIterator 
 	{
-		Enumeration enumeration;
+		Enumeration<?> enumeration;
 		
 		/**
 		 * Construct a basic BasicBshIterator
@@ -143,21 +148,21 @@ public class CollectionManager
 		 *
 		 * @throws java.lang.NullPointerException If the argument is null
 		 */
-		protected Enumeration createEnumeration( Object iterateOverMe )
+		private static Enumeration<?> createEnumeration( Object iterateOverMe )
 		{
 			if(iterateOverMe==null)
 				throw new NullPointerException("Object arguments passed to " +
 					"the BasicBshIterator constructor cannot be null.");
 
 			if (iterateOverMe instanceof Enumeration)
-				return (Enumeration)iterateOverMe;
+				return (Enumeration<?>)iterateOverMe;
 
 			if (iterateOverMe instanceof Vector)
-				return ((Vector)iterateOverMe).elements();
+				return ((Vector<?>)iterateOverMe).elements();
 
 			if (iterateOverMe.getClass().isArray()) {
 				final Object array = iterateOverMe;
-				return new Enumeration() {
+				return new Enumeration<Object>() {
 					int index = 0, length = Array.getLength(array);
 					public Object nextElement() { 
 						return Array.get(array, index++);

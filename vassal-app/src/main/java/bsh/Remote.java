@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -35,6 +35,7 @@ package bsh;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
 import java.text.*;
 /**
 	Remote executor class. Posts a script from the command line to a BshServlet
@@ -149,7 +150,7 @@ public class Remote
 		StringBuffer sb = new StringBuffer();
 		sb.append( "bsh.client=Remote" );
 		sb.append( "&bsh.script=" );
-		sb.append( URLEncoder.encode( text ) );
+		sb.append( URLEncoder.encode( text, StandardCharsets.ISO_8859_1 ) );
 		/*
 		// This requires Java 1.3
 		try {
@@ -161,7 +162,7 @@ public class Remote
 		String formData = sb.toString(  );
 
 		try {
-		  URL url = new URL( postURL );
+		  URL url = URI.create(postURL).toURL();
 		  HttpURLConnection urlcon =
 			  (HttpURLConnection) url.openConnection(  );
 		  urlcon.setRequestMethod("POST");
@@ -170,7 +171,7 @@ public class Remote
 		  urlcon.setDoOutput(true);
 		  urlcon.setDoInput(true);
 		  PrintWriter pout = new PrintWriter( new OutputStreamWriter(
-			  urlcon.getOutputStream(), "8859_1"), true );
+			  urlcon.getOutputStream(), StandardCharsets.ISO_8859_1), true );
 		  pout.print( formData );
 		  pout.flush();
 
