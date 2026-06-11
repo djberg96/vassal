@@ -40,7 +40,7 @@ import java.util.Objects;
 /**
  * Trait to draw a colored border around a piece
  */
-public class BorderOutline extends Decorator implements TranslatablePiece {
+public final class BorderOutline extends Decorator implements TranslatablePiece {
   public static final String ID = "border;"; // NON-NLS
 
   private String propertyName;
@@ -160,7 +160,7 @@ public class BorderOutline extends Decorator implements TranslatablePiece {
     return piece.getName();
   }
 
-  protected boolean checkProperty(String name) {
+  private boolean checkProperty(String name) {
     if ((name != null) && !name.isEmpty()) {
       final Object propValue = getOutermost(this).getProperty(name);
       if (propValue == null) {
@@ -180,7 +180,7 @@ public class BorderOutline extends Decorator implements TranslatablePiece {
     return true;
   }
 
-  protected boolean checkProperties() {
+  private boolean checkProperties() {
     final boolean p1 = checkProperty(propertyName);
     if (propertyName.isEmpty()) return true;
 
@@ -270,7 +270,7 @@ public class BorderOutline extends Decorator implements TranslatablePiece {
   }
 
 
-  private static class Ed implements PieceEditor {
+  private static final class Ed implements PieceEditor {
     private final StringConfigurer propertyInput;
     private final LogicalCompareConfigurer compareInput;
     private final StringConfigurer propertyInput2;
@@ -325,7 +325,7 @@ public class BorderOutline extends Decorator implements TranslatablePiece {
   /**
    * Happy little Configurer class for the Compare Modes
    */
-  private static class LogicalCompareConfigurer extends TranslatingStringEnumConfigurer {
+  private static final class LogicalCompareConfigurer extends TranslatingStringEnumConfigurer {
     LogicalCompareConfigurer() {
       super(null, null, LogicalCompareMode.getSymbols(), LogicalCompareMode.getKeys());
     }
