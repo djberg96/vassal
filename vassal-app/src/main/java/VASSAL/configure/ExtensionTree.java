@@ -42,7 +42,7 @@ import java.awt.event.ActionEvent;
 /**
  * The configuration tree for editing a module extension
  */
-public class ExtensionTree extends ConfigureTree {
+public final class ExtensionTree extends ConfigureTree {
   private static final long serialVersionUID = 1L;
 
   private final transient ModuleExtension extension;

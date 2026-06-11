@@ -18,6 +18,7 @@
 package VASSAL.build.module;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import VASSAL.build.GameModule;
@@ -31,12 +32,12 @@ import VASSAL.tools.SequenceEncoder;
  * Determines whether players are allowed to unmask other players pieces.  The module designer may
  * set the option to always on, always off, or let the players determine it with a Preferences setting.
  */
-public class ObscurableOptions implements CommandEncoder, GameComponent {
-  private static final ObscurableOptions instance = new ObscurableOptions();
+public final class ObscurableOptions implements CommandEncoder, GameComponent {
+  private static final ObscurableOptions INSTANCE = new ObscurableOptions();
 
   public static final String COMMAND_ID = "UNMASK\t"; //$NON-NLS-1$
   public static final String PREFS_KEY = "OpponentUnmaskable"; //$NON-NLS-1$
-  private List<String> allowed = new ArrayList<>();
+  private final List<String> allowed = new ArrayList<>();
   private Boolean override;
 
   private ObscurableOptions() {
@@ -62,7 +63,7 @@ public class ObscurableOptions implements CommandEncoder, GameComponent {
    * @return global Options
    */
   public static ObscurableOptions getInstance() {
-    return instance;
+    return INSTANCE;
   }
 
   public void allowSome(String preferencesPrompt) {
@@ -84,7 +85,7 @@ public class ObscurableOptions implements CommandEncoder, GameComponent {
         }
       }
       GameModule.getGameModule()
-                .getServer().sendToOthers(new SetAllowed(instance.allowed));
+                .getServer().sendToOthers(new SetAllowed(INSTANCE.allowed));
     });
     if (Boolean.TRUE.equals(c.getValue())) {
       allow(GameModule.getActiveUserId());
@@ -208,21 +209,22 @@ public class ObscurableOptions implements CommandEncoder, GameComponent {
     return override != null ? override : allowed.contains(id);
   }
 
-  public static class SetAllowed extends Command {
+  public static final class SetAllowed extends Command {
     private final List<String> allowed;
 
     public SetAllowed(List<String> allowed) {
-      this.allowed = allowed;
+      this.allowed = new ArrayList<>(allowed);
     }
 
     public List<String> getAllowedIds() {
-      return allowed;
+      return Collections.unmodifiableList(allowed);
     }
 
     @Override
     protected void executeCommand() {
       getInstance().override = null;
-      getInstance().allowed = this.allowed;
+      getInstance().allowed.clear();
+      getInstance().allowed.addAll(allowed);
     }
 
     @Override
