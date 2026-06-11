@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -54,13 +54,15 @@ public class DiscreteFilesClassLoader extends BshClassLoader
 	*/
 	ClassSourceMap map;
 
-	public static class ClassSourceMap extends HashMap 
+	public static class ClassSourceMap extends HashMap<String, ClassSource>
 	{
-		public void put( String name, ClassSource source ) {
-			super.put( name, source );
+		private static final long serialVersionUID = 1L;
+
+		public ClassSource put( String name, ClassSource source ) {
+			return super.put( name, source );
 		}
 		public ClassSource get( String name ) {
-			return (ClassSource)super.get( name );
+			return super.get( name );
 		}
 	}
 	
@@ -73,7 +75,7 @@ public class DiscreteFilesClassLoader extends BshClassLoader
 
 	/**
 	*/
-	public Class findClass( String name ) throws ClassNotFoundException 
+	public Class<?> findClass( String name ) throws ClassNotFoundException
 	{
 		// Load it if it's one of our classes
 		ClassSource source = map.get( name );

@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -120,8 +120,8 @@ public class ClassManagerImpl extends BshClassManager
 	private BshClassPath fullClassPath;
 
 	// ClassPath Change listeners
-	private Vector listeners = new Vector();
-	private ReferenceQueue refQueue = new ReferenceQueue();
+	private Vector<WeakReference<Listener>> listeners = new Vector<>();
+	private ReferenceQueue<Listener> refQueue = new ReferenceQueue<>();
 
 	/**
 		This handles extension / modification of the base classpath
@@ -134,7 +134,7 @@ public class ClassManagerImpl extends BshClassManager
 	/**
 		Map by classname of loaders to use for reloaded classes
 	*/
-	private Map loaderMap;
+	private Map<String, ClassLoader> loaderMap;
 
 	/**
 		Used by BshClassManager singleton constructor
@@ -146,10 +146,10 @@ public class ClassManagerImpl extends BshClassManager
 	/**
 		@return the class or null
 	*/
-	public Class classForName( String name )
+	public Class<?> classForName( String name )
 	{
 		// check positive cache
-		Class c = (Class)absoluteClassCache.get(name);
+		Class<?> c = absoluteClassCache.get(name);
 		if (c != null )
 			return c;
 
@@ -272,7 +272,7 @@ public class ClassManagerImpl extends BshClassManager
 	}
 
 	ClassLoader getLoaderForClass( String name ) {
-		return (ClassLoader)loaderMap.get( name );
+		return loaderMap.get( name );
 	}
 
 	// Classpath mutators
@@ -300,7 +300,7 @@ public class ClassManagerImpl extends BshClassManager
 	{
 		baseClassPath = new BshClassPath("baseClassPath");
 		baseLoader = null;
-		loaderMap = new HashMap();
+		loaderMap = new HashMap<>();
 		classLoaderChanged(); // calls clearCaches() for us.
 	}
 
@@ -311,7 +311,7 @@ public class ClassManagerImpl extends BshClassManager
 	public void setClassPath( URL [] cp ) {
 		baseClassPath.setPath( cp );
 		initBaseLoader();
-		loaderMap = new HashMap();
+		loaderMap = new HashMap<>();
 		classLoaderChanged();
 	}
 
@@ -389,9 +389,8 @@ public class ClassManagerImpl extends BshClassManager
 		ClassLoader cl = new DiscreteFilesClassLoader( this, map );
 
 		// map those classes the loader in the overlay map
-		Iterator it = map.keySet().iterator();
-		while ( it.hasNext() )
-			loaderMap.put( (String)it.next(), cl );
+		for ( String className : map.keySet() )
+			loaderMap.put( className, cl );
 
 		classLoaderChanged();
 	}
@@ -405,7 +404,7 @@ public class ClassManagerImpl extends BshClassManager
 	public void reloadPackage( String pack ) 
 		throws ClassPathException 
 	{
-		Collection classes = 
+		Collection<String> classes =
 			baseClassPath.getClassesForPackage( pack );
 
 		if ( classes == null )
@@ -417,10 +416,10 @@ public class ClassManagerImpl extends BshClassManager
 		if ( classes == null )
 			throw new ClassPathException("No classes found for package: "+pack);
 
-		reloadClasses( (String[])classes.toArray( new String[0] ) );
+		reloadClasses( classes.toArray( new String[0] ) );
 	}
 
-	/**
+	/*
 		Unimplemented
 		For this we'd have to store a map by location as well as name...
 
@@ -488,10 +487,10 @@ public class ClassManagerImpl extends BshClassManager
 	}
 
 	public void addListener( Listener l ) {
-		listeners.addElement( new WeakReference( l, refQueue) );
+		listeners.addElement( new WeakReference<>( l, refQueue) );
 
 		// clean up old listeners
-		Reference deadref;
+		Reference<? extends Listener> deadref;
 		while ( (deadref = refQueue.poll()) != null ) {
 			boolean ok = listeners.removeElement( deadref );
 			if ( ok ) {
@@ -525,7 +524,7 @@ public class ClassManagerImpl extends BshClassManager
 
 		@exception ClassPathException can be thrown by reloadClasses
 	*/
-	public Class defineClass( String name, byte [] code ) 
+	public Class<?> defineClass( String name, byte [] code )
 	{
 		baseClassPath.setClassSource( name, new GeneratedClassSource( code ) );
 		try {
@@ -548,17 +547,17 @@ public class ClassManagerImpl extends BshClassManager
 		// clear the static caches in BshClassManager
 		clearCaches();
 
-		Vector toRemove = new Vector(); // safely remove
-		for ( Enumeration e = listeners.elements(); e.hasMoreElements(); ) 
+		Vector<WeakReference<Listener>> toRemove = new Vector<>(); // safely remove
+		for ( Enumeration<WeakReference<Listener>> e = listeners.elements(); e.hasMoreElements(); )
 		{
-			WeakReference wr = (WeakReference)e.nextElement();
-			Listener l = (Listener)wr.get();
+			WeakReference<Listener> wr = e.nextElement();
+			Listener l = wr.get();
 			if ( l == null )  // garbage collected
 			  toRemove.add( wr );
 			else
 			  l.classLoaderChanged();
 		}
-		for( Enumeration e = toRemove.elements(); e.hasMoreElements(); ) 
+		for( Enumeration<WeakReference<Listener>> e = toRemove.elements(); e.hasMoreElements(); )
 			listeners.removeElement( e.nextElement() );
 	}
 
