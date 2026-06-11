@@ -18,7 +18,6 @@
 package VASSAL.build.module.map;
 
 import VASSAL.build.AbstractFolder;
-import VASSAL.build.AbstractToolbarItem;
 import VASSAL.build.Buildable;
 import VASSAL.build.GameModule;
 import VASSAL.build.module.Chatter;
@@ -72,10 +71,23 @@ import java.util.List;
  * Individual counters processing the GKC will generate their own internal audit trails.
  *
  */
-public class DeckGlobalKeyCommand extends MassKeyCommand implements RecursionLimiter.Loopable {
+public final class DeckGlobalKeyCommand extends MassKeyCommand implements RecursionLimiter.Loopable {
+  private static final String[] ATTRIBUTE_NAMES = {
+    NAME,
+    KEY_COMMAND,
+
+    TARGET,             // Fast Match parameters (disabled for this variant)
+
+    PROPERTIES_FILTER,
+    DECK_COUNT,
+    REPORT_FORMAT,
+    REPORT_SINGLE,
+    SUPPRESS_SOUNDS,
+    PARAMETERS
+  };
 
   public DeckGlobalKeyCommand() {
-    globalCommand = new DeckGlobalCommand(this);
+    super(GlobalCommandTarget.GKCtype.DECK, new DeckGlobalCommand());
     globalCommand.setReportSingle(true);
     globalCommand.setSuppressSounds(false);
     setConfigureName("");
@@ -94,19 +106,12 @@ public class DeckGlobalKeyCommand extends MassKeyCommand implements RecursionLim
   }
 
   public DeckGlobalKeyCommand(MassKeyCommand gkc) {
-    super(gkc);
+    this();
+    copyAttributesFrom(gkc, ATTRIBUTE_NAMES);
   }
 
   public static String getConfigureTypeName() {
     return Resources.getString("Editor.DeckGlobalKeyCommand.component_type"); //$NON-NLS-1$
-  }
-
-  /**
-   * @return Our type of Global Key Command (overrides the one from Mass Key Command). Affects what configurer options are shown. In particular no "Fast Match" parameters are shown for Deck GKCs.
-   */
-  @Override
-  public GlobalCommandTarget.GKCtype getGKCtype() {
-    return GlobalCommandTarget.GKCtype.DECK;
   }
 
   @Override
@@ -121,6 +126,7 @@ public class DeckGlobalKeyCommand extends MassKeyCommand implements RecursionLim
       propertySource = (PropertySource) parent;
     }
     ((DrawPile) parent).addGlobalKeyCommand(this);
+    globalCommand.setOwner(this);
     globalCommand.setPropertySource(propertySource);
   }
 
@@ -162,8 +168,9 @@ public class DeckGlobalKeyCommand extends MassKeyCommand implements RecursionLim
   }
 
   public void apply(Deck deck) {
-    globalCommand.setParameters(parameters);
-    GameModule.getGameModule().sendAndLog(((DeckGlobalCommand) globalCommand).apply(deck, getFilter()));
+    final DeckGlobalCommand command = (DeckGlobalCommand) getBoundGlobalCommand();
+    command.setParameters(parameters);
+    GameModule.getGameModule().sendAndLog(command.apply(deck, getFilter()));
   }
 
   public String encode() {
@@ -215,19 +222,7 @@ public class DeckGlobalKeyCommand extends MassKeyCommand implements RecursionLim
 
   @Override
   public String[] getAttributeNames() {
-    return new String[]{
-      AbstractToolbarItem.NAME,
-      KEY_COMMAND,
-
-      TARGET,             // Fast Match parameters (disabled for this variant)
-
-      PROPERTIES_FILTER,
-      DECK_COUNT,
-      REPORT_FORMAT,
-      REPORT_SINGLE,
-      SUPPRESS_SOUNDS,
-      PARAMETERS
-    };
+    return ATTRIBUTE_NAMES.clone();
   }
 
 
@@ -267,6 +262,10 @@ public class DeckGlobalKeyCommand extends MassKeyCommand implements RecursionLim
   }
 
   public static class DeckGlobalCommand extends GlobalCommand {
+
+    public DeckGlobalCommand() {
+      super();
+    }
 
     public DeckGlobalCommand(Loopable l) {
       super(l);

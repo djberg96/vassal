@@ -91,8 +91,12 @@ public class GlobalCommand implements Auditable {
 
   private static final Pattern fastCheckNumber = Pattern.compile("(\\+-)?\\d+(\\.\\d+)?");  //match a number with optional +/- and decimal.
 
+  public GlobalCommand() {
+    this(null, null);
+  }
+
   public GlobalCommand(Loopable l) {
-    this (l, null);
+    this(l, null);
   }
 
   public GlobalCommand(Loopable l, PropertySource p) {
@@ -107,7 +111,11 @@ public class GlobalCommand implements Auditable {
 
   @Override
   public String getComponentName() {
-    return owner.getComponentTypeName();
+    return owner == null ? getComponentTypeName() : owner.getComponentTypeName();
+  }
+
+  public void setOwner(Loopable owner) {
+    this.owner = owner;
   }
 
   public void setPropertySource(PropertySource ps) {

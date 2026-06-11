@@ -82,7 +82,7 @@ public abstract class AbstractToolbarItem extends AbstractConfigurable implement
     this.namePrompt = namePrompt;
   }
 
-  protected void setNameKey(String nameKey) {
+  protected final void setNameKey(String nameKey) {
     this.nameKey = nameKey;
   }
 
@@ -90,23 +90,23 @@ public abstract class AbstractToolbarItem extends AbstractConfigurable implement
     return nameKey;
   }
 
-  protected void setTooltipKey(String tooltipKey) {
+  protected final void setTooltipKey(String tooltipKey) {
     this.tooltipKey = tooltipKey;
   }
 
-  protected void setButtonTextKey(String buttonTextKey) {
+  protected final void setButtonTextKey(String buttonTextKey) {
     this.buttonTextKey = buttonTextKey;
   }
 
-  protected void setHotKeyKey(String hotKeyKey) {
+  protected final void setHotKeyKey(String hotKeyKey) {
     this.hotKeyKey = hotKeyKey;
   }
 
-  protected void setIconKey(String iconKey) {
+  protected final void setIconKey(String iconKey) {
     this.iconKey = iconKey;
   }
 
-  protected void setShowDisabledOptions(boolean show) {
+  protected final void setShowDisabledOptions(boolean show) {
     showDisabledOptions = show;
   }
 

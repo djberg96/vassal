@@ -118,24 +118,36 @@ public class MassKeyCommand extends AbstractToolbarItem
   protected PropertySource propertySource;
   protected PieceFilter filter;
   protected Map map;
-  protected GlobalCommand globalCommand = new GlobalCommand(this);
+  protected GlobalCommand globalCommand;
   protected FormattedString reportFormat = new FormattedString();
   protected boolean singleMap = true;
   protected List<Parameter> parameters = new ArrayList<>();
 
   public static final String TARGET   = "target"; //NON-NLS
 
-  protected GlobalCommandTarget target = new GlobalCommandTarget(getGKCtype());
+  protected GlobalCommandTarget target;
+  private final GlobalCommandTarget.GKCtype gkcType;
 
   /**
-   * @return Our GKC type -- this method is overridden by {@link VASSAL.build.module.GlobalKeyCommand} for module-level GKC's
-   * and by {@link DeckGlobalKeyCommand} for Deck GKC's. This value affects what configurer options are shown.
+   * @return Our GKC type. This value affects what configurer options are shown.
    */
-  public GlobalCommandTarget.GKCtype getGKCtype() {
-    return GlobalCommandTarget.GKCtype.MAP;
+  public final GlobalCommandTarget.GKCtype getGKCtype() {
+    return gkcType;
   }
 
   public MassKeyCommand() {
+    this(GlobalCommandTarget.GKCtype.MAP);
+  }
+
+  protected MassKeyCommand(GlobalCommandTarget.GKCtype gkcType) {
+    this(gkcType, new GlobalCommand());
+  }
+
+  protected MassKeyCommand(GlobalCommandTarget.GKCtype gkcType, GlobalCommand globalCommand) {
+    this.gkcType = gkcType;
+    this.globalCommand = globalCommand;
+    target = new GlobalCommandTarget(gkcType);
+
     setButtonTextKey(BUTTON_TEXT);
     setHotKeyKey(HOTKEY);
 
@@ -145,24 +157,34 @@ public class MassKeyCommand extends AbstractToolbarItem
       "", //Default art exists, but is a little weird, and wasn't actually being defaulted to before --> "/images/keyCommand.gif", //NON-NLS
       e -> apply()
     ));
-
   }
 
   /**
    * Copy an existing MassKeyCommand or subclass
-   * getAttributeNames will resolve to the subclass, so only attributes
-   * unique to the subclass will be copied
    * CONDITION is a legacy field that must be null, not "" when not used
    * */
   public MassKeyCommand(MassKeyCommand gkc) {
-    this();
-    for (final String key : getAttributeNames()) {
+    this(GlobalCommandTarget.GKCtype.MAP, gkc);
+  }
+
+  protected MassKeyCommand(GlobalCommandTarget.GKCtype gkcType, MassKeyCommand gkc) {
+    this(gkcType);
+    copyAttributesFrom(gkc, getMassKeyCommandAttributeNames());
+  }
+
+  protected final void copyAttributesFrom(MassKeyCommand gkc, String[] attributeNames) {
+    for (final String key : attributeNames) {
       String value = gkc.getAttributeValueString(key);
       if (value == null && !CONDITION.equals(key)) {
         value = "";
       }
       setAttribute(key, value);
     }
+  }
+
+  protected final GlobalCommand getBoundGlobalCommand() {
+    globalCommand.setOwner(this);
+    return globalCommand;
   }
 
   @Override
@@ -181,19 +203,21 @@ public class MassKeyCommand extends AbstractToolbarItem
     }
     GameModule.getGameModule().getGameState().addGameComponent(this);
     setAttributeTranslatable(NAME, false);
+    globalCommand.setOwner(this);
     globalCommand.setPropertySource(propertySource);
   }
 
   public void apply() {
+    final GlobalCommand command = getBoundGlobalCommand();
     // getFilter() will build the expression and update the audit trail
     final AuditTrail audit = AuditTrail.create(this, "", Resources.getString("Editor.MassKey.match"));
     if (singleMap) {
-      GameModule.getGameModule().sendAndLog(globalCommand.apply(map, getFilter(audit), target, audit));
+      GameModule.getGameModule().sendAndLog(command.apply(map, getFilter(audit), target, audit));
     }
     else {
       final List<Map> l = Map.getMapList();
       GameModule.getGameModule().sendAndLog(
-          globalCommand.apply(l.toArray(new Map[0]), getFilter(audit), target, audit));
+          command.apply(l.toArray(new Map[0]), getFilter(audit), target, audit));
     }
   }
 
@@ -245,6 +269,10 @@ public class MassKeyCommand extends AbstractToolbarItem
 
   @Override
   public String[] getAttributeNames() {
+    return getMassKeyCommandAttributeNames();
+  }
+
+  private String[] getMassKeyCommandAttributeNames() {
     return ArrayUtils.addAll(
       super.getAttributeNames(),
       KEY_COMMAND,                          // Key Command

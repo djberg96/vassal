@@ -48,7 +48,7 @@ import java.util.List;
  * @author Pieter Geerkens, Brian Reynolds
  *
  */
-public class StartupGlobalKeyCommand extends GlobalKeyCommand implements GameComponent, CommandEncoder, UniqueIdManager.Identifyable {
+public final class StartupGlobalKeyCommand extends GlobalKeyCommand implements GameComponent, CommandEncoder, UniqueIdManager.Identifyable {
   public static final String WHEN_TO_APPLY                   = "whenToApply";          //NON-NLS
   public static final String APPLY_FIRST_LAUNCH_OF_SESSION   = "firstLaunchOfSession"; //NON-NLS
   public static final String APPLY_EVERY_LAUNCH_OF_SESSION   = "everyLaunchOfSession"; //NON-NLS
@@ -66,11 +66,11 @@ public class StartupGlobalKeyCommand extends GlobalKeyCommand implements GameCom
   private static final char DELIMITER = '\t'; //$NON-NLS-1$
   public static final String COMMAND_PREFIX = "SGKC" + DELIMITER; //NON-NLS-1$
 
-  protected static final UniqueIdManager idMgr = new UniqueIdManager("SGKC"); //$NON-NLS-1$
-  protected String id = "";     // Our unique ID
+  private static final UniqueIdManager idMgr = new UniqueIdManager("SGKC"); //$NON-NLS-1$
+  private String id = "";     // Our unique ID
 
-  protected String hotkeyOrKeyCommand = SEND_KEY_COMMAND;
-  protected NamedKeyStroke globalHotkey = NamedKeyStroke.NULL_KEYSTROKE;
+  private String hotkeyOrKeyCommand = SEND_KEY_COMMAND;
+  private NamedKeyStroke globalHotkey = NamedKeyStroke.NULL_KEYSTROKE;
 
   public String whenToApply = APPLY_EVERY_LAUNCH_OF_SESSION;
 
@@ -411,7 +411,7 @@ public class StartupGlobalKeyCommand extends GlobalKeyCommand implements GameCom
    */
   private static class UpdateStartupGlobalKeyCommand extends Command {
     private final boolean appliedThisGame;
-    final StartupGlobalKeyCommand sgkc;
+    private final StartupGlobalKeyCommand sgkc;
 
     public UpdateStartupGlobalKeyCommand(StartupGlobalKeyCommand sgkc, boolean appliedThisGame) {
       this.sgkc = sgkc;

@@ -47,19 +47,11 @@ import java.util.List;
 public class GlobalKeyCommand extends MassKeyCommand {
 
   public GlobalKeyCommand() {
-    super();
+    super(GlobalCommandTarget.GKCtype.MODULE);
   }
 
   public GlobalKeyCommand(MassKeyCommand gkc) {
-    super(gkc);
-  }
-
-  /**
-   * @return Our type of Global Key Command (overrides the one from Mass Key Command). Affects what configurer options are shown.
-   */
-  @Override
-  public GlobalCommandTarget.GKCtype getGKCtype() {
-    return GlobalCommandTarget.GKCtype.MODULE;
+    super(GlobalCommandTarget.GKCtype.MODULE, gkc);
   }
 
   /**
@@ -67,10 +59,11 @@ public class GlobalKeyCommand extends MassKeyCommand {
    */
   @Override
   public void apply() {
+    final GlobalCommand command = getBoundGlobalCommand();
     // getFilter() will build the expression and update the audit trail
     final AuditTrail audit = AuditTrail.create(this, "", Resources.getString("Editor.MassKey.match"));
     final List<Map> l = Map.getMapList();
-    GameModule.getGameModule().sendAndLog(globalCommand.apply(l.toArray(new Map[0]), getFilter(audit), target, audit));
+    GameModule.getGameModule().sendAndLog(command.apply(l.toArray(new Map[0]), getFilter(audit), target, audit));
   }
 
   // Hide 'This Map only' option
