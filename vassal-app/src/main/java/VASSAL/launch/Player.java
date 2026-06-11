@@ -50,14 +50,13 @@ import VASSAL.tools.menu.MenuManager;
  * @author Joel Uckelman
  * @since 3.1.0
  */
-public class Player extends Launcher {
+public final class Player extends Launcher {
   public static void main(String[] args) throws IOException {
     Info.setConfig(new StandardConfig());
     new Player(args);
   }
 
-  protected Player(String[] args) {
-    // the ctor is protected to enforce that it's called via main()
+  private Player(String[] args) {
     super(args);
   }
 
@@ -135,33 +134,21 @@ public class Player extends Launcher {
     }
   }
 
-  public static class LaunchAction extends AbstractLaunchAction {
+  private abstract static class AbstractPlayerLaunchAction extends AbstractLaunchAction {
     private static final long serialVersionUID = 1L;
 
-    public LaunchAction(ModuleManagerWindow mm, File module) {
-      super(Resources.getString("Main.play_module_specific"), mm,
-        Player.class.getName(),
-        new LaunchRequest(LaunchRequest.Mode.LOAD, module)
-      );
-      setEnabled(!isEditing(module));
+    protected AbstractPlayerLaunchAction(String name, ModuleManagerWindow mm, LaunchRequest launchRequest) {
+      super(name, mm, Player.class.getName(), launchRequest);
     }
 
-    public LaunchAction(ModuleManagerWindow mm, File module, File saveGame) {
-      super(Resources.getString("General.open"), mm, Player.class.getName(),
-        new LaunchRequest(LaunchRequest.Mode.LOAD, module, saveGame)
-      );
-      setEnabled(!isEditing(module));
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-      if (isEditing(lr.module)) return;
+    protected final boolean prepareLaunch() {
+      if (isEditing(lr.module)) return false;
 
       // don't permit loading of VASL saved before 3.4
       final AbstractMetaData data = MetaDataFactory.buildMetaData(lr.module);
       if (data instanceof ModuleMetaData) {
         if (!checkModuleLoadable((ModuleMetaData)data)) {
-          return;
+          return false;
         }
       }
       else {
@@ -171,16 +158,16 @@ public class Player extends Launcher {
           ErrorDialog.show("Error.invalid_vassal_module", lr.module.getAbsolutePath()); //NON-NLS
           lr.module = null;
         }
-        return;
+        return false;
       }
 
       // increase the using count
       incrementUsed(lr.module);
-      super.actionPerformed(e);
+      return true;
     }
 
     @Override
-    protected LaunchTask getLaunchTask() {
+    protected final LaunchTask getLaunchTask() {
       return new LaunchTask() {
         @Override
         protected void done() {
@@ -193,12 +180,43 @@ public class Player extends Launcher {
     }
   }
 
-  public static class PromptLaunchAction extends LaunchAction {
+  public static final class LaunchAction extends AbstractPlayerLaunchAction {
+    private static final long serialVersionUID = 1L;
+
+    public LaunchAction(ModuleManagerWindow mm, File module) {
+      super(
+        Resources.getString("Main.play_module_specific"),
+        mm,
+        new LaunchRequest(LaunchRequest.Mode.LOAD, module)
+      );
+      setEnabled(!isEditing(module));
+    }
+
+    public LaunchAction(ModuleManagerWindow mm, File module, File saveGame) {
+      super(
+        Resources.getString("General.open"),
+        mm,
+        new LaunchRequest(LaunchRequest.Mode.LOAD, module, saveGame)
+      );
+      setEnabled(!isEditing(module));
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      if (!prepareLaunch()) return;
+      super.actionPerformed(e);
+    }
+  }
+
+  public static final class PromptLaunchAction extends AbstractPlayerLaunchAction {
     private static final long serialVersionUID = 1L;
 
     public PromptLaunchAction(ModuleManagerWindow mm) {
-      super(mm, null);
-      putValue(NAME, Resources.getString("Main.play_module"));
+      super(
+        Resources.getString("Main.play_module"),
+        mm,
+        new LaunchRequest(LaunchRequest.Mode.LOAD, null)
+      );
     }
 
     @Override
@@ -217,6 +235,7 @@ public class Player extends Launcher {
         return;
       }
 
+      if (!prepareLaunch()) return;
       super.actionPerformed(e);
     }
   }
