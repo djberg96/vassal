@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  *                                                                           *
  *  This file is part of the BeanShell Java Scripting distribution.          *
  *  Documentation and updates may be found at http://www.beanshell.org/      *
@@ -67,6 +67,8 @@ public class NameSpace
 	implements java.io.Serializable, BshClassManager.Listener, 
 	NameSource
 {
+	private static final long serialVersionUID = 1L;
+
 	public static final NameSpace JAVACODE = 
 		new NameSpace((BshClassManager)null, "Called from compiled Java code.");
 	static {
@@ -83,14 +85,14 @@ public class NameSpace
 	*/
 	private String nsName; 
     private NameSpace parent;
-    private Hashtable variables;
-    private Hashtable methods;
+    private Hashtable<String, Variable> variables;
+    private Hashtable<String, Object> methods;
 
-    protected Hashtable importedClasses;
-    private Vector importedPackages;
-    private Vector importedCommands;
-	private Vector importedObjects;
-	private Vector importedStatic;
+    protected Hashtable<String, String> importedClasses;
+    private Vector<String> importedPackages;
+    private Vector<String> importedCommands;
+	private Vector<Object> importedObjects;
+	private Vector<Class<?>> importedStatic;
 	private String packageName;
 
 	transient private BshClassManager classManager;
@@ -99,7 +101,7 @@ public class NameSpace
     private This thisReference;
 
 	/** Name resolver objects */
-    private Hashtable names;
+    private Hashtable<String, Name> names;
 
 	/** The node associated with the creation of this namespace.
 		This is used support getInvocationLine() and getInvocationText(). */
@@ -119,10 +121,10 @@ public class NameSpace
 		NameSpace, but we'll start here.
 	*/
 	boolean isClass;
-	Class classStatic;	
+	Class<?> classStatic;
 	Object classInstance;
 
-	void setClassStatic( Class clas ) {
+	void setClassStatic( Class<?> clas ) {
 		this.classStatic = clas;
 		importStatic( clas );
 	}
@@ -153,7 +155,7 @@ public class NameSpace
 		are cached here (those which might be imported).  Qualified names are 
 		always absolute and are cached by BshClassManager.
 	*/
-    transient private Hashtable classCache;
+    transient private Hashtable<String, Class<?>> classCache;
 
 	// End instance data
 
@@ -299,7 +301,7 @@ public class NameSpace
 		throws UtilEvalError 
 	{
 		if ( variables == null )
-			variables =	new Hashtable();
+			variables =	new Hashtable<>();
 
 		// primitives should have been wrapped
 		if ( value == null )
@@ -386,34 +388,30 @@ public class NameSpace
 			return flattenMethodCollection( methods.elements() );
 	}
 
-	private String [] enumerationToStringArray( Enumeration e ) {
-		Vector v = new Vector();
+	private String [] enumerationToStringArray( Enumeration<String> e ) {
+		Vector<String> v = new Vector<>();
 		while ( e.hasMoreElements() )
 			v.addElement( e.nextElement() );
-		String [] sa = new String [ v.size() ];
-		v.copyInto( sa );
-		return sa;
+		return v.toArray( new String[0] );
 	}
 
 	/**
 		Flatten the vectors of overloaded methods to a single array.
 		@see #getMethods()
 	*/
-    private BshMethod [] flattenMethodCollection( Enumeration e ) {
-        Vector v = new Vector();
+    private BshMethod [] flattenMethodCollection( Enumeration<Object> e ) {
+        Vector<BshMethod> v = new Vector<>();
         while ( e.hasMoreElements() ) {
             Object o = e.nextElement();
             if ( o instanceof BshMethod )
-                v.addElement( o );
+                v.addElement( (BshMethod)o );
             else {
-                Vector ov = (Vector)o;
+                Vector<?> ov = (Vector<?>)o;
                 for(int i=0; i<ov.size(); i++)
-                    v.addElement( ov.elementAt( i ) );
+                    v.addElement( (BshMethod)ov.elementAt( i ) );
             }
         }
-        BshMethod [] bma = new BshMethod [ v.size() ];
-        v.copyInto( bma );
-        return bma;
+        return v.toArray( new BshMethod[0] );
     }
 
 	/**
@@ -588,7 +586,7 @@ System.out.println("experiment: creating class manager");
 			var = getImportedVar( name );
 
 		if ( var == null && variables != null )
-			var	= (Variable)variables.get(name);
+			var	= variables.get(name);
 
 		// Change import precedence if we are a class body/instance
 		if ( var == null && !isClass )
@@ -610,8 +608,8 @@ System.out.println("experiment: creating class manager");
 			return new Variable[0];
 		Variable [] vars = new Variable [ variables.size() ];
 		int i=0;
-		for( Enumeration e = variables.elements(); e.hasMoreElements(); )
-			vars[i++] = (Variable)e.nextElement();
+		for( Enumeration<Variable> e = variables.elements(); e.hasMoreElements(); )
+			vars[i++] = e.nextElement();
 		return vars;
 	}
 
@@ -629,8 +627,9 @@ System.out.println("experiment: creating class manager");
 	/**
 		@deprecated See #setTypedVariable( String, Class, Object, Modifiers )
 	*/
+	@Deprecated
     public void	setTypedVariable(
-		String	name, Class type, Object value,	boolean	isFinal )
+		String	name, Class<?> type, Object value,	boolean	isFinal )
 		throws UtilEvalError 
 	{
 		Modifiers modifiers = new Modifiers();
@@ -659,13 +658,13 @@ System.out.println("experiment: creating class manager");
 		@param modifiers may be null
     */
     public void	setTypedVariable(
-		String	name, Class type, Object value,	Modifiers modifiers )
+		String	name, Class<?> type, Object value,	Modifiers modifiers )
 		throws UtilEvalError 
 	{
 		//checkVariableModifiers( name, modifiers );
 
 		if ( variables == null )
-			variables =	new Hashtable();
+			variables =	new Hashtable<>();
 
 		// Setting a typed variable is always a local operation.
 		Variable existing = getVariableImpl( name, false/*recurse*/ );
@@ -708,7 +707,7 @@ System.out.println("experiment: creating class manager");
 		variables.put( name, new Variable( name, type, value, modifiers ) );
     }
 
-	/**
+	/*
 		Dissallow static vars outside of a class
 		@param name is here just to allow the error message to use it
 	protected void checkVariableModifiers( String name, Modifiers modifiers )
@@ -731,7 +730,7 @@ System.out.println("experiment: creating class manager");
 		//checkMethodModifiers( method );
 
 		if ( methods == null )
-			methods = new Hashtable();
+			methods = new Hashtable<>();
 
 		Object m = methods.get(name);
 
@@ -739,19 +738,24 @@ System.out.println("experiment: creating class manager");
 			methods.put(name, method);
 		else 
 		if ( m instanceof BshMethod ) {
-			Vector v = new Vector();
-			v.addElement( m );
+			Vector<BshMethod> v = new Vector<>();
+			v.addElement( (BshMethod)m );
 			v.addElement( method );
 			methods.put( name, v );
 		} else // Vector
-			((Vector)m).addElement( method );
+			methodVector( m ).addElement( method );
     }
+
+	@SuppressWarnings("unchecked")
+	private Vector<BshMethod> methodVector( Object methodEntry ) {
+		return (Vector<BshMethod>)methodEntry;
+	}
 
 	/**
 		@see #getMethod( String, Class [], boolean )
 		@see #getMethod( String, Class [] )
 	*/
-    public BshMethod getMethod( String name, Class [] sig ) 
+    public BshMethod getMethod( String name, Class<?> [] sig )
 		throws UtilEvalError
 	{
 		return getMethod( name, sig, false/*declaredOnly*/ );
@@ -771,7 +775,7 @@ System.out.println("experiment: creating class manager");
 			be visible.
 	*/
     public BshMethod getMethod( 
-		String name, Class [] sig, boolean declaredOnly ) 
+		String name, Class<?> [] sig, boolean declaredOnly )
 		throws UtilEvalError
 	{
 		BshMethod method = null;
@@ -793,14 +797,14 @@ System.out.println("experiment: creating class manager");
 				BshMethod [] ma;
 				if ( m instanceof Vector ) 
 				{
-					Vector vm = (Vector)m;
+					Vector<BshMethod> vm = methodVector( m );
 					ma = new BshMethod[ vm.size() ];
 					vm.copyInto( ma );
 				} else
 					ma = new BshMethod[] { (BshMethod)m };
 
 				// Apply most specific signature matching
-				Class [][] candidates = new Class[ ma.length ][];
+				Class<?> [][] candidates = new Class<?>[ ma.length ][];
 				for( int i=0; i< ma.length; i++ )
 					candidates[i] = ma[i].getParameterTypes();
 
@@ -825,10 +829,10 @@ System.out.println("experiment: creating class manager");
 		Import a class name.
 		Subsequent imports override earlier ones
 	*/
-    public void	importClass(String name)
+	public void	importClass(String name)
     {
 		if ( importedClasses == null )
-			importedClasses = new Hashtable();
+			importedClasses = new Hashtable<>();
 
 		importedClasses.put( Name.suffix(name, 1), name );
 		nameSpaceChanged();
@@ -840,7 +844,7 @@ System.out.println("experiment: creating class manager");
     public void	importPackage(String name)
     {
 		if(importedPackages == null)
-			importedPackages = new Vector();
+			importedPackages = new Vector<>();
 
 		// If it exists, remove it and add it at the end (avoid memory leak)
 		if ( importedPackages.contains( name ) )
@@ -860,7 +864,7 @@ System.out.println("experiment: creating class manager");
     public void	importCommands( String name )
     {
 		if ( importedCommands == null )
-			importedCommands = new Vector();
+			importedCommands = new Vector<>();
 
 		// dots to slashes
 		name = name.replace('.','/');
@@ -907,7 +911,7 @@ System.out.println("experiment: creating class manager");
 			i.e. on errors loading a script that was found
 	*/
 	public Object getCommand( 	
-		String name, Class [] argTypes, Interpreter interpreter ) 
+		String name, Class<?> [] argTypes, Interpreter interpreter )
 		throws UtilEvalError
 	{
 		if (Interpreter.DEBUG) Interpreter.debug("getCommand: "+name);
@@ -918,7 +922,7 @@ System.out.println("experiment: creating class manager");
 			// loop backwards for precedence
 			for(int i=importedCommands.size()-1; i>=0; i--)
 			{
-				String path = (String)importedCommands.elementAt(i);
+				String path = importedCommands.elementAt(i);
 
 				String scriptPath; 
 				if ( path.equals("/") )
@@ -942,7 +946,7 @@ System.out.println("experiment: creating class manager");
 					className = path.substring(1).replace('/','.') +"."+name;
 
 				Interpreter.debug("searching for class: "+className);
-        		Class clas = bcm.classForName( className );
+        		Class<?> clas = bcm.classForName( className );
 				if ( clas != null )
 					return clas;
 			}
@@ -954,7 +958,7 @@ System.out.println("experiment: creating class manager");
 			return null;
 	}
 
-	protected BshMethod getImportedMethod( String name, Class [] sig ) 
+	protected BshMethod getImportedMethod( String name, Class<?> [] sig )
 		throws UtilEvalError
 	{
 		// Try object imports
@@ -962,7 +966,7 @@ System.out.println("experiment: creating class manager");
 		for(int i=0; i<importedObjects.size(); i++)
 		{
 			Object object = importedObjects.elementAt(i);
-			Class clas = object.getClass();
+			Class<?> clas = object.getClass();
 			Method method = Reflect.resolveJavaMethod( 
 				getClassManager(), clas, name, sig, false/*onlyStatic*/ );
 			if ( method != null )
@@ -973,7 +977,7 @@ System.out.println("experiment: creating class manager");
 		if ( importedStatic!= null )
 		for(int i=0; i<importedStatic.size(); i++)
 		{
-			Class clas = (Class)importedStatic.elementAt(i);
+			Class<?> clas = importedStatic.elementAt(i);
 			Method method = Reflect.resolveJavaMethod( 
 				getClassManager(), clas, name, sig, true/*onlyStatic*/ );
 			if ( method != null )
@@ -991,7 +995,7 @@ System.out.println("experiment: creating class manager");
 		for(int i=0; i<importedObjects.size(); i++)
 		{
 			Object object = importedObjects.elementAt(i);
-			Class clas = object.getClass();
+			Class<?> clas = object.getClass();
 			Field field = Reflect.resolveJavaField( 
 				clas, name, false/*onlyStatic*/ );
 			if ( field != null )
@@ -1003,7 +1007,7 @@ System.out.println("experiment: creating class manager");
 		if ( importedStatic!= null )
 		for(int i=0; i<importedStatic.size(); i++)
 		{
-			Class clas = (Class)importedStatic.elementAt(i);
+			Class<?> clas = importedStatic.elementAt(i);
 			Field field = Reflect.resolveJavaField( 
 				clas, name, true/*onlyStatic*/ );
 			if ( field != null )
@@ -1024,7 +1028,7 @@ System.out.println("experiment: creating class manager");
 		change this to not throw the exception.
 	*/
 	private BshMethod loadScriptedCommand( 
-		InputStream in, String name, Class [] argTypes, String resourcePath, 
+		InputStream in, String name, Class<?> [] argTypes, String resourcePath,
 		Interpreter interpreter )
 		throws UtilEvalError
 	{
@@ -1056,9 +1060,9 @@ System.out.println("experiment: creating class manager");
 	/**
 		Helper that caches class.
 	*/
-	void cacheClass( String name, Class c ) {
+	void cacheClass( String name, Class<?> c ) {
 		if ( classCache == null ) {
-			classCache = new Hashtable();
+			classCache = new Hashtable<>();
 			//cacheCount++; // debug
 		}
 
@@ -1072,10 +1076,10 @@ System.out.println("experiment: creating class manager");
 
 		@return null if not found.
 	*/
-    public Class getClass( String name )
+    public Class<?> getClass( String name )
 		throws UtilEvalError
     {
-		Class c = getClassImpl(name);
+		Class<?> c = getClassImpl(name);
 		if ( c != null )
 			return c;
 		else
@@ -1103,14 +1107,14 @@ System.out.println("experiment: creating class manager");
 
 		@return null if not found.
 	*/
-    private Class getClassImpl( String name )
+    private Class<?> getClassImpl( String name )
 		throws UtilEvalError
     {
-		Class c = null;
+		Class<?> c = null;
 
 		// Check the cache
 		if (classCache != null) {
-			c =	(Class)classCache.get(name);
+			c =	classCache.get(name);
 
 			if ( c != null )
 				return c;
@@ -1153,13 +1157,13 @@ System.out.println("experiment: creating class manager");
 		This method takes into account only imports (class or package)
 		found directly in this NameSpace (no parent chain).
 	*/
-    private Class getImportedClassImpl( String name )
+    private Class<?> getImportedClassImpl( String name )
 		throws UtilEvalError
     {
 		// Try explicitly imported class, e.g. import foo.Bar;
 		String fullname = null;
 		if ( importedClasses != null )
-			fullname = (String)importedClasses.get(name);
+			fullname = importedClasses.get(name);
 		
 		// not sure if we should really recurse here for explicitly imported
 		// class in parent...  
@@ -1170,7 +1174,7 @@ System.out.println("experiment: creating class manager");
 				Found the full name in imported classes.
 			*/
 			// Try to make the full imported name
-			Class clas=classForName(fullname);
+			Class<?> clas=classForName(fullname);
 			
 			// Handle imported inner class case
 			if ( clas == null ) 
@@ -1209,8 +1213,8 @@ System.out.println("experiment: creating class manager");
 		if ( importedPackages != null )
 			for(int i=importedPackages.size()-1; i>=0; i--)
 			{
-				String s = ((String)importedPackages.elementAt(i)) + "." + name;
-				Class c=classForName(s);
+				String s = importedPackages.elementAt(i) + "." + name;
+				Class<?> c=classForName(s);
 				if ( c != null )
 					return c;
 			}
@@ -1232,7 +1236,7 @@ System.out.println("experiment: creating class manager");
 		return null;
     }
 
-	private Class classForName( String name ) 
+	private Class<?> classForName( String name )
 	{
 		return getClassManager().classForName( name );
 	}
@@ -1244,23 +1248,21 @@ System.out.println("experiment: creating class manager");
 	*/
 	public String [] getAllNames() 
 	{
-		Vector vec = new Vector();
+		Vector<String> vec = new Vector<>();
 		getAllNamesAux( vec );
-		String [] names = new String [ vec.size() ];
-		vec.copyInto( names );
-		return names;
+		return vec.toArray( new String[0] );
 	}
 
 	/**
 		Helper for implementing NameSource
 	*/
-	protected void getAllNamesAux( Vector vec ) 
+	protected void getAllNamesAux( Vector<String> vec )
 	{
-		Enumeration varNames = variables.keys();
+		Enumeration<String> varNames = variables.keys();
 		while( varNames.hasMoreElements() )
 			vec.addElement( varNames.nextElement() );
 
-		Enumeration methodNames = methods.keys();
+		Enumeration<String> methodNames = methods.keys();
 		while( methodNames.hasMoreElements() )
 			vec.addElement( methodNames.nextElement() );
 
@@ -1268,14 +1270,14 @@ System.out.println("experiment: creating class manager");
 			parent.getAllNamesAux( vec );
 	}
 
-	Vector nameSourceListeners;
+	Vector<NameSource.Listener> nameSourceListeners;
 	/**
 		Implements NameSource
 		Add a listener who is notified upon changes to names in this space.
 	*/
 	public void addNameSourceListener( NameSource.Listener listener ) {
 		if ( nameSourceListeners == null )
-			nameSourceListeners = new Vector();
+			nameSourceListeners = new Vector<>();
 		nameSourceListeners.addElement( listener );
 	}
 	
@@ -1382,7 +1384,7 @@ System.out.println("experiment: creating class manager");
 	*/
     public void loadDefaultImports()
     {
-		/**
+		/*
 			Note: the resolver looks through these in reverse order, per
 			precedence rules...  so for max efficiency put the most common
 			ones later.
@@ -1424,9 +1426,9 @@ System.out.println("experiment: creating class manager");
 	Name getNameResolver( String ambigname ) 
 	{
 		if ( names == null )
-			names = new Hashtable();
+			names = new Hashtable<>();
 
-		Name name = (Name)names.get( ambigname );
+		Name name = names.get( ambigname );
 
 		if ( name == null ) {
 			name = new Name( this, ambigname );
@@ -1460,7 +1462,7 @@ System.out.println("experiment: creating class manager");
 		This method is in NameSpace for convenience (you don't have to import
 		bsh.ClassIdentifier to use it );
 	*/
-	public static Class identifierToClass( ClassIdentifier ci ) 
+	public static Class<?> identifierToClass( ClassIdentifier ci )
 	{
 		return ci.getTargetClass();
 	}
@@ -1501,7 +1503,7 @@ System.out.println("experiment: creating class manager");
 	public void importObject( Object obj ) 
 	{
 		if ( importedObjects == null )
-			importedObjects = new Vector();
+			importedObjects = new Vector<>();
 
 		// If it exists, remove it and add it at the end (avoid memory leak)
 		if ( importedObjects.contains( obj ) )
@@ -1514,10 +1516,10 @@ System.out.println("experiment: creating class manager");
 
 	/**
 	*/
-	public void importStatic( Class clas ) 
+	public void importStatic( Class<?> clas )
 	{
 		if ( importedStatic == null )
-			importedStatic = new Vector();
+			importedStatic = new Vector<>();
 
 		// If it exists, remove it and add it at the end (avoid memory leak)
 		if ( importedStatic.contains( clas ) )
@@ -1547,4 +1549,3 @@ System.out.println("experiment: creating class manager");
 		return null;
 	}
 }
-

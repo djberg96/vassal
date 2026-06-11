@@ -29,7 +29,9 @@ import java.util.*;
 */
 public class ExternalNameSpace extends NameSpace
 {
-	private Map externalMap;
+	private static final long serialVersionUID = 1L;
+
+	private Map<String, Object> externalMap;
 
     public ExternalNameSpace() 
 	{
@@ -38,12 +40,12 @@ public class ExternalNameSpace extends NameSpace
 
 	/**
 	*/
-    public ExternalNameSpace( NameSpace parent, String name, Map externalMap ) 
+    public ExternalNameSpace( NameSpace parent, String name, Map<String, Object> externalMap )
 	{
 		super( parent, name );
 
 		if ( externalMap == null )
-			externalMap = new HashMap();
+			externalMap = new HashMap<>();
 			
 		this.externalMap = externalMap;
 
@@ -52,7 +54,7 @@ public class ExternalNameSpace extends NameSpace
 	/**
 		Get the map view of this namespace.
 	*/
-	public Map getMap() { return externalMap; }
+	public Map<String, Object> getMap() { return externalMap; }
 
 	/**
 		Set the external Map which to which this namespace synchronizes.
@@ -60,7 +62,7 @@ public class ExternalNameSpace extends NameSpace
 		map values are retained in the external map, but are removed from the
 		BeanShell namespace.
 	*/
-	public void setMap( Map map ) 
+	public void setMap( Map<String, Object> map )
 	{ 
 		// Detach any existing namespace to preserve it, then clear this
 		// namespace and set the new one
@@ -92,11 +94,11 @@ public class ExternalNameSpace extends NameSpace
 	public String [] getVariableNames() 
 	{
 		// union of the names in the internal namespace and external map
-		Set nameSet = new HashSet();
+		Set<String> nameSet = new HashSet<>();
 		String [] nsNames = super.getVariableNames();
 		nameSet.addAll( Arrays.asList( nsNames ) );
 		nameSet.addAll( externalMap.keySet() );
-		return (String [])nameSet.toArray( new String[0] );
+		return nameSet.toArray( new String[0] );
 	}
 
 	/**
@@ -135,7 +137,7 @@ public class ExternalNameSpace extends NameSpace
 			// we'll wrap it and pass it along.  Else we'll use the local
 			// version.
 			if ( localVar == null ) 
-				var = new Variable( name, (Class)null, value, (Modifiers)null );
+				var = new Variable( name, (Class<?>)null, value, (Modifiers)null );
 			else
 				var = localVar;
 		}
@@ -159,7 +161,7 @@ public class ExternalNameSpace extends NameSpace
     /**
     */
     public void	setTypedVariable(
-		String	name, Class type, Object value,	Modifiers modifiers )
+		String	name, Class<?> type, Object value,	Modifiers modifiers )
 		throws UtilEvalError 
 	{
 		super.setTypedVariable( name, type, value, modifiers );
@@ -181,7 +183,7 @@ public class ExternalNameSpace extends NameSpace
 		allow bsh methods to be inserted into this namespace via the map.
 	*/
     public BshMethod getMethod( 
-		String name, Class [] sig, boolean declaredOnly ) 
+		String name, Class<?> [] sig, boolean declaredOnly )
 		throws UtilEvalError
 	{
 		return super.getMethod( name, sig, declaredOnly );
@@ -192,7 +194,7 @@ public class ExternalNameSpace extends NameSpace
 		Note: this method should be overridden to add the names from the
 		external map, as is done in getVariableNames();
 	*/
-	protected void getAllNamesAux( Vector vec ) 
+	protected void getAllNamesAux( Vector<String> vec )
 	{
 		super.getAllNamesAux( vec );
 	}
@@ -231,4 +233,3 @@ public class ExternalNameSpace extends NameSpace
 		externalMap.put( name, value );
 	}
 }
-
