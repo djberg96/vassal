@@ -21,7 +21,7 @@ import org.apache.commons.lang3.ArrayUtils;
  * @author Brent Easton
  *
  */
-public class LayerControl extends AbstractToolbarItem implements ComponentDescription {
+public final class LayerControl extends AbstractToolbarItem implements ComponentDescription {
 
   public static final String COMMAND = "command"; //NON-NLS
   public static final String SKIP = "skip"; //NON-NLS
@@ -36,8 +36,8 @@ public class LayerControl extends AbstractToolbarItem implements ComponentDescri
 
   public static final String DESCRIPTION = "description"; //NON-NLS
 
-  protected static final String[] COMMANDS = {CMD_ROTATE_UP, CMD_ROTATE_DN, CMD_ENABLE, CMD_DISABLE, CMD_TOGGLE, CMD_RESET};
-  protected static final String[] COMMANDS_DISPLAY_NAMES = {
+  private static final String[] COMMANDS = {CMD_ROTATE_UP, CMD_ROTATE_DN, CMD_ENABLE, CMD_DISABLE, CMD_TOGGLE, CMD_RESET};
+  private static final String[] COMMANDS_DISPLAY_NAMES = {
     "Editor.LayerControl.rotate_layer_order_up",
     "Editor.LayerControl.rotate_layer_order_down",
     "Editor.LayerControl.make_layer_active",
@@ -45,12 +45,12 @@ public class LayerControl extends AbstractToolbarItem implements ComponentDescri
     "Editor.LayerControl.switch_layer_between_active_and_inactive",
     "Editor.LayerControl.reset_all_layers"
   };
-  protected String command = CMD_RESET;
-  protected boolean skip = true;
-  protected String[] layers = new String[0];
-  protected LayeredPieceCollection pieceLayers;
-  protected CompoundPieceCollection pieceCollection;
-  protected String description;
+  private String command = CMD_RESET;
+  private boolean skip = true;
+  private String[] layers = new String[0];
+  private LayeredPieceCollection pieceLayers;
+  private CompoundPieceCollection pieceCollection;
+  private String description;
 
   public LayerControl() {
     setShowDisabledOptions(false); //AbstractToolbarItem
@@ -143,7 +143,7 @@ public class LayerControl extends AbstractToolbarItem implements ComponentDescri
     );
   }
 
-  public static class CommandConfig extends TranslatableStringEnum {
+  public static final class CommandConfig extends TranslatableStringEnum {
     @Override
     public String[] getValidValues(AutoConfigurable target) {
       return COMMANDS;
