@@ -130,7 +130,7 @@ import java.util.HashSet;
 import java.util.TreeSet;
 import java.util.stream.Stream;
 
-public class ModuleManagerWindow extends JFrame {
+public final class ModuleManagerWindow extends JFrame {
   private static final long serialVersionUID = 1L;
 
   private static final Logger logger =
@@ -167,7 +167,7 @@ public class ModuleManagerWindow extends JFrame {
   private transient MyTreeNode rootNode;
   private transient MyTree tree;
   private transient MyTreeTableModel treeModel;
-  protected transient MyTreeNode selectedNode;
+  private transient MyTreeNode selectedNode;
 
   private long lastExpansionTime;
   private TreePath lastExpansionPath;
@@ -187,7 +187,7 @@ public class ModuleManagerWindow extends JFrame {
 
   private static final ModuleManagerWindow instance = new ModuleManagerWindow();
 
-  public ModuleManagerWindow() {
+  private ModuleManagerWindow() {
     setTitle("VASSAL " + Info.getVersion()); //NON-NLS
     setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
 
@@ -470,11 +470,11 @@ public class ModuleManagerWindow extends JFrame {
     ));
   }
 
-  protected void setPreferredDividerLocation(int i) {
+  private void setPreferredDividerLocation(int i) {
     dividerLocationConfig.setValue(i);
   }
 
-  protected int getPreferredDividerLocation() {
+  private int getPreferredDividerLocation() {
     return dividerLocationConfig.getIntValue(500);
   }
 
@@ -646,7 +646,7 @@ public class ModuleManagerWindow extends JFrame {
     return Pair.of(s, "");
   }
 
-  protected void buildTree() {
+  private void buildTree() {
     final List<ModuleInfo> moduleList = new ArrayList<>();
 
     // RecentModules key was used through 3.5.1, but 3.2 can't read the
@@ -1477,7 +1477,7 @@ public class ModuleManagerWindow extends JFrame {
   /** *************************************************************************
    * Module Node User Information
    */
-  public class ModuleInfo extends AbstractInfo {
+  public final class ModuleInfo extends AbstractInfo {
 
     private final ExtensionsManager extMgr;
     private final SortedSet<File> gameFolders = new TreeSet<>();
@@ -1539,7 +1539,7 @@ public class ModuleManagerWindow extends JFrame {
       loadMetaData();
     }
 
-    protected void loadMetaData() {
+    private void loadMetaData() {
       final AbstractMetaData data = MetaDataFactory.buildMetaData(file);
       if (data instanceof ModuleMetaData) {
         setValid(true);
@@ -1550,12 +1550,12 @@ public class ModuleManagerWindow extends JFrame {
       }
     }
 
-    protected void setInvalid() {
+    private void setInvalid() {
       setValid(false);
       metadata = null;
     }
     
-    protected boolean isModuleTooNew() {
+    private boolean isModuleTooNew() {
       return metadata != null && Info.isModuleTooNew(metadata.getVassalVersion());
     }
     public boolean isAccessible() {
