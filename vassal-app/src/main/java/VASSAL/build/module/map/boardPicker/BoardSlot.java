@@ -36,16 +36,16 @@ import VASSAL.build.module.map.BoardPicker;
 import VASSAL.i18n.Resources;
 import VASSAL.tools.swing.SwingUtils;
 
-public class BoardSlot extends JPanel implements Icon, ActionListener {
+public final class BoardSlot extends JPanel implements Icon, ActionListener {
   private static final long serialVersionUID = 1L;
 
   private final String prompt;
 
-  protected transient BoardPicker picker;
-  protected transient Board board = null;
+  private final transient BoardPicker picker;
+  private transient Board board = null;
 
-  protected JComboBox<String> boards;
-  protected JCheckBox reverseCheckBox;
+  private final JComboBox<String> boards;
+  private final JCheckBox reverseCheckBox;
 
   public BoardSlot(BoardPicker bp) {
     this(bp, Resources.getString("BoardPicker.select_board")); //$NON-NLS-1$

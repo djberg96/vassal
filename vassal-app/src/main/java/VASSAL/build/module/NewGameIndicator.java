@@ -25,7 +25,7 @@ import VASSAL.command.CommandEncoder;
  * Provides information about whether a game was started from File->New Game
  * or loaded from a saved game
  */
-public class NewGameIndicator implements GameComponent, CommandEncoder {
+public final class NewGameIndicator implements GameComponent, CommandEncoder {
   private final String command;
   private boolean isNewGame;
 
@@ -74,7 +74,7 @@ public class NewGameIndicator implements GameComponent, CommandEncoder {
     return command;
   }
 
-  public static class MarkGameNotNew extends Command {
+  public static final class MarkGameNotNew extends Command {
     private final NewGameIndicator indicator;
 
     public MarkGameNotNew(NewGameIndicator indicator) {

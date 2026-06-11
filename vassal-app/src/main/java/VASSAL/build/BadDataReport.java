@@ -38,7 +38,7 @@ import VASSAL.script.expression.ExpressionException;
  * @author rodneykinney
  *
  */
-public class BadDataReport {
+public final class BadDataReport {
   private String message;
   private String data; /** Data about the cause of the error. Usually the expression that causes the problem */
   private Throwable cause;
@@ -146,7 +146,7 @@ public class BadDataReport {
    * @param piece
    * @return
    */
-  protected static String getPieceName(EditablePiece piece) {
+  private static String getPieceName(EditablePiece piece) {
     if (piece instanceof Decorator) {
       return ((Decorator) piece).getInner().getLocalizedName();
     }
