@@ -58,7 +58,7 @@ import VASSAL.tools.imageop.SourceOp;
  *
  * @author Brent Easton
  */
-public class ZoneHighlight extends AbstractConfigurable  {
+public final class ZoneHighlight extends AbstractConfigurable  {
 
   public static final String NAME = "name"; //NON-NLS
   public static final String COLOR = "color"; //NON-NLS
@@ -75,15 +75,15 @@ public class ZoneHighlight extends AbstractConfigurable  {
   public static final String STYLE_CROSS = "Crosshatched"; //NON-NLS (really)
   public static final String STYLE_IMAGE = "Tiled Image"; //NON-NLS (really)
 
-  protected Color color = null;
-  protected String coverage = COVERAGE_FULL;
-  protected int width = 1;
-  protected String style = STYLE_PLAIN;
-  protected String imageName = null;
-  protected SourceOp srcOp;
-  protected int opacity = 100;
+  private Color color = null;
+  private String coverage = COVERAGE_FULL;
+  private int width = 1;
+  private String style = STYLE_PLAIN;
+  private String imageName = null;
+  private SourceOp srcOp;
+  private int opacity = 100;
 
-  protected TexturePaint paint;
+  private TexturePaint paint;
 
   public ZoneHighlight() {
     setConfigureName("");
@@ -127,7 +127,7 @@ public class ZoneHighlight extends AbstractConfigurable  {
     }
   }
 
-  protected Paint getPaint() {
+  private Paint getPaint() {
     if (paint == null) {
       if (style.equals(STYLE_IMAGE)) {
         if (srcOp != null) {
@@ -209,7 +209,7 @@ public class ZoneHighlight extends AbstractConfigurable  {
     };
   }
 
-  public static class Coverage extends TranslatableStringEnum {
+  public static final class Coverage extends TranslatableStringEnum {
     @Override
     public String[] getValidValues(AutoConfigurable target) {
       return new String[]{
@@ -227,7 +227,7 @@ public class ZoneHighlight extends AbstractConfigurable  {
     }
   }
 
-  public static class Style extends TranslatableStringEnum {
+  public static final class Style extends TranslatableStringEnum {
     @Override
     public String[] getValidValues(AutoConfigurable target) {
       return new String[]{
@@ -249,7 +249,7 @@ public class ZoneHighlight extends AbstractConfigurable  {
     }
   }
 
-  public static class OpacityConfig implements ConfigurerFactory {
+  public static final class OpacityConfig implements ConfigurerFactory {
     @Override
     public Configurer getConfigurer(AutoConfigurable c, String key, String name) {
       final ZoneHighlight zh = (ZoneHighlight) c;
@@ -361,7 +361,7 @@ public class ZoneHighlight extends AbstractConfigurable  {
     }
   }
 
-  public class PercentageConfigurer extends Configurer {
+  public final class PercentageConfigurer extends Configurer {
 
     public PercentageConfigurer(String key, String name, Object val) {
       super(key, name, val);
