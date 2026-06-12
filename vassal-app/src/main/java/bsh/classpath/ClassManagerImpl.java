@@ -434,7 +434,7 @@ public class ClassManagerImpl extends BshClassManager
 		reloadClasses( classes.toArray( new String[0] ) );
 	}
 
-	/**
+	/*
 		Unimplemented
 		For this we'd have to store a map by location as well as name...
 

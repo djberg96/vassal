@@ -103,7 +103,7 @@ class BlockNameSpace extends NameSpace
 		} catch ( UtilEvalError e ) { return false; }
 	}
 
-/**
+/*
 		Get the actual BlockNameSpace 'this' reference.
 		<p/>
 		Normally a 'this' reference to a BlockNameSpace (e.g. if () { } )
@@ -123,7 +123,7 @@ class BlockNameSpace extends NameSpace
 	// Begin methods which simply delegate to our parent (enclosing scope) 
 	//
 
-	/**
+	/*
 		This method recurses to find the nearest non-BlockNameSpace parent.
 
 	public NameSpace getParent() 

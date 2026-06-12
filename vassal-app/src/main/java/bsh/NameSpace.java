@@ -691,7 +691,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 		variables.put( name, createVariable( name, type, value, modifiers ) );
     }
 
-	/**
+	/*
 		Dissallow static vars outside of a class
 		@param name is here just to allow the error message to use it
 	protected void checkVariableModifiers( String name, Modifiers modifiers )
