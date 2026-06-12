@@ -94,6 +94,16 @@ public final class Editor extends Launcher {
       final JFrame f = GameModule.getGameModule().getPlayerWindow();
       f.setVisible(true);
       new NewExtensionAction(f).performAction(null);
+      break;
+    case MANAGE:
+    case LOAD:
+    case TRANSLATE:
+    case UPDATE_MOD:
+    case UPDATE_EXT:
+    case UPDATE_GAME:
+      throw new IllegalStateException("Editor cannot launch mode: " + lr.mode);
+    default:
+      throw new IllegalStateException("Unexpected launch mode: " + lr.mode);
     }
   }
 
