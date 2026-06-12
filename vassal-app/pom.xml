@@ -220,7 +220,7 @@
                 <include>org/netbeans/modules/wizard/defaultWizard.png</include>
               </includes>
               <excludes>
-                <exclude>*.java</exclude>
+                <exclude>**/*.java</exclude>
               </excludes>
             </resource>
             <resource>
@@ -234,6 +234,9 @@
                 <include>bsh/**/*.png</include>
                 <include>bsh/**/*.txt</include>
               </includes>
+              <excludes>
+                <exclude>**/*.java</exclude>
+              </excludes>
             </resource>
         </resources>
         <plugins>
