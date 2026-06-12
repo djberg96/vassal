@@ -174,12 +174,7 @@ public class ExtensionMetaData extends AbstractMetaData {
       // read the matching Module data. A basic moduledata may have been
       // built when reading the buildFile, overwrite if we find a real
       // module metadata file
-      final ModuleMetaData buildFileModuleData = moduleData;
       moduleData = new ModuleMetaData(zip);
-      //FIXME this looks like "something wrong is happening" - checking null right after we assign it?
-      if (moduleData == null) {
-        moduleData = buildFileModuleData;
-      }
     }
     catch (final SAXEndException e) {
       // Indicates End of module/extension parsing. not an error.

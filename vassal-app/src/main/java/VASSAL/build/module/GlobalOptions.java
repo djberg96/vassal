@@ -305,18 +305,6 @@ public class GlobalOptions extends AbstractConfigurable implements ComponentDesc
     classicMfd.addPropertyChangeListener(evt -> setUseClassicMoveFixedDistance(classicMfd.getValueBoolean()));
     prefs.addOption(Resources.getString("Prefs.compatibility_tab"), classicMfd);
 
-    //BR// Mac Legacy (essentially swaps Control and Command functions to their "old, bad, pre-3.3.3" mappings)
-    final BooleanConfigurer macLegacyConf = new BooleanConfigurer(
-      MAC_LEGACY,
-      Resources.getString("GlobalOptions.mac_legacy"),
-      Boolean.FALSE);
-    macLegacyConf.addPropertyChangeListener(evt -> setPrefMacLegacy(macLegacyConf.getValueBoolean()));
-
-    if (!FORCE_MAC_LEGACY && SystemUtils.IS_OS_MAC) {
-      // Only need to *display* this preference if we're running on a Mac.
-      prefs.addOption(Resources.getString("Prefs.compatibility_tab"), macLegacyConf);
-    }
-
     final BooleanConfigurer oldContinuationConf = new BooleanConfigurer(
       OLD_CONTINUATION,
       Resources.getString("GlobalOptions.old_continuation"),
