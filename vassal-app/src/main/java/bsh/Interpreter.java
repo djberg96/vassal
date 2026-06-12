@@ -371,9 +371,9 @@ public class Interpreter
 			try {
 				Object result = 
 					interpreter.source( filename, interpreter.globalNameSpace );
-				if ( result instanceof Class )
+				if ( result instanceof Class<?> resultClass )
 					try {
-						invokeMain( (Class)result, bshArgs );
+						invokeMain( resultClass, bshArgs );
 					} catch ( Exception e ) 
 					{
 						Object o = e;
