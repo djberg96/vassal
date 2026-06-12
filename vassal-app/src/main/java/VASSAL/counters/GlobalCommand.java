@@ -245,6 +245,27 @@ public class GlobalCommand implements Auditable {
     }
   }
 
+  private boolean passesLocationFastMatch(GamePiece gamePiece, String fastZone, String fastLocation) {
+    switch (target.targetType) {
+    case ZONE:
+    case CURZONE:
+      return fastZone.equals(gamePiece.getProperty(BasicPiece.CURRENT_ZONE));
+    case LOCATION:
+    case CURLOC:
+      return fastLocation.equals(gamePiece.getProperty(BasicPiece.LOCATION_NAME));
+    case CURSTACK:
+    case CURMAP:
+    case MAP:
+    case XY:
+    case DECK:
+    case CURMAT:
+    case CURATTACH:
+      return true;
+    default:
+      throw new IllegalStateException("Unexpected target type: " + target.targetType);
+    }
+  }
+
   /**
    * Need a super-fast (i.e. not dependent on exception-throwing) plan for detecting valid numbers
    * @param s string to check
@@ -359,6 +380,13 @@ public class GlobalCommand implements Auditable {
           fastY = target.targetY.tryEvaluate(source, owner, "Editor.GlobalKeyCommand.y_position");
           fastY = Expression.createExpression(fastY).tryEvaluate(source, owner, "Editor.GlobalKeyCommand.y_position");
           break;
+        case CURSTACK:
+        case CURMAP:
+        case MAP:
+        case CURMAT:
+          break;
+        default:
+          throw new IllegalStateException("Unexpected target type: " + target.targetType);
         }
 
         if (!target.targetType.isCurrent()) {
@@ -461,7 +489,7 @@ public class GlobalCommand implements Auditable {
       if (target.fastMatchLocation && target.targetType == GlobalCommandTarget.Target.CURSTACK) {
         if (curPiece != null) {
           final Stack stack = curPiece.getParent();
-          List<GamePiece> pieces = null;
+          List<GamePiece> pieces = Collections.emptyList();
           final int useFromDeck;
 
           if (stack instanceof Deck) {
@@ -811,20 +839,8 @@ public class GlobalCommand implements Auditable {
                   // These basic location filters are faster than equivalent filters in the Beanshell expression,
                   // and avoid re-evaluating/re-loading the source property for every target piece.
 
-                  // Fast matches for Zone / Location
-                  switch (target.targetType) {
-                  case ZONE:
-                  case CURZONE:
-                    if (!fastZone.equals(gamePiece.getProperty(BasicPiece.CURRENT_ZONE))) {
-                      continue;
-                    }
-                    break;
-                  case LOCATION:
-                  case CURLOC:
-                    if (!fastLocation.equals(gamePiece.getProperty(BasicPiece.LOCATION_NAME))) {
-                      continue;
-                    }
-                    break;
+                  if (!passesLocationFastMatch(gamePiece, fastZone, fastLocation)) {
+                    continue;
                   }
 
                   // Fast Match of "exact XY position"
