@@ -202,55 +202,47 @@ public class GlobalCommand implements Auditable {
     final Object prop = gamePiece.getProperty(fastProperty);
     final String value = (prop == null) ? null : prop.toString();
 
-    // Intentionally favors the default "Equals" as first to process
     switch (target.targetCompare) {
     case EQUALS:
       return fastValue.equals(value);
     case NOT_EQUALS:
       return !fastValue.equals(value);
-    }
-
-    // The non-equals-y ones have to deal with null
-    if (prop == null || value == null) {
-      return false;
-    }
-
-    switch (target.targetCompare) {
     case MATCH:
-      return fastPattern.matcher(value).matches();
+      return value != null && fastPattern.matcher(value).matches();
     case NOT_MATCH:
-      return !fastPattern.matcher(value).matches();
+      return value != null && !fastPattern.matcher(value).matches();
+    case GREATER_EQUALS:
+    case GREATER:
+    case LESS_EQUALS:
+    case LESS:
+      return value != null && passesOrderedPropertyFastMatch(value);
+    default:
+      throw new IllegalStateException("Unexpected compare mode: " + target.targetCompare);
     }
+  }
 
-    // Lexical comparisons for strings
+  private boolean passesOrderedPropertyFastMatch(String value) {
     if (!fastIsNumber || !isNumeric(value)) {
-      switch (target.targetCompare) {
-      case GREATER_EQUALS:
-        return value.compareTo(fastValue) >= 0;
-      case GREATER:
-        return value.compareTo(fastValue) > 0;
-      case LESS_EQUALS:
-        return value.compareTo(fastValue) <= 0;
-      case LESS:
-        return value.compareTo(fastValue) < 0;
-      }
+      return compareFastMatchValues(value.compareTo(fastValue));
     }
 
-    // Numerical comparisons for numbers
     final double num = Double.parseDouble(value);
+    return compareFastMatchValues(Double.compare(num, fastNumber));
+  }
 
+  private boolean compareFastMatchValues(int comparison) {
     switch (target.targetCompare) {
     case GREATER_EQUALS:
-      return num >= fastNumber;
+      return comparison >= 0;
     case GREATER:
-      return num > fastNumber;
+      return comparison > 0;
     case LESS_EQUALS:
-      return num <= fastNumber;
+      return comparison <= 0;
     case LESS:
-      return num < fastNumber;
+      return comparison < 0;
+    default:
+      throw new IllegalStateException("Unexpected ordered compare mode: " + target.targetCompare);
     }
-
-    return false; // Never gets here, but checkStyle doesn't understand that.
   }
 
   /**
