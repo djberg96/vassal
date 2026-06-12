@@ -191,8 +191,8 @@ public class ExternalNameSpace extends NameSpace
 			// If not in local scope then it was added via the external map,
 			// we'll wrap it and pass it along.  Else we'll use the local
 			// version.
-			if ( localVar == null ) 
-				var = new Variable( name, (Class)null, value, (Modifiers)null );
+			if ( localVar == null )
+				var = new Variable( name, (Class<?>)null, value, (Modifiers)null );
 			else
 				var = localVar;
 		}
