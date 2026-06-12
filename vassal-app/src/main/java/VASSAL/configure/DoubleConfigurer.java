@@ -39,7 +39,7 @@ public class DoubleConfigurer extends StringConfigurer {
     try {
       d = Double.valueOf(s);
     }
-    catch (NumberFormatException e) {
+    catch (NumberFormatException | NullPointerException e) {
       d = null;
     }
 
@@ -48,7 +48,7 @@ public class DoubleConfigurer extends StringConfigurer {
     }
 
     if (!noUpdate && nameField != null) {
-      nameField.setText(d.toString());
+      nameField.setText(getValueString());
     }
   }
 

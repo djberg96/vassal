@@ -137,7 +137,12 @@ public final class RefreshPredefinedSetupsDialog extends JDialog {
       ErrorDialog.bug(ex);
     }
 
-    helpButton.addActionListener(new ShowHelpAction(hf.getContents(), null));
+    if (hf != null) {
+      helpButton.addActionListener(new ShowHelpAction(hf.getContents(), null));
+    }
+    else {
+      helpButton.setEnabled(false);
+    }
 
     closeButton.addActionListener(e -> dispose());
 
@@ -347,10 +352,8 @@ public final class RefreshPredefinedSetupsDialog extends JDialog {
 
         if (pdsFile != null && !pdsFile.isBlank()
                 && (pdsFilter == null
-                || (pdsName != null && (pdsName.toLowerCase().contains(pdsFilter)
-                || (filterPattern != null && (filterPattern.matcher(pdsName).matches() || filterPattern2.matcher(pdsName).matches())))
-                || (pdsFile.toLowerCase().contains(pdsFilter)
-                || (filterPattern != null && (filterPattern.matcher(pdsFile).matches() || filterPattern2.matcher(pdsFile).matches())))))) {
+                || matchesFilter(pdsName, pdsFilter, filterPattern, filterPattern2)
+                || matchesFilter(pdsFile, pdsFilter, filterPattern, filterPattern2))) {
 
           boolean isExtensionPDS = true;
 
@@ -493,6 +496,17 @@ public final class RefreshPredefinedSetupsDialog extends JDialog {
       for (final Component component : getComponents(this)) component.setEnabled(true);
       optionsUserMode = true;
     }
+  }
+
+  private boolean matchesFilter(String value, String filter, Pattern filterPattern, Pattern filterPattern2) {
+    return value != null
+      && (value.toLowerCase().contains(filter)
+        || matchesPattern(filterPattern, value)
+        || matchesPattern(filterPattern2, value));
+  }
+
+  private boolean matchesPattern(Pattern pattern, String value) {
+    return pattern != null && pattern.matcher(value).matches();
   }
 
   private boolean pdsFileProcessed(List<PredefinedSetup> modulePds, String file) {

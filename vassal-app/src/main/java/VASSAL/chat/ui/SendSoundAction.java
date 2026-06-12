@@ -75,7 +75,8 @@ public final class SendSoundAction extends AbstractAction {
       && GameModule.getGameModule() != null
       && !target.equals(client.getUserInfo())
       && client.getRoom() != null
-      && client.getRoom().equals(targetRoom)
+      && targetRoom != null
+      && targetRoom.equals(client.getRoom())
       && (!targetRoom.equals(lastRoom) || !target.equals(lastPlayer) ||
       (System.currentTimeMillis() - lastSound) > SoundEncoder.Cmd.TOO_SOON));
   }

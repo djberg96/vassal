@@ -140,7 +140,12 @@ public final class SavedGameUpdaterDialog extends JDialog {
       ErrorDialog.bug(ex);
     }
 
-    helpButton.addActionListener(new ShowHelpAction(hf.getContents(), null));
+    if (hf != null) {
+      helpButton.addActionListener(new ShowHelpAction(hf.getContents(), null));
+    }
+    else {
+      helpButton.setEnabled(false);
+    }
     buttonsBox.add(helpButton);
     final JButton closeButton = new JButton(Resources.getString("Editor.SavedGameUpdaterDialog.close"));
     closeButton.addActionListener(e -> dispose());

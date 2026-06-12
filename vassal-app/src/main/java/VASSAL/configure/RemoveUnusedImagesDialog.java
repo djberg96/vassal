@@ -188,7 +188,9 @@ public final class RemoveUnusedImagesDialog extends JDialog {
       ErrorDialog.bug(ex);
     }
 
-    (new ShowHelpAction(hf.getContents(), null)).actionPerformed(null);
+    if (hf != null) {
+      (new ShowHelpAction(hf.getContents(), null)).actionPerformed(null);
+    }
 
   }
 

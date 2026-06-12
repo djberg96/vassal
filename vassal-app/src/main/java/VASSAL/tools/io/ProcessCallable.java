@@ -107,8 +107,8 @@ class ProcessCallable implements Callable<Integer> {
       // means that the process is being cancelled.
 
       // cancel the futures
-      out_f.cancel(true);
-      err_f.cancel(true);
+      cancelPump(out_f);
+      cancelPump(err_f);
 
       // close stdout, stderr, stdin
       closeStreams();
@@ -134,6 +134,12 @@ class ProcessCallable implements Callable<Integer> {
     }
     catch (TimeoutException e) {
       logger.error("", e);
+      f.cancel(true);
+    }
+  }
+
+  protected void cancelPump(Future<?> f) {
+    if (f != null) {
       f.cancel(true);
     }
   }
