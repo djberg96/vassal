@@ -1154,12 +1154,6 @@ public class BasicPiece extends AbstractImageFinder implements TranslatablePiece
     }
 
     /**
-     * @param p BasicPiece
-     */
-    public void reset(BasicPiece p) {
-    }
-
-    /**
      * @return the Component for the BasicPiece configurer
      */
     @Override

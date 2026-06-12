@@ -680,10 +680,6 @@ public class MassPieceLoader {
 
     private int state;
 
-    public ThreeStateCheckBox() {
-      this(null);
-    }
-
     public ThreeStateCheckBox(int s) {
       this(null, s);
     }
@@ -1203,8 +1199,8 @@ public class MassPieceLoader {
    *
    */
   private static class PieceInfo {
-    protected String name;
-    protected boolean skip;
+    protected final String name;
+    protected final boolean skip;
 
     public PieceInfo(String name, boolean skip) {
       this.name = name;
@@ -1215,17 +1211,10 @@ public class MassPieceLoader {
       return name;
     }
 
-    public void setName(String name) {
-      this.name = name;
-    }
-
     public boolean isSkip() {
       return skip;
     }
 
-    public void setSkip(boolean b) {
-      skip = b;
-    }
   }
 
   /**

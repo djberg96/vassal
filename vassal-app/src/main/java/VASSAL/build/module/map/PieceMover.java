@@ -275,8 +275,6 @@ public class PieceMover extends AbstractBuildable
    * Default DropTargetSelector for standard pieces
    */
   private class StandardDropTargetSelector extends PieceFinder.Movable {
-    // The piece being moved
-    private GamePiece piece;
     // The MatCargo trait of the piece being moved
     private MatCargo cargo;
     // The Mat trait the moving piece is currently loaded on (if cargo)
@@ -287,13 +285,8 @@ public class PieceMover extends AbstractBuildable
     }
 
     public void setPiece(GamePiece piece, MatCargo cargo, Mat mat) {
-      this.piece = piece;
       this.cargo = cargo;
       this.mat = mat;
-    }
-
-    public GamePiece getPiece() {
-      return piece;
     }
 
     public MatCargo getCargo() {

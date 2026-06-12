@@ -250,7 +250,7 @@ public class GpIdChecker {
     if (gpid != null && !gpid.isEmpty()) {
       final SlotElement element = goodSlots.get(gpid);
       if (element != null) {
-        final GamePiece newPiece = element.createPiece(oldPiece, this);
+        final GamePiece newPiece = element.createPiece(oldPiece);
         copyState(oldPiece, newPiece);
         return newPiece;
       }
@@ -264,7 +264,7 @@ public class GpIdChecker {
         final GamePiece slotPiece = element.getPiece();
         final String gpName = Decorator.getInnermost(slotPiece).getName();
         if (oldPieceName.equals(gpName)) {
-          final GamePiece newPiece = element.createPiece(oldPiece, this);
+          final GamePiece newPiece = element.createPiece(oldPiece);
           copyState(oldPiece, newPiece);
           if (fixGPID()) {
             newPiece.setProperty(Properties.PIECE_ID, slotPiece.getProperty(Properties.PIECE_ID));
@@ -382,8 +382,6 @@ public class GpIdChecker {
     private String id;
     private PrototypeDefinition prototype;
     private GamePiece expandedPrototype;
-    private GpIdChecker gpIdChecker;  // NOPMD
-
     public SlotElement() {
       slot = null;
       marker = null;
@@ -452,8 +450,7 @@ public class GpIdChecker {
      * @param oldPiece Old Piece for state information
      * @return New Piece
      */
-    public GamePiece createPiece(GamePiece oldPiece, GpIdChecker gpIdChecker) {
-      this.gpIdChecker =  gpIdChecker;
+    public GamePiece createPiece(GamePiece oldPiece) {
       GamePiece newPiece = (slot != null) ? slot.getPiece() : marker.createMarker();
       // The following two steps create a complete new GamePiece with all
       // prototypes expanded

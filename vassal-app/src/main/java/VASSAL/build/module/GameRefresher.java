@@ -1070,10 +1070,6 @@ public final class GameRefresher implements CommandEncoder, GameComponent {
       this.deck = deck;
     }
 
-    public Deck getDeck() {
-      return deck;
-    }
-
     @Override
     public List<GamePiece> getPieces() {
       return deck.asList();
@@ -1267,10 +1263,6 @@ public final class GameRefresher implements CommandEncoder, GameComponent {
       return piece;
     }
 
-    public boolean isRefreshable() {
-      return refreshable;
-    }
-
     @Override
     public List<GamePiece> getPieces() {
       return List.of(piece);
@@ -1344,5 +1336,4 @@ public final class GameRefresher implements CommandEncoder, GameComponent {
     }
   }
 }
-
 

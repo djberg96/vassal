@@ -666,10 +666,6 @@ public class ScenarioPropertiesOptionTab extends AbstractConfigurable implements
       return !Objects.equals(oldValue, getNewValue());
     }
 
-    public String getOldValue() {
-      return oldValue;
-    }
-
     public String getNewValue() {
       return configurer.getValueString();
     }

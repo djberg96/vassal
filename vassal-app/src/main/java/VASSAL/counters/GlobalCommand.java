@@ -456,7 +456,7 @@ public class GlobalCommand implements Auditable {
       // will NOT be in Deck order.
       // The IndexedFastmatchDeckPolicyManager handles the Deck Policy limit checks for an arbitrary ordered list of units.
       //
-      final IndexedFastmatchDeckPolicyManager indexedFastmatchDeckPolicyManager = new IndexedFastmatchDeckPolicyManager(this);
+      final IndexedFastmatchDeckPolicyManager indexedFastmatchDeckPolicyManager = new IndexedFastmatchDeckPolicyManager();
 
       // Check any fast-match conditions in the order most likely to be fastest and return the fewest pieces to pass to the dispatcher for full testing
       // 1. First check current Stack, Deck, mat or attachment or specified Deck as we can find these directly.
@@ -1061,13 +1061,10 @@ public class GlobalCommand implements Auditable {
    */
   protected class IndexedFastmatchDeckPolicyManager {
 
-    /** Acceptance count limit for the GKC in progress */
-    private final int useFromDeck; // NOPMD
     /** Map of DeckInfo objects, one for each Deck seen so far. */
     private final java.util.Map<Deck, DeckInfo> applyCounts = new HashMap<>();
 
-    public IndexedFastmatchDeckPolicyManager(GlobalCommand globalCommand) {
-      useFromDeck = globalCommand.getSelectFromDeck();
+    public IndexedFastmatchDeckPolicyManager() {
     }
 
     /**

@@ -192,14 +192,6 @@ public abstract class FileChooser {
       fc.setSelectedFile(file);
     }
 
-    public int getFileSelectionMode() {
-      return fc.getFileSelectionMode();
-    }
-
-    public void setFileSelectionMode(int mode) {
-      fc.setFileSelectionMode(mode);
-    }
-
     @Override
     public String getDialogTitle() {
       return fc.getDialogTitle();
@@ -271,7 +263,7 @@ public abstract class FileChooser {
     private File cur;
     private String title;
     private FileFilter filter;
-    private int mode;
+    private final int mode;
 
     public NativeFileChooser(Component parent,
                              DirectoryConfigurer prefs, int mode) {
@@ -310,14 +302,6 @@ public abstract class FileChooser {
     @Override
     public void setSelectedFile(File file) {
       cur = file;
-    }
-
-    public int getFileSelectionMode() {
-      return mode;
-    }
-
-    public void setFileSelectionMode(int mode) {
-      this.mode = mode;
     }
 
     @Override

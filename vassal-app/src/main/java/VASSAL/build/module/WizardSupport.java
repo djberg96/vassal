@@ -891,17 +891,11 @@ public class WizardSupport {
   public static class GameSetupPanels extends WizardPanelProvider implements WizardResultProducer {
     private final WizardPage[] pages;
     private final List<GameSetupStep> setupSteps;
-    private boolean forcePwd;  // NOPMD
 
     private GameSetupPanels(String[] steps, String[] descriptions, WizardPage[] pages, List<GameSetupStep> setupSteps) {
       super(steps, descriptions);
       this.pages = pages;
       this.setupSteps = setupSteps;
-      this.forcePwd = false;
-    }
-
-    public void setForcePwd(boolean forcePwd) {
-      this.forcePwd = forcePwd;
     }
 
     public static GameSetupPanels newInstance() {
@@ -932,7 +926,6 @@ public class WizardSupport {
           desc[i] = setupSteps.get(i).getStepTitle();
         }
         panels = new GameSetupPanels(steps, desc, wizardPages, setupSteps);
-        panels.setForcePwd(forcePwd);
       }
       return panels;
     }
