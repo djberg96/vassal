@@ -3,7 +3,7 @@ package org.litesoft.p2pchat;
 import java.awt.*;
 import java.awt.List;
 import java.awt.event.*;
-import java.util.*;
+import java.util.Hashtable;
 
 // Copyright Status:
 //
@@ -50,7 +50,6 @@ import java.util.*;
  * @version 0.2 01/28/02 Refactored and Added Licence
  * @version 0.1 12/27/01 Initial Version
  */
-@SuppressWarnings("unchecked")
 public class UserDialogAWT extends Frame implements UserDialog {
   private static final long serialVersionUID = 1L;
   private MyInfo zMyInfo;
@@ -59,7 +58,7 @@ public class UserDialogAWT extends Frame implements UserDialog {
   private TextField zNameText;
   private TextArea zMessagesTextArea;
   private List zPeersList;
-  private Hashtable zPrivateMessagersMap = new Hashtable();
+  private Hashtable<PeerInfo, UserDialogPrivMsgAWT> zPrivateMessagersMap = new Hashtable<>();
 
   public UserDialogAWT(String pTitle, MyInfo pMyInfo) {
     super(pTitle);
@@ -230,7 +229,7 @@ public class UserDialogAWT extends Frame implements UserDialog {
   }
 
   private UserDialogPrivMsgAWT getPrivateMessageWindow(PeerInfo pPeerInfo) {
-    return (UserDialogPrivMsgAWT) zPrivateMessagersMap.get(pPeerInfo);
+    return zPrivateMessagersMap.get(pPeerInfo);
   }
 
   public void unregisterPrivateMessager(PeerInfo pPeerInfo) {

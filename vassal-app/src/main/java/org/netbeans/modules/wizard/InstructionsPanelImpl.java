@@ -60,6 +60,8 @@ import org.netbeans.spi.wizard.WizardObserver;
  * @author Tim Boudreau
  */
 public class InstructionsPanelImpl extends JComponent implements WizardObserver, Accessible, InstructionsPanel {
+    private static final long serialVersionUID = 1L;
+
     private final BufferedImage img;
     private final Wizard wizard;
     private static final int MARGIN = 5;
