@@ -77,8 +77,6 @@ public class Remote
 
 	static String doBsh( String url, String text ) 
 	{ 
-	    OutputStream out;
-	    InputStream in;
 	    String host = "";
 	    String port = "";
 	    String returnValue = "-1";
@@ -96,18 +94,15 @@ public class Remote
 			return returnValue;
 	    }
 
-	    try {
+	    try (Socket s = new Socket(host, Integer.parseInt(port) + 1);
+	         BufferedReader bin = new BufferedReader(
+		         new InputStreamReader(s.getInputStream()))) {
 			System.out.println("Connecting to host : " 
 				+ host + " at port : " + port);
-			Socket s = new Socket(host, Integer.parseInt(port) + 1);
 			
-			out = s.getOutputStream();
-			in = s.getInputStream();
-			
+			final OutputStream out = s.getOutputStream();
 			sendLine( text, out );
 
-			BufferedReader bin = new BufferedReader( 
-				new InputStreamReader(in));
 			  String line;
 			  while ( (line=bin.readLine()) != null )
 				System.out.println( line );
