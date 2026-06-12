@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,7 +22,8 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 
 package bsh;
@@ -34,6 +36,8 @@ import java.lang.reflect.InvocationTargetException;
 */
 class BSHAllocationExpression extends SimpleNode
 {
+	private static final long serialVersionUID = 0L;
+
     BSHAllocationExpression(int id) { super(id); }
 	private static int innerClassCount = 0;
 	
@@ -83,7 +87,7 @@ class BSHAllocationExpression extends SimpleNode
         obj = nameNode.toObject( 
 			callstack, interpreter, true/*force class*/ );
 
-        Class type = null;
+        Class<?> type = null;
 		if ( obj instanceof ClassIdentifier )
         	type = ((ClassIdentifier)obj).getTargetClass();
 		else
@@ -164,7 +168,7 @@ class BSHAllocationExpression extends SimpleNode
 		need to construct a real inner class block here...
 	*/
 	private Object constructWithClassBody( 
-		Class type, Object[] args, BSHBlock block,
+		Class<?> type, Object[] args, BSHBlock block,
 		CallStack callstack, Interpreter interpreter ) 
 		throws EvalError
 	{
@@ -173,7 +177,7 @@ class BSHAllocationExpression extends SimpleNode
 		String name = callstack.top().getName() + "$" + (++innerClassCount);
 		Modifiers modifiers = new Modifiers();
 		modifiers.addModifier( Modifiers.CLASS, "public" );
-		Class clas = ClassGenerator.getClassGenerator() .generateClass( 
+		Class<?> clas = ClassGenerator.getClassGenerator() .generateClass( 
 				name, modifiers, null/*interfaces*/, type/*superClass*/, 
 // block is not innerClassBlock here!!!
 				block, false/*isInterface*/, callstack, interpreter );
@@ -189,7 +193,7 @@ class BSHAllocationExpression extends SimpleNode
 	}
 
 	private Object constructWithInterfaceBody( 
-		Class type, Object[] args, BSHBlock body,
+		Class<?> type, Object[] args, BSHBlock body,
 		CallStack callstack, Interpreter interpreter ) 
 		throws EvalError
 	{
@@ -211,7 +215,7 @@ class BSHAllocationExpression extends SimpleNode
 		throws EvalError
     {
 		NameSpace namespace = callstack.top();
-        Class type = nameNode.toClass( callstack, interpreter );
+        Class<?> type = nameNode.toClass( callstack, interpreter );
         if ( type == null )
             throw new EvalError( "Class " + nameNode.getName(namespace) 
 				+ " not found.", this, callstack );
@@ -225,13 +229,13 @@ class BSHAllocationExpression extends SimpleNode
 	) 
 		throws EvalError
     {
-        Class type = typeNode.getType();
+        Class<?> type = typeNode.getType();
 
 		return arrayAllocation( dimensionsNode, type, callstack, interpreter );
     }
 
 	private Object arrayAllocation( 
-		BSHArrayDimensions dimensionsNode, Class type, 
+		BSHArrayDimensions dimensionsNode, Class<?> type, 
 		CallStack callstack, Interpreter interpreter )
 		throws EvalError
 	{
@@ -278,7 +282,7 @@ class BSHAllocationExpression extends SimpleNode
 		see below.
 	*/
 	private Object arrayNewInstance( 
-		Class type, BSHArrayDimensions dimensionsNode, CallStack callstack )
+		Class<?> type, BSHArrayDimensions dimensionsNode, CallStack callstack )
 		throws EvalError
 	{
 		if ( dimensionsNode.numUndefinedDims > 0 )
