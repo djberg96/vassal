@@ -190,10 +190,11 @@ public class Remote
 		throws FileNotFoundException, IOException
 	{
 		StringBuffer sb = new StringBuffer();
-		BufferedReader bin = new BufferedReader( new FileReader( name ) );
-		String line;
-		while ( (line=bin.readLine()) != null )
-			sb.append( line ).append( "\n" );
+		try (BufferedReader bin = new BufferedReader( new FileReader( name ) )) {
+			String line;
+			while ( (line=bin.readLine()) != null )
+				sb.append( line ).append( "\n" );
+		}
 		return sb.toString();
 	}
 
