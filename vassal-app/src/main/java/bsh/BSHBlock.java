@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ ****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -28,6 +29,8 @@ package bsh;
 
 class BSHBlock extends SimpleNode
 {
+	private static final long serialVersionUID = 0L;
+
 	public boolean isSynchronized = false;
 	public boolean isStatic = false;
 
@@ -139,4 +142,3 @@ class BSHBlock extends SimpleNode
 	}
 
 }
-

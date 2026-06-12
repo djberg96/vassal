@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ ****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -31,7 +32,9 @@ package bsh;
 */
 class BSHForStatement extends SimpleNode implements ParserConstants
 {
-    public boolean hasForInit;
+	private static final long serialVersionUID = 0L;
+
+	public boolean hasForInit;
     public boolean hasExpression;
     public boolean hasForUpdate;
 

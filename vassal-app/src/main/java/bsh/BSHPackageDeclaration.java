@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ ****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -28,6 +29,7 @@ package bsh;
 
 public class BSHPackageDeclaration extends SimpleNode 
 {
+	private static final long serialVersionUID = 0L;
 
   public BSHPackageDeclaration(int id) {
     super(id);

@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ ****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -29,6 +30,7 @@ class BSHSwitchStatement
 	extends SimpleNode 
 	implements ParserConstants 
 {
+	private static final long serialVersionUID = 0L;
 
 	public BSHSwitchStatement(int id) { super(id); }
 
@@ -125,4 +127,3 @@ class BSHSwitchStatement
 			return switchVal.equals( targetVal );
 	}
 }
-

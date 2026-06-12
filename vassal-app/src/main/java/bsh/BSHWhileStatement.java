@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ ****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -29,6 +30,7 @@ package bsh;
  * This class handles both {@code while} statements and {@code do..while} statements.
 */
 class BSHWhileStatement extends SimpleNode implements ParserConstants {
+	private static final long serialVersionUID = 0L;
 
 	/**
 	 * Set by Parser, default {@code false}

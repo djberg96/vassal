@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ ****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -28,7 +29,9 @@ package bsh;
 
 class BSHIfStatement extends SimpleNode
 {
-    BSHIfStatement(int id) { super(id); }
+	private static final long serialVersionUID = 0L;
+
+	BSHIfStatement(int id) { super(id); }
 
     public Object eval(CallStack callstack, Interpreter interpreter)  
 		throws EvalError

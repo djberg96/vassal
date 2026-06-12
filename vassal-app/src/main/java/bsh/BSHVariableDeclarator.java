@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ ****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -32,6 +33,8 @@ package bsh;
 */
 class BSHVariableDeclarator extends SimpleNode
 {
+	private static final long serialVersionUID = 0L;
+
 	// The token.image text of the name... never changes.
     public String name;
 

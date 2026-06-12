@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ ****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -32,6 +33,7 @@ package bsh;
 	should not be evaluated in the case where foo is true.
 */
 class BSHTernaryExpression extends SimpleNode {
+	private static final long serialVersionUID = 0L;
 
     BSHTernaryExpression(int id) { super(id); }
 

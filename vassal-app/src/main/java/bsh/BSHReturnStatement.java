@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ ****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -28,6 +29,8 @@ package bsh;
 
 class BSHReturnStatement extends SimpleNode implements ParserConstants
 {
+	private static final long serialVersionUID = 0L;
+
 	public int kind;
 
 	BSHReturnStatement(int id) { super(id); }
@@ -44,4 +47,3 @@ class BSHReturnStatement extends SimpleNode implements ParserConstants
 		return new ReturnControl( kind, value, this );
 	}
 }
-

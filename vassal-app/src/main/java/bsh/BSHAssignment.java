@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ ****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -28,7 +29,9 @@ package bsh;
 
 class BSHAssignment extends SimpleNode implements ParserConstants
 {
-    public int operator;
+	private static final long serialVersionUID = 0L;
+
+	public int operator;
 
     BSHAssignment(int id) { super(id); }
 

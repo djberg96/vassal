@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ ****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -32,6 +33,8 @@ import java.util.ArrayList;
 
 class BSHTryStatement extends SimpleNode
 {
+	private static final long serialVersionUID = 0L;
+
 	BSHTryStatement(int id)
 	{
 		super(id);

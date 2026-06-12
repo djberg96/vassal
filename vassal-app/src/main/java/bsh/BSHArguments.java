@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ ****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -28,7 +29,9 @@ package bsh;
 
 class BSHArguments extends SimpleNode
 {
-    BSHArguments(int id) { super(id); }
+	private static final long serialVersionUID = 0L;
+
+	BSHArguments(int id) { super(id); }
 
 	/**
 		This node holds a set of arguments for a method invocation or
@@ -63,4 +66,3 @@ class BSHArguments extends SimpleNode
         return args;
     }
 }
-
