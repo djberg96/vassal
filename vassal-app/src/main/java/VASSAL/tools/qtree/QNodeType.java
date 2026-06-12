@@ -45,12 +45,9 @@ package VASSAL.tools.qtree;
 
 /**
  * Enumeration of node types.
- *
- * @enum {number}
  */
 public enum QNodeType {
   EMPTY,
   LEAF,
   POINTER
 }
-

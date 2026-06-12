@@ -78,7 +78,7 @@ public class QuadTree<T> implements Cloneable {
    * Returns a reference to the tree's root node.  Callers shouldn't modify nodes,
    * directly.  This is a convenience for visualization and debugging purposes.
    *
-   * @return {Node} The root node.
+   * @return the root node.
    */
   public QNode<T> getRootNode() {
     return this.root_;
@@ -127,7 +127,7 @@ public class QuadTree<T> implements Cloneable {
    *
    * @param x The x-coordinate.
    * @param y The y-coordinate.
-   * @return {T} The value of the node that was removed, or null if the
+   * @return the value of the node that was removed, or null if the
    *         node doesn't exist.
    */
   public T remove(double x, double y) {
@@ -157,14 +157,14 @@ public class QuadTree<T> implements Cloneable {
   }
 
   /**
-   * @return {boolean} Whether the tree is empty.
+   * @return whether the tree is empty.
    */
   public boolean isEmpty() {
     return this.root_.getNodeType() == QNodeType.EMPTY;
   }
 
   /**
-   * @return {number} The number of items in the tree.
+   * @return the number of items in the tree.
    */
   public int getCount() {
     return this.count_;
@@ -185,7 +185,7 @@ public class QuadTree<T> implements Cloneable {
 
   /**
    * Returns an array containing the coordinates of each point stored in the tree.
-   * @return {Array.<Point>} Array of coordinates.
+   * @return an array of coordinates.
    */
   public QPoint<T>[] getKeys() {
     final List<QPoint<T>> arr = new ArrayList<>();
@@ -200,7 +200,7 @@ public class QuadTree<T> implements Cloneable {
 
   /**
    * Returns a list containing all values stored within the tree.
-   * @return {List<T>} The values stored within the tree.
+   * @return the values stored within the tree.
    */
   public List<T> getValues() {
     final List<T> arr = new ArrayList<>();
@@ -275,7 +275,7 @@ public class QuadTree<T> implements Cloneable {
   }
   /**
    * Clones the quad-tree and returns the new instance.
-   * @return {QuadTree} A clone of the tree.
+   * @return a clone of the tree.
    */
   @Override
   @SuppressWarnings("unchecked")
@@ -317,10 +317,9 @@ public class QuadTree<T> implements Cloneable {
    * order (NE, SE, SW, NW).  The provided function will be called for each
    * leaf node that is encountered.
    * @param node The current node.
-   * @param fn The function to call
+   * @param func The function to call
    *     for each leaf node. This function takes the node as an argument, and its
    *     return value is irrelevant.
-   * @private
    */
   public void traverse(QNode<T> node, QFunc<T> func) {
     switch (node.getNodeType()) {
@@ -343,9 +342,8 @@ public class QuadTree<T> implements Cloneable {
    * @param node The node to search in.
    * @param x The x-coordinate of the point to search for.
    * @param y The y-coordinate of the point to search for.
-   * @return {QuadTree.Node} The leaf node that matches the target,
+   * @return the leaf node that matches the target,
    *     or null if it doesn't exist.
-   * @private
    */
   public QNode<T> find(QNode<T> node, double x, double y) {
     QNode<T> resposne = null;
@@ -372,10 +370,9 @@ public class QuadTree<T> implements Cloneable {
    * @param parent The parent to insert the point
    *     into.
    * @param point The point to insert.
-   * @return {boolean} True if a new node was added to the tree; False if a node
-   *     already existed with the correpsonding coordinates and had its value
+   * @return true if a new node was added to the tree; false if a node
+   *     already existed with the corresponding coordinates and had its value
    *     reset.
-   * @private
    */
   private boolean insert(QNode<T> parent, QPoint<T> point) {
     Boolean result = false;
@@ -409,7 +406,6 @@ public class QuadTree<T> implements Cloneable {
    * Converts a leaf node to a pointer node and reinserts the node's point into
    * the correct child.
    * @param node The node to split.
-   * @private
    */
   private void split(QNode<T> node) {
     final QPoint<T> oldPoint = node.getPoint();
@@ -434,7 +430,6 @@ public class QuadTree<T> implements Cloneable {
    * Attempts to balance a node. A node will need balancing if all its children
    * are empty or it contains just one leaf.
    * @param node The node to balance.
-   * @private
    */
   private void balance(QNode<T> node) {
     switch (node.getNodeType()) {
@@ -515,9 +510,8 @@ public class QuadTree<T> implements Cloneable {
    * @param parent The node.
    * @param x The x-coordinate to look for.
    * @param y The y-coordinate to look for.
-   * @return {QuadTree.Node} The child quadrant that contains the
+   * @return the child quadrant that contains the
    *     point.
-   * @private
    */
   private QNode<T> getQuadrantForPoint(QNode<T> parent, double x, double y) {
     final double mx = parent.getX() + parent.getW() / 2;
@@ -534,7 +528,6 @@ public class QuadTree<T> implements Cloneable {
    * Sets the point for a node, as long as the node is a leaf or empty.
    * @param node The node to set the point for.
    * @param point The point to set.
-   * @private
    */
   private void setPointForNode(QNode<T> node, QPoint<T> point) {
     if (node.getNodeType() == QNodeType.POINTER) {
