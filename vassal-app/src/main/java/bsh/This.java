@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -27,7 +27,6 @@
 package bsh;
 
 import java.lang.reflect.*;
-import java.util.Map;
 import java.util.HashMap;
 
 
@@ -41,6 +40,8 @@ import java.util.HashMap;
 */
 public class This implements java.io.Serializable, Runnable 
 {
+	private static final long serialVersionUID = 1L;
+
 	/**
 		The namespace that this This reference wraps.
 	*/
@@ -58,9 +59,9 @@ public class This implements java.io.Serializable, Runnable
 		A cache of proxy interface handlers.
 		Currently just one per interface.
 	*/
-	private Map<Integer,Object> interfaces;
+	private HashMap<Integer,Object> interfaces;
 
-	private final InvocationHandler invocationHandler = new Handler();
+	private final Handler invocationHandler = new Handler();
 
 	/**
 		getThis() is a factory for bsh.This type references.  The capabilities
@@ -85,25 +86,25 @@ public class This implements java.io.Serializable, Runnable
 		return new This( namespace, declaringInterpreter );
     }
 
-	/**
+	/*
 		Get a version of this scripted object implementing the specified 
 		interface.
 	*/
 	/**
 		Get dynamic proxy for interface, caching those it creates.
 	*/
-	public Object getInterface( Class clas ) 
+	public Object getInterface( Class<?> clas )
 	{
-		return getInterface( new Class[] { clas } );
+		return getInterface( new Class<?>[] { clas } );
 	}
 
 	/**
 		Get dynamic proxy for interface, caching those it creates.
 	*/
-	public Object getInterface( Class [] ca ) 
+	public Object getInterface( Class<?> [] ca )
 	{
 		if ( interfaces == null )
-			interfaces = new HashMap<Integer,Object>();
+			interfaces = new HashMap<>();
 
 		// Make a hash of the interface hashcodes in order to cache them
 		int hash = 21;
@@ -138,6 +139,8 @@ public class This implements java.io.Serializable, Runnable
 	*/
 	class Handler implements InvocationHandler, java.io.Serializable 
 	{
+		private static final long serialVersionUID = 1L;
+
 		public Object invoke( Object proxy, Method method, Object[] args ) 
 			throws Throwable
 		{
@@ -190,7 +193,7 @@ public class This implements java.io.Serializable, Runnable
 			BshMethod equalsMethod = null;
 			try {
 				equalsMethod = namespace.getMethod( 
-					"equals", new Class [] { Object.class } );
+					"equals", new Class<?> [] { Object.class } );
 			} catch ( UtilEvalError e ) {/*leave null*/ }
 			if ( methodName.equals("equals" ) && equalsMethod == null ) {
 				Object obj = args[0];
@@ -204,12 +207,12 @@ public class This implements java.io.Serializable, Runnable
 			BshMethod toStringMethod = null;
 			try {
 				toStringMethod = 
-					namespace.getMethod( "toString", new Class [] { } );
+					namespace.getMethod( "toString", new Class<?> [] { } );
 			} catch ( UtilEvalError e ) {/*leave null*/ }
 
 			if ( methodName.equals("toString" ) && toStringMethod == null)
 			{
-				Class [] ints = proxy.getClass().getInterfaces();
+				Class<?> [] ints = proxy.getClass().getInterfaces();
 				// XThis.this refers to the enclosing class instance
 				StringBuilder sb = new StringBuilder( 
 					This.this.toString() + "\nimplements:" );
@@ -219,7 +222,7 @@ public class This implements java.io.Serializable, Runnable
 				return sb.toString();
 			}
 
-			Class [] paramTypes = method.getParameterTypes();
+			Class<?> [] paramTypes = method.getParameterTypes();
 			return Primitive.unwrap( 
 				invokeMethod( methodName, Primitive.wrap(args, paramTypes) ) );
 		}
@@ -331,7 +334,7 @@ public class This implements java.io.Serializable, Runnable
 			callerInfo = SimpleNode.JAVACODE;
 
 		// Find the bsh method
-		Class [] types = Types.getTypes( args );
+		Class<?> [] types = Types.getTypes( args );
 		BshMethod bshMethod = null;
 		try {
 			bshMethod = namespace.getMethod( methodName, types, declaredOnly );
@@ -386,7 +389,7 @@ public class This implements java.io.Serializable, Runnable
 		// is that ok?
 		try {
 			bshMethod = namespace.getMethod( 
-				"invoke", new Class [] { null, null } );
+				"invoke", new Class<?> [] { null, null } );
 		} catch ( UtilEvalError e ) { /*leave null*/ }
 
 		// Call script "invoke( String methodName, Object [] args );
