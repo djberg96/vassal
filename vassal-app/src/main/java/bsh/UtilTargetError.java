@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,7 +22,8 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 
 package bsh;
@@ -37,6 +39,8 @@ package bsh;
 */
 public class UtilTargetError extends UtilEvalError
 {
+	private static final long serialVersionUID = 0L;
+
 	public Throwable t;
 
 	public UtilTargetError( String message, Throwable t ) {
@@ -62,4 +66,3 @@ public class UtilTargetError extends UtilEvalError
 		return new TargetError( msg, t, node, callstack, false );
 	}
 }
-

@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,13 +22,16 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 package bsh;
 
 /**
  * An internal error in the interpreter has occurred.
  */
 public class InterpreterError extends RuntimeException {
+
+	private static final long serialVersionUID = 0L;
 
 	public InterpreterError(final String s) {
 		super(s);
@@ -40,4 +44,3 @@ public class InterpreterError extends RuntimeException {
 
 
 }
-

@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,13 +22,16 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 
 package bsh;
 
 class ReflectError extends Exception
 {
+	private static final long serialVersionUID = 0L;
+
 	public ReflectError() { super(); }
 	public ReflectError(String s) { super(s); }
 	public ReflectError(String s,Throwable t) { super(s,t); }

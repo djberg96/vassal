@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,20 +22,21 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 package bsh;
 
 public class ClassIdentifier 
 {
-	Class clas;
+	Class<?> clas;
 
-	public ClassIdentifier( Class clas ) {
+	public ClassIdentifier( Class<?> clas ) {
 		this.clas = clas;
 	}
 
 	// Can't call it getClass()
-	public Class getTargetClass() {
+	public Class<?> getTargetClass() {
 		return clas;
 	}
 
@@ -42,4 +44,3 @@ public class ClassIdentifier
 		return "Class Identifier: "+clas.getName();
 	}
 }
-
