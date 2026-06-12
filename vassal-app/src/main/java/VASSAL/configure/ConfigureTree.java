@@ -2033,11 +2033,6 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
       return searchString;
     }
 
-    public void setSearchString(String searchString) {
-      this.searchString = searchString;
-      writePrefs();
-    }
-
     public boolean isOptNormal() {
       return optNormal;
     }
@@ -2054,17 +2049,8 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
       return matchCase;
     }
 
-    public void setMatchCase(boolean matchCase) {
-      this.matchCase = matchCase;
-      writePrefs();
-    }
     public boolean isMatchModule() {
       return matchModule;
-    }
-
-    public void setMatchModule(boolean matchModule) {
-      this.matchModule = matchModule;
-      writePrefs();
     }
 
     public boolean isMatchNames() {
@@ -2080,88 +2066,40 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
       return matchTypes;
     }
 
-    public void setMatchTypes(boolean matchTypes) {
-      this.matchTypes = matchTypes;
-      writePrefs();
-    }
-
     public boolean isMatchSimple() {
       return matchSimple;
-    }
-    public void setMatchSimple(boolean matchSimple) {
-      this.matchFull = matchSimple;
-      writePrefs();
     }
 
     public boolean isMatchFull() {
       return matchFull;
-    }
-    public void setMatchFull(boolean matchFull) {
-      this.matchFull = matchFull;
-      writePrefs();
     }
 
     public boolean isMatchAdvanced() {
       return matchAdvanced;
     }
 
-    public void setMatchAdvanced(boolean matchAdvanced) {
-      this.matchAdvanced = matchAdvanced;
-      writePrefs();
-    }
-
     public boolean isMatchTraits() {
       return matchTraits;
-    }
-
-    public void setMatchTraits(boolean matchTraits) {
-      this.matchTraits = matchTraits;
-      writePrefs();
     }
 
     public boolean isMatchExpressions() {
       return matchExpressions;
     }
 
-    public void setMatchExpressions(boolean matchExpressions) {
-      this.matchExpressions = matchExpressions;
-      writePrefs();
-    }
-
     public boolean isMatchProperties() {
       return matchProperties;
-    }
-
-    public void setMatchProperties(boolean matchProperties) {
-      this.matchProperties = matchProperties;
-      writePrefs();
     }
 
     public boolean isMatchKeys() {
       return matchKeys;
     }
 
-    public void setMatchKeys(boolean matchKeys) {
-      this.matchKeys = matchKeys;
-      writePrefs();
-    }
-
     public boolean isMatchMenus() {
       return matchMenus;
     }
 
-    public void setMatchMenus(boolean matchMenus) {
-      this.matchMenus = matchMenus;
-      writePrefs();
-    }
-
     public boolean isMatchMessages() {
       return matchMessages;
-    }
-
-    public void setMatchMessages(boolean matchMessages) {
-      this.matchMessages = matchMessages;
-      writePrefs();
     }
 
     public void setFrom(final SearchParameters searchParameters) {
