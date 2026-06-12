@@ -50,13 +50,13 @@ import java.util.Stack;
  *
  * @author Tim Boudreau
  */
-public class MergeMap implements Map {
-    private Stack order = new Stack();
-    private Map id2map = new HashMap();
+public class MergeMap implements Map<Object, Object> {
+    private final Stack<String> order = new Stack<>();
+    private final Map<String, Map<Object, Object>> id2map = new HashMap<>();
     
     /** Creates a new instance of MergeMap */
     public MergeMap(String currID) {
-        push (currID);
+        doPush(currID);
     }
     
     private static final String BASE = "__BASE"; //NOI18N
@@ -67,28 +67,37 @@ public class MergeMap implements Map {
      * have a first panel that gathered some settings using the old APIs
      * framework, and we need to inject them here.
      */
-    public MergeMap(String currId, Map everpresent) {
+    public MergeMap(String currId, Map<?, ?> everpresent) {
         order.push(BASE);
-        id2map.put (BASE, everpresent);
-        push (currId);
+        id2map.put(BASE, typedMap(everpresent));
+        doPush(currId);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<Object, Object> typedMap(Map<?, ?> map) {
+        return (Map<Object, Object>) map;
     }
     
     /**
      * Move to a different ID (meaning add a new named map to proxy which can be
      * calved off if necessary).
      */
-    public Map push (String id) {
+    public Map<Object, Object> push(String id) {
+        return doPush(id);
+    }
+
+    private Map<Object, Object> doPush(String id) {
         // assert !order.contains(id) : id + " already present"; //NOI18N
         if (order.contains(id)) {
             throw new RuntimeException (id + " already present"); //NOI18N
         }
 //        assert !order.contains(id) : id + " already present"; //NOI18N
         if (!order.isEmpty() && id.equals(order.peek())) {
-            return (Map) id2map.get(id);
+            return id2map.get(id);
         }
-        Map result = (Map) id2map.get(id);
+        Map<Object, Object> result = id2map.get(id);
         if (result == null) {
-            result = new HashMap();
+            result = new HashMap<>();
             id2map.put (id, result);
         }
         order.push (id);
@@ -99,7 +108,7 @@ public class MergeMap implements Map {
      * Get the ID of the current sub-map being written into.
      */
     public String currID() {
-        return (String) order.peek();
+        return order.peek();
     }
     
     /**
@@ -113,8 +122,8 @@ public class MergeMap implements Map {
                     "entry"); //NOI18N
         }
         //Get the current map
-        String result = (String) order.peek();
-        Map curr = (Map) id2map.get (result);
+        String result = order.peek();
+        Map<Object, Object> curr = id2map.get(result);
         order.pop();
         
         //Though unlikely, it is possible that a later step in a wizard
@@ -124,10 +133,9 @@ public class MergeMap implements Map {
         //stack, change those lower steps values to whatever was written
         //into the map we're calving off
         
-        Set keysForCurr = curr.keySet();
-        for (Iterator i=orderIterator(); i.hasNext();) {
-            Map other = (Map) id2map.get(i.next());
-            for (Iterator j=curr.keySet().iterator(); j.hasNext();) {
+        for (Iterator<String> i=orderIterator(); i.hasNext();) {
+            Map<Object, Object> other = id2map.get(i.next());
+            for (Iterator<Object> j=curr.keySet().iterator(); j.hasNext();) {
                 Object key = j.next();
                 if (other.containsKey(key)) {
                     other.put (key, curr.get(key));
@@ -142,8 +150,8 @@ public class MergeMap implements Map {
     }
 
     public boolean containsKey(Object obj) {
-        for (Iterator i = orderIterator(); i.hasNext();) {
-            Map curr = (Map) id2map.get(i.next());
+        for (Iterator<String> i = orderIterator(); i.hasNext();) {
+            Map<Object, Object> curr = id2map.get(i.next());
             if (curr.containsKey(obj)) {
                 return true;
             }
@@ -152,8 +160,8 @@ public class MergeMap implements Map {
     }
 
     public boolean containsValue(Object obj) {
-        for (Iterator i = orderIterator(); i.hasNext();) {
-            Map curr = (Map) id2map.get(i.next());
+        for (Iterator<String> i = orderIterator(); i.hasNext();) {
+            Map<Object, Object> curr = id2map.get(i.next());
             if (curr.containsValue(obj)) {
                 return true;
             }
@@ -161,19 +169,19 @@ public class MergeMap implements Map {
         return false;
     }
 
-    public java.util.Set entrySet() {
-        HashSet result = new HashSet();
-        for (Iterator i = orderIterator(); i.hasNext();) {
-            Map curr = (Map) id2map.get(i.next());
+    public Set<Entry<Object, Object>> entrySet() {
+        HashSet<Entry<Object, Object>> result = new HashSet<>();
+        for (Iterator<String> i = orderIterator(); i.hasNext();) {
+            Map<Object, Object> curr = id2map.get(i.next());
             result.addAll (curr.entrySet());
         }
         return result;
     }
 
     public Object get(Object obj) {
-        for (Iterator i = orderIterator(); i.hasNext();) {
-            String id = (String) i.next();
-            Map curr = (Map) id2map.get(id);
+        for (Iterator<String> i = orderIterator(); i.hasNext();) {
+            String id = i.next();
+            Map<Object, Object> curr = id2map.get(id);
             Object result = curr.get(obj);
             if (result != null) {
                 return result;
@@ -186,31 +194,31 @@ public class MergeMap implements Map {
         return size() == 0;
     }
 
-    public Set keySet() {
-        HashSet result = new HashSet();
-        for (Iterator i = orderIterator(); i.hasNext();) {
-            Map curr = (Map) id2map.get(i.next());
+    public Set<Object> keySet() {
+        HashSet<Object> result = new HashSet<>();
+        for (Iterator<String> i = orderIterator(); i.hasNext();) {
+            Map<Object, Object> curr = id2map.get(i.next());
             result.addAll (curr.keySet());
         }
         return result;
     }
 
     public Object put(Object obj, Object obj1) {
-        Map curr = (Map) id2map.get (order.peek());
+        Map<Object, Object> curr = id2map.get(order.peek());
         return curr.put (obj, obj1);
     }
 
-    public void putAll(Map map) {
-        Map curr = (Map) id2map.get (order.peek());
+    public void putAll(Map<?, ?> map) {
+        Map<Object, Object> curr = id2map.get(order.peek());
         curr.putAll (map);
     }
 
     private Object doRemove(Object obj) {
-        Map curr = (Map) id2map.get (order.peek());
+        Map<Object, Object> curr = id2map.get(order.peek());
         Object result = curr.remove (obj);
         if (result == null) {
-            for (Iterator i = orderIterator(); i.hasNext();) {
-                curr = (Map) id2map.get(i.next());
+            for (Iterator<String> i = orderIterator(); i.hasNext();) {
+                curr = id2map.get(i.next());
                 result = curr.remove (obj);
                 if (result != null) {
                     break;
@@ -234,36 +242,36 @@ public class MergeMap implements Map {
         return keySet().size();
     }
 
-    public Collection values() {
-        HashSet result = new HashSet();
-        Set keys = keySet();
-        for (Iterator i = keys.iterator(); i.hasNext();) {
+    public Collection<Object> values() {
+        HashSet<Object> result = new HashSet<>();
+        Set<Object> keys = keySet();
+        for (Iterator<Object> i = keys.iterator(); i.hasNext();) {
             result.add (get(i.next()));
         }
         return result;
     }
     
-    private Iterator orderIterator() {
+    private Iterator<String> orderIterator() {
         return new ReverseIterator(order);
     }
     
-    private static final class ReverseIterator implements Iterator {
+    private static final class ReverseIterator implements Iterator<String> {
         private int pos;
-        private List l;
-        public ReverseIterator (Stack s) {
+        private final List<String> l;
+        public ReverseIterator(Stack<String> s) {
             pos = s.size()-1;
-            l = new ArrayList(s);
+            l = new ArrayList<>(s);
         }
         
         public boolean hasNext() {
             return pos != -1;
         }
         
-        public Object next() {
+        public String next() {
             if (pos < 0) {
                 throw new NoSuchElementException();
             }
-            Object result = l.get(pos);
+            String result = l.get(pos);
             pos--;
             return result;
         } 
@@ -275,8 +283,8 @@ public class MergeMap implements Map {
 
     public String toString() {
         StringBuffer sb = new StringBuffer();
-        for (Iterator i = keySet().iterator(); i.hasNext();) {
-            Object key = (Object) i.next();
+        for (Iterator<Object> i = keySet().iterator(); i.hasNext();) {
+            Object key = i.next();
             sb.append ('[');
             sb.append (key);
             sb.append('=');
