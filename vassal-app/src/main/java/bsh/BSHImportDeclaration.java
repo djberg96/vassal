@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,13 +22,16 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 
 package bsh;
 
 class BSHImportDeclaration extends SimpleNode
 {
+	private static final long serialVersionUID = 0L;
+
 	public boolean importPackage;
 	public boolean staticImport;
 	public boolean superImport;
@@ -50,7 +54,7 @@ class BSHImportDeclaration extends SimpleNode
 			{
 				if ( importPackage )
 				{
-					Class clas = ((BSHAmbiguousName)jjtGetChild(0)).toClass( 
+					Class<?> clas = ((BSHAmbiguousName)jjtGetChild(0)).toClass(
 						callstack, interpreter );
 					namespace.importStatic( clas );
 				} else
@@ -70,4 +74,3 @@ class BSHImportDeclaration extends SimpleNode
         return Primitive.VOID;
 	}
 }
-

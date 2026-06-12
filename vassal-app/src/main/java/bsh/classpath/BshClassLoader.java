@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,7 +22,8 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 package bsh.classpath;
 
@@ -73,7 +75,7 @@ public class BshClassLoader extends URLClassLoader
 		the same classloader as the interpreter.
 	*/
 	// todo pejobo70 this could be one of the root causes for issue#34
-	public Class loadClass(String name, boolean resolve)
+	public Class<?> loadClass(String name, boolean resolve)
         throws ClassNotFoundException
     {
 		if (name.startsWith("java.")) {
@@ -84,7 +86,7 @@ public class BshClassLoader extends URLClassLoader
 			Check first for classes loaded through this loader.
 			The VM will not allow a class to be loaded twice.
 		*/
-		Class c = findLoadedClass(name);
+		Class<?> c = findLoadedClass(name);
 		if ( c != null ) {
 			return c;
 		}
@@ -120,7 +122,7 @@ public class BshClassLoader extends URLClassLoader
 		Try system ???
 	*/
 	// add some caching for not found classes?
-	protected Class findClass( String name ) 
+	protected Class<?> findClass( String name )
 		throws ClassNotFoundException 
 	{
 		// Deal with this cast somehow... maybe have this class use 
@@ -136,7 +138,7 @@ public class BshClassLoader extends URLClassLoader
 		// Don't add the method to BshClassManager... it's really an impl thing
 		ClassLoader cl = bcm.getLoaderForClass( name );
 
-		Class c;
+		Class<?> c;
 
 		// If there is a designated loader and it's not us delegate to it
 		if ( cl != null && cl != this )

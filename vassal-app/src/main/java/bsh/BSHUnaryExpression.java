@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,13 +22,16 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 
 package bsh;
 
 class BSHUnaryExpression extends SimpleNode implements ParserConstants
 {
+	private static final long serialVersionUID = 0L;
+
     public int kind;
 	public boolean postfix = false;
 
@@ -89,7 +93,7 @@ class BSHUnaryExpression extends SimpleNode implements ParserConstants
     private Object primitiveWrapperUnaryOperation(Object val, int kind)
         throws UtilEvalError
     {
-        Class operandType = val.getClass();
+        Class<?> operandType = val.getClass();
         Object operand = Primitive.promoteToInteger(val);
 
         if ( operand instanceof Boolean )
