@@ -34,66 +34,69 @@ import static org.mockito.Mockito.verify;
 
 public class RereadableInputStreamTest {
   @Test
-  public void testMarkSupported() {
-    final InputStream in = new RereadableInputStream(new NullInputStream(10));
-    assertTrue(in.markSupported());
+  public void testMarkSupported() throws IOException {
+    try (InputStream in = new RereadableInputStream(new NullInputStream(10))) {
+      assertTrue(in.markSupported());
+    }
   }
 
   @Test
   public void testReadInt() throws IOException {
     final byte[] expected = new byte[]{ 0, 1, 2, 3, 4, 5, 6, 7 };
-    final InputStream in =
-      new RereadableInputStream(new ByteArrayInputStream(expected));
+    try (InputStream in =
+      new RereadableInputStream(new ByteArrayInputStream(expected))) {
+      for (int i = 0; i < expected.length; ++i) {
+        assertEquals(expected[i], in.read());
+      }
 
-    for (int i = 0; i < expected.length; ++i) {
-      assertEquals(expected[i], in.read());
+      assertEquals(-1, in.read());
     }
-
-    assertEquals(-1, in.read());
   }
 
   @Test
   public void testReadBytes() throws IOException {
     final byte[] expected = new byte[]{ 0, 1, 2, 3, 4, 5, 6, 7 };
-    final InputStream in =
-      new RereadableInputStream(new ByteArrayInputStream(expected));
+    try (InputStream in =
+      new RereadableInputStream(new ByteArrayInputStream(expected))) {
+      final byte[] actual = new byte[expected.length];
+      final int count = in.read(actual);
 
-    final byte[] actual = new byte[expected.length];
-    final int count = in.read(actual);
-
-    assertEquals(-1, in.read());
-    assertArrayEquals(expected, actual);
+      assertEquals(expected.length, count);
+      assertEquals(-1, in.read());
+      assertArrayEquals(expected, actual);
+    }
   }
 
   @Test
-  public void testResetBad() {
-    final InputStream in = new RereadableInputStream(new NullInputStream(10));
-    assertThrows(IOException.class, () -> in.reset());
+  public void testResetBad() throws IOException {
+    try (InputStream in = new RereadableInputStream(new NullInputStream(10))) {
+      assertThrows(IOException.class, () -> in.reset());
+    }
   }
 
   @Test
   public void testMarkAndReset() throws IOException {
     final byte[] expected = new byte[]{ 0, 1, 2, 3, 4, 5, 6, 7 };
-    final InputStream in =
-      new RereadableInputStream(new ByteArrayInputStream(expected));
+    try (InputStream in =
+      new RereadableInputStream(new ByteArrayInputStream(expected))) {
+      in.mark(4);
 
-    in.mark(4);
+      int count;
 
-    int count;
+      final byte[] buf = new byte[4];
+      count = in.read(buf, 0, 4);
 
-    final byte[] buf = new byte[4];
-    count = in.read(buf, 0, 4);
+      assertEquals(4, count);
 
-    assertEquals(4, count);
+      in.reset();
 
-    in.reset();
+      final byte[] actual = new byte[expected.length];
+      count = IOUtils.read(in, actual);
 
-    final byte[] actual = new byte[expected.length];
-    count = IOUtils.read(in, actual);
-
-    assertEquals(expected.length, count);
-    assertEquals(-1, in.read());
-    assertArrayEquals(expected, actual);
+      assertEquals(expected.length, count);
+      assertEquals(-1, in.read());
+      assertArrayEquals(expected, actual);
+    }
   }
 
   @Test
