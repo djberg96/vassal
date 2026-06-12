@@ -1,33 +1,25 @@
-/*
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
  *                                                                           *
- *  This file is part of the BeanShell Java Scripting distribution.          *
- *  Documentation and updates may be found at http://www.beanshell.org/      *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
  *                                                                           *
- *  Sun Public License Notice:                                               *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
  *                                                                           *
- *  The contents of this file are subject to the Sun Public License Version  *
- *  1.0 (the "License"); you may not use this file except in compliance with *
- *  the License. A copy of the License is available at http://www.sun.com    * 
- *                                                                           *
- *  The Original Code is BeanShell. The Initial Developer of the Original    *
- *  Code is Pat Niemeyer. Portions created by Pat Niemeyer are Copyright     *
- *  (C) 2000.  All Rights Reserved.                                          *
- *                                                                           *
- *  GNU Public License Notice:                                               *
- *                                                                           *
- *  Alternatively, the contents of this file may be used under the terms of  *
- *  the GNU Lesser General Public License (the "LGPL"), in which case the    *
- *  provisions of LGPL are applicable instead of those above. If you wish to *
- *  allow use of your version of this file only under the  terms of the LGPL *
- *  and not to allow others to use your version of this file under the SPL,  *
- *  indicate your decision by deleting the provisions above and replace      *
- *  them with the notice and other provisions required by the LGPL.  If you  *
- *  do not delete the provisions above, a recipient may use your version of  *
- *  this file under either the SPL or the LGPL.                              *
- *                                                                           *
- *  Patrick Niemeyer (pat@pat.net)                                           *
- *  Author of Learning Java, O'Reilly & Associates                           *
- *  http://www.pat.net/~pat/                                                 *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
  *****************************************************************************/
 
@@ -37,6 +29,8 @@ import java.util.*;
 import java.util.zip.*;
 import java.io.*;
 import java.net.*;
+import java.io.File;
+import bsh.ConsoleInterface;
 import bsh.StringUtil;
 import bsh.ClassPathException;
 import java.lang.ref.WeakReference;
@@ -68,14 +62,14 @@ public class BshClassPath
 	String name;
 
 	/** The URL path components */
-	private List<URL> path;
+	private List path;
 	/** Ordered list of components BshClassPaths */
-	private List<BshClassPath> compPaths;
+	private List compPaths;
 
 	/** Set of classes in a package mapped by package name */
-	private Map<String, Set<String>> packageMap;
+	private Map packageMap;
 	/** Map of source (URL or File dir) of every clas */
-	private Map<String, ClassSource> classSource;
+	private Map classSource;
 	/**  The packageMap and classSource maps have been built. */
 	private boolean mapsInitialized;
 
@@ -86,18 +80,18 @@ public class BshClassPath
 	*/
 	private boolean nameCompletionIncludesUnqNames = true;
 
-	Vector<WeakReference<ClassPathListener>> listeners = new Vector<>();
+	Vector listeners = new Vector();
 
 	// constructors
 
 	public BshClassPath( String name ) { 
 		this.name = name;
-		initializeEmptyPath();
+		reset();
 	}
 
 	public BshClassPath(  String name, URL [] urls ) {
 		this( name );
-		addUrls( urls );
+		add( urls );
 	}
 
 	// end constructors
@@ -115,13 +109,13 @@ public class BshClassPath
 	*/
 	public void addComponent( BshClassPath bcp ) { 
 		if ( compPaths == null )
-			compPaths = new ArrayList<>();
+			compPaths = new ArrayList();
 		compPaths.add( bcp );
 		bcp.addListener( this );
 	}
 
 	public void add( URL [] urls ) { 
-		addUrls(urls);
+		path.addAll( Arrays.asList(urls) );
 		if ( mapsInitialized )
 			map( urls );
 	}
@@ -136,23 +130,24 @@ public class BshClassPath
 		Get the path components including any component paths.
 	*/
 	public URL [] getPathComponents() {
-		return getFullPath().toArray( new URL[0] );
+		return (URL[])getFullPath().toArray( new URL[0] );
 	}
 
 	/**
 		Return the set of class names in the specified package
 		including all component paths.
 	*/
-	synchronized public Set<String> getClassesForPackage( String pack ) {
+	synchronized public Set getClassesForPackage( String pack ) {
 		insureInitialized();
-		Set<String> set = new HashSet<>();
-		Collection<String> c = packageMap.get( pack );
+		Set set = new HashSet();
+		Collection c = (Collection)packageMap.get( pack );
 		if ( c != null )
 			set.addAll( c );
 
 		if ( compPaths != null )
 			for (int i=0; i<compPaths.size(); i++) {
-				c = compPaths.get(i).getClassesForPackage( pack );
+				c = ((BshClassPath)compPaths.get(i)).getClassesForPackage( 
+					pack );
 				if ( c != null )
 					set.addAll( c );
 			}
@@ -168,16 +163,16 @@ public class BshClassPath
 		// Before triggering classpath mapping (initialization) check for
 		// explicitly set class sources (e.g. generated classes).  These would
 		// take priority over any found in the classpath anyway.
-		ClassSource cs = classSource.get( className );
+		ClassSource cs = (ClassSource)classSource.get( className );
 		if ( cs != null )
 			return cs;
 
 		insureInitialized(); // trigger possible mapping
 
-		cs = classSource.get( className );
+		cs = (ClassSource)classSource.get( className );
 		if ( cs == null && compPaths != null )
 			for (int i=0; i<compPaths.size() && cs==null; i++)
-				cs = compPaths.get(i).getClassSource(className);
+				cs = ((BshClassPath)compPaths.get(i)).getClassSource(className);
 		return cs;
 	}
 
@@ -233,11 +228,11 @@ public class BshClassPath
 		// initialize components
 		if ( compPaths != null )
 			for (int i=0; i< compPaths.size(); i++)
-				compPaths.get(i).insureInitialized( false );
+				((BshClassPath)compPaths.get(i)).insureInitialized( false );
 
 		// initialize ourself
 		if ( !mapsInitialized ) 
-			map( path.toArray( new URL[0] ) );
+			map( (URL[])path.toArray( new URL[0] ) );
 
 		if ( topPath && !mapsInitialized )
 			endClassMapping();
@@ -250,17 +245,17 @@ public class BshClassPath
 		(component paths listed first, in order)
 		Duplicate path components are removed.
 	*/
-	protected List<URL> getFullPath() 
+	protected List getFullPath() 
 	{
-		List<URL> list = new ArrayList<>();
+		List list = new ArrayList();
 		if ( compPaths != null ) {
 			for (int i=0; i<compPaths.size(); i++) {
-				List<URL> l = compPaths.get(i).getFullPath();
+				List l = ((BshClassPath)compPaths.get(i)).getFullPath();
 				// take care to remove dups
 				// wish we had an ordered set collection
-				Iterator<URL> it = l.iterator();
+				Iterator it = l.iterator();
 				while ( it.hasNext() ) {
-					URL o = it.next();
+					Object o = it.next();
 					if ( !list.contains(o) )
 						list.add( o );
 				}
@@ -308,16 +303,16 @@ public class BshClassPath
 		// add component names
 		if ( compPaths != null )
 			for (int i=0; i<compPaths.size(); i++) {
-				Set<String> s = compPaths.get(i).classSource.keySet();
-				Iterator<String> it = s.iterator();
+				Set s = ((BshClassPath)compPaths.get(i)).classSource.keySet();
+				Iterator it = s.iterator();
 				while(it.hasNext()) 
-					unqNameTable.add( it.next() );
+					unqNameTable.add( (String)it.next() );
 			}
 
 		// add ours
-		Iterator<String> it = classSource.keySet().iterator();
+		Iterator it = classSource.keySet().iterator();
 		while(it.hasNext()) 
-			unqNameTable.add( it.next() );
+			unqNameTable.add( (String)it.next() );
 		
 		return unqNameTable;
 	}
@@ -326,10 +321,10 @@ public class BshClassPath
 	{
 		insureInitialized();
 
-		List<String> names = new ArrayList<>();
-		Iterator<String> it = getPackagesSet().iterator();
+		List names = new ArrayList();
+		Iterator it = getPackagesSet().iterator();
 		while( it.hasNext() ) {
-			String pack = it.next();
+			String pack = (String)it.next();
 			names.addAll( 
 				removeInnerClassNames( getClassesForPackage( pack ) ) ); 
 		}
@@ -337,7 +332,7 @@ public class BshClassPath
 		if ( nameCompletionIncludesUnqNames )
 			names.addAll( getUnqualifiedNameTable().keySet() );
 
-		return names.toArray(new String[0]);
+		return (String [])names.toArray(new String[0]);
 	}
 
 	/**
@@ -377,27 +372,28 @@ public class BshClassPath
 		}
 	}
 
-	private void map( String [] classes, ClassSource source ) {
+	private void map( String [] classes, Object source ) {
 		for(int i=0; i< classes.length; i++) {
 			//System.out.println( classes[i] +": "+ source );
 			mapClass( classes[i], source );
 		}
 	}
 
-	private void mapClass( String className, ClassSource source ) 
+	private void mapClass( String className, Object source ) 
 	{
 		// add to package map
 		String [] sa = splitClassname( className );
 		String pack = sa[0];
-		Set<String> set = packageMap.get( pack );
+		String clas = sa[1];
+		Set set = (Set)packageMap.get( pack );
 		if ( set == null ) {
-			set = new HashSet<>();
+			set = new HashSet();
 			packageMap.put( pack, set );
 		}
 		set.add( className );
 
 		// Add to classSource map
-		ClassSource obj = classSource.get( className );
+		Object obj = classSource.get( className );
 		// don't replace previously set (found earlier in classpath or
 		// explicitly set via setClassSource() )
 		if ( obj == null )
@@ -408,8 +404,9 @@ public class BshClassPath
 		Clear everything and reset the path to empty.
 	*/
 	synchronized private void reset() {
-		initializeEmptyPath();
-		nameSpaceChanged();
+		path = new ArrayList();
+		compPaths = null;
+		clearCachedStructures();
 	}
 
 	/**
@@ -417,23 +414,10 @@ public class BshClassPath
 	*/
 	synchronized private void clearCachedStructures() {
 		mapsInitialized = false;
-		packageMap = new HashMap<>();
-		classSource = new HashMap<>();
+		packageMap = new HashMap();
+		classSource = new HashMap();
 		unqNameTable = null;
 		nameSpaceChanged();
-	}
-
-	private void initializeEmptyPath() {
-		path = new ArrayList<>();
-		compPaths = null;
-		mapsInitialized = false;
-		packageMap = new HashMap<>();
-		classSource = new HashMap<>();
-		unqNameTable = null;
-	}
-
-	private void addUrls(URL[] urls) {
-		path.addAll(Arrays.asList(urls));
 	}
 
 	public void classPathChanged() {
@@ -455,14 +439,14 @@ public class BshClassPath
 	static String [] traverseDirForClasses( File dir ) 
 		throws IOException	
 	{
-		List<String> list = traverseDirForClassesAux( dir, dir );
-		return list.toArray( new String[0] );
+		List list = traverseDirForClassesAux( dir, dir );
+		return (String[])list.toArray( new String[0] );
 	}
 
-	static List<String> traverseDirForClassesAux( File topDir, File dir ) 
+	static List traverseDirForClassesAux( File topDir, File dir ) 
 		throws IOException
 	{
-		List<String> list = new ArrayList<>();
+		List list = new ArrayList();
 		String top = topDir.getAbsolutePath();
 
 		File [] children = dir.listFiles();
@@ -498,7 +482,7 @@ public class BshClassPath
 	static String [] searchJarForClasses( URL jar ) 
 		throws IOException 
 	{
-		Vector<String> v = new Vector<>();
+		Vector v = new Vector();
 		InputStream in = jar.openStream(); 
 		ZipInputStream zin = new ZipInputStream(in);
 
@@ -564,12 +548,12 @@ public class BshClassPath
 	/**
 		Return a new collection without any inner class names
 	*/
-	public static Collection<String> removeInnerClassNames( Collection<String> col ) {
-		List<String> list = new ArrayList<>();
+	public static Collection removeInnerClassNames( Collection col ) {
+		List list = new ArrayList();
 		list.addAll(col);
-		Iterator<String> it = list.iterator();
+		Iterator it = list.iterator();
 		while(it.hasNext()) {
-			String name = it.next();
+			String name =(String)it.next();
 			if (name.indexOf("$") != -1 )
 				it.remove();
 		}
@@ -610,31 +594,32 @@ public class BshClassPath
 	/**
 		Get a list of all of the known packages
 	*/
-	public Set<String> getPackagesSet() 
+	public Set getPackagesSet() 
 	{
 		insureInitialized();
-		Set<String> set = new HashSet<>();
+		Set set = new HashSet();
 		set.addAll( packageMap.keySet() );
 
 		if ( compPaths != null )
 			for (int i=0; i<compPaths.size(); i++)
-				set.addAll( compPaths.get(i).packageMap.keySet() );
+				set.addAll( 
+					((BshClassPath)compPaths.get(i)).packageMap.keySet() );
 		return set;
 	}
 
 	public void addListener( ClassPathListener l ) {
-		listeners.addElement( new WeakReference<>(l) );
+		listeners.addElement( new WeakReference(l) );
 	}
 	public void removeListener( ClassPathListener l ) {
 		listeners.removeElement( l );
 	}
 
-	/*
+	/**
 	*/
 	void notifyListeners() {
-		for (Enumeration<WeakReference<ClassPathListener>> e = listeners.elements(); e.hasMoreElements(); ) {
-			WeakReference<ClassPathListener> wr = e.nextElement();
-			ClassPathListener l = wr.get();
+		for (Enumeration e = listeners.elements(); e.hasMoreElements(); ) {
+			WeakReference wr = (WeakReference)e.nextElement();
+			ClassPathListener l = (ClassPathListener)wr.get();
 			if ( l == null )  // garbage collected
 				listeners.removeElement( wr );
 			else
@@ -669,9 +654,12 @@ public class BshClassPath
 			{
 				//String rtjar = System.getProperty("java.home")+"/lib/rt.jar";
 				String rtjar = getRTJarPath();
-				URL url = new File( rtjar ).toURI().toURL();
-				bootClassPath = new BshClassPath( 
-					"Boot Class Path", new URL[] { url } );
+				if (rtjar == null) {
+					bootClassPath = new BshClassPath("empty class path");
+				} else {
+					URL url = new File(rtjar).toURI().toURL();
+					bootClassPath = new BshClassPath("Boot Class Path", new URL[]{url});
+				}
 			} catch ( MalformedURLException e ) {
 				throw new ClassPathException(" can't find boot jar: "+e);
 			}
@@ -762,7 +750,7 @@ public class BshClassPath
 		URL [] urls = new URL [ args.length ];
 		for(int i=0; i< args.length; i++)
 			urls[i] =  new File(args[i]).toURI().toURL();
-		new BshClassPath( "Test", urls );
+		BshClassPath bcp = new BshClassPath( "Test", urls );
 	}
 
 	public String toString() {
@@ -775,9 +763,7 @@ public class BshClassPath
 		Note: we could probably do away with the unqualified name table
 		in favor of a second name source
 	*/
-	static class UnqualifiedNameTable extends HashMap<String, Object> {
-		private static final long serialVersionUID = 1L;
-
+	static class UnqualifiedNameTable extends HashMap {
 		void add( String fullname ) {
 			String name = splitClassname( fullname )[1];
 			Object have = super.get( name );
@@ -798,11 +784,11 @@ public class BshClassPath
 	}
 
 	public static class AmbiguousName {
-		List<String> list = new ArrayList<>();
+		List list = new ArrayList();
 		public void add( String name ) { 
 			list.add( name ); 
 		}
-		public List<String> get() {
+		public List get() {
 			//return (String[])list.toArray(new String[0]);
 			return list;
 		}
@@ -817,24 +803,25 @@ public class BshClassPath
 			return;
 
 		for(int i=0; i<nameSourceListeners.size(); i++)
-			nameSourceListeners.get(i).nameSourceChanged( this );
+			((NameSource.Listener)(nameSourceListeners.get(i)))
+				.nameSourceChanged( this );
 	}
 
-	List<NameSource.Listener> nameSourceListeners;
+	List nameSourceListeners;
 	/**
 		Implements NameSource
 		Add a listener who is notified upon changes to names in this space.
 	*/
 	public void addNameSourceListener( NameSource.Listener listener ) {
 		if ( nameSourceListeners == null )
-			nameSourceListeners = new ArrayList<>();
+			nameSourceListeners = new ArrayList();
 		nameSourceListeners.add( listener );
 	}
 
-	/* only allow one for now */
+	/** only allow one for now */
 	static MappingFeedback mappingFeedbackListener;
 
-	/*
+	/**
 	*/
 	public static void addMappingFeedback( MappingFeedback mf ) 
 	{
@@ -875,7 +862,7 @@ public class BshClassPath
 	{
 		public void startClassMapping();
 
-		/*
+		/**
 			Provide feedback on the progress of mapping the classpath
 			@param msg is a message about the path component being mapped
 			@perc is an integer in the range 0-100 indicating percentage done

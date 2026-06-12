@@ -1,33 +1,25 @@
-/*
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
  *                                                                           *
- *  This file is part of the BeanShell Java Scripting distribution.          *
- *  Documentation and updates may be found at http://www.beanshell.org/      *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
  *                                                                           *
- *  Sun Public License Notice:                                               *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
  *                                                                           *
- *  The contents of this file are subject to the Sun Public License Version  *
- *  1.0 (the "License"); you may not use this file except in compliance with *
- *  the License. A copy of the License is available at http://www.sun.com    * 
- *                                                                           *
- *  The Original Code is BeanShell. The Initial Developer of the Original    *
- *  Code is Pat Niemeyer. Portions created by Pat Niemeyer are Copyright     *
- *  (C) 2000.  All Rights Reserved.                                          *
- *                                                                           *
- *  GNU Public License Notice:                                               *
- *                                                                           *
- *  Alternatively, the contents of this file may be used under the terms of  *
- *  the GNU Lesser General Public License (the "LGPL"), in which case the    *
- *  provisions of LGPL are applicable instead of those above. If you wish to *
- *  allow use of your version of this file only under the  terms of the LGPL *
- *  and not to allow others to use your version of this file under the SPL,  *
- *  indicate your decision by deleting the provisions above and replace      *
- *  them with the notice and other provisions required by the LGPL.  If you  *
- *  do not delete the provisions above, a recipient may use your version of  *
- *  this file under either the SPL or the LGPL.                              *
- *                                                                           *
- *  Patrick Niemeyer (pat@pat.net)                                           *
- *  Author of Learning Java, O'Reilly & Associates                           *
- *  http://www.pat.net/~pat/                                                 *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
  *****************************************************************************/
 
@@ -42,16 +34,14 @@ import bsh.NameSource;
 	a collection of names, NameSources, and other NameCompletionTables.
 	This implementation uses a trivial linear search and comparison...  
 */
-public class NameCompletionTable extends ArrayList<String>
+public class NameCompletionTable extends ArrayList
 	implements NameCompletion
 {
-	private static final long serialVersionUID = 1L;
-
 	/** Unimplemented - need a collection here */
 	NameCompletionTable table;
-	transient List<NameSource> sources;
+	List sources;
 
-	/* Unimplemented - need a collection of sources here */
+	/** Unimplemented - need a collection of sources here*/
 
 	/**
 	*/
@@ -80,7 +70,7 @@ public class NameCompletionTable extends ArrayList<String>
 			monitors it by registering a listener
 		*/
 		if ( sources == null )
-			sources = new ArrayList<>();
+			sources = new ArrayList();
 
 		sources.add( source );
 	}
@@ -88,11 +78,11 @@ public class NameCompletionTable extends ArrayList<String>
 	/**
 		Add any matching names to list (including any from other tables)
 	*/
-	protected void getMatchingNames( String part, List<String> found ) 
+	protected void getMatchingNames( String part, List found ) 
 	{
 		// check our table
 		for( int i=0; i< size(); i++ ) {
-			String name = get(i);
+			String name = (String)get(i);
 			if ( name.startsWith( part ) )
 				found.add( name );
 		}
@@ -107,7 +97,7 @@ public class NameCompletionTable extends ArrayList<String>
 		if ( sources != null )
 			for( int i=0; i< sources.size(); i++ ) 
 			{
-				NameSource src = sources.get(i);
+				NameSource src = (NameSource)sources.get(i);
 				String [] names = src.getAllNames();
 				for( int j=0; j< names.length; j++ )
 					if ( names[j].startsWith( part ) )
@@ -118,17 +108,17 @@ public class NameCompletionTable extends ArrayList<String>
 
 	public String [] completeName( String part ) 
 	{
-		List<String> found = new ArrayList<>();
+		List found = new ArrayList();
 		getMatchingNames( part, found );
 
 		if ( found.size() == 0 )
 			return new String [0];
 
 		// Find the max common prefix
-		String maxCommon = found.get(0);
+		String maxCommon = (String)found.get(0);
 		for(int i=1; i<found.size() && maxCommon.length() > 0; i++) {
 			maxCommon = StringUtil.maxCommonPrefix( 
-				maxCommon, found.get(i) );
+				maxCommon, (String)found.get(i) );
 
 			// if maxCommon gets as small as part, stop trying
 			if ( maxCommon.equals( part ) )
@@ -139,10 +129,10 @@ public class NameCompletionTable extends ArrayList<String>
 		if ( maxCommon.length() > part.length() )
 			return new String [] { maxCommon };
 		else
-			return found.toArray(new String[0]);
+			return (String[])(found.toArray(new String[0]));
 	}
 
-	/*
+	/**
 	class SourceCache implements NameSource.Listener
 	{
 		NameSource src;

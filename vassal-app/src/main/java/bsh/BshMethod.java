@@ -1,33 +1,25 @@
-/*
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
  *                                                                           *
- *  This file is part of the BeanShell Java Scripting distribution.          *
- *  Documentation and updates may be found at http://www.beanshell.org/      *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
  *                                                                           *
- *  Sun Public License Notice:                                               *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
  *                                                                           *
- *  The contents of this file are subject to the Sun Public License Version  *
- *  1.0 (the "License"); you may not use this file except in compliance with *
- *  the License. A copy of the License is available at http://www.sun.com    * 
- *                                                                           *
- *  The Original Code is BeanShell. The Initial Developer of the Original    *
- *  Code is Pat Niemeyer. Portions created by Pat Niemeyer are Copyright     *
- *  (C) 2000.  All Rights Reserved.                                          *
- *                                                                           *
- *  GNU Public License Notice:                                               *
- *                                                                           *
- *  Alternatively, the contents of this file may be used under the terms of  *
- *  the GNU Lesser General Public License (the "LGPL"), in which case the    *
- *  provisions of LGPL are applicable instead of those above. If you wish to *
- *  allow use of your version of this file only under the  terms of the LGPL *
- *  and not to allow others to use your version of this file under the SPL,  *
- *  indicate your decision by deleting the provisions above and replace      *
- *  them with the notice and other provisions required by the LGPL.  If you  *
- *  do not delete the provisions above, a recipient may use your version of  *
- *  this file under either the SPL or the LGPL.                              *
- *                                                                           *
- *  Patrick Niemeyer (pat@pat.net)                                           *
- *  Author of Learning Java, O'Reilly & Associates                           *
- *  http://www.pat.net/~pat/                                                 *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
  *****************************************************************************/
 
@@ -43,7 +35,7 @@ import java.lang.reflect.InvocationTargetException;
 	<p>
 
 	When a method is located in a subordinate namespace or invoked from an 
-	arbitrary namespace it must nontheless execute with its 'super' as the 
+	arbitrary namespace it must nonetheless execute with its 'super' as the 
 	context in which it was declared.
 	<p/>
 */
@@ -54,8 +46,6 @@ import java.lang.reflect.InvocationTargetException;
 public class BshMethod 
 	implements java.io.Serializable 
 {
-	private static final long serialVersionUID = 1L;
-
 	/* 
 		This is the namespace in which the method is set.
 		It is a back-reference for the node, which needs to execute under this 
@@ -68,12 +58,12 @@ public class BshMethod
 
 	Modifiers modifiers;
 	private String name;
-	private Class<?> creturnType;
+	private Class creturnType;
 
 	// Arguments
 	private String [] paramNames;
 	private int numArgs;
-	private Class<?> [] cparamTypes;
+	private Class [] cparamTypes;
 
 	// Scripted method body
 	BSHBlock methodBody;
@@ -94,8 +84,8 @@ public class BshMethod
 	}
 
 	BshMethod( 
-		String name, Class<?> returnType, String [] paramNames,
-		Class<?> [] paramTypes, BSHBlock methodBody, 
+		String name, Class returnType, String [] paramNames,
+		Class [] paramTypes, BSHBlock methodBody, 
 		NameSpace declaringNameSpace, Modifiers modifiers
 	) {
 		this.name = name;
@@ -133,7 +123,7 @@ public class BshMethod
 		Note: bshmethod needs to re-evaluate arg types here
 		This is broken.
 	*/
-	public Class<?> [] getParameterTypes() { return cparamTypes; }
+	public Class [] getParameterTypes() { return cparamTypes; }
 	public String [] getParameterNames() { return paramNames; }
 
 	/**
@@ -145,9 +135,18 @@ public class BshMethod
 		Note: bshmethod needs to re-evaluate the method return type here.
 		This is broken.
 	*/
-	public Class<?> getReturnType() { return creturnType; }
+	public Class getReturnType() { return creturnType; }
 
 	public Modifiers getModifiers() { return modifiers; }
+
+    public void makePublic() {
+        if (modifiers == null) {
+            modifiers = new Modifiers();
+        }
+        if (!modifiers.hasModifier("public")) {
+            modifiers.addModifier(Modifiers.METHOD, "public");
+        }
+    }
 
 	public String getName() { return name; }
 
@@ -266,8 +265,8 @@ public class BshMethod
 			SimpleNode callerInfo, boolean overrideNameSpace ) 
 		throws EvalError 
 	{
-		Class<?> returnType = getReturnType();
-		Class<?> [] paramTypes = getParameterTypes();
+		Class returnType = getReturnType();
+		Class [] paramTypes = getParameterTypes();
 
 		// If null callstack
 		if ( callstack == null )
@@ -376,8 +375,8 @@ public class BshMethod
 		{
 			retControl = (ReturnControl)ret;
 
-			// Method body can only use 'return' statment type return control.
-			if ( retControl.kind == ParserConstants.RETURN )
+			// Method body can only use 'return' statement type return control.
+			if ( retControl.kind == retControl.RETURN )
 				ret = ((ReturnControl)ret).value;
 			else 
 				// retControl.returnPoint is the Node of the return statement
@@ -427,4 +426,39 @@ public class BshMethod
 			+ StringUtil.methodString( name, getParameterTypes() ); 
 	}
 
+	// equal signature
+	public boolean equals(Object o) {
+		if (o == null) {
+			return false;
+		}
+		if (o == this) {
+			return true;
+		}
+		if (o.getClass() == this.getClass()) {
+			BshMethod m = (BshMethod)o;
+			if( !name.equals(m.name) || numArgs!=m.numArgs )
+				return false;
+			for( int i=0; i<numArgs; i++ ) {
+				if( !equal(cparamTypes[i],m.cparamTypes[i]) )
+					return false;
+			}
+			return true;
+		}
+		return false;
+	}
+
+
+	private static boolean equal(Object obj1,Object obj2) {
+		return obj1==null ? obj2==null : obj1.equals(obj2);
+	}
+
+
+	@Override
+	public int hashCode() {
+		int h = name.hashCode();
+		for (Class<?> cparamType : cparamTypes) {
+			h = h * 31 + cparamType.hashCode();
+		}
+		return h;
+	}
 }

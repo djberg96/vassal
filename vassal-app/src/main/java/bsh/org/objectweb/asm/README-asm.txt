@@ -1,6 +1,6 @@
 
 These files are part of the org.objectweb.asm distribution.
-(http://asm.objectweb.org) and are included under the terms of the LGPL license.
+(https://asm.ow2.io) and are included under the terms of the ALv2 license.
 
 ASM is a very light weight, fast, visitor-pattern style Java byte code 
 reader / generator.  

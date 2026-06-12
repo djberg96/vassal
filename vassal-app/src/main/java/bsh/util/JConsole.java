@@ -1,33 +1,25 @@
-/*
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
  *                                                                           *
- *  This file is part of the BeanShell Java Scripting distribution.          *
- *  Documentation and updates may be found at http://www.beanshell.org/      *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
  *                                                                           *
- *  Sun Public License Notice:                                               *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
  *                                                                           *
- *  The contents of this file are subject to the Sun Public License Version  *
- *  1.0 (the "License"); you may not use this file except in compliance with *
- *  the License. A copy of the License is available at http://www.sun.com    * 
- *                                                                           *
- *  The Original Code is BeanShell. The Initial Developer of the Original    *
- *  Code is Pat Niemeyer. Portions created by Pat Niemeyer are Copyright     *
- *  (C) 2000.  All Rights Reserved.                                          *
- *                                                                           *
- *  GNU Public License Notice:                                               *
- *                                                                           *
- *  Alternatively, the contents of this file may be used under the terms of  *
- *  the GNU Lesser General Public License (the "LGPL"), in which case the    *
- *  provisions of LGPL are applicable instead of those above. If you wish to *
- *  allow use of your version of this file only under the  terms of the LGPL *
- *  and not to allow others to use your version of this file under the SPL,  *
- *  indicate your decision by deleting the provisions above and replace      *
- *  them with the notice and other provisions required by the LGPL.  If you  *
- *  do not delete the provisions above, a recipient may use your version of  *
- *  this file under either the SPL or the LGPL.                              *
- *                                                                           *
- *  Patrick Niemeyer (pat@pat.net)                                           *
- *  Author of Learning Java, O'Reilly & Associates                           *
- *  http://www.pat.net/~pat/                                                 *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
  *****************************************************************************/
 
@@ -46,6 +38,10 @@ import java.awt.Cursor;
 import javax.swing.text.*;
 import javax.swing.*;
 
+// Things that are not in the core packages
+
+import bsh.util.NameCompletion;
+
 /**
 	A JFC/Swing based console for the BeanShell desktop.
 	This is a descendant of the old AWTConsole.
@@ -56,20 +52,16 @@ import javax.swing.*;
   	Improvements by: Daniel Leuck
 		including Color and Image support, key press bug workaround
 */
-public class JConsole extends JScrollPane
-	implements GUIConsoleInterface, Runnable, KeyListener,
-	MouseListener, ActionListener, PropertyChangeListener 
-{
-	private static final long serialVersionUID = 1L;
+public class JConsole extends JScrollPane implements GUIConsoleInterface, Runnable, KeyListener, MouseListener, ActionListener, PropertyChangeListener {
 
     private final static String	CUT = "Cut";
     private final static String	COPY = "Copy";
     private final static String	PASTE =	"Paste";
 
-	private transient OutputStream outPipe;
-	private transient InputStream inPipe;
-	private transient InputStream in;
-	private transient PrintStream out;
+	private	OutputStream outPipe;
+	private	InputStream inPipe;
+	private	InputStream in;
+	private	PrintStream out;
 
 	public InputStream getInputStream() { return in; }
 	public Reader getIn() { return new InputStreamReader(in); }
@@ -77,15 +69,15 @@ public class JConsole extends JScrollPane
 	public PrintStream getErr() { return out;	}
 
     private int	cmdStart = 0;
-	private	Vector<String> history = new Vector<>();
+	private	Vector history = new Vector();
 	private	String startedLine;
 	private	int histLine = 0;
 
-    private transient JPopupMenu menu;
-    private transient JTextPane text;
-    private transient DefaultStyledDocument doc;
+    private JPopupMenu menu;
+    private JTextPane text;
+    private DefaultStyledDocument doc;
 
-	transient NameCompletion nameCompletion;
+	NameCompletion nameCompletion;
 	final int SHOW_AMBIG_MAX = 10;
 
 	// hack to prevent key repeat for some reason?
@@ -139,7 +131,7 @@ public class JConsole extends JScrollPane
 		if ( outPipe ==	null ) {
 			outPipe	= new PipedOutputStream();
 			try {
-				in = new PipedInputStream((PipedOutputStream)outPipe);
+				in = new PipedInputStream((PipedOutputStream) outPipe, 64 * 1024);
 			} catch	( IOException e	) {
 				print("Console internal	error (1)...", Color.red);
 			}
@@ -228,7 +220,7 @@ public class JConsole extends JScrollPane
 				break;
 
 			case ( KeyEvent.VK_U ):	// clear line
-				if ( (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) > 0 ) {
+				if ( (e.getModifiers() & InputEvent.CTRL_MASK) > 0 ) {
 					replaceRange( "", cmdStart, textLength());
 					histLine = 0;
 					e.consume();
@@ -264,7 +256,7 @@ public class JConsole extends JScrollPane
 			// Control-C
 			case ( KeyEvent.VK_C ):
 				if (text.getSelectedText() == null) {
-				    if (( (e.getModifiersEx() & InputEvent.CTRL_DOWN_MASK) > 0	)
+				    if (( (e.getModifiers() & InputEvent.CTRL_MASK) > 0	)
 					&& (e.getID() == KeyEvent.KEY_PRESSED))	{
 						append("^C");
 					}
@@ -282,9 +274,9 @@ public class JConsole extends JScrollPane
 
 			default:
 				if ( 
-					(e.getModifiersEx() & 
-					(InputEvent.CTRL_DOWN_MASK 
-					| InputEvent.ALT_DOWN_MASK | InputEvent.META_DOWN_MASK)) == 0 ) 
+					(e.getModifiers() & 
+					(InputEvent.CTRL_MASK 
+					| InputEvent.ALT_MASK | InputEvent.META_MASK)) == 0 ) 
 				{
 					// plain character
 					forceCaretMoveToEnd();
@@ -350,7 +342,7 @@ public class JConsole extends JScrollPane
 		String prompt = line.substring( i+1, cmdStart );
 
 		// Show ambiguous
-		StringBuffer sb = new StringBuffer("\n");
+		StringBuilder sb = new StringBuilder("\n");
 		for( i=0; i<complete.length && i<SHOW_AMBIG_MAX; i++)
 			sb.append( complete[i] +"\n" );
 		if ( i == SHOW_AMBIG_MAX )
@@ -446,7 +438,7 @@ public class JConsole extends JScrollPane
 		if ( histLine == 0 )
 			showline = startedLine;
 		else
-			showline = history.elementAt( history.size() - histLine	);
+			showline = (String)history.elementAt( history.size() - histLine	);
 
 		replaceRange( showline,	cmdStart, textLength() );
 		text.setCaretPosition(textLength());
@@ -459,7 +451,7 @@ public class JConsole extends JScrollPane
 	{
 		// Patch to handle Unicode characters
 		// Submitted by Daniel Leuck
-		StringBuffer buf = new StringBuffer(); 
+		StringBuilder buf = new StringBuilder(); 
 		int lineLength = line.length(); 
 		for(int i=0; i<lineLength; i++) {  
 				String val = Integer.toString(line.charAt(i), 16); 
@@ -799,3 +791,5 @@ public class JConsole extends JScrollPane
 	private int textLength() { return text.getDocument().getLength(); }
 
 }
+
+

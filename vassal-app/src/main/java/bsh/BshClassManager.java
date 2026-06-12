@@ -1,44 +1,43 @@
-/*
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
  *                                                                           *
- *  This file is part of the BeanShell Java Scripting distribution.          *
- *  Documentation and updates may be found at http://www.beanshell.org/      *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
  *                                                                           *
- *  Sun Public License Notice:                                               *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
  *                                                                           *
- *  The contents of this file are subject to the Sun Public License Version  *
- *  1.0 (the "License"); you may not use this file except in compliance with *
- *  the License. A copy of the License is available at http://www.sun.com    * 
- *                                                                           *
- *  The Original Code is BeanShell. The Initial Developer of the Original    *
- *  Code is Pat Niemeyer. Portions created by Pat Niemeyer are Copyright     *
- *  (C) 2000.  All Rights Reserved.                                          *
- *                                                                           *
- *  GNU Public License Notice:                                               *
- *                                                                           *
- *  Alternatively, the contents of this file may be used under the terms of  *
- *  the GNU Lesser General Public License (the "LGPL"), in which case the    *
- *  provisions of LGPL are applicable instead of those above. If you wish to *
- *  allow use of your version of this file only under the  terms of the LGPL *
- *  and not to allow others to use your version of this file under the SPL,  *
- *  indicate your decision by deleting the provisions above and replace      *
- *  them with the notice and other provisions required by the LGPL.  If you  *
- *  do not delete the provisions above, a recipient may use your version of  *
- *  this file under either the SPL or the LGPL.                              *
- *                                                                           *
- *  Patrick Niemeyer (pat@pat.net)                                           *
- *  Author of Learning Java, O'Reilly & Associates                           *
- *  http://www.pat.net/~pat/                                                 *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
  *****************************************************************************/
 
 package bsh;
 
-import java.net.*;
-import java.util.*;
 import java.io.IOException;
-import java.io.*;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
 	BshClassManager manages all classloading in BeanShell.
@@ -63,7 +62,7 @@ import java.lang.reflect.Modifier;
 
 	Note on version dependency:  This base class is JDK 1.1 compatible,
 	however we are forced to use weak references in the full featured
-	implementation (the optional bsh.classpath package) to accomodate all of
+	implementation (the optional bsh.classpath package) to accommodate all of
 	the fleeting namespace listeners as they fall out of scope.  (NameSpaces
 	must be informed if the class space changes so that they can un-cache
 	names).  
@@ -79,8 +78,6 @@ import java.lang.reflect.Modifier;
 */
 public class BshClassManager
 {
-	/** Identifier for no value item.  Use a hashtable as a Set. */
-	private static final Object NOVALUE = new Object();
 	/** 
 		The interpreter which created the class manager 
 		This is used to load scripted classes from source files.
@@ -97,55 +94,66 @@ public class BshClassManager
 		Note: these should probably be re-implemented with Soft references.
 		(as opposed to strong or Weak)
 	*/
-    protected transient Hashtable<String, Class<?>> absoluteClassCache = new Hashtable<>();
+    protected transient Map<String,Class> absoluteClassCache = new Hashtable<String,Class>();
 	/**
 		Global cache for things we know are *not* classes.
 		Note: these should probably be re-implemented with Soft references.
 		(as opposed to strong or Weak)
 	*/
-    protected transient Hashtable<String, Object> absoluteNonClasses = new Hashtable<>();
+    protected transient Set<String> absoluteNonClasses = Collections.synchronizedSet(new HashSet<String>());
 
 	/**
 		Caches for resolved object and static methods.
 		We keep these maps separate to support fast lookup in the general case
 		where the method may be either.
 	*/
-	protected transient Hashtable<SignatureKey, Method> resolvedObjectMethods = new Hashtable<>();
-	protected transient Hashtable<SignatureKey, Method> resolvedStaticMethods = new Hashtable<>();
+	protected transient volatile Map<SignatureKey,Method> resolvedObjectMethods = new Hashtable<SignatureKey,Method>();
+	protected transient volatile Map<SignatureKey,Method> resolvedStaticMethods = new Hashtable<SignatureKey,Method>();
 
-	protected transient Hashtable<String, Object> definingClasses = new Hashtable<>();
-	protected transient Hashtable<String, String> definingClassesBaseNames = new Hashtable<>();
+	private transient Set<String> definingClasses = Collections.synchronizedSet(new HashSet<String>());
+	protected transient Map<String,String> definingClassesBaseNames = new Hashtable<String,String>();
+
+	private static final Map<BshClassManager,Object> classManagers = Collections.synchronizedMap(new WeakHashMap<BshClassManager,Object>());
+
+	static void clearResolveCache() {
+		BshClassManager[] managers = (BshClassManager[])classManagers.keySet().toArray(new BshClassManager[0]);
+		for( BshClassManager m : managers ) {
+			m.resolvedObjectMethods = new Hashtable<SignatureKey,Method>();
+			m.resolvedStaticMethods = new Hashtable<SignatureKey,Method>();
+		}
+	}
+
+	/** @see #associateClass( Class ) */
+	protected transient Hashtable associatedClasses = new Hashtable();
 
 	/**
 		Create a new instance of the class manager.  
 		Class manager instnaces are now associated with the interpreter.
 
-		@see bsh.Interpreter.getClassManager()
-		@see bsh.Interpreter.setClassLoader( ClassLoader )
+		@see bsh.Interpreter#getClassManager()
+		@see bsh.Interpreter#setClassLoader( ClassLoader )
 	*/
 	public static BshClassManager createClassManager( Interpreter interpreter ) 
 	{
 		BshClassManager manager;
 
-		// Do we have the necessary jdk1.2 packages and optional package?
-		if ( Capabilities.classExists("java.lang.ref.WeakReference") 
-			&& Capabilities.classExists("java.util.HashMap") 
-			&& Capabilities.classExists("bsh.classpath.ClassManagerImpl") 
-		) 
+		// Do we have the optional package?
+		if ( Capabilities.classExists("bsh.classpath.ClassManagerImpl") ) 
 			try {
 				// Try to load the module
 				// don't refer to it directly here or we're dependent upon it
-				Class<?> clas = Class.forName( "bsh.classpath.ClassManagerImpl" );
-				manager = (BshClassManager)clas.getDeclaredConstructor().newInstance();
+				Class clazz = Class.forName( "bsh.classpath.ClassManagerImpl" );
+				manager = (BshClassManager) clazz.newInstance();
 			} catch ( Exception e ) {
-				throw new InterpreterError("Error loading classmanager: "+e);
+				throw new InterpreterError("Error loading classmanager", e);
 			}
-		else 
+		else
 			manager = new BshClassManager();
 
 		if ( interpreter == null )
 			interpreter = new Interpreter();
 		manager.declaringInterpreter = interpreter;
+		classManagers.put(manager,null);
 		return manager;
 	}
 
@@ -161,44 +169,44 @@ public class BshClassManager
 		management package.
 		@return the class or null
 	*/
-	public Class<?> classForName( String name )
+	public Class classForName( String name ) 
 	{
 		if ( isClassBeingDefined( name ) )
 			throw new InterpreterError(
 				"Attempting to load class in the process of being defined: "
 				+name );
 
-		Class<?> clas = null;
+		Class clas = null;
 		try {
 			clas = plainClassForName( name );
 		} catch ( ClassNotFoundException e ) { /*ignore*/ }
 
 		// try scripted class
-		if ( clas == null ) 
+		if ( clas == null && declaringInterpreter.getCompatibility() )
 			clas = loadSourceClass( name );
 
 		return clas;
 	}
-	
-	// Move me to classpath/ClassManagerImpl???
-	protected Class<?> loadSourceClass( String name )
-	{
-		String fileName = "/"+name.replace('.','/')+".java";
-		InputStream in = getResourceAsStream( fileName );
-		if ( in == null )
-			return null;
 
+	// Move me to classpath/ClassManagerImpl???
+	protected Class<?> loadSourceClass( final String name ) {
+		final String fileName = "/" + name.replace('.', '/') + ".java";
+		final InputStream in = getResourceAsStream( fileName );
+		if ( in == null ) {
+			return null;
+		}
 		try {
-			System.out.println("Loading class from source file: "+fileName);
+			Interpreter.debug("Loading class from source file: " + fileName);
 			declaringInterpreter.eval( new InputStreamReader(in) );
 		} catch ( EvalError e ) {
-			// ignore
-			System.err.println( e );
+			if (Interpreter.DEBUG) {
+				e.printStackTrace();
+			}
 		}
 		try {
 			return plainClassForName( name );
-		} catch ( ClassNotFoundException e ) {
-			System.err.println("Class not found in source file: "+name );
+		} catch ( final ClassNotFoundException e ) {
+			Interpreter.debug("Class not found in source file: " + name);
 			return null;
 		}
 	}
@@ -217,32 +225,17 @@ public class BshClassManager
 		@see #classForName( String )
 		@return the class
 	*/
-	public Class<?> plainClassForName( String name )
+	public Class plainClassForName( String name ) 
 		throws ClassNotFoundException
 	{
-		Class<?> c = null;
+		Class c = null;
 
-		try {
-			if ( externalClassLoader != null )
-				c = externalClassLoader.loadClass( name );
-			else
-				c = Class.forName( name );
+		if ( externalClassLoader != null )
+			c = externalClassLoader.loadClass( name );
+		else
+			c = Class.forName( name );
 
-			cacheClassInfo( name, c );
-
-		/*
-			Original note: Jdk under Win is throwing these to
-			warn about lower case / upper case possible mismatch.
-			e.g. bsh.console bsh.Console
-	
-			Update: Prior to 1.3 we were squeltching NoClassDefFoundErrors 
-			which was very annoying.  I cannot reproduce the original problem 
-			and this was never a valid solution.  If there are legacy VMs that
-			have problems we can include a more specific test for them here.
-		*/
-		} catch ( NoClassDefFoundError e ) {
-			throw noClassDefFound( name, e );
-		}
+		cacheClassInfo( name, c );
 
 		return c;
 	}
@@ -289,11 +282,35 @@ public class BshClassManager
 			if value is null, set the flag that it is *not* a class to
 			speed later resolution
 	*/
-	public void cacheClassInfo( String name, Class<?> value ) {
+	public void cacheClassInfo( String name, Class value ) {
 		if ( value != null )
 			absoluteClassCache.put( name, value );
 		else
-			absoluteNonClasses.put( name, NOVALUE );
+			absoluteNonClasses.add( name );
+	}
+
+	/**
+	 * Associate a persistent generated class implementation with this
+	 * interpreter.  An associated class will be used in lieu of generating
+	 * bytecode when a scripted class of the same name is encountered.
+	 * When such a class is defined in the script it will cause the associated
+	 * existing class implementation to be initialized (with the static
+	 * initializer field).  This is utilized by the persistent class generator
+	 * to allow a generated class to bootstrap an interpreter and rendesvous
+	 * with its implementation script.
+	 *
+	 * Class associations currently last for the life of the class manager.
+	 */
+	public void associateClass( Class clas )
+	{
+		// TODO should check to make sure it's a generated class here
+		// just need to add a method to classgenerator API to test it
+		associatedClasses.put( clas.getName(), clas );
+	}
+
+	public Class getAssociatedClass( String name )
+	{
+		return (Class)associatedClasses.get( name );
 	}
 
 	/**
@@ -303,7 +320,7 @@ public class BshClassManager
 		in the general case where either will do.
 	*/
 	public void cacheResolvedMethod( 
-		Class<?> clas, Class<?> [] types, Method method )
+		Class clas, Class [] types, Method method ) 
 	{
 		if ( Interpreter.DEBUG )
 			Interpreter.debug(
@@ -322,7 +339,7 @@ public class BshClassManager
 		@return the Method or null
 	*/
 	protected Method getResolvedMethod( 
-		Class<?> clas, String methodName, Class<?> [] types, boolean onlyStatic  )
+		Class clas, String methodName, Class [] types, boolean onlyStatic  ) 
 	{
 		SignatureKey sk = new SignatureKey( clas, methodName, types );
 
@@ -346,14 +363,14 @@ public class BshClassManager
 
 	/**
 		Clear the caches in BshClassManager
-		@see public void #reset() for external usage
+		@see #reset() for external usage
 	*/
 	protected void clearCaches() 
 	{
-    	absoluteNonClasses = new Hashtable<>();
-    	absoluteClassCache = new Hashtable<>();
-    	resolvedObjectMethods = new Hashtable<>();
-    	resolvedStaticMethods = new Hashtable<>();
+		absoluteNonClasses = Collections.synchronizedSet(new HashSet<String>());
+		absoluteClassCache = new Hashtable<String,Class>();
+		resolvedObjectMethods = new Hashtable<SignatureKey,Method>();
+		resolvedStaticMethods = new Hashtable<SignatureKey,Method>();
 	}
 
 	/**
@@ -427,7 +444,7 @@ public class BshClassManager
 		throw cmUnavailable();
 	}
 
-	/*
+	/**
 		This has been removed from the interface to shield the core from the
 		rest of the classpath package. If you need the classpath you will have
 		to cast the classmanager to its impl.
@@ -489,19 +506,19 @@ public class BshClassManager
 		int i = baseName.indexOf("$");
 		if ( i != -1 )
 			baseName = baseName.substring(i+1);
-		String cur = definingClassesBaseNames.get( baseName );
+		String cur = (String)definingClassesBaseNames.get( baseName );
 		if ( cur != null )
 			throw new InterpreterError("Defining class problem: "+className 
 				+": BeanShell cannot yet simultaneously define two or more "
-				+"dependant classes of the same name.  Attempt to define: "
+				+"dependent classes of the same name.  Attempt to define: "
 				+ className +" while defining: "+cur 
 			);
-		definingClasses.put( className, NOVALUE );
+		definingClasses.add( className );
 		definingClassesBaseNames.put( baseName, className );
 	}
 
 	protected boolean isClassBeingDefined( String className ) {
-		return definingClasses.get( className ) != null;
+		return definingClasses.contains( className );
 	}
 
 	/**
@@ -527,7 +544,7 @@ public class BshClassManager
 		The real implementation in the classpath.ClassManagerImpl handles
 		reloading of the generated classes.
 	*/
-	public Class<?> defineClass( String name, byte [] code )
+	public Class defineClass( String name, byte [] code ) 
 	{
 		throw new InterpreterError("Can't create class ("+name
 			+") without class manager package.");
@@ -538,7 +555,7 @@ public class BshClassManager
 		executions of the script...  
 
 		ClassLoader cl = this.getClass().getClassLoader();
-		Class<?> clas;
+		Class clas;
 		try {
 			clas = (Class)Reflect.invokeObjectMethod( 
 				cl, "defineClass", 
@@ -559,16 +576,6 @@ public class BshClassManager
 	}
 
 	protected void classLoaderChanged() { }
-
-	/**
-		Annotate the NoClassDefFoundError with some info about the class
-		we were trying to load.
-	*/
-	protected static Error noClassDefFound( String className, Error e ) {
-		return new NoClassDefFoundError(
-			"A class required by class: "+className +" could not be loaded:\n"
-			+e.toString() );
-	}
 
 	protected static UtilEvalError cmUnavailable() {
 		return new Capabilities.Unavailable(
@@ -597,12 +604,12 @@ public class BshClassManager
 	*/
 	static class SignatureKey
 	{
-		Class<?> clas;
-		Class<?> [] types;
+		Class clas;
+		Class [] types;
 		String methodName;
 		int hashCode = 0;
 
-		SignatureKey( Class<?> clas, String methodName, Class<?> [] types ) {
+		SignatureKey( Class clas, String methodName, Class [] types ) {
 			this.clas = clas;
 			this.methodName = methodName;
 			this.types = types;

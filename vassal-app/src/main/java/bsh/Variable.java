@@ -1,19 +1,42 @@
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
+ *                                                                           *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
+ *                                                                           *
+ *                                                                           *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
+ *                                                                           *
+ *****************************************************************************/
 package bsh;
 
 public class Variable implements java.io.Serializable 
 {
-	private static final long serialVersionUID = 1L;
-
 	static final int DECLARATION=0, ASSIGNMENT=1;
 	/** A null type means an untyped variable */
 	String name;
-	Class<?> type = null;
+	Class type = null;
 	String typeDescriptor;
 	Object value;
 	Modifiers modifiers;
 	LHS lhs;
 
-	Variable( String name, Class<?> type, LHS lhs ) 
+	Variable( String name, Class type, LHS lhs ) 
 	{
 		this.name = name;
 		this.lhs = lhs;
@@ -23,7 +46,7 @@ public class Variable implements java.io.Serializable
 	Variable( String name, Object value, Modifiers modifiers )
 		throws UtilEvalError
 	{
-		this( name, (Class<?>)null/*type*/, value, modifiers );
+		this( name, (Class)null/*type*/, value, modifiers );
 	}
 
 	/**
@@ -34,14 +57,14 @@ public class Variable implements java.io.Serializable
 	)
 		throws UtilEvalError
 	{
-		this( name, (Class<?>)null/*type*/, value, modifiers );
+		this( name, (Class)null/*type*/, value, modifiers );
 		this.typeDescriptor = typeDescriptor;
 	}
 
 	/**
 		@param value may be null if this 
 	*/
-	Variable( String name, Class<?> type, Object value, Modifiers modifiers )
+	Variable( String name, Class type, Object value, Modifiers modifiers )
 		throws UtilEvalError
 	{
 
@@ -62,15 +85,20 @@ public class Variable implements java.io.Serializable
 	{
 
 		// check this.value
-		if ( hasModifier("final") && this.value != null )
-			throw new UtilEvalError ("Final variable, can't re-assign.");
+        if (hasModifier("final")) {
+            if (this.value != null) {
+                throw new UtilEvalError("Final variable '" + getName() + "', can't re-assign.");
+            } else if (value == null && context == DECLARATION) {
+                return;
+            }
+        }
 
-		if ( value == null )
+        if ( value == null )
 			value = Primitive.getDefaultValue( type );
 
 		if ( lhs != null )
 		{
-			lhs.assign( value, false/*strictjava*/ );
+			lhs.assign( Primitive.unwrap(value), false/*strictjava*/ );
 			return;
 		}
 
@@ -93,13 +121,14 @@ public class Variable implements java.io.Serializable
 		throws UtilEvalError
 	{ 
 		if ( lhs != null )
-			return lhs.getValue();
+			return type == null ?
+				lhs.getValue() : Primitive.wrap( lhs.getValue(), type );
 
 		return value; 
 	}
 
 	/** A type of null means loosely typed variable */
-	public Class<?> getType() { return type;	}
+	public Class getType() { return type;	}
 
 	public String getTypeDescriptor() { return typeDescriptor; }
 

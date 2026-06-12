@@ -1,33 +1,25 @@
-/*
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
  *                                                                           *
- *  This file is part of the BeanShell Java Scripting distribution.          *
- *  Documentation and updates may be found at http://www.beanshell.org/      *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
  *                                                                           *
- *  Sun Public License Notice:                                               *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
  *                                                                           *
- *  The contents of this file are subject to the Sun Public License Version  *
- *  1.0 (the "License"); you may not use this file except in compliance with *
- *  the License. A copy of the License is available at http://www.sun.com    * 
- *                                                                           *
- *  The Original Code is BeanShell. The Initial Developer of the Original    *
- *  Code is Pat Niemeyer. Portions created by Pat Niemeyer are Copyright     *
- *  (C) 2000.  All Rights Reserved.                                          *
- *                                                                           *
- *  GNU Public License Notice:                                               *
- *                                                                           *
- *  Alternatively, the contents of this file may be used under the terms of  *
- *  the GNU Lesser General Public License (the "LGPL"), in which case the    *
- *  provisions of LGPL are applicable instead of those above. If you wish to *
- *  allow use of your version of this file only under the  terms of the LGPL *
- *  and not to allow others to use your version of this file under the SPL,  *
- *  indicate your decision by deleting the provisions above and replace      *
- *  them with the notice and other provisions required by the LGPL.  If you  *
- *  do not delete the provisions above, a recipient may use your version of  *
- *  this file under either the SPL or the LGPL.                              *
- *                                                                           *
- *  Patrick Niemeyer (pat@pat.net)                                           *
- *  Author of Learning Java, O'Reilly & Associates                           *
- *  http://www.pat.net/~pat/                                                 *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
  *****************************************************************************/
 
@@ -35,41 +27,16 @@ package bsh;
 
 import java.util.*;
 
-public class StringUtil {
+public class StringUtil
+{
 
 	public static String [] split( String s, String delim) {
-		Vector<String> v = new Vector<>();
+		List<String> v = new ArrayList<String>();
 		StringTokenizer st = new StringTokenizer(s, delim);
 		while ( st.hasMoreTokens() )
-			v.addElement( st.nextToken() );
-		String [] sa = new String [ v.size() ];
-		v.copyInto( sa );
-		return sa;
+			v.add( st.nextToken() );
+		return v.toArray(new String[0]);
 	}
-
-	public static String [] bubbleSort( String [] in ) {
-		Vector<String> v = new Vector<>();
-		for(int i=0; i<in.length; i++)
-			v.addElement(in[i]);
-
-		int n = v.size();
-		boolean swap = true;
-		while ( swap ) {
-			swap = false;
-			for(int i=0; i<(n-1); i++)
-				if ( v.elementAt(i).compareTo( v.elementAt(i+1) ) > 0 ) {
-					String tmp = v.elementAt(i+1);
-					v.removeElementAt( i+1 );
-					v.insertElementAt( tmp, i );
-					swap = true;
-				}
-		}
-
-		String [] out = new String [ n ];
-		v.copyInto(out);
-		return out;
-	}
-
 
 	public static String maxCommonPrefix( String one, String two ) {
 		int i=0;
@@ -78,14 +45,14 @@ public class StringUtil {
 		return one.substring(0, i-1);
 	}
 
-    public static String methodString(String name, Class<?>[] types)
+    public static String methodString(String name, Class[] types)
     {
-        StringBuffer sb = new StringBuffer(name + "(");
+        StringBuilder sb = new StringBuilder(name + "(");
         if ( types.length > 0 )
 			sb.append(" ");
         for( int i=0; i<types.length; i++ )
         {
-            Class<?> c = types[i];
+            Class c = types[i];
             sb.append( ( (c == null) ? "null" : c.getName() ) 
 				+ ( i < (types.length-1) ? ", " : " " ) );
         }
@@ -93,7 +60,7 @@ public class StringUtil {
         return sb.toString();
     }
 
-	/*
+	/**
 		Split a filename into dirName, baseName
 		@return String [] { dirName, baseName }
     public String [] splitFileName( String fileName ) 
@@ -114,7 +81,7 @@ public class StringUtil {
 	/**
 		Hack - The real method is in Reflect.java which is not public.
 	*/
-    public static String normalizeClassName( Class<?> type )
+    public static String normalizeClassName( Class type )
 	{
 		return Reflect.normalizeClassName( type );
 	}

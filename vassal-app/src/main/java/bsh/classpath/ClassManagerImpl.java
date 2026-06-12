@@ -1,33 +1,25 @@
-/*
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
  *                                                                           *
- *  This file is part of the BeanShell Java Scripting distribution.          *
- *  Documentation and updates may be found at http://www.beanshell.org/      *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
  *                                                                           *
- *  Sun Public License Notice:                                               *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
  *                                                                           *
- *  The contents of this file are subject to the Sun Public License Version  *
- *  1.0 (the "License"); you may not use this file except in compliance with *
- *  the License. A copy of the License is available at http://www.sun.com    * 
- *                                                                           *
- *  The Original Code is BeanShell. The Initial Developer of the Original    *
- *  Code is Pat Niemeyer. Portions created by Pat Niemeyer are Copyright     *
- *  (C) 2000.  All Rights Reserved.                                          *
- *                                                                           *
- *  GNU Public License Notice:                                               *
- *                                                                           *
- *  Alternatively, the contents of this file may be used under the terms of  *
- *  the GNU Lesser General Public License (the "LGPL"), in which case the    *
- *  provisions of LGPL are applicable instead of those above. If you wish to *
- *  allow use of your version of this file only under the  terms of the LGPL *
- *  and not to allow others to use your version of this file under the SPL,  *
- *  indicate your decision by deleting the provisions above and replace      *
- *  them with the notice and other provisions required by the LGPL.  If you  *
- *  do not delete the provisions above, a recipient may use your version of  *
- *  this file under either the SPL or the LGPL.                              *
- *                                                                           *
- *  Patrick Niemeyer (pat@pat.net)                                           *
- *  Author of Learning Java, O'Reilly & Associates                           *
- *  http://www.pat.net/~pat/                                                 *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
  *****************************************************************************/
 
@@ -120,8 +112,8 @@ public class ClassManagerImpl extends BshClassManager
 	private BshClassPath fullClassPath;
 
 	// ClassPath Change listeners
-	private Vector<WeakReference<Listener>> listeners = new Vector<>();
-	private ReferenceQueue<Listener> refQueue = new ReferenceQueue<>();
+	private Vector listeners = new Vector();
+	private ReferenceQueue refQueue = new ReferenceQueue();
 
 	/**
 		This handles extension / modification of the base classpath
@@ -134,104 +126,118 @@ public class ClassManagerImpl extends BshClassManager
 	/**
 		Map by classname of loaders to use for reloaded classes
 	*/
-	private Map<String, ClassLoader> loaderMap;
+	private Map loaderMap;
 
 	/**
 		Used by BshClassManager singleton constructor
 	*/
 	public ClassManagerImpl() {
-		initializeClassLoadingState();
+		reset();
 	}
 
 	/**
 		@return the class or null
 	*/
-	public Class<?> classForName( String name )
+	@Override
+	public Class classForName( String name )
 	{
 		// check positive cache
-		Class<?> c = absoluteClassCache.get(name);
+		Class c = (Class)absoluteClassCache.get(name);
 		if (c != null )
 			return c;
 
 		// check negative cache
-		if ( absoluteNonClasses.get(name)!=null ) {
-			if ( Interpreter.DEBUG )
-				Interpreter.debug("absoluteNonClass list hit: "+name);
+		if ( absoluteNonClasses.contains(name) ) {
+			if ( Interpreter.DEBUG ) Interpreter.debug("absoluteNonClass list hit: "+name);
 			return null;
 		}
 
-		if ( Interpreter.DEBUG )
-			Interpreter.debug("Trying to load class: "+name);
+		if ( Interpreter.DEBUG ) Interpreter.debug("Trying to load class: "+name);
 
 		// Check explicitly mapped (reloaded) class...
-		ClassLoader overlayLoader = getLoaderForClass( name );
-		if ( overlayLoader != null )
-		{
+		final ClassLoader overlayLoader = getLoaderForClass( name );
+		if ( overlayLoader != null ) {
 			try {
 				c = overlayLoader.loadClass(name);
 			} catch ( Exception e ) {
-			// used to squeltch this... changed for 1.3
-			// see BshClassManager
-			} catch ( NoClassDefFoundError e2 ) {
-				throw noClassDefFound( name, e2 );
+				if ( Interpreter.DEBUG ) Interpreter.debug("overlay loader failed for '" + name + "' - " + e);
 			}
-
 			// Should be there since it was explicitly mapped
-			// throw an error?
+			// throw an error if c == null)?
 		}
 
 		// insure that core classes are loaded from the same loader
-		if ( c == null ) {
-			if ( name.startsWith( BSH_PACKAGE ) )
+		if ((c == null) && name.startsWith(BSH_PACKAGE)) {
+			final ClassLoader myClassLoader = Interpreter.class.getClassLoader(); // is null if located in bootclasspath
+			if (myClassLoader != null) {
 				try {
-					c = Interpreter.class.getClassLoader().loadClass( name );
-				} catch ( ClassNotFoundException e ) {}
+					c = myClassLoader.loadClass(name);
+				} catch (ClassNotFoundException e) {
+					// fall through
+				} catch (NoClassDefFoundError e) {
+					// fall through
+				}
+			} else {
+				try {
+					c = Class.forName( name );
+				} catch ( ClassNotFoundException e ) {
+					// fall through
+				} catch ( NoClassDefFoundError e ) {
+					// fall through
+				}
+			}
 		}
 
 		// Check classpath extension / reloaded classes
-		if ( c == null ) {
-			if ( baseLoader != null )
-				try {
-					c = baseLoader.loadClass( name );
-				} catch ( ClassNotFoundException e ) {}
+		if ((c == null) && (baseLoader != null)) {
+			try {
+				c = baseLoader.loadClass(name);
+			} catch (ClassNotFoundException e) {
+				// fall through
+			}
 		}
 
 		// Optionally try external classloader
-		if ( c == null ) {
-			if ( externalClassLoader != null )
-				try {
-					c = externalClassLoader.loadClass( name );
-				} catch ( ClassNotFoundException e ) {}
+		if ((c == null) && (externalClassLoader != null)) {
+			try {
+				c = externalClassLoader.loadClass(name);
+			} catch (ClassNotFoundException e) {
+				// fall through					
+			}
 		}
 
 		// Optionally try context classloader
 		// Note that this might be a security violation
 		// is catching the SecurityException sufficient for all environments?
 		// or do we need a way to turn this off completely?
-		if ( c ==  null )
-		{
+		if ( c ==  null ) {
 			try {
-				ClassLoader contextClassLoader = 
-					Thread.currentThread().getContextClassLoader();
-				if ( contextClassLoader != null )
+				final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+				if ( contextClassLoader != null ) {
 					c = Class.forName( name, true, contextClassLoader );
-			} catch ( ClassNotFoundException e ) { // fall through
-			} catch ( SecurityException e ) { } // fall through
+				}
+			} catch ( ClassNotFoundException e ) { 
+				// fall through
+			} catch ( NoClassDefFoundError e ) { 
+				// fall through
+			} catch ( SecurityException e ) { 
+				// fall through
+			} 
 		}
 
 		// try plain class forName()
 		if ( c == null )
 			try {
-				c = plainClassForName( name );
-			} catch ( ClassNotFoundException e ) {}
-
-		// Try scripted class
-		if ( c == null )
-			c = loadSourceClass( name );
+				c = Class.forName( name );
+			} catch ( ClassNotFoundException e ) {
+				// fall through
+/* I disagree with letting this fall through  -fschmidt
+			} catch ( NoClassDefFoundError e ) {
+				// fall through
+*/
+			}
 
 		// Cache result (or null for not found)
-		// Note: plainClassForName already caches, so it will be redundant
-		// in that case, however this process only happens once
 		cacheClassInfo( name, c );
 
 		return c;
@@ -241,7 +247,8 @@ public class ClassManagerImpl extends BshClassManager
 		Get a resource URL using the BeanShell classpath
 		@param path should be an absolute path
 	*/
-	public URL getResource( String path ) 
+	@Override
+	public URL getResource( String path )
 	{
 		URL url = null;
 		if ( baseLoader != null )
@@ -256,7 +263,8 @@ public class ClassManagerImpl extends BshClassManager
 		Get a resource stream using the BeanShell classpath
 		@param path should be an absolute path
 	*/
-	public InputStream getResourceAsStream( String path ) 
+	@Override
+	public InputStream getResourceAsStream( String path )
 	{
 		InputStream in = null;
 		if ( baseLoader != null )
@@ -272,14 +280,15 @@ public class ClassManagerImpl extends BshClassManager
 	}
 
 	ClassLoader getLoaderForClass( String name ) {
-		return loaderMap.get( name );
+		return (ClassLoader)loaderMap.get( name );
 	}
 
 	// Classpath mutators
 
 	/**
 	*/
-	public void addClassPath( URL path ) 
+	@Override
+	public void addClassPath( URL path )
 		throws IOException 
 	{
 		if ( baseLoader == null )
@@ -296,26 +305,24 @@ public class ClassManagerImpl extends BshClassManager
 		Clear all classloading behavior and class caches and reset to 
 		initial state.
 	*/
+	@Override
 	public void reset()
 	{
-		initializeClassLoadingState();
-		classLoaderChanged(); // calls clearCaches() for us.
-	}
-
-	private void initializeClassLoadingState() {
 		baseClassPath = new BshClassPath("baseClassPath");
 		baseLoader = null;
-		loaderMap = new HashMap<>();
+		loaderMap = new HashMap();
+		classLoaderChanged(); // calls clearCaches() for us.
 	}
 
 	/**
 		Set a new base classpath and create a new base classloader.
 		This means all types change. 
 	*/
+	@Override
 	public void setClassPath( URL [] cp ) {
 		baseClassPath.setPath( cp );
 		initBaseLoader();
-		loaderMap = new HashMap<>();
+		loaderMap = new HashMap();
 		classLoaderChanged();
 	}
 
@@ -325,7 +332,8 @@ public class ClassManagerImpl extends BshClassManager
 
 		No point in including the boot class path (can't reload thos).
 	*/
-	public void reloadAllClasses() throws ClassPathException 
+	@Override
+	public void reloadAllClasses() throws ClassPathException
 	{
 		BshClassPath bcp = new BshClassPath("temp");
 		bcp.addComponent( baseClassPath );
@@ -347,7 +355,8 @@ public class ClassManagerImpl extends BshClassManager
 		whenever we are asked for classes in the appropriate space.
 		For this we use a DiscreteFilesClassLoader
 	*/
-	public void reloadClasses( String [] classNames ) 
+	@Override
+	public void reloadClasses( String [] classNames )
 		throws ClassPathException
 	{
 		// validate that it is a class here?
@@ -393,8 +402,9 @@ public class ClassManagerImpl extends BshClassManager
 		ClassLoader cl = new DiscreteFilesClassLoader( this, map );
 
 		// map those classes the loader in the overlay map
-		for ( String className : map.keySet() )
-			loaderMap.put( className, cl );
+		Iterator it = map.keySet().iterator();
+		while ( it.hasNext() )
+			loaderMap.put( (String)it.next(), cl );
 
 		classLoaderChanged();
 	}
@@ -405,10 +415,11 @@ public class ClassManagerImpl extends BshClassManager
 		The special package name "<unpackaged>" can be used to refer 
 		to unpackaged classes.
 	*/
-	public void reloadPackage( String pack ) 
+	@Override
+	public void reloadPackage( String pack )
 		throws ClassPathException 
 	{
-		Collection<String> classes =
+		Collection classes = 
 			baseClassPath.getClassesForPackage( pack );
 
 		if ( classes == null )
@@ -420,10 +431,10 @@ public class ClassManagerImpl extends BshClassManager
 		if ( classes == null )
 			throw new ClassPathException("No classes found for package: "+pack);
 
-		reloadClasses( classes.toArray( new String[0] ) );
+		reloadClasses( (String[])classes.toArray( new String[0] ) );
 	}
 
-	/*
+	/**
 		Unimplemented
 		For this we'd have to store a map by location as well as name...
 
@@ -458,7 +469,8 @@ public class ClassManagerImpl extends BshClassManager
 		Support for "import *;"
 		Hide details in here as opposed to NameSpace.
 	*/
-	public void doSuperImport() 
+	@Override
+	public void doSuperImport()
 		throws UtilEvalError
 	{
 		// Should we prevent it from happening twice?
@@ -478,23 +490,26 @@ public class ClassManagerImpl extends BshClassManager
 		superImport = true;
 	}
 
+	@Override
 	protected boolean hasSuperImport() { return superImport; }
 
 	/**
 		Return the name or null if none is found,
 		Throw an ClassPathException containing detail if name is ambigous.
 	*/
-	public String getClassNameByUnqName( String name ) 
+	@Override
+	public String getClassNameByUnqName( String name )
 		throws ClassPathException
 	{
 		return getClassPath().getClassNameByUnqName( name );
 	}
 
+	@Override
 	public void addListener( Listener l ) {
-		listeners.addElement( new WeakReference<>( l, refQueue) );
+		listeners.addElement( new WeakReference( l, refQueue) );
 
 		// clean up old listeners
-		Reference<? extends Listener> deadref;
+		Reference deadref;
 		while ( (deadref = refQueue.poll()) != null ) {
 			boolean ok = listeners.removeElement( deadref );
 			if ( ok ) {
@@ -506,6 +521,7 @@ public class ClassManagerImpl extends BshClassManager
 		}
 	}
 
+	@Override
 	public void removeListener( Listener l ) {
 		throw new Error("unimplemented");
 	}
@@ -528,7 +544,8 @@ public class ClassManagerImpl extends BshClassManager
 
 		@exception ClassPathException can be thrown by reloadClasses
 	*/
-	public Class<?> defineClass( String name, byte [] code )
+	@Override
+	public Class defineClass( String name, byte [] code )
 	{
 		baseClassPath.setClassSource( name, new GeneratedClassSource( code ) );
 		try {
@@ -546,26 +563,28 @@ public class ClassManagerImpl extends BshClassManager
 		The listener list is implemented with weak references so that we 
 		will not keep every namespace in existence forever.
 	*/
-	protected void classLoaderChanged() 
+	@Override
+	protected void classLoaderChanged()
 	{
 		// clear the static caches in BshClassManager
 		clearCaches();
 
-		Vector<WeakReference<Listener>> toRemove = new Vector<>(); // safely remove
-		for ( Enumeration<WeakReference<Listener>> e = listeners.elements(); e.hasMoreElements(); )
+		Vector toRemove = new Vector(); // safely remove
+		for ( Enumeration e = listeners.elements(); e.hasMoreElements(); ) 
 		{
-			WeakReference<Listener> wr = e.nextElement();
-			Listener l = wr.get();
+			WeakReference wr = (WeakReference)e.nextElement();
+			Listener l = (Listener)wr.get();
 			if ( l == null )  // garbage collected
 			  toRemove.add( wr );
 			else
 			  l.classLoaderChanged();
 		}
-		for( Enumeration<WeakReference<Listener>> e = toRemove.elements(); e.hasMoreElements(); )
+		for( Enumeration e = toRemove.elements(); e.hasMoreElements(); ) 
 			listeners.removeElement( e.nextElement() );
 	}
 
-	public void dump( PrintWriter i ) 
+	@Override
+	public void dump( PrintWriter i )
 	{
 		i.println("Bsh Class Manager Dump: ");
 		i.println("----------------------- ");

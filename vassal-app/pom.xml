@@ -179,12 +179,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.beanshell</groupId>
-            <artifactId>bsh-core</artifactId>
-            <version>2.0b4</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
             <version>1.18.10</version>
@@ -228,6 +222,18 @@
               <excludes>
                 <exclude>*.java</exclude>
               </excludes>
+            </resource>
+            <resource>
+              <directory>src/main/java</directory>
+              <includes>
+                <include>bsh/**/*.bsh</include>
+                <include>bsh/**/*.scripted</include>
+                <include>bsh/**/*.gif</include>
+                <include>bsh/**/*.html</include>
+                <include>bsh/**/*.jpg</include>
+                <include>bsh/**/*.png</include>
+                <include>bsh/**/*.txt</include>
+              </includes>
             </resource>
         </resources>
         <plugins>

@@ -1,43 +1,37 @@
-/*
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
  *                                                                           *
- *  This file is part of the BeanShell Java Scripting distribution.          *
- *  Documentation and updates may be found at http://www.beanshell.org/      *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
  *                                                                           *
- *  Sun Public License Notice:                                               *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
  *                                                                           *
- *  The contents of this file are subject to the Sun Public License Version  *
- *  1.0 (the "License"); you may not use this file except in compliance with *
- *  the License. A copy of the License is available at http://www.sun.com    * 
- *                                                                           *
- *  The Original Code is BeanShell. The Initial Developer of the Original    *
- *  Code is Pat Niemeyer. Portions created by Pat Niemeyer are Copyright     *
- *  (C) 2000.  All Rights Reserved.                                          *
- *                                                                           *
- *  GNU Public License Notice:                                               *
- *                                                                           *
- *  Alternatively, the contents of this file may be used under the terms of  *
- *  the GNU Lesser General Public License (the "LGPL"), in which case the    *
- *  provisions of LGPL are applicable instead of those above. If you wish to *
- *  allow use of your version of this file only under the  terms of the LGPL *
- *  and not to allow others to use your version of this file under the SPL,  *
- *  indicate your decision by deleting the provisions above and replace      *
- *  them with the notice and other provisions required by the LGPL.  If you  *
- *  do not delete the provisions above, a recipient may use your version of  *
- *  this file under either the SPL or the LGPL.                              *
- *                                                                           *
- *  Patrick Niemeyer (pat@pat.net)                                           *
- *  Author of Learning Java, O'Reilly & Associates                           *
- *  http://www.pat.net/~pat/                                                 *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
  *****************************************************************************/
 
 package bsh.util;
 
 import java.util.*;
+import java.util.zip.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 import javax.swing.event.*;
 import javax.swing.border.*;
+import java.io.*;
 import java.awt.*;
 import java.lang.reflect.*;
 import java.util.List;
@@ -48,6 +42,7 @@ import bsh.classpath.BshClassPath;
 import bsh.classpath.ClassPathListener;
 import bsh.ClassPathException;
 import bsh.StringUtil;
+import bsh.ConsoleInterface;
 import bsh.classpath.ClassManagerImpl;
 
 /**
@@ -56,27 +51,25 @@ import bsh.classpath.ClassManagerImpl;
 public class ClassBrowser extends JSplitPane 
 	implements ListSelectionListener, ClassPathListener
 {
-	private static final long serialVersionUID = 1L;
-
-	transient BshClassPath classPath;
-	transient BshClassManager classManager;
+	BshClassPath classPath;
+	BshClassManager classManager;
 
 	// GUI
 	JFrame frame;
 	JInternalFrame iframe;
-	JList<String> classlist, conslist, mlist, fieldlist;
+	JList classlist, conslist, mlist, fieldlist;
 	PackageTree ptree;
 	JTextArea methodLine;
 	JTree tree;
 	// For JList models
 	String [] packagesList;
 	String [] classesList;
-	transient Constructor<?> [] consList;
-	transient Method [] methodList;
-	transient Field [] fieldList;
+	Constructor [] consList;
+	Method [] methodList;
+	Field [] fieldList;
 
 	String selectedPackage;
-	Class<?> selectedClass;
+	Class selectedClass;
 
 	private static final Color LIGHT_BLUE = new Color(245,245,255);
 	
@@ -97,21 +90,23 @@ public class ClassBrowser extends JSplitPane
 	}
 
 	String [] toSortedStrings ( Collection<String> c ) {
-		List<String> l = new ArrayList<>( c );
-		String [] sa = l.toArray( new String[0] );
-		return StringUtil.bubbleSort(sa);
+		String[] sa = c.toArray(new String[0]);
+		Arrays.sort(sa);
+		return sa;
 	}
 
 	void setClist( String packagename ) {
 		this.selectedPackage = packagename;
 
-		Set<String> set = classPath.getClassesForPackage( packagename );
+		Set set = classPath.getClassesForPackage( packagename );
 		if ( set == null )
-			set = new HashSet<>();
+			set = new HashSet();
 
 		// remove inner classes and shorten class names
-		List<String> list = new ArrayList<>();
-		for (String cname : set) {
+		List list = new ArrayList();
+		Iterator it = set.iterator();
+		while (it.hasNext()) {
+			String cname = (String)it.next();
 			if ( cname.indexOf("$") == -1 )
 				list.add( BshClassPath.splitClassname( cname )[1] );
 		}
@@ -121,10 +116,10 @@ public class ClassBrowser extends JSplitPane
 		//setMlist( (String)classlist.getModel().getElementAt(0) );
 	}
 
-	String [] parseConstructors( Constructor<?> [] constructors ) {
+	String [] parseConstructors( Constructor [] constructors ) {
 		String [] sa = new String [ constructors.length ] ;
 		for(int i=0; i< sa.length; i++) {
-			Constructor<?> con = constructors[i];
+			Constructor con = constructors[i];
 			sa[i] = StringUtil.methodString( 
 				con.getName(), con.getParameterTypes() );
 		}
@@ -150,36 +145,42 @@ public class ClassBrowser extends JSplitPane
 		return sa;
 	}
 	
-	Constructor<?> [] getPublicConstructors( Constructor<?> [] constructors ) {
-		List<Constructor<?>> v = new ArrayList<>();
+	Constructor [] getPublicConstructors( Constructor [] constructors ) {
+		Vector v = new Vector();
 		for(int i=0; i< constructors.length; i++)
 			if ( Modifier.isPublic(constructors[i].getModifiers()) )
-				v.add( constructors[i] );
+				v.addElement( constructors[i] );
 
-		return v.toArray( new Constructor<?> [0] );
+		Constructor [] ca = new Constructor [ v.size() ];
+		v.copyInto( ca );
+		return ca;
 	}
 	
 	Method [] getPublicMethods( Method [] methods ) {
-		List<Method> v = new ArrayList<>();
+		Vector v = new Vector();
 		for(int i=0; i< methods.length; i++)
 			if ( Modifier.isPublic(methods[i].getModifiers()) )
-				v.add( methods[i] );
+				v.addElement( methods[i] );
 
-		return v.toArray( new Method [0] );
+		Method [] ma = new Method [ v.size() ];
+		v.copyInto( ma );
+		return ma;
 	}
 	
 	Field[] getPublicFields( Field [] fields ) {
-		List<Field> v = new ArrayList<>();
+		Vector v = new Vector();
 		for(int i=0; i< fields.length; i++)
 			if ( Modifier.isPublic(fields[i].getModifiers()) )
-				v.add( fields[i] );
+				v.addElement( fields[i] );
 
-		return v.toArray( new Field [0] );
+		Field [] fa = new Field [ v.size() ];
+		v.copyInto( fa );
+		return fa;		
 	}
 
-	void setConslist( Class<?> clas ) {
+	void setConslist( Class clas ) {
 		if ( clas == null ) {
-			conslist.setListData( new String [] { } );
+			conslist.setListData( new Object [] { } );
 			return;
 		}
 
@@ -191,12 +192,13 @@ public class ClassBrowser extends JSplitPane
 	{
 		if ( classname == null ) 
 		{
-			mlist.setListData( new String [] { } );
+			mlist.setListData( new Object [] { } );
 			setConslist( null );
 			setClassTree( null );
 			return;
 		}
 
+		Class clas;
 		try {
 			if ( selectedPackage.equals("<unpackaged>") )
 				selectedClass = classManager.classForName( classname );
@@ -220,9 +222,9 @@ public class ClassBrowser extends JSplitPane
 		setFieldList( selectedClass );
 	}
 	
-	void setFieldList( Class<?> clas ) {
+	void setFieldList( Class clas ) {
 		if ( clas == null ) {
-			fieldlist.setListData( new String [] { } );
+			fieldlist.setListData( new Object [] { } );
 			return;
 		}
 
@@ -234,7 +236,7 @@ public class ClassBrowser extends JSplitPane
 		methodLine.setText( method==null ? "" : method.toString() );
 	}
 
-	void setClassTree( Class<?> clas ) {
+	void setClassTree( Class clas ) {
 		if ( clas == null ) {
 			tree.setModel( null );
 			return;
@@ -291,14 +293,14 @@ public class ClassBrowser extends JSplitPane
 
 		classPath.addListener( this );
 
-		Set<String> pset = classPath.getPackagesSet();
+		Set pset = classPath.getPackagesSet();
 
 		ptree = new PackageTree( pset );
 		ptree.addTreeSelectionListener( new TreeSelectionListener() {
 			public void valueChanged(TreeSelectionEvent e) {
 				TreePath tp = e.getPath();
 				Object [] oa = tp.getPath();
-				StringBuffer selectedPackage = new StringBuffer();
+				StringBuilder selectedPackage = new StringBuilder();
 				for(int i=1; i<oa.length; i++) {
 					selectedPackage.append( oa[i].toString() );
 					if ( i+1 < oa.length )
@@ -308,18 +310,18 @@ public class ClassBrowser extends JSplitPane
 			}
 		} );
 
-		classlist=new JList<>();
+		classlist=new JList();
 		classlist.setBackground(LIGHT_BLUE);
 		classlist.addListSelectionListener(this);
 
-		conslist = new JList<>();
+		conslist = new JList();
 		conslist.addListSelectionListener(this);		
 		
-		mlist = new JList<>();
+		mlist = new JList();
 		mlist.setBackground(LIGHT_BLUE);
 		mlist.addListSelectionListener(this);
 
-		fieldlist = new JList<>();
+		fieldlist = new JList();
 		fieldlist.addListSelectionListener(this);
 
 		JSplitPane methodConsPane = splitPane(
@@ -413,7 +415,7 @@ public class ClassBrowser extends JSplitPane
 	{
 		if ( e.getSource() == classlist ) 
 		{
-			String classname = classlist.getSelectedValue();
+			String classname = (String)classlist.getSelectedValue();
 			setMlist( classname );
 
 			// hack
@@ -493,13 +495,11 @@ public class ClassBrowser extends JSplitPane
 
 	class PackageTree extends JTree 
 	{
-		private static final long serialVersionUID = 1L;
-
-		transient TreeNode root;
+		TreeNode root;
 		DefaultTreeModel treeModel;
-		transient Map<String, DefaultMutableTreeNode> nodeForPackage = new HashMap<>();
+		Map nodeForPackage = new HashMap();
 
-		PackageTree( Collection<String> packages ) {
+		PackageTree( Collection packages ) {
 			setPackages( packages );
 
 			setRootVisible(false);
@@ -517,24 +517,26 @@ public class ClassBrowser extends JSplitPane
 			*/
 		}
 
-		public void setPackages( Collection<String> packages ) {
+		public void setPackages( Collection packages ) {
 			treeModel = makeTreeModel(packages);
 			setModel( treeModel );
 		}
 		
-		DefaultTreeModel makeTreeModel( Collection<String> packages ) 
+		DefaultTreeModel makeTreeModel( Collection packages ) 
 		{
-			Map<String, Object> packageTree = new HashMap<>();
+			Map packageTree = new HashMap();
 
-			for (String pack : packages) {
+			Iterator it=packages.iterator();
+			while( it.hasNext() ) {
+				String pack = (String)(it.next());
 				String [] sa = StringUtil.split( pack, "." );
-				Map<String, Object> level=packageTree;
+				Map level=packageTree;
 				for (int i=0; i< sa.length; i++ ) {
 					String name = sa[i];
-					Map<String, Object> map = packageMap( level, name );
+					Map map=(Map)level.get( name );
 
 					if ( map == null ) {
-						map=new HashMap<>();
+						map=new HashMap();
 						level.put( name, map );
 					} 
 					level = map;
@@ -547,20 +549,14 @@ public class ClassBrowser extends JSplitPane
 		}
 
 
-		@SuppressWarnings("unchecked")
-		private Map<String, Object> packageMap(
-			Map<String, Object> level,
-			String name
-		) {
-			return (Map<String, Object>)level.get( name );
-		}
-
-		MutableTreeNode makeNode( Map<String, Object> map, String nodeName ) 
+		MutableTreeNode makeNode( Map map, String nodeName ) 
 		{
 			DefaultMutableTreeNode root = 
 				new DefaultMutableTreeNode( nodeName );
-			for (String name : map.keySet()) {
-				Map<String, Object> val = packageMap( map, name );
+			Iterator it=map.keySet().iterator();
+			while(it.hasNext() ) {
+				String name = (String)it.next();
+				Map val = (Map)map.get(name);
 				if ( val.size() == 0 ) {
 					DefaultMutableTreeNode leaf = 
 						new DefaultMutableTreeNode( name );
@@ -581,9 +577,9 @@ public class ClassBrowser extends JSplitPane
 		void mapNodes( TreeNode node ) {
 			addNodeMap( node );
 
-			Enumeration<? extends TreeNode> e = node.children();
+			Enumeration e = node.children();
 			while(e.hasMoreElements()) {
-				TreeNode tn = e.nextElement();
+				TreeNode tn = (TreeNode)e.nextElement();
 				mapNodes( tn );
 			}
 		}
@@ -593,7 +589,7 @@ public class ClassBrowser extends JSplitPane
 		*/
 		void addNodeMap( TreeNode node ) {
 
-			StringBuffer sb = new StringBuffer();
+			StringBuilder sb = new StringBuilder();
 			TreeNode tn = node;
 			while( tn != root ) {
 				sb.insert(0, tn.toString() );
@@ -603,12 +599,12 @@ public class ClassBrowser extends JSplitPane
 			}
 			String pack = sb.toString();
 
-			nodeForPackage.put( pack, (DefaultMutableTreeNode)node );
+			nodeForPackage.put( pack, node );
 		}
 
 		void setSelectedPackage( String pack ) {
 			DefaultMutableTreeNode node = 
-				nodeForPackage.get(pack);
+				(DefaultMutableTreeNode)nodeForPackage.get(pack);
 			if ( node == null )
 				return;
 
@@ -622,7 +618,7 @@ public class ClassBrowser extends JSplitPane
 	}
 
 	public void classPathChanged() {
-		Set<String> pset = classPath.getPackagesSet();
+		Set pset = classPath.getPackagesSet();
 		ptree.setPackages( pset );
 		setClist(null);
 	}

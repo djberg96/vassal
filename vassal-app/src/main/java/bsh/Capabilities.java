@@ -1,38 +1,31 @@
-/*
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
  *                                                                           *
- *  This file is part of the BeanShell Java Scripting distribution.          *
- *  Documentation and updates may be found at http://www.beanshell.org/      *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
  *                                                                           *
- *  Sun Public License Notice:                                               *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
  *                                                                           *
- *  The contents of this file are subject to the Sun Public License Version  *
- *  1.0 (the "License"); you may not use this file except in compliance with *
- *  the License. A copy of the License is available at http://www.sun.com    * 
- *                                                                           *
- *  The Original Code is BeanShell. The Initial Developer of the Original    *
- *  Code is Pat Niemeyer. Portions created by Pat Niemeyer are Copyright     *
- *  (C) 2000.  All Rights Reserved.                                          *
- *                                                                           *
- *  GNU Public License Notice:                                               *
- *                                                                           *
- *  Alternatively, the contents of this file may be used under the terms of  *
- *  the GNU Lesser General Public License (the "LGPL"), in which case the    *
- *  provisions of LGPL are applicable instead of those above. If you wish to *
- *  allow use of your version of this file only under the  terms of the LGPL *
- *  and not to allow others to use your version of this file under the SPL,  *
- *  indicate your decision by deleting the provisions above and replace      *
- *  them with the notice and other provisions required by the LGPL.  If you  *
- *  do not delete the provisions above, a recipient may use your version of  *
- *  this file under either the SPL or the LGPL.                              *
- *                                                                           *
- *  Patrick Niemeyer (pat@pat.net)                                           *
- *  Author of Learning Java, O'Reilly & Associates                           *
- *  http://www.pat.net/~pat/                                                 *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
  *****************************************************************************/
 
 package bsh;
 
+import java.lang.reflect.Field;
 import java.util.Hashtable;
 
 /**
@@ -48,16 +41,11 @@ import java.util.Hashtable;
 */
 public class Capabilities 
 {
-	private static boolean accessibility = false;
+	private static volatile boolean accessibility = false;
 
 	public static boolean haveSwing() {
 		// classExists caches info for us
 		return classExists( "javax.swing.JButton" );
-	}
-
-	public static boolean canGenerateInterfaces() {
-		// classExists caches info for us
-		return classExists( "java.lang.reflect.Proxy" );
 	}
 
 	/**
@@ -67,7 +55,7 @@ public class Capabilities
 		Note that even if both are true it does not necessarily mean that we 
 		have runtime permission to access the fields... Java security has
 	 	a say in it.
-		@see bsh.ReflectManager
+		@see bsh.Reflect
 	*/
 	public static boolean haveAccessibility() 
 	{
@@ -76,29 +64,32 @@ public class Capabilities
 
 	public static void setAccessibility( boolean b ) 
 		throws Unavailable
-	{ 
+	{
 		if ( b == false )
 		{
 			accessibility = false;
-			return;
+		} else {
+
+			// test basic access
+			try {
+				String.class.getDeclaredMethods();
+			try {
+				final Field field = Capabilities.class.getField("classes");
+				field.setAccessible(true);
+				field.setAccessible(false);
+			} catch (NoSuchFieldException e) {
+                // ignore
+			}
+			} catch ( SecurityException e ) {
+				throw new Unavailable("Accessibility unavailable: "+e);
+			}
+	
+			accessibility = true;
 		}
-
-		if ( !classExists( "java.lang.reflect.AccessibleObject" )
-			|| !classExists("bsh.reflect.ReflectManagerImpl")  
-		)
-			throw new Unavailable( "Accessibility unavailable" );
-
-		// test basic access
-		try {
-			String.class.getDeclaredMethods();
-		} catch ( SecurityException e ) {
-			throw new Unavailable("Accessibility unavailable: "+e);
-		}
-
-		accessibility = true; 
+		BshClassManager.clearResolveCache();
 	}
 
-	private static final Hashtable<String, Class<?>> classes = new Hashtable<>();
+	private static Hashtable classes = new Hashtable();
 	/**
 		Use direct Class.forName() to test for the existence of a class.
 		We should not use BshClassManager here because:
@@ -110,7 +101,7 @@ public class Capabilities
 	*/
 	public static boolean classExists( String name ) 
 	{
-		Class<?> c = classes.get( name );
+		Object c = classes.get( name );
 
 		if ( c == null ) {
 			try {
@@ -123,7 +114,7 @@ public class Capabilities
 			} catch ( ClassNotFoundException e ) { }
 
 			if ( c != null )
-				classes.put(name, c);
+				classes.put(c,"unused");
 		}
 
 		return c != null;
@@ -136,9 +127,8 @@ public class Capabilities
 	*/
 	public static class Unavailable extends UtilEvalError
 	{
-		private static final long serialVersionUID = 1L;
-
 		public Unavailable(String s ){ super(s); }
 	}
 }
+
 

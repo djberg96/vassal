@@ -1,47 +1,43 @@
-/*
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
  *                                                                           *
- *  This file is part of the BeanShell Java Scripting distribution.          *
- *  Documentation and updates may be found at http://www.beanshell.org/      *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
  *                                                                           *
- *  Sun Public License Notice:                                               *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
  *                                                                           *
- *  The contents of this file are subject to the Sun Public License Version  *
- *  1.0 (the "License"); you may not use this file except in compliance with *
- *  the License. A copy of the License is available at http://www.sun.com    * 
  *                                                                           *
- *  The Original Code is BeanShell. The Initial Developer of the Original    *
- *  Code is Pat Niemeyer. Portions created by Pat Niemeyer are Copyright     *
- *  (C) 2000.  All Rights Reserved.                                          *
- *                                                                           *
- *  GNU Public License Notice:                                               *
- *                                                                           *
- *  Alternatively, the contents of this file may be used under the terms of  *
- *  the GNU Lesser General Public License (the "LGPL"), in which case the    *
- *  provisions of LGPL are applicable instead of those above. If you wish to *
- *  allow use of your version of this file only under the  terms of the LGPL *
- *  and not to allow others to use your version of this file under the SPL,  *
- *  indicate your decision by deleting the provisions above and replace      *
- *  them with the notice and other provisions required by the LGPL.  If you  *
- *  do not delete the provisions above, a recipient may use your version of  *
- *  this file under either the SPL or the LGPL.                              *
- *                                                                           *
- *  Patrick Niemeyer (pat@pat.net)                                           *
- *  Author of Learning Java, O'Reilly & Associates                           *
- *  http://www.pat.net/~pat/                                                 *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
  *****************************************************************************/
+
 
 
 package bsh;
 
 import java.awt.event.*;
+import javax.swing.*;
 import javax.swing.event.*;
+import java.io.*;
 import java.beans.*;
 
 /**
 	JThis is a dynamically loaded extension which extends This and adds 
 	explicit support for AWT and JFC events, etc.  This is a backwards 
-	compatability measure for JDK 1.2.  With 1.3+ there is a general 
+	compatibility measure for JDK 1.2.  With 1.3+ there is a general 
 	reflection proxy mechanism that allows the base This to implement 
 	arbitrary interfaces.
 
@@ -61,7 +57,7 @@ class JThis extends This implements
 	// All core AWT listeners
 	ActionListener, AdjustmentListener, ComponentListener,
 	ContainerListener, FocusListener, ItemListener, KeyListener,
-	TextListener, WindowListener,
+	MouseListener, MouseMotionListener, TextListener, WindowListener,
 	PropertyChangeListener, 
 	// All listeners in javax.swing.event as of Swing 1.1
 	AncestorListener, CaretListener, CellEditorListener, ChangeListener,
@@ -72,7 +68,6 @@ class JThis extends This implements
 	TreeExpansionListener, TreeModelListener, TreeSelectionListener, 
 	TreeWillExpandListener, UndoableEditListener
 {
-	private static final long serialVersionUID = 1L;
 
 	JThis( NameSpace namespace, Interpreter declaringInterp ) { 
 		super( namespace, declaringInterp );
@@ -90,7 +85,7 @@ class JThis extends This implements
 		// handleEvent gets all events
 		try {
 			method = namespace.getMethod( 
-				"handleEvent", new Class<?> [] { null } );
+				"handleEvent", new Class [] { null } );
 		} catch ( UtilEvalError e ) {/*squeltch*/  }
 
 		if (method != null)
@@ -104,7 +99,7 @@ class JThis extends This implements
 
 		// send to specific event handler
 		try {
-			method = namespace.getMethod( name, new Class<?> [] { null } );
+			method = namespace.getMethod( name, new Class [] { null } );
 		} catch ( UtilEvalError e ) { /*squeltch*/ }
 		if (method != null)
 			try {
@@ -212,7 +207,7 @@ class JThis extends This implements
 		BshMethod method = null;
 		try {
 			method = namespace.getMethod( "imageUpdate",
-				new Class<?> [] { null, null, null, null, null, null } );
+				new Class [] { null, null, null, null, null, null } );
 		} catch ( UtilEvalError e ) {/*squeltch*/ }
 
 		if(method != null)
@@ -233,3 +228,4 @@ class JThis extends This implements
 	}
 
 }
+

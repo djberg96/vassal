@@ -1,38 +1,36 @@
-/*
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
  *                                                                           *
- *  This file is part of the BeanShell Java Scripting distribution.          *
- *  Documentation and updates may be found at http://www.beanshell.org/      *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
  *                                                                           *
- *  Sun Public License Notice:                                               *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
  *                                                                           *
- *  The contents of this file are subject to the Sun Public License Version  *
- *  1.0 (the "License"); you may not use this file except in compliance with *
- *  the License. A copy of the License is available at http://www.sun.com    * 
- *                                                                           *
- *  The Original Code is BeanShell. The Initial Developer of the Original    *
- *  Code is Pat Niemeyer. Portions created by Pat Niemeyer are Copyright     *
- *  (C) 2000.  All Rights Reserved.                                          *
- *                                                                           *
- *  GNU Public License Notice:                                               *
- *                                                                           *
- *  Alternatively, the contents of this file may be used under the terms of  *
- *  the GNU Lesser General Public License (the "LGPL"), in which case the    *
- *  provisions of LGPL are applicable instead of those above. If you wish to *
- *  allow use of your version of this file only under the  terms of the LGPL *
- *  and not to allow others to use your version of this file under the SPL,  *
- *  indicate your decision by deleting the provisions above and replace      *
- *  them with the notice and other provisions required by the LGPL.  If you  *
- *  do not delete the provisions above, a recipient may use your version of  *
- *  this file under either the SPL or the LGPL.                              *
- *                                                                           *
- *  Patrick Niemeyer (pat@pat.net)                                           *
- *  Author of Learning Java, O'Reilly & Associates                           *
- *  http://www.pat.net/~pat/                                                 *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
  *****************************************************************************/
 
 
 package bsh;
+
+import java.io.IOException;
+import java.lang.reflect.*;
+import java.util.Map;
+import java.util.HashMap;
+
 
 /**
 	'This' is the type of bsh scripted objects.
@@ -44,12 +42,10 @@ package bsh;
 */
 public class This implements java.io.Serializable, Runnable 
 {
-	private static final long serialVersionUID = 1L;
-
 	/**
 		The namespace that this This reference wraps.
 	*/
-	NameSpace namespace;
+	final NameSpace namespace;
 
 	/**
 		This is the interpreter running when the This ref was created.
@@ -58,6 +54,14 @@ public class This implements java.io.Serializable, Runnable
 		e.g. interface proxy or event call backs from outside of bsh.
 	*/
 	transient Interpreter declaringInterpreter;
+
+	/**
+		A cache of proxy interface handlers.
+		Currently just one per interface.
+	*/
+	private Map<Integer,Object> interfaces;
+
+	private final InvocationHandler invocationHandler = new Handler();
 
 	/**
 		getThis() is a factory for bsh.This type references.  The capabilities
@@ -79,63 +83,150 @@ public class This implements java.io.Serializable, Runnable
     static This getThis( 
 		NameSpace namespace, Interpreter declaringInterpreter ) 
 	{
-		try {
-			Class<?> c;
-			if ( Capabilities.canGenerateInterfaces() )
-				c = Class.forName( "bsh.XThis" );
-			else if ( Capabilities.haveSwing() )
-				c = Class.forName( "bsh.JThis" );
-			else
-				return new This( namespace, declaringInterpreter );
-
-			return (This)Reflect.constructObject( c,
-				new Object [] { namespace, declaringInterpreter } );
-
-		} catch ( Exception e ) {
-			throw new InterpreterError("internal error 1 in This: "+e);
-		}
+		return new This( namespace, declaringInterpreter );
     }
 
 	/**
 		Get a version of this scripted object implementing the specified 
 		interface.
 	*/
-	/*
-		If this type of This implements it directly return this,
-		else try complain that we don't have the proxy mechanism.
+	/**
+		Get dynamic proxy for interface, caching those it creates.
 	*/
-	public Object getInterface( Class<?> clas ) 
-		throws UtilEvalError
+	public Object getInterface( Class clas ) 
 	{
-		if ( clas.isInstance( this ) )
-			return this;
-		else
-			throw new UtilEvalError( "Dynamic proxy mechanism not available. "
-			+ "Cannot construct interface type: "+clas );
+		return getInterface( new Class[] { clas } );
 	}
 
 	/**
-		Get a version of this scripted object implementing the specified
-		interfaces.
+		Get dynamic proxy for interface, caching those it creates.
 	*/
-	public Object getInterface( Class<?> [] ca ) 
-		throws UtilEvalError
+	public Object getInterface( Class [] ca ) 
 	{
-		for(int i=0; i<ca.length; i++)
-			if ( !(ca[i].isInstance( this )) )
-				throw new UtilEvalError( 
-					"Dynamic proxy mechanism not available. " 
-					+ "Cannot construct interface type: "+ca[i] );
+		if ( interfaces == null )
+			interfaces = new HashMap<Integer,Object>();
 
-		return this;
+		// Make a hash of the interface hashcodes in order to cache them
+		int hash = 21;
+		for(int i=0; i<ca.length; i++)
+			hash *= ca[i].hashCode() + 3;
+		Integer hashKey = new Integer(hash);
+
+		Object interf = interfaces.get( hashKey );
+
+		if ( interf == null ) 
+		{
+			ClassLoader classLoader = ca[0].getClassLoader(); // ?
+			interf = Proxy.newProxyInstance( 
+				classLoader, ca, invocationHandler );
+			interfaces.put( hashKey, interf );
+		}
+
+		return interf;
 	}
 
-	/*
-		I wish protected access were limited to children and not also 
-		package scope... I want this to be a singleton implemented by various
-		children.  
+	/**
+		This is the invocation handler for the dynamic proxy.
+		<p>
+
+		Notes:
+		Inner class for the invocation handler seems to shield this unavailable
+		interface from JDK1.2 VM...  
+		
+		I don't understand this.  JThis works just fine even if those
+		classes aren't there (doesn't it?)  This class shouldn't be loaded
+		if an XThis isn't instantiated in NameSpace.java, should it?
 	*/
-	protected This( NameSpace namespace, Interpreter declaringInterpreter ) { 
+	class Handler implements InvocationHandler, java.io.Serializable 
+	{
+		public Object invoke( Object proxy, Method method, Object[] args ) 
+			throws Throwable
+		{
+			try { 
+				return invokeImpl( proxy, method, args );
+			} catch ( TargetError te ) {
+				// Unwrap target exception.  If the interface declares that 
+				// it throws the ex it will be delivered.  If not it will be 
+				// wrapped in an UndeclaredThrowable
+
+				// This isn't simple because unwrapping this loses all context info.
+				// So rewrap is better than unwrap.  - fschmidt
+				Throwable t = te.getTarget();
+				Class<? extends Throwable> c = t.getClass();
+				String msg = t.getMessage();
+				try {
+					Throwable t2 = msg==null 
+						? c.getConstructor().newInstance()
+						: c.getConstructor(String.class).newInstance(msg)
+					;
+					t2.initCause(te);
+					throw t2;
+				} catch(NoSuchMethodException e) {
+					throw t;
+				}
+			} catch ( EvalError ee ) {
+				// Ease debugging...
+				// XThis.this refers to the enclosing class instance
+				if ( Interpreter.DEBUG ) 
+					Interpreter.debug( "EvalError in scripted interface: "
+					+ This.this.toString() + ": "+ ee );
+				throw ee;
+			}
+		}
+
+		public Object invokeImpl( Object proxy, Method method, Object[] args ) 
+			throws EvalError 
+		{
+			String methodName = method.getName();
+			CallStack callstack = new CallStack( namespace );
+
+			/*
+				If equals() is not explicitly defined we must override the 
+				default implemented by the This object protocol for scripted
+				object.  To support XThis equals() must test for equality with 
+				the generated proxy object, not the scripted bsh This object;
+				otherwise callers from outside in Java will not see a the 
+				proxy object as equal to itself.
+			*/
+			BshMethod equalsMethod = null;
+			try {
+				equalsMethod = namespace.getMethod( 
+					"equals", new Class [] { Object.class } );
+			} catch ( UtilEvalError e ) {/*leave null*/ }
+			if ( methodName.equals("equals" ) && equalsMethod == null ) {
+				Object obj = args[0];
+				return proxy == obj;
+			}
+
+			/*
+				If toString() is not explicitly defined override the default 
+				to show the proxy interfaces.
+			*/
+			BshMethod toStringMethod = null;
+			try {
+				toStringMethod = 
+					namespace.getMethod( "toString", new Class [] { } );
+			} catch ( UtilEvalError e ) {/*leave null*/ }
+
+			if ( methodName.equals("toString" ) && toStringMethod == null)
+			{
+				Class [] ints = proxy.getClass().getInterfaces();
+				// XThis.this refers to the enclosing class instance
+				StringBuilder sb = new StringBuilder( 
+					This.this.toString() + "\nimplements:" );
+				for(int i=0; i<ints.length; i++)
+					sb.append( " "+ ints[i].getName() 
+						+ ((ints.length > 1)?",":"") );
+				return sb.toString();
+			}
+
+			Class [] paramTypes = method.getParameterTypes();
+			return Primitive.unwrap( 
+				invokeMethod( methodName, Primitive.wrap(args, paramTypes) ) );
+		}
+	}
+
+	This( NameSpace namespace, Interpreter declaringInterpreter ) {
 		this.namespace = namespace; 
 		this.declaringInterpreter = declaringInterpreter;
 		//initCallStack( namespace );
@@ -197,10 +288,7 @@ public class This implements java.io.Serializable, Runnable
 		have to script them directly.
 		<p>
 
-		@see bsh.This.invokeMethod( 
-			String methodName, Object [] args, Interpreter interpreter, 
-			CallStack callstack, SimpleNode callerInfo )
-		@param if callStack is null a new CallStack will be created and
+		@param callstack if callStack is null a new CallStack will be created and
 			initialized with this namespace.
 		@param declaredOnly if true then only methods declared directly in the
 			namespace will be visible - no inherited or imported methods will
@@ -227,8 +315,9 @@ public class This implements java.io.Serializable, Runnable
 			Class Generator.java.  If we fix that then we can remove this.
 			(just have to generate the code there.)
 		*/
-		if ( args != null )
-		{
+		if ( args == null ) {
+			args = new Object[0];
+		} else {
 			Object [] oa = new Object [args.length];
 			for(int i=0; i<args.length; i++)
 				oa[i] = ( args[i] == null ? Primitive.NULL : args[i] );
@@ -243,7 +332,7 @@ public class This implements java.io.Serializable, Runnable
 			callerInfo = SimpleNode.JAVACODE;
 
 		// Find the bsh method
-		Class<?> [] types = Types.getTypes( args );
+		Class [] types = Types.getTypes( args );
 		BshMethod bshMethod = null;
 		try {
 			bshMethod = namespace.getMethod( methodName, types, declaredOnly );
@@ -264,17 +353,33 @@ public class This implements java.io.Serializable, Runnable
 			a default impl.
 		*/
 		// a default toString() that shows the interfaces we implement
-		if ( methodName.equals("toString" ) )
+		if ( methodName.equals("toString") && args.length==0 )
 			return toString();
 
 		// a default hashCode()
-		if ( methodName.equals("hashCode" ) )
-			return Integer.valueOf(this.hashCode());
+		if ( methodName.equals("hashCode") && args.length==0 )
+			return new Integer(this.hashCode());
 
 		// a default equals() testing for equality with the This reference
-		if ( methodName.equals("equals" ) ) {
+		if ( methodName.equals("equals") && args.length==1 ) {
 			Object obj = args[0];
-			return Boolean.valueOf( this == obj );
+			return this == obj ? Boolean.TRUE : Boolean.FALSE;
+		}
+
+		// a default clone()
+		if ( methodName.equals("clone") && args.length==0 ) {
+			NameSpace ns = new NameSpace(namespace,namespace.getName()+" clone");
+			try {
+				for( String varName : namespace.getVariableNames() ) {
+					ns.setLocalVariable(varName,namespace.getVariable(varName,false),false);
+				}
+				for( BshMethod method : namespace.getMethods() ) {
+					ns.setMethod(method);
+				}
+			} catch ( UtilEvalError e ) {
+				throw e.toEvalError( SimpleNode.JAVACODE, callstack ); 
+			}
+			return ns.getThis(declaringInterpreter);
 		}
 
 		// Look for a default invoke() handler method in the namespace
@@ -282,7 +387,7 @@ public class This implements java.io.Serializable, Runnable
 		// is that ok?
 		try {
 			bshMethod = namespace.getMethod( 
-				"invoke", new Class<?> [] { null, null } );
+				"invoke", new Class [] { null, null } );
 		} catch ( UtilEvalError e ) { /*leave null*/ }
 
 		// Call script "invoke( String methodName, Object [] args );
@@ -337,3 +442,4 @@ public class This implements java.io.Serializable, Runnable
 	}
 
 }
+

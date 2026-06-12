@@ -1,25 +1,36 @@
-/*
+/***
  * ASM: a very small and fast Java bytecode manipulation framework
- * Copyright (C) 2000 INRIA, France Telecom
- * Copyright (C) 2002 France Telecom
+ * Copyright (c) 2000,2002,2003 INRIA, France Telecom
+ * All rights reserved.
  *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in the
+ *    documentation and/or other materials provided with the distribution.
+ * 3. Neither the name of the copyright holders nor the names of its
+ *    contributors may be used to endorse or promote products derived from
+ *    this software without specific prior written permission.
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+ * THE POSSIBILITY OF SUCH DAMAGE.
  *
  * Contact: Eric.Bruneton@rd.francetelecom.com
  *
  * Author: Eric Bruneton
+ * with contributions from: Chris Nokleberg
  */
 
 package bsh.org.objectweb.asm;
@@ -237,7 +248,7 @@ public class Type {
    * @return the Java type corresponding to the given class.
    */
 
-  public static Type getType (final Class<?> c) {
+  public static Type getType (final Class c) {
     if (c.isPrimitive()) {
       if (c == Integer.TYPE) {
         return INT_TYPE;
@@ -309,7 +320,7 @@ public class Type {
    */
 
   public static Type[] getArgumentTypes (final Method method) {
-    Class<?>[] classes = method.getParameterTypes();
+    Class[] classes = method.getParameterTypes();
     Type[] types = new Type[classes.length];
     for (int i = classes.length - 1; i >= 0; --i) {
       types[i] = getType(classes[i]);
@@ -530,7 +541,7 @@ public class Type {
    * @return the internal name of the given class.
    */
 
-  public static String getInternalName (final Class<?> c) {
+  public static String getInternalName (final Class c) {
     return c.getName().replace('.', '/');
   }
 
@@ -541,7 +552,7 @@ public class Type {
    * @return the descriptor corresponding to the given class.
    */
 
-  public static String getDescriptor (final Class<?> c) {
+  public static String getDescriptor (final Class c) {
     StringBuffer buf = new StringBuffer();
     getDescriptor(buf, c);
     return buf.toString();
@@ -555,7 +566,7 @@ public class Type {
    */
 
   public static String getMethodDescriptor (final Method m) {
-    Class<?>[] parameters = m.getParameterTypes();
+    Class[] parameters = m.getParameterTypes();
     StringBuffer buf = new StringBuffer();
     buf.append('(');
     for (int i = 0; i < parameters.length; ++i) {
@@ -573,8 +584,8 @@ public class Type {
    * @param c the class whose descriptor must be computed.
    */
 
-  private static void getDescriptor (final StringBuffer buf, final Class<?> c) {
-    Class<?> d = c;
+  private static void getDescriptor (final StringBuffer buf, final Class c) {
+    Class d = c;
     while (true) {
       if (d.isPrimitive()) {
         char car;
@@ -645,15 +656,16 @@ public class Type {
   public int getOpcode (final int opcode) {
     if (opcode == Constants.IALOAD || opcode == Constants.IASTORE) {
       switch (sort) {
-        case VOID:
-          return opcode + 5;
+        //case VOID:
+          //return opcode + 5;
+          // beanshell b4->b6 change removes VOID and changes the 3 below
         case BOOLEAN:
         case BYTE:
-          return opcode + 6;
+          return opcode + 5; //6
         case CHAR:
-          return opcode + 7;
+          return opcode + 6; //7
         case SHORT:
-          return opcode + 8;
+          return opcode + 7; //8
         case INT:
           return opcode;
         case FLOAT:
@@ -689,5 +701,43 @@ public class Type {
           return opcode + 4;
       }
     }
+  }
+
+  // --------------------------------------------------------------------------
+  // Equals and hashcode
+  // --------------------------------------------------------------------------
+
+  public boolean equals (Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || !(o instanceof Type)) {
+      return false;
+    }
+    Type t = (Type)o;
+    if (sort != t.sort) {
+      return false;
+    }
+    if (sort == Type.OBJECT || sort == Type.ARRAY) {
+      if (len != t.len) {
+        return false;
+      }
+      for (int i = off, j = t.off, end = i + len; i < end; i++, j++) {
+        if (buf[i] != t.buf[j]) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  public int hashCode () {
+    int hc = 13 * sort;
+    if (sort == Type.OBJECT || sort == Type.ARRAY) {
+      for (int i = off, end = i + len; i < end; i++) {
+        hc = 17 * (hc + buf[i]);
+      }
+    }
+    return hc;
   }
 }

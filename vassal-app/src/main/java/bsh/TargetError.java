@@ -1,33 +1,25 @@
-/*
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
  *                                                                           *
- *  This file is part of the BeanShell Java Scripting distribution.          *
- *  Documentation and updates may be found at http://www.beanshell.org/      *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
  *                                                                           *
- *  Sun Public License Notice:                                               *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
  *                                                                           *
- *  The contents of this file are subject to the Sun Public License Version  *
- *  1.0 (the "License"); you may not use this file except in compliance with *
- *  the License. A copy of the License is available at http://www.sun.com    * 
- *                                                                           *
- *  The Original Code is BeanShell. The Initial Developer of the Original    *
- *  Code is Pat Niemeyer. Portions created by Pat Niemeyer are Copyright     *
- *  (C) 2000.  All Rights Reserved.                                          *
- *                                                                           *
- *  GNU Public License Notice:                                               *
- *                                                                           *
- *  Alternatively, the contents of this file may be used under the terms of  *
- *  the GNU Lesser General Public License (the "LGPL"), in which case the    *
- *  provisions of LGPL are applicable instead of those above. If you wish to *
- *  allow use of your version of this file only under the  terms of the LGPL *
- *  and not to allow others to use your version of this file under the SPL,  *
- *  indicate your decision by deleting the provisions above and replace      *
- *  them with the notice and other provisions required by the LGPL.  If you  *
- *  do not delete the provisions above, a recipient may use your version of  *
- *  this file under either the SPL or the LGPL.                              *
- *                                                                           *
- *  Patrick Niemeyer (pat@pat.net)                                           *
- *  Author of Learning Java, O'Reilly & Associates                           *
- *  http://www.pat.net/~pat/                                                 *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
  *****************************************************************************/
 
@@ -49,19 +41,17 @@ import java.io.PrintStream;
 	from the eval() or interpreter.eval() method it may be caught and unwrapped
 	to determine what exception was thrown.
 */
-public class TargetError extends EvalError 
+public final class TargetError extends EvalError 
 {
-	private static final long serialVersionUID = 1L;
-
-	Throwable target;
-	boolean inNativeCode;
+	private final boolean inNativeCode;
 
 	public TargetError(
 		String msg, Throwable t, SimpleNode node, CallStack callstack, 
 		boolean inNativeCode )
 	{
-		super( msg, node, callstack );
-		target = t;
+		// super( msg, node, callstack );
+	    // initCause(t);
+		super( msg, node, callstack, t );
 		this.inNativeCode = inNativeCode;
 	}
 
@@ -73,6 +63,7 @@ public class TargetError extends EvalError
 	public Throwable getTarget()
 	{
 		// check for easy mistake
+		Throwable target = getCause();
 		if(target instanceof InvocationTargetException)
 			return((InvocationTargetException)target).getTargetException();
 		else
@@ -83,7 +74,14 @@ public class TargetError extends EvalError
 	{
 		return super.toString() 
 			+ "\nTarget exception: " + 
-			printTargetError( target );
+			printTargetError( getCause() );
+	}
+
+	public String getMessage() 
+	{
+		return super.getMessage() 
+			+ "\nTarget exception: " + 
+			printTargetError( getCause() );
 	}
 
     public void printStackTrace() { 
@@ -99,7 +97,7 @@ public class TargetError extends EvalError
 			super.printStackTrace( out );
 			out.println("--- Target Stack Trace ---");
 		}
-		target.printStackTrace( out );
+		getCause().printStackTrace( out );
 	}
 
 	/**
@@ -107,14 +105,9 @@ public class TargetError extends EvalError
 		If the proxy mechanism is available, allow the extended print to
 		check for UndeclaredThrowableException and print that embedded error.
 	*/
-	public String printTargetError( Throwable t ) 
+	private String printTargetError( Throwable t ) 
 	{
-		String s = target.toString();
-
-		if ( Capabilities.canGenerateInterfaces() )
-			s += "\n" + xPrintTargetError( t );
-
-		return s;
+		return getCause().toString() + "\n" + xPrintTargetError( t );
 	}
 
 	/**
@@ -126,7 +119,7 @@ public class TargetError extends EvalError
 		This is acceptable here because we're not in a critical path...
 		Otherwise we'd need yet another dynamically loaded module just for this.
 	*/
-	public String xPrintTargetError( Throwable t ) 
+	private String xPrintTargetError( Throwable t ) 
 	{
 		String getTarget =
 			"import java.lang.reflect.UndeclaredThrowableException;"+
@@ -158,3 +151,4 @@ public class TargetError extends EvalError
 		return inNativeCode; 
 	}
 }
+

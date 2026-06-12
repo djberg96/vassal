@@ -1,35 +1,29 @@
-/*
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
  *                                                                           *
- *  This file is part of the BeanShell Java Scripting distribution.          *
- *  Documentation and updates may be found at http://www.beanshell.org/      *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
  *                                                                           *
- *  Sun Public License Notice:                                               *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
  *                                                                           *
- *  The contents of this file are subject to the Sun Public License Version  *
- *  1.0 (the "License"); you may not use this file except in compliance with *
- *  the License. A copy of the License is available at http://www.sun.com    * 
  *                                                                           *
- *  The Original Code is BeanShell. The Initial Developer of the Original    *
- *  Code is Pat Niemeyer. Portions created by Pat Niemeyer are Copyright     *
- *  (C) 2000.  All Rights Reserved.                                          *
- *                                                                           *
- *  GNU Public License Notice:                                               *
- *                                                                           *
- *  Alternatively, the contents of this file may be used under the terms of  *
- *  the GNU Lesser General Public License (the "LGPL"), in which case the    *
- *  provisions of LGPL are applicable instead of those above. If you wish to *
- *  allow use of your version of this file only under the  terms of the LGPL *
- *  and not to allow others to use your version of this file under the SPL,  *
- *  indicate your decision by deleting the provisions above and replace      *
- *  them with the notice and other provisions required by the LGPL.  If you  *
- *  do not delete the provisions above, a recipient may use your version of  *
- *  this file under either the SPL or the LGPL.                              *
- *                                                                           *
- *  Patrick Niemeyer (pat@pat.net)                                           *
- *  Author of Learning Java, O'Reilly & Associates                           *
- *  http://www.pat.net/~pat/                                                 *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
  *****************************************************************************/
+
 
 
 package bsh.util;
@@ -83,14 +77,13 @@ import bsh.*;
 */
 public class AWTConsole extends TextArea 
 	implements ConsoleInterface, Runnable, KeyListener {
-	private static final long serialVersionUID = 1L;
 
-	private transient OutputStream outPipe;
-	private transient InputStream inPipe;
+	private OutputStream outPipe;
+	private InputStream inPipe;
 
 	// formerly public
-	private transient InputStream in;
-	private transient PrintStream out;
+	private InputStream in;
+	private PrintStream out;
 
 	public Reader getIn() { return new InputStreamReader(in); }
 	public PrintStream getOut() { return out; }
@@ -99,7 +92,7 @@ public class AWTConsole extends TextArea
 	private StringBuffer line = new StringBuffer();
 	private String startedLine;
 	private int textLength = 0;
-	private Vector<String> history = new Vector<>();
+	private Vector history = new Vector();
 	private int histLine = 0;
 
 	public AWTConsole( int rows, int cols, InputStream cin, OutputStream cout ) {
@@ -126,7 +119,7 @@ public class AWTConsole extends TextArea
 	}
 
 	public void keyPressed( KeyEvent e ) {
-		type( e.getKeyCode(), e.getKeyChar(), e.getModifiersEx() );
+		type( e.getKeyCode(), e.getKeyChar(), e.getModifiers() );
 		e.consume();
 	}
 
@@ -150,7 +143,7 @@ public class AWTConsole extends TextArea
 				enter();
 				break;
 			case ( KeyEvent.VK_U ):
-				if ( (modifiers & InputEvent.CTRL_DOWN_MASK) > 0 ) {
+				if ( (modifiers & InputEvent.CTRL_MASK) > 0 ) {
 					int len = line.length();
 					replaceRange( "", textLength-len, textLength );
 					line.setLength( 0 );
@@ -177,7 +170,7 @@ public class AWTConsole extends TextArea
 */
 			// Control-C
 			case ( KeyEvent.VK_C ):
-				if ( (modifiers & InputEvent.CTRL_DOWN_MASK) > 0 ) {
+				if ( (modifiers & InputEvent.CTRL_MASK) > 0 ) {
 					line.append("^C");
 					append("^C");
 					textLength += 2;
@@ -216,14 +209,10 @@ public class AWTConsole extends TextArea
 
 	/* 
 		Here's the really disguisting hack.
-		We have to get to the peer because TextComponent will refuse to
-		let us set us set a caret position greater than the text length.
-		Great.  What a piece of crap.
 	*/
-	public void setCaretPosition( int pos ) {
-//		((java.awt.peer.TextComponentPeer)getPeer()).setCaretPosition(
-//			pos + countNLs() );
-	}
+    public synchronized void setCaretPosition( int pos ) {
+        super.setCaretPosition( pos + countNLs() );
+    }
 
 	/*
 		This is part of a hack to fix the setCaretPosition() bug
@@ -261,7 +250,7 @@ public class AWTConsole extends TextArea
 		if ( histLine == 0 )
 			showline = startedLine;
 		else
-			showline = history.elementAt( history.size() - histLine );
+			showline = (String)history.elementAt( history.size() - histLine );
 
 		replaceRange( showline, textLength-line.length(), textLength );
 		line = new StringBuffer(showline);

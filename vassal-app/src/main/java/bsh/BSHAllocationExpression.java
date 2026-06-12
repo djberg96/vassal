@@ -1,33 +1,25 @@
-/*
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
  *                                                                           *
- *  This file is part of the BeanShell Java Scripting distribution.          *
- *  Documentation and updates may be found at http://www.beanshell.org/      *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
  *                                                                           *
- *  Sun Public License Notice:                                               *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
  *                                                                           *
- *  The contents of this file are subject to the Sun Public License Version  *
- *  1.0 (the "License"); you may not use this file except in compliance with *
- *  the License. A copy of the License is available at http://www.sun.com    * 
- *                                                                           *
- *  The Original Code is BeanShell. The Initial Developer of the Original    *
- *  Code is Pat Niemeyer. Portions created by Pat Niemeyer are Copyright     *
- *  (C) 2000.  All Rights Reserved.                                          *
- *                                                                           *
- *  GNU Public License Notice:                                               *
- *                                                                           *
- *  Alternatively, the contents of this file may be used under the terms of  *
- *  the GNU Lesser General Public License (the "LGPL"), in which case the    *
- *  provisions of LGPL are applicable instead of those above. If you wish to *
- *  allow use of your version of this file only under the  terms of the LGPL *
- *  and not to allow others to use your version of this file under the SPL,  *
- *  indicate your decision by deleting the provisions above and replace      *
- *  them with the notice and other provisions required by the LGPL.  If you  *
- *  do not delete the provisions above, a recipient may use your version of  *
- *  this file under either the SPL or the LGPL.                              *
- *                                                                           *
- *  Patrick Niemeyer (pat@pat.net)                                           *
- *  Author of Learning Java, O'Reilly & Associates                           *
- *  http://www.pat.net/~pat/                                                 *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
  *****************************************************************************/
 
@@ -42,8 +34,6 @@ import java.lang.reflect.InvocationTargetException;
 */
 class BSHAllocationExpression extends SimpleNode
 {
-	private static final long serialVersionUID = 1L;
-
     BSHAllocationExpression(int id) { super(id); }
 	private static int innerClassCount = 0;
 	
@@ -78,6 +68,8 @@ class BSHAllocationExpression extends SimpleNode
 	) 
 		throws EvalError
     {
+		NameSpace namespace = callstack.top();
+
         Object[] args = argumentsNode.getArguments( callstack, interpreter );
         if ( args == null)
             throw new EvalError( "Null args in new.", this, callstack );
@@ -91,7 +83,7 @@ class BSHAllocationExpression extends SimpleNode
         obj = nameNode.toObject( 
 			callstack, interpreter, true/*force class*/ );
 
-        Class<?> type = null;
+        Class type = null;
 		if ( obj instanceof ClassIdentifier )
         	type = ((ClassIdentifier)obj).getTargetClass();
 		else
@@ -111,27 +103,30 @@ class BSHAllocationExpression extends SimpleNode
 				return constructWithClassBody( 
 					type, args, body, callstack, interpreter );
 		} else
-			return constructObject( type, args, callstack );
-	}
+			return constructObject( type, args, callstack, interpreter );
+    }
 
-	private Object constructObject( 
-		Class<?> type, Object[] args, CallStack callstack ) 
-		throws EvalError
-	{
+
+	private Object constructObject(Class<?> type, Object[] args, CallStack callstack, Interpreter interpreter ) throws EvalError {
+		final boolean isGeneratedClass = GeneratedClass.class.isAssignableFrom(type);
+		if (isGeneratedClass) {
+			ClassGeneratorUtil.registerConstructorContext(callstack, interpreter);
+		}
 		Object obj;
         try {
             obj = Reflect.constructObject( type, args );
         } catch ( ReflectError e) {
             throw new EvalError(
 				"Constructor error: " + e.getMessage(), this, callstack );
-        } catch(InvocationTargetException e) {
+        } catch (InvocationTargetException e) {
 			// No need to wrap this debug
-			Interpreter.debug("The constructor threw an exception:\n\t" +
-				e.getTargetException());
-            throw new TargetError(
-				"Object constructor", e.getTargetException(), 
-				this, callstack, true);
-        }
+			Interpreter.debug("The constructor threw an exception:\n\t" + e.getTargetException());
+            throw new TargetError("Object constructor", e.getTargetException(), this, callstack, true);
+        } finally {
+			if (isGeneratedClass) {
+				ClassGeneratorUtil.registerConstructorContext(null, null); // clean up, prevent memory leak
+			}		
+		}
 
 		String className = type.getName();
 		// Is it an inner class?
@@ -156,47 +151,45 @@ class BSHAllocationExpression extends SimpleNode
 			&& className.startsWith( instanceNameSpace.getName() +"$") 
 		)
 		{
-			try {
-				ClassGenerator.getClassGenerator().setInstanceNameSpaceParent(
-					obj, className, instanceNameSpace );
-			} catch ( UtilEvalError e ) {
-				throw e.toEvalError( this, callstack );
-			}
+			ClassGenerator.getClassGenerator().setInstanceNameSpaceParent(
+				obj, className, instanceNameSpace );
 		}
 
 		return obj;
 	}
 
+	// TODO
+	/*
+		This is totally broken...
+		need to construct a real inner class block here...
+	*/
 	private Object constructWithClassBody( 
-		Class<?> type, Object[] args, BSHBlock block,
+		Class type, Object[] args, BSHBlock block,
 		CallStack callstack, Interpreter interpreter ) 
 		throws EvalError
 	{
+		//throw new InterpreterError("constructWithClassBody unimplemented");
+
 		String name = callstack.top().getName() + "$" + (++innerClassCount);
 		Modifiers modifiers = new Modifiers();
 		modifiers.addModifier( Modifiers.CLASS, "public" );
-		Class<?> clas;
-		try {
-			clas = ClassGenerator.getClassGenerator() .generateClass( 
+		Class clas = ClassGenerator.getClassGenerator() .generateClass( 
 				name, modifiers, null/*interfaces*/, type/*superClass*/, 
+// block is not innerClassBlock here!!!
 				block, false/*isInterface*/, callstack, interpreter );
-		} catch ( UtilEvalError e ) {
-			throw e.toEvalError( this, callstack );
-		}
 		try {
 			return Reflect.constructObject( clas, args );
 		} catch ( Exception e ) {
-			if ( e instanceof InvocationTargetException )
-				e = (Exception)((InvocationTargetException)e)
-					.getTargetException();
-			throw new EvalError(
-				"Error constructing inner class instance: "+e, this, callstack
-			);
+			Throwable cause = e;
+			if ( e instanceof InvocationTargetException ) {
+				cause = ((InvocationTargetException) e).getTargetException();
+			}
+			throw new EvalError("Error constructing inner class instance: "+e, this, callstack, cause);
 		}
 	}
 
 	private Object constructWithInterfaceBody( 
-		Class<?> type, Object[] args, BSHBlock body,
+		Class type, Object[] args, BSHBlock body,
 		CallStack callstack, Interpreter interpreter ) 
 		throws EvalError
 	{
@@ -208,11 +201,7 @@ class BSHAllocationExpression extends SimpleNode
 		// statical import fields from the interface so that code inside
 		// can refer to the fields directly (e.g. HEIGHT)
 		local.importStatic( type );
-		try {
-			return local.getThis(interpreter).getInterface( type );
-		} catch ( UtilEvalError e ) {
-			throw e.toEvalError( this, callstack );
-		}
+		return local.getThis(interpreter).getInterface( type );
 	}
 
     private Object objectArrayAllocation(
@@ -220,9 +209,9 @@ class BSHAllocationExpression extends SimpleNode
 		CallStack callstack, Interpreter interpreter 
 	) 
 		throws EvalError
-	{
+    {
 		NameSpace namespace = callstack.top();
-        Class<?> type = nameNode.toClass( callstack, interpreter );
+        Class type = nameNode.toClass( callstack, interpreter );
         if ( type == null )
             throw new EvalError( "Class " + nameNode.getName(namespace) 
 				+ " not found.", this, callstack );
@@ -235,14 +224,14 @@ class BSHAllocationExpression extends SimpleNode
 		CallStack callstack, Interpreter interpreter 
 	) 
 		throws EvalError
-	{
-        Class<?> type = typeNode.getType();
+    {
+        Class type = typeNode.getType();
 
 		return arrayAllocation( dimensionsNode, type, callstack, interpreter );
     }
 
 	private Object arrayAllocation( 
-		BSHArrayDimensions dimensionsNode, Class<?> type, 
+		BSHArrayDimensions dimensionsNode, Class type, 
 		CallStack callstack, Interpreter interpreter )
 		throws EvalError
 	{
@@ -289,7 +278,7 @@ class BSHAllocationExpression extends SimpleNode
 		see below.
 	*/
 	private Object arrayNewInstance( 
-		Class<?> type, BSHArrayDimensions dimensionsNode, CallStack callstack )
+		Class type, BSHArrayDimensions dimensionsNode, CallStack callstack )
 		throws EvalError
 	{
 		if ( dimensionsNode.numUndefinedDims > 0 )

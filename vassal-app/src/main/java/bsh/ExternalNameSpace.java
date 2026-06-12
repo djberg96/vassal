@@ -1,6 +1,39 @@
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
+ *                                                                           *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
+ *                                                                           *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
+ *                                                                           *
+ *                                                                           *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
+ *                                                                           *
+ *****************************************************************************/
+ 
+ // TODO
 package	bsh;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.Arrays;
+
 
 /**
 	A namespace which maintains an external map of values held in variables in
@@ -22,16 +55,28 @@ import java.util.*;
 	introduced.
 */
 /*
-	Implementation notes:  bsh methods are not currently expored to the
+	Implementation notes:
+
+	It would seem that we should have been accomplished this by overriding the
+	getImportedVar() method of NameSpace, which behaves in a similar way
+	for fields of classes and objects.  However we need more control here to
+	be able to bump up the precedence and remove items that have been removed
+	via the map.  So we override getVariableImp().  We should reevaluate this
+	at some point.  All of NameSpace is a mess.
+
+	The primary abstraction here is that we override createVariable() to
+	create LHS Variables bound to the map for this namespace.
+
+	Methods:
+
+	bsh methods are not currently exported to the
 	external namespace.  All that would be required to add this is to override
 	setMethod() and provide a friendlier view than vector (currently used) for
 	overloaded forms (perhaps a map by method SignatureKey).
 */
 public class ExternalNameSpace extends NameSpace
 {
-	private static final long serialVersionUID = 1L;
-
-	private Map<String, Object> externalMap;
+	private Map<String,Object> externalMap;
 
     public ExternalNameSpace() 
 	{
@@ -40,12 +85,12 @@ public class ExternalNameSpace extends NameSpace
 
 	/**
 	*/
-    public ExternalNameSpace( NameSpace parent, String name, Map<String, Object> externalMap )
+    public ExternalNameSpace( NameSpace parent, String name, Map<String,Object> externalMap ) 
 	{
 		super( parent, name );
 
 		if ( externalMap == null )
-			externalMap = new HashMap<>();
+			externalMap = new HashMap<String,Object>();
 			
 		this.externalMap = externalMap;
 
@@ -54,7 +99,7 @@ public class ExternalNameSpace extends NameSpace
 	/**
 		Get the map view of this namespace.
 	*/
-	public Map<String, Object> getMap() { return externalMap; }
+	public Map<String,Object> getMap() { return externalMap; }
 
 	/**
 		Set the external Map which to which this namespace synchronizes.
@@ -62,7 +107,7 @@ public class ExternalNameSpace extends NameSpace
 		map values are retained in the external map, but are removed from the
 		BeanShell namespace.
 	*/
-	public void setMap( Map<String, Object> map )
+	public void setMap( Map<String,Object> map ) 
 	{ 
 		// Detach any existing namespace to preserve it, then clear this
 		// namespace and set the new one
@@ -94,28 +139,36 @@ public class ExternalNameSpace extends NameSpace
 	public String [] getVariableNames() 
 	{
 		// union of the names in the internal namespace and external map
-		Set<String> nameSet = new HashSet<>();
+		Set<String> nameSet = new HashSet<String>();
 		String [] nsNames = super.getVariableNames();
 		nameSet.addAll( Arrays.asList( nsNames ) );
 		nameSet.addAll( externalMap.keySet() );
-		return nameSet.toArray( new String[0] );
+		return (String [])nameSet.toArray( new String[0] );
 	}
 
 	/**
 	*/
 	/*
-		Notes: This implmenetation of getVariableImpl handles the following
+		Notes: This implementation of getVariableImpl handles the following
 		cases:
 		1) var in map not in local scope - var was added through map
 		2) var in map and in local scope - var was added through namespace
 		3) var not in map but in local scope - var was removed via map
 		4) var not in map and not in local scope - non-existent var
+
+		Note: It would seem that we could simply override getImportedVar()
+		in NameSpace, rather than this higher level method.  However we need
+		more control here to change the import precedence and remove variables
+		if they are removed via the extenal map.
 	*/
     protected Variable getVariableImpl( String name, boolean recurse ) 
 		throws UtilEvalError
 	{
 		// check the external map for the variable name
 		Object value = externalMap.get( name );
+
+		if ( value == null && externalMap.containsKey( name ) )
+			value = Primitive.NULL;
 
 		Variable var;
 		if ( value == null ) 
@@ -137,7 +190,7 @@ public class ExternalNameSpace extends NameSpace
 			// we'll wrap it and pass it along.  Else we'll use the local
 			// version.
 			if ( localVar == null ) 
-				var = new Variable( name, (Class<?>)null, value, (Modifiers)null );
+				var = new Variable( name, (Class)null, value, (Modifiers)null );
 			else
 				var = localVar;
 		}
@@ -161,7 +214,7 @@ public class ExternalNameSpace extends NameSpace
     /**
     */
     public void	setTypedVariable(
-		String	name, Class<?> type, Object value,	Modifiers modifiers )
+		String	name, Class type, Object value,	Modifiers modifiers )
 		throws UtilEvalError 
 	{
 		super.setTypedVariable( name, type, value, modifiers );
@@ -172,10 +225,10 @@ public class ExternalNameSpace extends NameSpace
 		Note: we could override this method to allow bsh methods to appear in
 		the external map.
 	*/
-    public void	setMethod( String name, BshMethod method )
+    public void	setMethod( BshMethod method )
 		throws UtilEvalError
 	{
-		super.setMethod( name, method );
+		super.setMethod( method );
     }
 
 	/*
@@ -183,7 +236,7 @@ public class ExternalNameSpace extends NameSpace
 		allow bsh methods to be inserted into this namespace via the map.
 	*/
     public BshMethod getMethod( 
-		String name, Class<?> [] sig, boolean declaredOnly )
+		String name, Class [] sig, boolean declaredOnly ) 
 		throws UtilEvalError
 	{
 		return super.getMethod( name, sig, declaredOnly );
@@ -194,9 +247,9 @@ public class ExternalNameSpace extends NameSpace
 		Note: this method should be overridden to add the names from the
 		external map, as is done in getVariableNames();
 	*/
-	protected void getAllNamesAux( Vector<String> vec )
+	protected void getAllNamesAux( List<String> list ) 
 	{
-		super.getAllNamesAux( vec );
+		super.getAllNamesAux( list );
 	}
 
 	/**
@@ -233,3 +286,4 @@ public class ExternalNameSpace extends NameSpace
 		externalMap.put( name, value );
 	}
 }
+

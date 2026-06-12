@@ -1,33 +1,25 @@
-/*
+/*****************************************************************************
+ * Licensed to the Apache Software Foundation (ASF) under one                *
+ * or more contributor license agreements.  See the NOTICE file              *
+ * distributed with this work for additional information                     *
+ * regarding copyright ownership.  The ASF licenses this file                *
+ * to you under the Apache License, Version 2.0 (the                         *
+ * "License"); you may not use this file except in compliance                *
+ * with the License.  You may obtain a copy of the License at                *
  *                                                                           *
- *  This file is part of the BeanShell Java Scripting distribution.          *
- *  Documentation and updates may be found at http://www.beanshell.org/      *
+ *     http://www.apache.org/licenses/LICENSE-2.0                            *
  *                                                                           *
- *  Sun Public License Notice:                                               *
+ * Unless required by applicable law or agreed to in writing,                *
+ * software distributed under the License is distributed on an               *
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY                    *
+ * KIND, either express or implied.  See the License for the                 *
+ * specific language governing permissions and limitations                   *
+ * under the License.                                                        *
  *                                                                           *
- *  The contents of this file are subject to the Sun Public License Version  *
- *  1.0 (the "License"); you may not use this file except in compliance with *
- *  the License. A copy of the License is available at http://www.sun.com    * 
- *                                                                           *
- *  The Original Code is BeanShell. The Initial Developer of the Original    *
- *  Code is Pat Niemeyer. Portions created by Pat Niemeyer are Copyright     *
- *  (C) 2000.  All Rights Reserved.                                          *
- *                                                                           *
- *  GNU Public License Notice:                                               *
- *                                                                           *
- *  Alternatively, the contents of this file may be used under the terms of  *
- *  the GNU Lesser General Public License (the "LGPL"), in which case the    *
- *  provisions of LGPL are applicable instead of those above. If you wish to *
- *  allow use of your version of this file only under the  terms of the LGPL *
- *  and not to allow others to use your version of this file under the SPL,  *
- *  indicate your decision by deleting the provisions above and replace      *
- *  them with the notice and other provisions required by the LGPL.  If you  *
- *  do not delete the provisions above, a recipient may use your version of  *
- *  this file under either the SPL or the LGPL.                              *
- *                                                                           *
- *  Patrick Niemeyer (pat@pat.net)                                           *
- *  Author of Learning Java, O'Reilly & Associates                           *
- *  http://www.pat.net/~pat/                                                 *
+ * This file is part of the BeanShell Java Scripting distribution.           *
+ * Documentation and updates may be found at http://www.beanshell.org/       *
+ * Patrick Niemeyer (pat@pat.net)                                            *
+ * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
  *****************************************************************************/
 
@@ -35,7 +27,10 @@
 package bsh;
 
 import java.lang.reflect.Array;
+import java.util.Hashtable;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
 	What's in a name?  I'll tell you...
@@ -94,8 +89,6 @@ import java.lang.reflect.InvocationTargetException;
 */
 class Name implements java.io.Serializable
 {
-	private static final long serialVersionUID = 1L;
-
 	// These do not change during evaluation
 	public NameSpace namespace;
 	String value = null;
@@ -113,7 +106,7 @@ class Name implements java.io.Serializable
 	*/
 	private String lastEvalName;
 	private static String FINISHED = null; // null evalname and we're finished
-	private transient Object evalBaseObject;	// base object for current eval
+	private Object evalBaseObject;	// base object for current eval
 
 	private int callstackDepth;		// number of times eval hit 'this.caller'
 
@@ -130,12 +123,12 @@ class Name implements java.io.Serializable
 	/** 
 		The result is a class 
 	*/
-	Class<?> asClass;
+	Class asClass;
 
 	/** 
 		The result is a static method call on the following class 
 	*/
-	Class<?> classOfStaticMethod;
+	Class classOfStaticMethod;
 
 	// End Cached result structures
 
@@ -185,7 +178,7 @@ class Name implements java.io.Serializable
 	}
 
 	/**
-		@see toObject()
+		@see #toObject(CallStack, Interpreter)
 		@param forceClass if true then resolution will only produce a class.
 		This is necessary to disambiguate in cases where the grammar knows
 		that we want a class; where in general the var path may be taken.
@@ -291,7 +284,7 @@ class Name implements java.io.Serializable
 			/*
 				Keep adding parts until we have a class 
 			*/
-			Class<?> clas = null;
+			Class clas = null;
 			int i = 1;
 			String className = null;
 			for(; i <= countParts(evalName); i++)
@@ -323,7 +316,7 @@ class Name implements java.io.Serializable
 					namespace : ((This)evalBaseObject).namespace;
 			Object obj = new NameSpace( 
 				targetNameSpace, "auto: "+varName ).getThis( interpreter );
-			targetNameSpace.setVariable( varName, obj, false );
+			targetNameSpace.setVariable( varName, obj, false, evalBaseObject == null );
 			return completeRound( varName, suffix(evalName), obj );
 		}
 
@@ -372,7 +365,7 @@ class Name implements java.io.Serializable
 		*/
 		if ( evalBaseObject instanceof ClassIdentifier ) 
 		{
-			Class<?> clas = ((ClassIdentifier)evalBaseObject).getTargetClass();
+			Class clas = ((ClassIdentifier)evalBaseObject).getTargetClass();
 			String field = prefix(evalName, 1);
 
 			// Class qualified 'this' reference from inner class.
@@ -410,7 +403,7 @@ class Name implements java.io.Serializable
 			// inner class?
 			if ( obj == null ) {
 				String iclass = clas.getName()+"$"+field;
-				Class<?> c = namespace.getClass( iclass );
+				Class c = namespace.getClass( iclass );
 				if ( c != null )
 					obj = new ClassIdentifier(c);
 			}
@@ -459,7 +452,7 @@ class Name implements java.io.Serializable
 	/**
 		Resolve a variable relative to a This reference.
 
-		This is the general variable resolution method, accomodating special
+		This is the general variable resolution method, accommodating special
 		fields from the This context.  Together the namespace and interpreter
 		comprise the This context.  The callstack, if available allows for the
 		this.caller construct.  
@@ -591,7 +584,7 @@ class Name implements java.io.Serializable
 
 
 		if ( obj == null )
-			obj = thisNameSpace.getVariable(varName);
+			obj = thisNameSpace.getVariable(varName, evalBaseObject == null);
 
 		if ( obj == null )
 			throw new InterpreterError("null this field ref:"+varName);
@@ -604,6 +597,9 @@ class Name implements java.io.Serializable
 	*/
 	static NameSpace getClassNameSpace( NameSpace thisNameSpace ) 
 	{
+        if ( null == thisNameSpace )
+            return null;
+
 		// is a class instance
 		//if ( thisNameSpace.classInstance != null )
 		if ( thisNameSpace.isClass )
@@ -627,7 +623,7 @@ class Name implements java.io.Serializable
 		@throws ClassPathException (type of EvalError) on special case of 
 		ambiguous unqualified name after super import. 
 	*/
-	synchronized public Class<?> toClass() 
+	synchronized public Class toClass() 
 		throws ClassNotFoundException, UtilEvalError
 	{
 		if ( asClass != null )
@@ -640,7 +636,7 @@ class Name implements java.io.Serializable
 			return asClass = null;
 
 		/* Try straightforward class name first */
-		Class<?> clas = namespace.getClass( evalName );
+		Class clas = namespace.getClass( evalName );
 
 		if ( clas == null ) 
 		{
@@ -741,7 +737,7 @@ class Name implements java.io.Serializable
 			try {
 				if ( obj instanceof ClassIdentifier ) 
 				{
-					Class<?> clas = ((ClassIdentifier)obj).getTargetClass();
+					Class clas = ((ClassIdentifier)obj).getTargetClass();
 					lhs = Reflect.getLHSStaticField(clas, evalName);
 					return lhs;
 				} else {
@@ -841,14 +837,15 @@ class Name implements java.io.Serializable
 
                 if (obj == Primitive.NULL)
                     throw new UtilTargetError( new NullPointerException( 
-						"Null Pointer in Method Invocation" ) );
+						"Null Pointer in Method Invocation of " +methodName
+							+"() on variable: "+targetName) );
 
                 // some other primitive
                 // should avoid calling methods on primitive, as we do
                 // in Name (can't treat primitive like an object message)
                 // but the hole is useful right now.
 				if ( Interpreter.DEBUG )
-                	Interpreter.debug(
+                	interpreter.debug(
 					"Attempt to access method on primitive..." 
 					+ " allowing bsh.Primitive to peek through for debugging");
             }
@@ -864,7 +861,7 @@ class Name implements java.io.Serializable
         if ( Interpreter.DEBUG ) 
         	Interpreter.debug("invokeMethod: trying static - " + targetName);
 
-        Class<?> clas = ((ClassIdentifier)obj).getTargetClass();
+        Class clas = ((ClassIdentifier)obj).getTargetClass();
 
 		// cache the fact that this is a static method invocation on this class
 		classOfStaticMethod = clas;
@@ -900,7 +897,7 @@ class Name implements java.io.Serializable
 				"invokeLocalMethod: interpreter = null");
 
 		String commandName = value;
-		Class<?> [] argTypes = Types.getTypes( args );
+		Class [] argTypes = Types.getTypes( args );
 
         // Check for existing method
         BshMethod meth = null;
@@ -914,6 +911,8 @@ class Name implements java.io.Serializable
 		// If defined, invoke it
         if ( meth != null )
 			return meth.invoke( args, interpreter, callstack, callerInfo );
+
+		BshClassManager bcm = interpreter.getClassManager();
 
 		// Look for a BeanShell command
 
@@ -935,7 +934,7 @@ class Name implements java.io.Serializable
 			BshMethod invokeMethod = null;
 			try {
 				invokeMethod = namespace.getMethod( 
-					"invoke", new Class<?> [] { null, null } );
+					"invoke", new Class [] { null, null } );
 			} catch ( UtilEvalError e ) {
 				throw e.toEvalError(
 					"Local method invocation", callerInfo, callstack );
@@ -958,7 +957,7 @@ class Name implements java.io.Serializable
 		if ( commandObject instanceof Class )
 			try {
 				return Reflect.invokeCompiledCommand( 
-					((Class<?>)commandObject), args, interpreter, callstack );
+					((Class)commandObject), args, interpreter, callstack );
 			} catch ( UtilEvalError e ) {
 				throw e.toEvalError("Error invoking compiled command: ",
 				callerInfo, callstack );
@@ -1063,3 +1062,4 @@ class Name implements java.io.Serializable
 	public String toString() { return value; }
 
 }
+
