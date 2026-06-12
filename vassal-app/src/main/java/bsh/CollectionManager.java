@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,7 +22,8 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 package bsh;
 
@@ -57,14 +59,14 @@ public final class CollectionManager
 		}
 	}
 
-	public Iterator getBshIterator( Object obj ) 
+	public Iterator<?> getBshIterator( Object obj ) 
 		throws IllegalArgumentException
 	{
 		if(obj==null)
 			throw new NullPointerException("Cannot iterate over null.");
 
-		if (obj instanceof Enumeration) {
-			final Enumeration enumeration = (Enumeration)obj;
+		if (obj instanceof Enumeration<?>) {
+			final Enumeration<?> enumeration = (Enumeration<?>) obj;
 			return new Iterator<Object>() {
 				public boolean hasNext() {
 					return enumeration.hasMoreElements();
@@ -78,15 +80,15 @@ public final class CollectionManager
 			};
 		}
 
-		if (obj instanceof Iterator)
-			return (Iterator)obj;
+		if (obj instanceof Iterator<?>)
+			return (Iterator<?>)obj;
 
-		if (obj instanceof Iterable)
-			return ((Iterable)obj).iterator();
+		if (obj instanceof Iterable<?>)
+			return ((Iterable<?>)obj).iterator();
 
 		if (obj.getClass().isArray()) {
 			final Object array = obj;
-			return new Iterator() {
+			return new Iterator<Object>() {
 				private int index = 0;
 				private final int length = Array.getLength(array);
 
@@ -115,12 +117,16 @@ public final class CollectionManager
 	}
 
 	public Object getFromMap( Object map, Object key ) {
-		return ((Map)map).get(key);
+		return ((Map<?, ?>)map).get(key);
 	}
 
 	public Object putInMap( Object map, Object key, Object value ) 
 	{
-		return ((Map)map).put(key, value);
+		return asObjectMap(map).put(key, value);
 	}
 
+	@SuppressWarnings("unchecked")
+	private static Map<Object, Object> asObjectMap( Object map ) {
+		return (Map<Object, Object>)map;
+	}
 }
