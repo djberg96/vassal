@@ -74,7 +74,7 @@ public class ActivePeerManager
 
   public synchronized void clear() {
     while (!zListofPeers.isEmpty()) {
-      ActivePeer p = (ActivePeer) zListofPeers.lastElement();
+      ActivePeer p = zListofPeers.lastElement();
       zListofPeers.removeElement(p);
       p.close();
     }
@@ -83,25 +83,25 @@ public class ActivePeerManager
   public synchronized PeerInfo[] getPeerInfos() {
     PeerInfo[] retval = new PeerInfo[zListofPeers.size()];
     for (int i = 0; i < retval.length; i++)
-      retval[i] = ((ActivePeer) (zListofPeers.elementAt(i))).getPeerInfo();
+      retval[i] = zListofPeers.elementAt(i).getPeerInfo();
     return retval;
   }
 
   public synchronized void sendToAllCHAT(String pMessage) {
     IllegalArgument.ifNull("Message", pMessage);
     for (Enumeration<ActivePeer> it = zListofPeers.elements(); it.hasMoreElements();)
-      ((ActivePeer) it.nextElement()).sendCHAT(pMessage);
+      it.nextElement().sendCHAT(pMessage);
   }
 
   public synchronized void sendToAllNAME() {
     for (Enumeration<ActivePeer> it = zListofPeers.elements(); it.hasMoreElements();)
-      ((ActivePeer) it.nextElement()).sendNAME();
+      it.nextElement().sendNAME();
   }
 
   public synchronized ActivePeer getPeerListenerByID(String pID) {
     if (pID != null)
       for (Enumeration<ActivePeer> it = zListofPeers.elements(); it.hasMoreElements();) {
-        ActivePeer peer = (ActivePeer) it.nextElement();
+        ActivePeer peer = it.nextElement();
         if (pID.equals(peer.getPeerInfo().getID()))
           return peer;
       }
@@ -111,7 +111,7 @@ public class ActivePeerManager
   public synchronized ActivePeer getPeerListenerByInfo(PeerInfo info) {
     if (info != null) {
       for (Enumeration<ActivePeer> it = zListofPeers.elements(); it.hasMoreElements();) {
-        ActivePeer peer = (ActivePeer) it.nextElement();
+        ActivePeer peer = it.nextElement();
         if (info.equals(peer.getPeerInfo())) {
           return peer;
         }
@@ -123,7 +123,7 @@ public class ActivePeerManager
   public synchronized boolean isAlreadyConnected(PeerInfo pPeerInfo) {
     if (pPeerInfo != null)
       for (Enumeration<ActivePeer> it = zListofPeers.elements(); it.hasMoreElements();)
-        if (((ActivePeer) it.nextElement()).getPeerInfo().equals(pPeerInfo))
+        if (it.nextElement().getPeerInfo().equals(pPeerInfo))
           return true;
 
     return false;

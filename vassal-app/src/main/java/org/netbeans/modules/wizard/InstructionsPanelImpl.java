@@ -243,7 +243,7 @@ public class InstructionsPanelImpl extends JComponent implements WizardObserver,
                 rangeStart = steps.length - willFit;
                 rangeEnd = steps.length;
             }
-            steps = (String[]) steps.clone();
+            steps = steps.clone();
             if (rangeStart != 0) {
                 steps[rangeStart] = elipsis;
                 first = rangeStart;

@@ -31,7 +31,7 @@ public final class NbBridge {
         return null;
     }
 
-    public static String getString (String path, Class callerType, String key) {
+    public static String getString (String path, Class<?> callerType, String key) {
       return Resources.getString("Wizard."+key);
     }
 

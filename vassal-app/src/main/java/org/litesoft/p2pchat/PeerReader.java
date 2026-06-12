@@ -92,7 +92,7 @@ public class PeerReader extends Thread {
     }
     String message = null;
     if (isOpen && zLines.size() > 0) { // size can be zero if we called close()
-      message = (String) zLines.elementAt(0);
+      message = zLines.elementAt(0);
       zLines.removeElementAt(0);
     }
     return message;

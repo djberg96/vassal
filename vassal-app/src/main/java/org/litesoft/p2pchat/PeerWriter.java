@@ -94,7 +94,7 @@ public class PeerWriter extends Thread {
     }
     String message = isOpen ? "" : null;
     if (isOpen && zLines.size() > 0) {
-      message = (String) zLines.elementAt(0);
+      message = zLines.elementAt(0);
       zLines.removeElementAt(0);
     }
     return message;
