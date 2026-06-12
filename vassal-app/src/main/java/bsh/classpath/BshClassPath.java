@@ -61,14 +61,14 @@ public class BshClassPath
 	String name;
 
 	/** The URL path components */
-	private List path;
+	private List<URL> path;
 	/** Ordered list of components BshClassPaths */
-	private List compPaths;
+	private List<BshClassPath> compPaths;
 
 	/** Set of classes in a package mapped by package name */
-	private Map packageMap;
+	private Map<String, Set<String>> packageMap;
 	/** Map of source (URL or File dir) of every clas */
-	private Map classSource;
+	private Map<String, Object> classSource;
 	/**  The packageMap and classSource maps have been built. */
 	private boolean mapsInitialized;
 
@@ -79,7 +79,7 @@ public class BshClassPath
 	*/
 	private boolean nameCompletionIncludesUnqNames = true;
 
-	Vector listeners = new Vector();
+	Vector<WeakReference<ClassPathListener>> listeners = new Vector<>();
 
 	// constructors
 
@@ -108,7 +108,7 @@ public class BshClassPath
 	*/
 	public void addComponent( BshClassPath bcp ) { 
 		if ( compPaths == null )
-			compPaths = new ArrayList();
+			compPaths = new ArrayList<>();
 		compPaths.add( bcp );
 		bcp.addListener( this );
 	}
@@ -129,24 +129,23 @@ public class BshClassPath
 		Get the path components including any component paths.
 	*/
 	public URL [] getPathComponents() {
-		return (URL[])getFullPath().toArray( new URL[0] );
+		return getFullPath().toArray( new URL[0] );
 	}
 
 	/**
 		Return the set of class names in the specified package
 		including all component paths.
 	*/
-	synchronized public Set getClassesForPackage( String pack ) {
+	synchronized public Set<String> getClassesForPackage( String pack ) {
 		insureInitialized();
-		Set set = new HashSet();
-		Collection c = (Collection)packageMap.get( pack );
+		Set<String> set = new HashSet<>();
+		Collection<String> c = packageMap.get( pack );
 		if ( c != null )
 			set.addAll( c );
 
 		if ( compPaths != null )
 			for (int i=0; i<compPaths.size(); i++) {
-				c = ((BshClassPath)compPaths.get(i)).getClassesForPackage( 
-					pack );
+				c = compPaths.get(i).getClassesForPackage( pack );
 				if ( c != null )
 					set.addAll( c );
 			}
@@ -162,16 +161,16 @@ public class BshClassPath
 		// Before triggering classpath mapping (initialization) check for
 		// explicitly set class sources (e.g. generated classes).  These would
 		// take priority over any found in the classpath anyway.
-		ClassSource cs = (ClassSource)classSource.get( className );
+		ClassSource cs = (ClassSource) classSource.get( className );
 		if ( cs != null )
 			return cs;
 
 		insureInitialized(); // trigger possible mapping
 
-		cs = (ClassSource)classSource.get( className );
+		cs = (ClassSource) classSource.get( className );
 		if ( cs == null && compPaths != null )
 			for (int i=0; i<compPaths.size() && cs==null; i++)
-				cs = ((BshClassPath)compPaths.get(i)).getClassSource(className);
+				cs = compPaths.get(i).getClassSource(className);
 		return cs;
 	}
 
@@ -227,11 +226,11 @@ public class BshClassPath
 		// initialize components
 		if ( compPaths != null )
 			for (int i=0; i< compPaths.size(); i++)
-				((BshClassPath)compPaths.get(i)).insureInitialized( false );
+			compPaths.get(i).insureInitialized( false );
 
 		// initialize ourself
 		if ( !mapsInitialized ) 
-			map( (URL[])path.toArray( new URL[0] ) );
+			map( path.toArray( new URL[0] ) );
 
 		if ( topPath && !mapsInitialized )
 			endClassMapping();
@@ -244,17 +243,17 @@ public class BshClassPath
 		(component paths listed first, in order)
 		Duplicate path components are removed.
 	*/
-	protected List getFullPath() 
+	protected List<URL> getFullPath() 
 	{
-		List list = new ArrayList();
+		List<URL> list = new ArrayList<>();
 		if ( compPaths != null ) {
 			for (int i=0; i<compPaths.size(); i++) {
-				List l = ((BshClassPath)compPaths.get(i)).getFullPath();
+				List<URL> l = compPaths.get(i).getFullPath();
 				// take care to remove dups
 				// wish we had an ordered set collection
-				Iterator it = l.iterator();
+				Iterator<URL> it = l.iterator();
 				while ( it.hasNext() ) {
-					Object o = it.next();
+					URL o = it.next();
 					if ( !list.contains(o) )
 						list.add( o );
 				}
@@ -302,16 +301,16 @@ public class BshClassPath
 		// add component names
 		if ( compPaths != null )
 			for (int i=0; i<compPaths.size(); i++) {
-				Set s = ((BshClassPath)compPaths.get(i)).classSource.keySet();
-				Iterator it = s.iterator();
+				Set<String> s = compPaths.get(i).classSource.keySet();
+				Iterator<String> it = s.iterator();
 				while(it.hasNext()) 
-					unqNameTable.add( (String)it.next() );
+					unqNameTable.add( it.next() );
 			}
 
 		// add ours
-		Iterator it = classSource.keySet().iterator();
+		Iterator<String> it = classSource.keySet().iterator();
 		while(it.hasNext()) 
-			unqNameTable.add( (String)it.next() );
+			unqNameTable.add( it.next() );
 		
 		return unqNameTable;
 	}
@@ -320,10 +319,10 @@ public class BshClassPath
 	{
 		insureInitialized();
 
-		List names = new ArrayList();
-		Iterator it = getPackagesSet().iterator();
+		List<String> names = new ArrayList<>();
+		Iterator<String> it = getPackagesSet().iterator();
 		while( it.hasNext() ) {
-			String pack = (String)it.next();
+			String pack = it.next();
 			names.addAll( 
 				removeInnerClassNames( getClassesForPackage( pack ) ) ); 
 		}
@@ -331,7 +330,7 @@ public class BshClassPath
 		if ( nameCompletionIncludesUnqNames )
 			names.addAll( getUnqualifiedNameTable().keySet() );
 
-		return (String [])names.toArray(new String[0]);
+		return names.toArray(new String[0]);
 	}
 
 	/**
@@ -384,9 +383,9 @@ public class BshClassPath
 		String [] sa = splitClassname( className );
 		String pack = sa[0];
 		String clas = sa[1];
-		Set set = (Set)packageMap.get( pack );
+		Set<String> set = packageMap.get( pack );
 		if ( set == null ) {
-			set = new HashSet();
+			set = new HashSet<>();
 			packageMap.put( pack, set );
 		}
 		set.add( className );
@@ -403,7 +402,7 @@ public class BshClassPath
 		Clear everything and reset the path to empty.
 	*/
 	synchronized private void reset() {
-		path = new ArrayList();
+		path = new ArrayList<>();
 		compPaths = null;
 		clearCachedStructures();
 	}
@@ -413,8 +412,8 @@ public class BshClassPath
 	*/
 	synchronized private void clearCachedStructures() {
 		mapsInitialized = false;
-		packageMap = new HashMap();
-		classSource = new HashMap();
+		packageMap = new HashMap<>();
+		classSource = new HashMap<>();
 		unqNameTable = null;
 		nameSpaceChanged();
 	}
@@ -438,14 +437,14 @@ public class BshClassPath
 	static String [] traverseDirForClasses( File dir ) 
 		throws IOException	
 	{
-		List list = traverseDirForClassesAux( dir, dir );
-		return (String[])list.toArray( new String[0] );
+		List<String> list = traverseDirForClassesAux( dir, dir );
+		return list.toArray( new String[0] );
 	}
 
-	static List traverseDirForClassesAux( File topDir, File dir ) 
+	static List<String> traverseDirForClassesAux( File topDir, File dir ) 
 		throws IOException
 	{
-		List list = new ArrayList();
+		List<String> list = new ArrayList<>();
 		String top = topDir.getAbsolutePath();
 
 		File [] children = dir.listFiles();
@@ -481,7 +480,7 @@ public class BshClassPath
 	static String [] searchJarForClasses( URL jar ) 
 		throws IOException 
 	{
-		Vector v = new Vector();
+		Vector<String> v = new Vector<>();
 		InputStream in = jar.openStream(); 
 		ZipInputStream zin = new ZipInputStream(in);
 
@@ -547,12 +546,12 @@ public class BshClassPath
 	/**
 		Return a new collection without any inner class names
 	*/
-	public static Collection removeInnerClassNames( Collection col ) {
-		List list = new ArrayList();
+	public static Collection<String> removeInnerClassNames( Collection<String> col ) {
+		List<String> list = new ArrayList<>();
 		list.addAll(col);
-		Iterator it = list.iterator();
+		Iterator<String> it = list.iterator();
 		while(it.hasNext()) {
-			String name =(String)it.next();
+			String name = it.next();
 			if (name.indexOf("$") != -1 )
 				it.remove();
 		}
@@ -593,32 +592,36 @@ public class BshClassPath
 	/**
 		Get a list of all of the known packages
 	*/
-	public Set getPackagesSet() 
+	public Set<String> getPackagesSet() 
 	{
 		insureInitialized();
-		Set set = new HashSet();
+		Set<String> set = new HashSet<>();
 		set.addAll( packageMap.keySet() );
 
 		if ( compPaths != null )
 			for (int i=0; i<compPaths.size(); i++)
 				set.addAll( 
-					((BshClassPath)compPaths.get(i)).packageMap.keySet() );
+					compPaths.get(i).packageMap.keySet() );
 		return set;
 	}
 
 	public void addListener( ClassPathListener l ) {
-		listeners.addElement( new WeakReference(l) );
+		listeners.addElement( new WeakReference<>(l) );
 	}
 	public void removeListener( ClassPathListener l ) {
-		listeners.removeElement( l );
+		for (Iterator<WeakReference<ClassPathListener>> it = listeners.iterator(); it.hasNext(); ) {
+			ClassPathListener listener = it.next().get();
+			if ( listener == null || listener == l )
+				it.remove();
+		}
 	}
 
 	/**
 	*/
 	void notifyListeners() {
-		for (Enumeration e = listeners.elements(); e.hasMoreElements(); ) {
-			WeakReference wr = (WeakReference)e.nextElement();
-			ClassPathListener l = (ClassPathListener)wr.get();
+		for (Enumeration<WeakReference<ClassPathListener>> e = listeners.elements(); e.hasMoreElements(); ) {
+			WeakReference<ClassPathListener> wr = e.nextElement();
+			ClassPathListener l = wr.get();
 			if ( l == null )  // garbage collected
 				listeners.removeElement( wr );
 			else
@@ -762,7 +765,9 @@ public class BshClassPath
 		Note: we could probably do away with the unqualified name table
 		in favor of a second name source
 	*/
-	static class UnqualifiedNameTable extends HashMap {
+	static class UnqualifiedNameTable extends HashMap<String, Object> {
+		private static final long serialVersionUID = 1L;
+
 		void add( String fullname ) {
 			String name = splitClassname( fullname )[1];
 			Object have = super.get( name );
@@ -783,11 +788,11 @@ public class BshClassPath
 	}
 
 	public static class AmbiguousName {
-		List list = new ArrayList();
+		List<String> list = new ArrayList<>();
 		public void add( String name ) { 
 			list.add( name ); 
 		}
-		public List get() {
+		public List<String> get() {
 			//return (String[])list.toArray(new String[0]);
 			return list;
 		}
@@ -802,18 +807,17 @@ public class BshClassPath
 			return;
 
 		for(int i=0; i<nameSourceListeners.size(); i++)
-			((NameSource.Listener)(nameSourceListeners.get(i)))
-				.nameSourceChanged( this );
+			nameSourceListeners.get(i).nameSourceChanged( this );
 	}
 
-	List nameSourceListeners;
+	List<NameSource.Listener> nameSourceListeners;
 	/**
 		Implements NameSource
 		Add a listener who is notified upon changes to names in this space.
 	*/
 	public void addNameSourceListener( NameSource.Listener listener ) {
 		if ( nameSourceListeners == null )
-			nameSourceListeners = new ArrayList();
+			nameSourceListeners = new ArrayList<>();
 		nameSourceListeners.add( listener );
 	}
 
