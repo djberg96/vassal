@@ -76,6 +76,8 @@ import java.util.Arrays;
 */
 public class ExternalNameSpace extends NameSpace
 {
+	private static final long serialVersionUID = 1L;
+
 	private Map<String,Object> externalMap;
 
     public ExternalNameSpace() 
@@ -143,7 +145,7 @@ public class ExternalNameSpace extends NameSpace
 		String [] nsNames = super.getVariableNames();
 		nameSet.addAll( Arrays.asList( nsNames ) );
 		nameSet.addAll( externalMap.keySet() );
-		return (String [])nameSet.toArray( new String[0] );
+		return nameSet.toArray( new String[0] );
 	}
 
 	/**
@@ -214,7 +216,7 @@ public class ExternalNameSpace extends NameSpace
     /**
     */
     public void	setTypedVariable(
-		String	name, Class type, Object value,	Modifiers modifiers )
+		String	name, Class<?> type, Object value,	Modifiers modifiers )
 		throws UtilEvalError 
 	{
 		super.setTypedVariable( name, type, value, modifiers );
@@ -236,7 +238,7 @@ public class ExternalNameSpace extends NameSpace
 		allow bsh methods to be inserted into this namespace via the map.
 	*/
     public BshMethod getMethod( 
-		String name, Class [] sig, boolean declaredOnly ) 
+		String name, Class<?> [] sig, boolean declaredOnly ) 
 		throws UtilEvalError
 	{
 		return super.getMethod( name, sig, declaredOnly );
@@ -286,4 +288,3 @@ public class ExternalNameSpace extends NameSpace
 		externalMap.put( name, value );
 	}
 }
-

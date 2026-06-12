@@ -83,7 +83,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
     private List<String> importedPackages;
     private List<String> importedCommands;
 	private List<Object> importedObjects;
-	private List<Class> importedStatic;
+	private List<Class<?>> importedStatic;
 	private String packageName;
 
 	transient private BshClassManager classManager;
@@ -112,10 +112,10 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 		NameSpace, but we'll start here.
 	*/
 	boolean isClass;
-	Class classStatic;	
+	Class<?> classStatic;	
 	Object classInstance;
 	
-	void setClassStatic( Class clas ) {
+	void setClassStatic( Class<?> clas ) {
 		this.classStatic = clas;
 		importStatic( clas );
 	}
@@ -146,7 +146,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 		are cached here (those which might be imported).  Qualified names are 
 		always absolute and are cached by BshClassManager.
 	*/
-    transient private Map<String,Class> classCache;
+    transient private Map<String,Class<?>> classCache;
 
 	// End instance data
 
@@ -338,14 +338,14 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 	}
 
 	protected Variable createVariable(
-		String name, Class type, Object value, Modifiers mods )
+		String name, Class<?> type, Object value, Modifiers mods )
 		throws UtilEvalError
 	{
 		return new Variable( name, type, value, mods );
 	}
 
 	protected Variable createVariable(
-		String name, Class type, LHS lhs )
+		String name, Class<?> type, LHS lhs )
 		throws UtilEvalError
 	{
 		return new Variable( name, type, lhs );
@@ -580,7 +580,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 			var = getImportedVar( name );
 
 		if ( var == null && variables != null )
-			var	= (Variable)variables.get(name);
+			var	= variables.get(name);
 
 		// Change import precedence if we are a class body/instance
 		if ( var == null && !isClass )
@@ -619,7 +619,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 	*/
 	@Deprecated
     public void	setTypedVariable(
-		String	name, Class type, Object value,	boolean	isFinal )
+		String	name, Class<?> type, Object value,	boolean	isFinal )
 		throws UtilEvalError 
 	{
 		Modifiers modifiers = new Modifiers();
@@ -648,7 +648,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 		@param modifiers may be null
     */
     public void	setTypedVariable(
-		String	name, Class type, Object value,	Modifiers modifiers )
+		String	name, Class<?> type, Object value,	Modifiers modifiers )
 		throws UtilEvalError 
 	{
 		//checkVariableModifiers( name, modifiers );
@@ -735,7 +735,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 		@see #getMethod( String, Class [], boolean )
 		@see #getMethod( String, Class [] )
 	*/
-    public BshMethod getMethod( String name, Class [] sig ) 
+    public BshMethod getMethod( String name, Class<?> [] sig ) 
 		throws UtilEvalError
 	{
 		return getMethod( name, sig, false/*declaredOnly*/ );
@@ -755,7 +755,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 			be visible.
 	*/
     public BshMethod getMethod( 
-		String name, Class [] sig, boolean declaredOnly ) 
+		String name, Class<?> [] sig, boolean declaredOnly ) 
 		throws UtilEvalError
 	{
 		BshMethod method = null;
@@ -772,7 +772,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 			if ( list != null ) 
 			{
 				// Apply most specific signature matching
-				Class [][] candidates = new Class[ list.size() ][];
+				Class<?> [][] candidates = new Class<?>[ list.size() ][];
 				for( int i=0; i< candidates.length; i++ )
 					candidates[i] = list.get(i).getParameterTypes();
 
@@ -877,7 +877,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 			i.e. on errors loading a script that was found
 	*/
 	public Object getCommand( 	
-		String name, Class [] argTypes, Interpreter interpreter ) 
+		String name, Class<?> [] argTypes, Interpreter interpreter ) 
 		throws UtilEvalError
 	{
 		if (Interpreter.DEBUG) Interpreter.debug("getCommand: "+name);
@@ -912,7 +912,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 					className = path.substring(1).replace('/','.') +"."+name;
 
 				Interpreter.debug("searching for class: "+className);
-        		Class clas = bcm.classForName( className );
+        		Class<?> clas = bcm.classForName( className );
 				if ( clas != null )
 					return clas;
 			}
@@ -924,7 +924,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 			return null;
 	}
 
-	protected BshMethod getImportedMethod( String name, Class [] sig ) 
+	protected BshMethod getImportedMethod( String name, Class<?> [] sig ) 
 		throws UtilEvalError
 	{
 		// Try object imports
@@ -932,7 +932,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 		for(int i=0; i<importedObjects.size(); i++)
 		{
 			Object object = importedObjects.get(i);
-			Class clas = object.getClass();
+			Class<?> clas = object.getClass();
 			Method method = Reflect.resolveJavaMethod( 
 				getClassManager(), clas, name, sig, false/*onlyStatic*/ );
 			if ( method != null )
@@ -943,7 +943,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 		if ( importedStatic!= null )
 		for(int i=0; i<importedStatic.size(); i++)
 		{
-			Class clas = importedStatic.get(i);
+			Class<?> clas = importedStatic.get(i);
 			Method method = Reflect.resolveJavaMethod( 
 				getClassManager(), clas, name, sig, true/*onlyStatic*/ );
 			if ( method != null )
@@ -961,7 +961,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 		for(int i=0; i<importedObjects.size(); i++)
 		{
 			Object object = importedObjects.get(i);
-			Class clas = object.getClass();
+			Class<?> clas = object.getClass();
 			Field field = Reflect.resolveJavaField( 
 				clas, name, false/*onlyStatic*/ );
 			if ( field != null )
@@ -973,7 +973,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 		if ( importedStatic!= null )
 		for(int i=0; i<importedStatic.size(); i++)
 		{
-			Class clas = importedStatic.get(i);
+			Class<?> clas = importedStatic.get(i);
 			Field field = Reflect.resolveJavaField( 
 				clas, name, true/*onlyStatic*/ );
 			if ( field != null )
@@ -994,7 +994,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 		change this to not throw the exception.
 	*/
 	private BshMethod loadScriptedCommand( 
-		InputStream in, String name, Class [] argTypes, String resourcePath, 
+		InputStream in, String name, Class<?> [] argTypes, String resourcePath, 
 		Interpreter interpreter )
 		throws UtilEvalError
 	{
@@ -1026,9 +1026,9 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 	/**
 		Helper that caches class.
 	*/
-	void cacheClass( String name, Class c ) {
+	void cacheClass( String name, Class<?> c ) {
 		if ( classCache == null ) {
-			classCache = new HashMap<String,Class>();
+			classCache = new HashMap<String,Class<?>>();
 			//cacheCount++; // debug
 		}
 
@@ -1042,10 +1042,10 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 
 		@return null if not found.
 	*/
-    public Class getClass( String name )
+    public Class<?> getClass( String name )
 		throws UtilEvalError
     {
-		Class c = getClassImpl(name);
+		Class<?> c = getClassImpl(name);
 		if ( c != null )
 			return c;
 		else
@@ -1073,10 +1073,10 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 
 		@return null if not found.
 	*/
-    private Class getClassImpl( String name )
+    private Class<?> getClassImpl( String name )
 		throws UtilEvalError
     {
-		Class c = null;
+		Class<?> c = null;
 
 		// Check the cache
 		if (classCache != null) {
@@ -1123,7 +1123,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 		This method takes into account only imports (class or package)
 		found directly in this NameSpace (no parent chain).
 	*/
-    private Class getImportedClassImpl( String name )
+    private Class<?> getImportedClassImpl( String name )
 		throws UtilEvalError
     {
 		// Try explicitly imported class, e.g. import foo.Bar;
@@ -1140,7 +1140,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 				Found the full name in imported classes.
 			*/
 			// Try to make the full imported name
-			Class clas = classForName(fullname);
+			Class<?> clas = classForName(fullname);
 			
 			if ( clas != null )
 				return clas;
@@ -1179,7 +1179,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 			for(int i=importedPackages.size()-1; i>=0; i--)
 			{
 				String s = importedPackages.get(i) + "." + name;
-				Class c=classForName(s);
+				Class<?> c=classForName(s);
 				if ( c != null )
 					return c;
 			}
@@ -1201,7 +1201,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 		return null;
     }
 
-	private Class classForName( String name ) 
+	private Class<?> classForName( String name ) 
 	{
 		return getClassManager().classForName( name );
 	}
@@ -1418,7 +1418,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 		This method is in NameSpace for convenience (you don't have to import
 		bsh.ClassIdentifier to use it );
 	*/
-	public static Class identifierToClass( ClassIdentifier ci ) 
+	public static Class<?> identifierToClass( ClassIdentifier ci ) 
 	{
 		return ci.getTargetClass();
 	}
@@ -1471,10 +1471,10 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 
 	/**
 	*/
-	public void importStatic( Class clas ) 
+	public void importStatic( Class<?> clas ) 
 	{
 		if ( importedStatic == null )
-			importedStatic = new ArrayList<Class>();
+			importedStatic = new ArrayList<Class<?>>();
 
 		// If it exists, remove it and add it at the end (avoid memory leak)
 		importedStatic.remove( clas );

@@ -43,6 +43,8 @@ package	bsh;
 */
 class BlockNameSpace extends NameSpace 
 {
+	private static final long serialVersionUID = 1L;
+
     public BlockNameSpace( NameSpace parent ) 
 		throws EvalError
 	{
@@ -181,4 +183,3 @@ class BlockNameSpace extends NameSpace
 		getParent().setMethod( method );
 	}
 }
-
