@@ -113,7 +113,6 @@ public class MapBoard extends Importer {
       this.switchable = switchable;
     }
 
-    @SuppressWarnings("removal")
     void writeToArchive() throws IOException {
       // write piece
       final Rectangle r = writeImageToArchive();
@@ -2862,7 +2861,6 @@ public class MapBoard extends Importer {
     return p;
   }
 
-  @SuppressWarnings("removal")
   @Override
   public void writeToArchive() throws IOException {
 

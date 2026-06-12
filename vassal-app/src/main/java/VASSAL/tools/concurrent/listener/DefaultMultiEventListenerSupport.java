@@ -112,7 +112,6 @@ public class DefaultMultiEventListenerSupport
 
   /** {@inheritDoc} */
   @Override
-  @SuppressWarnings("unchecked")
   public void notify(Object event) {
     final Class<?> c = event.getClass();
 

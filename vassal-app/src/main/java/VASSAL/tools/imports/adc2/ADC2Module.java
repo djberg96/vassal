@@ -2426,7 +2426,6 @@ public class ADC2Module extends Importer {
     // TODO: set current turn
   }
 
-  @SuppressWarnings("removal")
   protected void configureDiceRoller(GameModule gameModule) {
     final DiceButton dice = new DiceButton();
     insertComponent(dice, gameModule);

@@ -121,7 +121,6 @@ public class SinglePropertyContainer<V> implements PropertyContainer {
 
   /** {@inheritDoc} */
   @Override
-  @SuppressWarnings("unchecked")
   public <T> void removePropertyListener(Property<T> prop,
                                          PropertyListener<? super T> l) {
     if (!this.prop.equals(prop)) throw new IllegalArgumentException();
