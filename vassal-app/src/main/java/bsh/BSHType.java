@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,7 +22,8 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 
 package bsh;
@@ -31,12 +33,14 @@ import java.lang.reflect.Array;
 class BSHType extends SimpleNode 
 	implements BshClassManager.Listener
 {
+	private static final long serialVersionUID = 0L;
+
 	/**
 		baseType is used during evaluation of full type and retained for the
 		case where we are an array type.
 		In the case where we are not an array this will be the same as type.
 	*/
-	private Class baseType;
+	private Class<?> baseType;
 	/** 
 		If we are an array type this will be non zero and indicate the 
 		dimensionality of the array.  e.g. 2 for String[][];
@@ -46,7 +50,7 @@ class BSHType extends SimpleNode
 	/** 
 		Internal cache of the type.  Cleared on classloader change.
 	*/
-    private Class type;
+    private Class<?> type;
 
 	String descriptor;
 
@@ -95,7 +99,7 @@ class BSHType extends SimpleNode
 			// manager.
 			String definingClass = bcm.getClassBeingDefined( clasName );
 
-            Class clas = null;
+            Class<?> clas = null;
 			if ( definingClass == null )
 			{
 				try {
@@ -131,7 +135,7 @@ class BSHType extends SimpleNode
         return descriptor;
     }
 
-    public Class getType( CallStack callstack, Interpreter interpreter ) 
+    public Class<?> getType( CallStack callstack, Interpreter interpreter ) 
 		throws EvalError
     {
         // return cached type if available
@@ -172,7 +176,7 @@ class BSHType extends SimpleNode
 		case where we are an array type.
 		In the case where we are not an array this will be the same as type.
 	*/
-	public Class getBaseType() {
+	public Class<?> getBaseType() {
 		return baseType;
 	}
 	/** 
@@ -188,7 +192,7 @@ class BSHType extends SimpleNode
 		baseType = null;
 	}
 
-	public static String getTypeDescriptor( Class clas ) 
+	public static String getTypeDescriptor( Class<?> clas ) 
 	{
 		if ( clas == Boolean.TYPE ) return "Z";
 		if ( clas == Character.TYPE ) return "C"; 
