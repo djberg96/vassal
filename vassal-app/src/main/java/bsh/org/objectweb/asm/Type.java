@@ -248,7 +248,7 @@ public class Type {
    * @return the Java type corresponding to the given class.
    */
 
-  public static Type getType (final Class c) {
+  public static Type getType (final Class<?> c) {
     if (c.isPrimitive()) {
       if (c == Integer.TYPE) {
         return INT_TYPE;
@@ -320,7 +320,7 @@ public class Type {
    */
 
   public static Type[] getArgumentTypes (final Method method) {
-    Class[] classes = method.getParameterTypes();
+    Class<?>[] classes = method.getParameterTypes();
     Type[] types = new Type[classes.length];
     for (int i = classes.length - 1; i >= 0; --i) {
       types[i] = getType(classes[i]);
@@ -541,7 +541,7 @@ public class Type {
    * @return the internal name of the given class.
    */
 
-  public static String getInternalName (final Class c) {
+  public static String getInternalName (final Class<?> c) {
     return c.getName().replace('.', '/');
   }
 
@@ -552,7 +552,7 @@ public class Type {
    * @return the descriptor corresponding to the given class.
    */
 
-  public static String getDescriptor (final Class c) {
+  public static String getDescriptor (final Class<?> c) {
     StringBuffer buf = new StringBuffer();
     getDescriptor(buf, c);
     return buf.toString();
@@ -566,7 +566,7 @@ public class Type {
    */
 
   public static String getMethodDescriptor (final Method m) {
-    Class[] parameters = m.getParameterTypes();
+    Class<?>[] parameters = m.getParameterTypes();
     StringBuffer buf = new StringBuffer();
     buf.append('(');
     for (int i = 0; i < parameters.length; ++i) {
@@ -584,8 +584,8 @@ public class Type {
    * @param c the class whose descriptor must be computed.
    */
 
-  private static void getDescriptor (final StringBuffer buf, final Class c) {
-    Class d = c;
+  private static void getDescriptor (final StringBuffer buf, final Class<?> c) {
+    Class<?> d = c;
     while (true) {
       if (d.isPrimitive()) {
         char car;

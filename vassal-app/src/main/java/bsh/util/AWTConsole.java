@@ -78,6 +78,8 @@ import bsh.*;
 public class AWTConsole extends TextArea 
 	implements ConsoleInterface, Runnable, KeyListener {
 
+	private static final long serialVersionUID = 0L;
+
 	private OutputStream outPipe;
 	private InputStream inPipe;
 
@@ -92,7 +94,7 @@ public class AWTConsole extends TextArea
 	private StringBuffer line = new StringBuffer();
 	private String startedLine;
 	private int textLength = 0;
-	private Vector history = new Vector();
+	private Vector<String> history = new Vector<>();
 	private int histLine = 0;
 
 	public AWTConsole( int rows, int cols, InputStream cin, OutputStream cout ) {
@@ -250,7 +252,7 @@ public class AWTConsole extends TextArea
 		if ( histLine == 0 )
 			showline = startedLine;
 		else
-			showline = (String)history.elementAt( history.size() - histLine );
+			showline = history.elementAt( history.size() - histLine );
 
 		replaceRange( showline, textLength-line.length(), textLength );
 		line = new StringBuffer(showline);

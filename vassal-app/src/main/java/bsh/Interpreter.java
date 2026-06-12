@@ -97,6 +97,8 @@ import java.lang.reflect.InvocationTargetException;
 public class Interpreter 
 	implements Runnable, ConsoleInterface,Serializable
 {
+	private static final long serialVersionUID = 0L;
+
 	/* --- Begin static members --- */
 
 	public static final String VERSION = "2.1.1";
@@ -417,12 +419,12 @@ public class Interpreter
 		}
 	}
 
-	public static void invokeMain( Class clas, String [] args ) 
+	public static void invokeMain( Class<?> clas, String [] args )
 		throws Exception
 	{
 		Method main = Reflect.resolveJavaMethod(
 			null/*BshClassManager*/, clas, "main", 
-			new Class [] { String [].class }, true/*onlyStatic*/ );
+			new Class<?> [] { String [].class }, true/*onlyStatic*/ );
 		if ( main != null )
 			main.invoke( null, new Object [] { args } );
 	}
@@ -1001,7 +1003,7 @@ public class Interpreter
 		@throws EvalError if the interface cannot be generated because the
 		version of Java does not support the proxy mechanism. 
 	*/
-	public Object getInterface( Class interf ) throws EvalError
+	public Object getInterface( Class<?> interf ) throws EvalError
 	{
 		return globalNameSpace.getThis( this ).getInterface( interf );
 	}

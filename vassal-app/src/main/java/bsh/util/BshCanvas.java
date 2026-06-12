@@ -40,6 +40,8 @@ import bsh.*;
 
 */
 public class BshCanvas extends JComponent {
+	private static final long serialVersionUID = 0L;
+
 	This ths;
 	Image imageBuffer;
 
@@ -81,4 +83,3 @@ public class BshCanvas extends JComponent {
 	}
 
 }
-

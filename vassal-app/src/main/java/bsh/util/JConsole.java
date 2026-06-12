@@ -50,6 +50,8 @@ import javax.swing.*;
 */
 public class JConsole extends JScrollPane implements GUIConsoleInterface, Runnable, KeyListener, MouseListener, ActionListener, PropertyChangeListener {
 
+	private static final long serialVersionUID = 0L;
+
     private final static String	CUT = "Cut";
     private final static String	COPY = "Copy";
     private final static String	PASTE =	"Paste";
@@ -65,7 +67,7 @@ public class JConsole extends JScrollPane implements GUIConsoleInterface, Runnab
 	public PrintStream getErr() { return out;	}
 
     private int	cmdStart = 0;
-	private	Vector history = new Vector();
+	private	Vector<String> history = new Vector<>();
 	private	String startedLine;
 	private	int histLine = 0;
 
@@ -434,7 +436,7 @@ public class JConsole extends JScrollPane implements GUIConsoleInterface, Runnab
 		if ( histLine == 0 )
 			showline = startedLine;
 		else
-			showline = (String)history.elementAt( history.size() - histLine	);
+			showline = history.elementAt( history.size() - histLine	);
 
 		replaceRange( showline,	cmdStart, textLength() );
 		text.setCaretPosition(textLength());
