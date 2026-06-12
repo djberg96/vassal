@@ -36,7 +36,7 @@ import javax.swing.JTextArea;
  * calls to WizardPanelProvider.createPanel().
  */
 final class SimpleWizardInfo implements WizardControllerImplementation {
-    private WeakReference wizard = null;
+    private WeakReference<SimpleWizard> wizard = null;
     private final String[] descriptions;
     private final String[] steps;
     final int[] navModeByPanel;
@@ -63,7 +63,7 @@ final class SimpleWizardInfo implements WizardControllerImplementation {
         }
         this.steps = steps;
         this.descriptions = descriptions;
-        if (new HashSet(Arrays.asList(steps)).size() < steps.length) {
+        if (new HashSet<>(Arrays.asList(steps)).size() < steps.length) {
             throw new IllegalArgumentException ("Duplicate ID: " + Arrays.asList(steps));
         }
         if (descriptions.length != steps.length) {
@@ -81,11 +81,11 @@ final class SimpleWizardInfo implements WizardControllerImplementation {
 
 
     final void setWizard (SimpleWizard wizard) {
-        this.wizard = new WeakReference(wizard);
+        this.wizard = new WeakReference<>(wizard);
     }
 
     final SimpleWizard getWizard() {
-        return wizard != null ? (SimpleWizard) wizard.get() : null;
+        return wizard != null ? wizard.get() : null;
     }
     
     final SimpleWizard createWizard() {

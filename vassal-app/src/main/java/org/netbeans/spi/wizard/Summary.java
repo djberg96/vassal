@@ -77,7 +77,7 @@ public class Summary {
             throw new IllegalArgumentException ("Items array empty"); //NOI18N
         }
         this.result = result;
-        JList list = new JList(items);
+        JList<String> list = new JList<>(items);
         comp = new JScrollPane (list);
     }
     

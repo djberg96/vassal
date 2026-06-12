@@ -27,7 +27,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.EventObject;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.logging.Logger;
 import java.util.logging.Level;
@@ -80,7 +79,6 @@ import javax.swing.tree.TreeSelectionModel;
  * @author Tim Boudreau
  * @author Rodney Kinney 
  */
-@SuppressWarnings("unchecked")
 final class GenericListener
         implements ActionListener, PropertyChangeListener, ItemListener,
         ContainerListener, DocumentListener, ChangeListener,
@@ -97,7 +95,7 @@ final class GenericListener
      * Set of components that we're listening to models of, so we can look
      * up the component from the model as needed
      */
-    private Set listenedTo = new HashSet();
+    private final Set<Component> listenedTo = new HashSet<>();
 
     private final WizardPage.CustomComponentListener extListener;
     private final WizardPage.CustomComponentNotifier extNotifier;
@@ -314,45 +312,42 @@ final class GenericListener
                 } else if (e instanceof TreeSelectionEvent) {
                     logger.fine("Looking for a tree for a tree selection event"); // NOI18N
                     TreeSelectionModel mdl = (TreeSelectionModel) ((TreeSelectionEvent) e).getSource();
-                    for (Iterator i = listenedTo.iterator(); i.hasNext();) {
-                        Object o = i.next();
+                    for (Component o : listenedTo) {
                         if (o instanceof JTree && ((JTree) o).getSelectionModel() == mdl) {
                             if (logger.isLoggable(Level.FINE)) {
                                 logger.fine("  found it: " + o); // NOI18N
                             }
-                            wizardPage.userInputReceived((Component) o, e);
+                            wizardPage.userInputReceived(o, e);
                             break;
                         }
                     }
                 } else if (e instanceof DocumentEvent) {
                     logger.fine("Looking for a JTextComponent for a DocumentEvent"); // NOI18N
                     Document document = ((DocumentEvent) e).getDocument();
-                    for (Iterator i = listenedTo.iterator(); i.hasNext();) {
-                        Object o = i.next();
+                    for (Component o : listenedTo) {
                         if (o instanceof JTextComponent && ((JTextComponent) o).getDocument() == document) {
                             if (logger.isLoggable(Level.FINE)) {
                                 logger.fine("  found it: " + o); // NOI18N
                             }
-                            wizardPage.userInputReceived((Component) o, e);
+                            wizardPage.userInputReceived(o, e);
                             break;
                         }
                     }
                 } else if (e instanceof ListSelectionEvent) {
                     logger.fine("Looking for a JList or JTable for a ListSelectionEvent"); // NOI18N
                     ListSelectionModel model = (ListSelectionModel) ((ListSelectionEvent) e).getSource();
-                    for (Iterator i = listenedTo.iterator(); i.hasNext();) {
-                        Object o = i.next();
+                    for (Component o : listenedTo) {
                         if (o instanceof JList && ((JList) o).getSelectionModel() == model) {
                             if (logger.isLoggable(Level.FINE)) {
                                 logger.fine("  found it: " + o); // NOI18N
                             }
-                            wizardPage.userInputReceived((Component) o, e);
+                            wizardPage.userInputReceived(o, e);
                             break;
                         } else if (o instanceof JTable && ((JTable) o).getSelectionModel() == model) {
                             if (logger.isLoggable(Level.FINE)) {
                                 logger.fine("  found it: " + o); // NOI18N
                             }
-                            wizardPage.userInputReceived((Component) o, e);
+                            wizardPage.userInputReceived(o, e);
                             break;
                         }
                     }

@@ -149,7 +149,7 @@ public abstract class WizardPanelProvider {
                 throw new NullPointerException ("Description " + i + " is null");
             }
         }
-        if (new HashSet(Arrays.asList(steps)).size() != steps.length) {
+        if (new HashSet<>(Arrays.asList(steps)).size() != steps.length) {
             return "Duplicate step ids: " + Arrays.asList(steps);
         }
         return null;

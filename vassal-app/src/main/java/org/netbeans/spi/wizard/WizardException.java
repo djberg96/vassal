@@ -28,6 +28,8 @@ package org.netbeans.spi.wizard;
  * @author Tim Boudreau
  */
 public final class WizardException extends Exception {
+    private static final long serialVersionUID = 1L;
+
     private final String localizedMessage;
     private final String step;
     /** Creates a new instance of WizardException */
