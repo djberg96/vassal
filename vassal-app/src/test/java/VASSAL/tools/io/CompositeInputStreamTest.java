@@ -48,20 +48,21 @@ public class CompositeInputStreamTest {
     int available = 0;
     for (InputStream child : ch) available += child.available();
 
-    final InputStream in = new CompositeInputStream(ch);
-    assertEquals(available, in.available());
+    try (InputStream in = new CompositeInputStream(ch)) {
+      assertEquals(available, in.available());
+    }
   }
 
   @Test
   public void testReadInt() throws IOException {
     final InputStream[] ch = prepareStreams();
-    final InputStream in = new CompositeInputStream(ch);
+    try (InputStream in = new CompositeInputStream(ch)) {
+      for (int i = 0; i < 100; ++i) {
+        assertEquals(i / 10, in.read());
+      }
 
-    for (int i = 0; i < 100; ++i) {
-      assertEquals(i/10, in.read());
+      assertEquals(-1, in.read());
     }
-
-    assertEquals(-1, in.read());
   }
 
   @Test
@@ -72,14 +73,14 @@ public class CompositeInputStreamTest {
     }
 
     final InputStream[] ch = prepareStreams();
-    final InputStream in = new CompositeInputStream(ch);
+    try (InputStream in = new CompositeInputStream(ch)) {
+      final byte[] actual = new byte[100];
+      final int count = in.readNBytes(actual, 0, actual.length);
 
-    final byte[] actual = new byte[100];
-    final int count = in.readNBytes(actual, 0, actual.length);
-
-    assertEquals(actual.length, count);
-    assertEquals(-1, in.read());
-    assertArrayEquals(expected, actual);
+      assertEquals(actual.length, count);
+      assertEquals(-1, in.read());
+      assertArrayEquals(expected, actual);
+    }
   }
 
   @Test
