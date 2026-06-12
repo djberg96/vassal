@@ -119,7 +119,7 @@ public final class ClassGenerator {
         }
 
         // Define the new class in the classloader
-        Class genClass = bcm.defineClass(fqClassName, code);
+        Class<?> genClass = bcm.defineClass(fqClassName, code);
 
         // import the unq name into parent
         enclosingNameSpace.importClass(fqClassName.replace('$', '.'));

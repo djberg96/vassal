@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -94,7 +94,7 @@ public class BshClassManager
 		Note: these should probably be re-implemented with Soft references.
 		(as opposed to strong or Weak)
 	*/
-    protected transient Map<String,Class> absoluteClassCache = new Hashtable<String,Class>();
+    protected transient Map<String,Class<?>> absoluteClassCache = new Hashtable<>();
 	/**
 		Global cache for things we know are *not* classes.
 		Note: these should probably be re-implemented with Soft references.
@@ -116,7 +116,7 @@ public class BshClassManager
 	private static final Map<BshClassManager,Object> classManagers = Collections.synchronizedMap(new WeakHashMap<BshClassManager,Object>());
 
 	static void clearResolveCache() {
-		BshClassManager[] managers = (BshClassManager[])classManagers.keySet().toArray(new BshClassManager[0]);
+		BshClassManager[] managers = classManagers.keySet().toArray(new BshClassManager[0]);
 		for( BshClassManager m : managers ) {
 			m.resolvedObjectMethods = new Hashtable<SignatureKey,Method>();
 			m.resolvedStaticMethods = new Hashtable<SignatureKey,Method>();
@@ -124,7 +124,7 @@ public class BshClassManager
 	}
 
 	/** @see #associateClass( Class ) */
-	protected transient Hashtable associatedClasses = new Hashtable();
+	protected transient Hashtable<String, Class<?>> associatedClasses = new Hashtable<>();
 
 	/**
 		Create a new instance of the class manager.  
@@ -169,14 +169,14 @@ public class BshClassManager
 		management package.
 		@return the class or null
 	*/
-	public Class classForName( String name ) 
+	public Class<?> classForName( String name )
 	{
 		if ( isClassBeingDefined( name ) )
 			throw new InterpreterError(
 				"Attempting to load class in the process of being defined: "
 				+name );
 
-		Class clas = null;
+		Class<?> clas = null;
 		try {
 			clas = plainClassForName( name );
 		} catch ( ClassNotFoundException e ) { /*ignore*/ }
@@ -225,10 +225,10 @@ public class BshClassManager
 		@see #classForName( String )
 		@return the class
 	*/
-	public Class plainClassForName( String name ) 
+	public Class<?> plainClassForName( String name )
 		throws ClassNotFoundException
 	{
-		Class c = null;
+		Class<?> c = null;
 
 		if ( externalClassLoader != null )
 			c = externalClassLoader.loadClass( name );
@@ -282,7 +282,7 @@ public class BshClassManager
 			if value is null, set the flag that it is *not* a class to
 			speed later resolution
 	*/
-	public void cacheClassInfo( String name, Class value ) {
+	public void cacheClassInfo( String name, Class<?> value ) {
 		if ( value != null )
 			absoluteClassCache.put( name, value );
 		else
@@ -301,16 +301,16 @@ public class BshClassManager
 	 *
 	 * Class associations currently last for the life of the class manager.
 	 */
-	public void associateClass( Class clas )
+	public void associateClass( Class<?> clas )
 	{
 		// TODO should check to make sure it's a generated class here
 		// just need to add a method to classgenerator API to test it
 		associatedClasses.put( clas.getName(), clas );
 	}
 
-	public Class getAssociatedClass( String name )
+	public Class<?> getAssociatedClass( String name )
 	{
-		return (Class)associatedClasses.get( name );
+		return associatedClasses.get( name );
 	}
 
 	/**
@@ -320,7 +320,7 @@ public class BshClassManager
 		in the general case where either will do.
 	*/
 	public void cacheResolvedMethod( 
-		Class clas, Class [] types, Method method ) 
+		Class<?> clas, Class<?> [] types, Method method )
 	{
 		if ( Interpreter.DEBUG )
 			Interpreter.debug(
@@ -339,7 +339,7 @@ public class BshClassManager
 		@return the Method or null
 	*/
 	protected Method getResolvedMethod( 
-		Class clas, String methodName, Class [] types, boolean onlyStatic  ) 
+		Class<?> clas, String methodName, Class<?> [] types, boolean onlyStatic  )
 	{
 		SignatureKey sk = new SignatureKey( clas, methodName, types );
 
@@ -368,7 +368,7 @@ public class BshClassManager
 	protected void clearCaches() 
 	{
 		absoluteNonClasses = Collections.synchronizedSet(new HashSet<String>());
-		absoluteClassCache = new Hashtable<String,Class>();
+		absoluteClassCache = new Hashtable<>();
 		resolvedObjectMethods = new Hashtable<SignatureKey,Method>();
 		resolvedStaticMethods = new Hashtable<SignatureKey,Method>();
 	}
@@ -444,7 +444,7 @@ public class BshClassManager
 		throw cmUnavailable();
 	}
 
-	/**
+	/*
 		This has been removed from the interface to shield the core from the
 		rest of the classpath package. If you need the classpath you will have
 		to cast the classmanager to its impl.
@@ -506,7 +506,7 @@ public class BshClassManager
 		int i = baseName.indexOf("$");
 		if ( i != -1 )
 			baseName = baseName.substring(i+1);
-		String cur = (String)definingClassesBaseNames.get( baseName );
+		String cur = definingClassesBaseNames.get( baseName );
 		if ( cur != null )
 			throw new InterpreterError("Defining class problem: "+className 
 				+": BeanShell cannot yet simultaneously define two or more "
@@ -544,7 +544,7 @@ public class BshClassManager
 		The real implementation in the classpath.ClassManagerImpl handles
 		reloading of the generated classes.
 	*/
-	public Class defineClass( String name, byte [] code ) 
+	public Class<?> defineClass( String name, byte [] code )
 	{
 		throw new InterpreterError("Can't create class ("+name
 			+") without class manager package.");
@@ -604,12 +604,12 @@ public class BshClassManager
 	*/
 	static class SignatureKey
 	{
-		Class clas;
-		Class [] types;
+		Class<?> clas;
+		Class<?> [] types;
 		String methodName;
 		int hashCode = 0;
 
-		SignatureKey( Class clas, String methodName, Class [] types ) {
+		SignatureKey( Class<?> clas, String methodName, Class<?> [] types ) {
 			this.clas = clas;
 			this.methodName = methodName;
 			this.types = types;

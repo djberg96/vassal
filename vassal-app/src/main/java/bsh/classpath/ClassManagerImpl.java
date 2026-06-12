@@ -139,7 +139,7 @@ public class ClassManagerImpl extends BshClassManager
 		@return the class or null
 	*/
 	@Override
-	public Class classForName( String name )
+	public Class<?> classForName( String name )
 	{
 		// check positive cache
 		Class<?> c = absoluteClassCache.get(name);
@@ -545,7 +545,7 @@ public class ClassManagerImpl extends BshClassManager
 		@exception ClassPathException can be thrown by reloadClasses
 	*/
 	@Override
-	public Class defineClass( String name, byte [] code )
+	public Class<?> defineClass( String name, byte [] code )
 	{
 		baseClassPath.setClassSource( name, new GeneratedClassSource( code ) );
 		try {
