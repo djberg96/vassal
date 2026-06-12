@@ -958,6 +958,7 @@ public final class GameRefresher implements CommandEncoder, GameComponent {
       }
       catch (MalformedURLException e) {
         ErrorDialog.bug(e);
+        return;
       }
       BrowserSupport.openURL(h.getContents().toString());
     }
@@ -1336,4 +1337,3 @@ public final class GameRefresher implements CommandEncoder, GameComponent {
     }
   }
 }
-

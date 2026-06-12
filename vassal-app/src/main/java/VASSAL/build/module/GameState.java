@@ -1362,6 +1362,7 @@ public class GameState implements CommandEncoder {
     // Can be null if we get in here during odd asynchronous crud (save game is disabled, so getRestoreCommand will return null)
     if (save == null) {
       GameModule.getGameModule().warn("~" + Resources.getString("GameState.save_disabled"));
+      return;
     }
 
     try (ZipWriter zw = new ZipWriter(f)) {
