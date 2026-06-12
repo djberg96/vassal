@@ -57,24 +57,21 @@ class BSHBlock extends SimpleNode
 		boolean overrideNamespace ) 
 		throws EvalError
 	{
-		Object syncValue = null;
-		if ( isSynchronized ) 
+		Object ret;
+		if ( isSynchronized ) // Do the actual synchronization
 		{
 			// First node is the expression on which to sync
 			SimpleNode exp = ((SimpleNode)jjtGetChild(0));
-			syncValue = exp.eval(callstack, interpreter);
-		}
-
-		Object ret;
-		if ( isSynchronized ) // Do the actual synchronization
+			Object syncValue = exp.eval(callstack, interpreter);
 			synchronized( syncValue )
 			{
 				ret = evalBlock( 
 					callstack, interpreter, overrideNamespace, null/*filter*/);
 			}
+		}
 		else
-				ret = evalBlock( 
-					callstack, interpreter, overrideNamespace, null/*filter*/ );
+			ret = evalBlock( 
+				callstack, interpreter, overrideNamespace, null/*filter*/ );
 
 		return ret;
 	}
