@@ -2586,6 +2586,7 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
       }
       catch (MalformedURLException e) {
         ErrorDialog.bug(e);
+        return;
       }
       BrowserSupport.openURL(h.getContents().toString());
     }
