@@ -328,7 +328,10 @@ public class DiceButton extends AbstractToolbarItem {
     // === NEW: Simplified summary construction using a Map ===
     final Map<Integer, Integer> resultCounts = new HashMap<>();
     for (final int result : keepDice) {
-      resultCounts.merge(result, 1, Integer::sum);
+      resultCounts.compute(
+        result,
+        (key, count) -> count == null ? 1 : Integer.valueOf(count.intValue() + 1)
+      );
     }
 
     final StringBuilder summaryVal = new StringBuilder();
@@ -476,24 +479,23 @@ public class DiceButton extends AbstractToolbarItem {
 
   @Override
   public Class<?>[] getAttributeTypes() {
-    return ArrayUtils.addAll(
-            super.getAttributeTypes(),
-            ReportFormatConfig.class,
-            Boolean.class,
-            Integer.class,
-            Boolean.class,
-            Integer.class,
-            Boolean.class,
-            Integer.class,
-            Boolean.class,
-            Integer.class,
-            Boolean.class,
-            Boolean.class,
-            Boolean.class,
-            Boolean.class,
-            KeepConfig.class,
-            Integer.class
-    );
+    final List<Class<?>> types = new ArrayList<>(Arrays.asList(super.getAttributeTypes()));
+    types.add(ReportFormatConfig.class);
+    types.add(Boolean.class);
+    types.add(Integer.class);
+    types.add(Boolean.class);
+    types.add(Integer.class);
+    types.add(Boolean.class);
+    types.add(Integer.class);
+    types.add(Boolean.class);
+    types.add(Integer.class);
+    types.add(Boolean.class);
+    types.add(Boolean.class);
+    types.add(Boolean.class);
+    types.add(Boolean.class);
+    types.add(KeepConfig.class);
+    types.add(Integer.class);
+    return types.toArray(new Class<?>[0]);
   }
 
   private final VisibilityCondition cond = () -> promptAlways;

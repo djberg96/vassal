@@ -44,6 +44,7 @@ import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.Arrays;
 
 /**
  * This is a {@link GameComponent} that allows players to type and
@@ -252,10 +253,10 @@ public final class NotesWindow extends AbstractToolbarItem
 
   @Override
   public Class<?>[] getAttributeTypes() {
-    return ArrayUtils.addAll(
-      super.getAttributeTypes(),
-      String.class
-    );
+    final Class<?>[] baseTypes = super.getAttributeTypes();
+    final Class<?>[] types = Arrays.copyOf(baseTypes, baseTypes.length + 1);
+    types[baseTypes.length] = String.class;
+    return types;
   }
 
 

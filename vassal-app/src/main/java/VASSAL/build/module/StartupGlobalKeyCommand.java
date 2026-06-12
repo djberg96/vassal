@@ -108,7 +108,6 @@ public final class StartupGlobalKeyCommand extends GlobalKeyCommand implements C
   }
 
 
-  @SuppressWarnings("removal")
   public StartupGlobalKeyCommand() {
     super();
 
@@ -123,7 +122,6 @@ public final class StartupGlobalKeyCommand extends GlobalKeyCommand implements C
     setShowDisabledOptions(false);
   }
 
-  @SuppressWarnings("removal")
   public StartupGlobalKeyCommand(MassKeyCommand gkc) {
     super(gkc);
 
@@ -164,7 +162,6 @@ public final class StartupGlobalKeyCommand extends GlobalKeyCommand implements C
     return HelpFile.getReferenceManualPage("GlobalKeyCommands.html", "startup"); //NON-NLS
   }
 
-  @SuppressWarnings("removal")
   @Override
   public VisibilityCondition getAttributeVisibility(String key) {
     if (List.of(BUTTON_TEXT, TOOLTIP, ICON, HOTKEY).contains(key)) {

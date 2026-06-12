@@ -274,18 +274,17 @@ public class SpecialDiceButton extends DoActionButton implements CommandEncoder,
 
   @Override
   public Class<?>[] getAttributeTypes() {
-    return ArrayUtils.addAll(
-      super.getAttributeTypes(),
-      String.class,
-      Boolean.class,
-      ReportFormatConfig.class,
-      Boolean.class,
-      ReportFormatConfig.class,
-      Boolean.class,
-      Integer.class,
-      Integer.class,
-      Color.class
-    );
+    final List<Class<?>> types = new ArrayList<>(Arrays.asList(super.getAttributeTypes()));
+    types.add(String.class);
+    types.add(Boolean.class);
+    types.add(ReportFormatConfig.class);
+    types.add(Boolean.class);
+    types.add(ReportFormatConfig.class);
+    types.add(Boolean.class);
+    types.add(Integer.class);
+    types.add(Integer.class);
+    types.add(Color.class);
+    return types.toArray(new Class<?>[0]);
   }
 
   public static class ReportFormatConfig implements TranslatableConfigurerFactory {

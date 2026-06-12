@@ -52,7 +52,6 @@ public final class RandomTextButton extends DiceButton {
   public static final String FACES = "faces"; //$NON-NLS-1$
   public static final String NUMERIC = "numeric"; //$NON-NLS-1$
 
-  @SuppressWarnings("removal")
   public RandomTextButton() {
     super();
     final ActionListener ranAction = e -> {
@@ -137,7 +136,10 @@ public final class RandomTextButton extends DiceButton {
       }
 
       results[i] = faceValue;
-      resultCounts.merge(faceValue, 1, Integer::sum);
+      resultCounts.compute(
+        faceValue,
+        (key, count) -> count == null ? 1 : Integer.valueOf(count.intValue() + 1)
+      );
 
       if (reportTotal && isNumeric) {
         total += Integer.parseInt(faceValue);
