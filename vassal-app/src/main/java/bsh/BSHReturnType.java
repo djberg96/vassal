@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,13 +22,16 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 
 package bsh;
 
 class BSHReturnType extends SimpleNode
 {
+	private static final long serialVersionUID = 0L;
+
 	public boolean isVoid;
 
 	BSHReturnType(int id) { super(id); }
@@ -46,7 +50,7 @@ class BSHReturnType extends SimpleNode
 				callstack, interpreter, defaultPackage );
 	}
 
-	public Class evalReturnType( 
+	public Class<?> evalReturnType( 
 		CallStack callstack, Interpreter interpreter ) throws EvalError
 	{
 		if ( isVoid )
@@ -55,4 +59,3 @@ class BSHReturnType extends SimpleNode
 			return getTypeNode().getType( callstack, interpreter );
 	}
 }
-

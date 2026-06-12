@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,12 +22,12 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 package bsh;
 
-// Just testing...
-import java.util.*;
+import java.util.Iterator;
 
 /**
 	 Implementation of the enhanced for(:) statement.  
@@ -38,6 +39,8 @@ import java.util.*;
 */
 class BSHEnhancedForStatement extends SimpleNode implements ParserConstants 
 {
+	private static final long serialVersionUID = 0L;
+
 	String varName;
 
     BSHEnhancedForStatement(int id) { super(id); }
@@ -45,7 +48,7 @@ class BSHEnhancedForStatement extends SimpleNode implements ParserConstants
     public Object eval( CallStack callstack , Interpreter interpreter )
 		throws EvalError 
 	{
-		Class elementType = null;
+		Class<?> elementType = null;
 		SimpleNode expression, statement=null;
 
 		NameSpace enclosingNameSpace = callstack.top();
@@ -74,7 +77,7 @@ class BSHEnhancedForStatement extends SimpleNode implements ParserConstants
 		if ( !cm.isBshIterable( iteratee ) )
 			throw new EvalError("Can't iterate over type: "
 				+iteratee.getClass(), this, callstack );
-		Iterator iterator = cm.getBshIterator( iteratee );
+		Iterator<?> iterator = cm.getBshIterator( iteratee );
 		
 		Object returnControl = Primitive.VOID;
         while (iterator.hasNext()) {

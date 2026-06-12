@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,7 +22,8 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 
 package bsh;
@@ -35,6 +37,8 @@ package bsh;
 */
 class BSHCastExpression extends SimpleNode {
 
+	private static final long serialVersionUID = 0L;
+
     public BSHCastExpression(int id) { super(id); }
 
 	/**
@@ -43,14 +47,12 @@ class BSHCastExpression extends SimpleNode {
 	public Object eval(
 		CallStack callstack, Interpreter interpreter ) throws EvalError
     {
-		NameSpace namespace = callstack.top();
-        Class toType = ((BSHType)jjtGetChild(0)).getType( 
+        Class<?> toType = ((BSHType)jjtGetChild(0)).getType( 
 			callstack, interpreter );
 		SimpleNode expression = (SimpleNode)jjtGetChild(1);
 
         // evaluate the expression
         Object fromValue = expression.eval(callstack, interpreter);
-        Class fromType = fromValue.getClass();
 
 		// TODO: need to add isJavaCastable() test for strictJava
 		// (as opposed to isJavaAssignable())

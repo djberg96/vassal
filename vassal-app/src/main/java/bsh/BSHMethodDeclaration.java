@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,12 +22,15 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 package bsh;
 
 class BSHMethodDeclaration extends SimpleNode
 {
+	private static final long serialVersionUID = 0L;
+
 	public String name;
 
 	// Begin Child node structure evaluated by insureNodesParsed
@@ -42,7 +46,7 @@ class BSHMethodDeclaration extends SimpleNode
 	public Modifiers modifiers;
 
 	// Unsafe caching of type here.
-	Class returnType;  // null (none), Void.TYPE, or a Class
+	Class<?> returnType;  // null (none), Void.TYPE, or a Class
 	int numThrows = 0;
 
 	BSHMethodDeclaration(int id) { super(id); }
@@ -77,7 +81,7 @@ class BSHMethodDeclaration extends SimpleNode
 		Evaluate the return type node.
 		@return the type or null indicating loosely typed return
 	*/
-	Class evalReturnType( CallStack callstack, Interpreter interpreter )
+	Class<?> evalReturnType( CallStack callstack, Interpreter interpreter )
 		throws EvalError
 	{
 		insureNodesParsed();

@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,16 +22,18 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 
 package bsh;
 
 class BSHPrimitiveType extends SimpleNode
 {
-	public Class type;
+	private static final long serialVersionUID = 0L;
+
+	public Class<?> type;
 
 	BSHPrimitiveType(int id) { super(id); }
-	public Class getType() { return type; }
+	public Class<?> getType() { return type; }
 }
-

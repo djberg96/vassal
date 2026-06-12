@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,12 +22,15 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 package bsh;
 
 class BSHTypedVariableDeclaration extends SimpleNode
 {
+	private static final long serialVersionUID = 0L;
+
 	public Modifiers modifiers;
 	
     BSHTypedVariableDeclaration(int id) { super(id); }
@@ -35,7 +39,7 @@ class BSHTypedVariableDeclaration extends SimpleNode
 		return ((BSHType)jjtGetChild(0));
 	}
 
-	Class evalType( CallStack callstack, Interpreter interpreter )
+	Class<?> evalType( CallStack callstack, Interpreter interpreter )
 		throws EvalError
 	{
 		BSHType typeNode = getTypeNode();
@@ -64,7 +68,7 @@ class BSHTypedVariableDeclaration extends SimpleNode
 		try {
 			NameSpace namespace = callstack.top();
 			BSHType typeNode = getTypeNode();
-			Class type = typeNode.getType( callstack, interpreter );
+			Class<?> type = typeNode.getType( callstack, interpreter );
 
 			BSHVariableDeclarator [] bvda = getDeclarators();
 			for (int i = 0; i < bvda.length; i++)
