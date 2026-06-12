@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -137,9 +137,9 @@ class Types
     public static Class<?>[] getTypes( Object[] args )
     {
         if ( args == null )
-            return new Class[0];
+            return new Class<?>[0];
 
-        Class<?>[] types = new Class[ args.length ];
+        Class<?>[] types = new Class<?>[ args.length ];
 
         for( int i=0; i<args.length; i++ )
         {
@@ -181,7 +181,7 @@ class Types
 	 indicating a loose type and matching anything.
 	 */
 	/* Should check for strict java here and limit to isJavaAssignable() */
-	static boolean isSignatureAssignable( Class[] from, Class[] to, int round )
+	static boolean isSignatureAssignable( Class<?>[] from, Class<?>[] to, int round )
 	{
 		if ( round != JAVA_VARARGS_ASSIGNABLE && from.length != to.length )
 			return false;
@@ -214,7 +214,7 @@ class Types
 	 * Are the two signatures exactly equal? This is checked for a special
 	 * case in overload resolution.
 	 */
-	static boolean areSignaturesEqual(Class[] from, Class[] to)
+	static boolean areSignaturesEqual(Class<?>[] from, Class<?>[] to)
 	{
 		if (from.length != to.length)
 			return false;
@@ -282,7 +282,7 @@ class Types
 		@param lhsType assigning from rhsType to lhsType
 		@param rhsType assigning from rhsType to lhsType
 	*/
-	static boolean isJavaAssignable( Class lhsType, Class rhsType ) {
+	static boolean isJavaAssignable( Class<?> lhsType, Class<?> rhsType ) {
 		return isJavaBaseAssignable( lhsType, rhsType )
 			|| isJavaBoxTypesAssignable( lhsType, rhsType );
 	}
@@ -328,7 +328,7 @@ class Types
 		Determine if the type is assignable via Java boxing/unboxing rules.
 	*/
 	static boolean isJavaBoxTypesAssignable(
-		Class lhsType, Class rhsType )
+		Class<?> lhsType, Class<?> rhsType )
 	{
 		// Assignment to loose type... defer to bsh extensions
 		if ( lhsType == null )
@@ -364,7 +364,7 @@ class Types
 	 Test if a type can be converted to another type via BeanShell
 	 extended syntax rules (a superset of Java conversion rules).
 	 */
-	static boolean isBshAssignable( Class toType, Class fromType )
+	static boolean isBshAssignable( Class<?> toType, Class<?> fromType )
 	{
 		try {
 			return castObject(
@@ -453,7 +453,7 @@ class Types
 		if ( fromValue == null )
         	throw new InterpreterError("null fromValue");
 
-		Class fromType =
+		Class<?> fromType =
 			fromValue instanceof Primitive ?
 				((Primitive)fromValue).getType()
 				: fromValue.getClass();
@@ -568,7 +568,7 @@ class Types
 					// Convert value to Primitive and check/cast it.
 
 					//Object r = checkOnly ? VALID_CAST :
-					Class unboxedFromType = Primitive.unboxType( fromType );
+					Class<?> unboxedFromType = Primitive.unboxType( fromType );
 					Primitive primFromValue;
 					if ( checkOnly ) 
 						primFromValue = null; // must be null in checkOnly
@@ -657,7 +657,7 @@ class Types
 		describing an illegal assignment or illegal cast, respectively.	
 	*/
     static UtilEvalError castError( 
-		Class lhsType, Class rhsType, int operation   ) 
+		Class<?> lhsType, Class<?> rhsType, int operation   )
     {
 		return castError( 
 			Reflect.normalizeClassName(lhsType),
