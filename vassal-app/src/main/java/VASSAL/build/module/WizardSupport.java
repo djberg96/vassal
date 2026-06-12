@@ -206,9 +206,9 @@ public class WizardSupport {
     return new BranchingWizard(info, POST_INITIAL_STEPS_WIZARD);
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
-  private static Map<String, Object> typedWizardSettings(Map settings) {
-    return (Map<String, Object>) settings;
+  @SuppressWarnings("unchecked")
+  private static Map<String, Object> typedWizardSettings(Map<Object, Object> settings) {
+    return (Map<String, Object>) (Map<?, ?>) settings;
   }
 
   public WizardPanelProvider createPlayOfflinePanels() {
@@ -276,8 +276,7 @@ public class WizardSupport {
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
-    protected void recycleExistingPanel(String id, WizardController controller, Map wizardData, JComponent panel) {
+    protected void recycleExistingPanel(String id, WizardController controller, Map<Object, Object> wizardData, JComponent panel) {
       super.recycleExistingPanel(id, controller, wizardData, panel);
       if (NAME_STEP.equals(id)) {
         // User has re-entered the Name/Pw panel after using Prev/Next. Make sure the Finish and Next buttons are set correctly for the game type.
@@ -291,8 +290,7 @@ public class WizardSupport {
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
-    protected JComponent createPanel(WizardController controller, String id, Map settings) {
+    protected JComponent createPanel(WizardController controller, String id, Map<Object, Object> settings) {
       final Map<String, Object> wizardSettings = typedWizardSettings(settings);
       final JComponent c;
       if (NAME_STEP.equals(id)) {
@@ -506,8 +504,7 @@ public class WizardSupport {
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
-    protected JComponent createPanel(final WizardController controller, String id, final Map settings) {
+    protected JComponent createPanel(final WizardController controller, String id, final Map<Object, Object> settings) {
       final Map<String, Object> wizardSettings = typedWizardSettings(settings);
       final DefaultComboBoxModel<Object> comboBoxModel = new DefaultComboBoxModel<>(new Vector<>(setups));
       comboBoxModel.insertElementAt(description, 0);
@@ -647,14 +644,12 @@ public class WizardSupport {
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
-    protected WizardPanelProvider getPanelProviderForStep(String step, Map settings) {
+    protected WizardPanelProvider getPanelProviderForStep(String step, Map<Object, Object> settings) {
       return (WizardPanelProvider) settings.get(wizardKey);
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
-    protected Wizard getWizardForStep(String step, Map settings) {
+    protected Wizard getWizardForStep(String step, Map<Object, Object> settings) {
       final Wizard w;
       final Object next = settings.get(wizardKey);
       if (next instanceof Wizard) {
@@ -796,8 +791,7 @@ public class WizardSupport {
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
-    protected JComponent createPanel(final WizardController controller, String id, final Map settings) {
+    protected JComponent createPanel(final WizardController controller, String id, final Map<Object, Object> settings) {
       final Map<String, Object> wizardSettings = typedWizardSettings(settings);
       if (fileConfig == null) {
         fileConfig = new FileConfigurer(null,
@@ -931,8 +925,7 @@ public class WizardSupport {
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
-    protected JComponent createPanel(WizardController controller, String id, Map settings) {
+    protected JComponent createPanel(WizardController controller, String id, Map<Object, Object> settings) {
       final int index = indexOfStep(id);
       controller.setForwardNavigationMode(index == pages.length - 1 ? WizardController.MODE_CAN_FINISH : WizardController.MODE_CAN_CONTINUE);
       setupSteps.get(index).setController(controller); //BR// Our only chance to introduce the GameSetupStep to its wizard controller so that it can use setProblem()
@@ -940,8 +933,7 @@ public class WizardSupport {
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
-    public boolean cancel(Map settings) {
+    public boolean cancel(Map<Object, Object> settings) {
       final GameModule g = GameModule.getGameModule();
       g.setGameFileMode(GameModule.GameFileMode.NEW_GAME);
       g.getGameState().setup(false);
@@ -951,8 +943,7 @@ public class WizardSupport {
     }
 
     @Override
-    @SuppressWarnings("rawtypes")
-    public Object finish(Map wizardData) throws WizardException {
+    public Object finish(Map<Object, Object> wizardData) throws WizardException {
       for (final GameSetupStep step : setupSteps) {
         step.finish();
       }

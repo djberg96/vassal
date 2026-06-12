@@ -98,7 +98,7 @@ public abstract class WizardDisplayer {
      * @param initialProperties are the initial values for properties to be shown
      * and entered in the wizard.  May be null.
      */
-    public static Object showWizard (Wizard wizard, Rectangle rect, Action help, Map initialProperties) {
+    public static Object showWizard (Wizard wizard, Rectangle rect, Action help, Map<?, ?> initialProperties) {
        // assert nonBuggyWizard (wizard);
         // validate it
         nonBuggyWizard (wizard);
@@ -114,8 +114,8 @@ public abstract class WizardDisplayer {
             String wdProp = System.getProperty (SYSPROP_KEY);
             if (wdProp != null) {
                 try {
-                    factory = (WizardDisplayer) 
-                            Class.forName (wdProp).newInstance();
+                    factory = (WizardDisplayer)
+                            Class.forName(wdProp).getDeclaredConstructor().newInstance();
                 } catch (Exception e) {
                     System.err.println("Could not instantiate " + wdProp);
                     System.setProperty (SYSPROP_KEY, null);
@@ -165,7 +165,7 @@ public abstract class WizardDisplayer {
      * @return Whatever object the wizard returns from its <code>finish()</code>
      *  method, if the Wizard was completed by the user.
      */
-    protected abstract Object show (Wizard wizard, Rectangle r, Action help, Map initialProperties);
+    protected abstract Object show (Wizard wizard, Rectangle r, Action help, Map<?, ?> initialProperties);
     
     /**
      * Install a panel representing a Wizard in a user-supplied container
@@ -184,7 +184,7 @@ public abstract class WizardDisplayer {
     public static WizardDisplayer installInContainer (Container c,
 	    Object layoutConstraint, 
             Wizard awizard,
-            Action helpAction, Map initialProperties, 
+            Action helpAction, Map<?, ?> initialProperties,
             WizardResultReceiver receiver) {
 	final WizardDisplayer displayer = getDefault();
         displayer.install (c, layoutConstraint, awizard, helpAction, 
@@ -196,7 +196,7 @@ public abstract class WizardDisplayer {
      * Instance implementation of installInContainer().
      */ 
     protected abstract void install (Container c, Object layoutConstraint,
-            Wizard awizard, Action helpAction, Map initialProperties,  
+            Wizard awizard, Action helpAction, Map<?, ?> initialProperties,
             WizardResultReceiver receiver);
     
     /**
@@ -214,7 +214,7 @@ public abstract class WizardDisplayer {
         String[] s = wizard.getAllSteps();
         // assert new HashSet(Arrays.asList(s)).size() == s.length;
         // for JDK 1.4.2: replace assert with runtime exception
-        if (new HashSet(Arrays.asList(s)).size() != s.length)
+        if (new HashSet<>(Arrays.asList(s)).size() != s.length)
         {
             throw new RuntimeException ("steps are duplicated: " + Arrays.toString(s));
         }

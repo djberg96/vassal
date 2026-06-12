@@ -179,7 +179,7 @@ public class WizardDisplayerImpl extends WizardDisplayer
      * @see org.netbeans.api.wizard.WizardDisplayer#show(org.netbeans.spi.wizard.Wizard, java.awt.Rectangle, javax.swing.Action, java.util.Map)
      */
     private JPanel createOuterPanel(final Wizard awizard, Rectangle bounds, Action helpAction,
-                          Map initialProperties)
+                          Map<?, ?> initialProperties)
     {
 
         this.wizard = awizard;
@@ -252,7 +252,7 @@ public class WizardDisplayerImpl extends WizardDisplayer
     }
     
     public void install (Container c, Object layoutConstraint, Wizard awizard,
-            Action helpAction, Map initialProperties, WizardResultReceiver receiver) {        
+            Action helpAction, Map<?, ?> initialProperties, WizardResultReceiver receiver) {
         JPanel pnl = createOuterPanel (awizard, new Rectangle(), helpAction, initialProperties);
         if (layoutConstraint != null) {
             c.add (pnl, layoutConstraint);
@@ -263,7 +263,7 @@ public class WizardDisplayerImpl extends WizardDisplayer
     }
     
     public Object show(final Wizard awizard, Rectangle bounds, Action helpAction,
-                          Map initialProperties) {
+                          Map<?, ?> initialProperties) {
         createOuterPanel (awizard, bounds, helpAction, initialProperties);
         Object result = showInDialog(bounds);
         return result;
