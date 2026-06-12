@@ -32,9 +32,9 @@ import javax.swing.JComponent;
  * @author Tim Boudreau
  */
 final class SimpleWizard implements WizardImplementation {
-    private final List listenerList = 
-            Collections.synchronizedList (new LinkedList());
-    private final Map ids2panels = new HashMap();
+    private final List<WizardObserver> listenerList =
+            Collections.synchronizedList(new LinkedList<>());
+    private final Map<String, JComponent> ids2panels = new HashMap<>();
 
     final SimpleWizardInfo info;
 
@@ -103,7 +103,7 @@ final class SimpleWizard implements WizardImplementation {
 //        assert SwingUtilities.isEventDispatchThread();
 
         // if info.getSteps() does not yet contain the ID, then create it
-        JComponent result = (JComponent) ids2panels.get(id);
+        JComponent result = ids2panels.get(id);
         currID = id;
         if (result == null) {
             result = info.createPanel(id, settings);
@@ -154,21 +154,19 @@ final class SimpleWizard implements WizardImplementation {
     }
 
     void fireNavigability() {
-        WizardObserver[] listeners = (WizardObserver[]) 
-                listenerList.toArray (new WizardObserver[0]);
+        WizardObserver[] listeners = listenerList.toArray(new WizardObserver[0]);
 
         for (int i = listeners.length - 1; i >= 0; i --) {
-            WizardObserver l = (WizardObserver) listeners[i];
+            WizardObserver l = listeners[i];
             l.navigabilityChanged(null);
         }
     }
 
     private void fireSelectionChanged() {
-        WizardObserver[] listeners = (WizardObserver[]) 
-                listenerList.toArray (new WizardObserver[0]);
+        WizardObserver[] listeners = listenerList.toArray(new WizardObserver[0]);
 
         for (int i = listeners.length - 1; i >= 0; i --) {
-            WizardObserver l = (WizardObserver) listeners[i];
+            WizardObserver l = listeners[i];
             l.selectionChanged(null);
         }
     }
