@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,7 +22,8 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 package bsh;
 
@@ -31,10 +33,12 @@ package bsh;
 */
 class BSHFormalParameter extends SimpleNode
 {
-	public static final Class UNTYPED = null;
+	private static final long serialVersionUID = 0L;
+
+	public static final Class<?> UNTYPED = null;
 	public String name;
 	// unsafe caching of type here
-	public Class type;
+	public Class<?> type;
 
 	BSHFormalParameter(int id) { super(id); }
 
@@ -63,4 +67,3 @@ class BSHFormalParameter extends SimpleNode
 		return type;
 	}
 }
-

@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,7 +22,8 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 package bsh;
 
@@ -29,6 +31,8 @@ package bsh;
 */
 class BSHClassDeclaration extends SimpleNode
 {
+	private static final long serialVersionUID = 0L;
+
 	/**
 		The class instance initializer method name.
 		A BshMethod by this name is installed by the class delcaration into 
@@ -62,14 +66,14 @@ class BSHClassDeclaration extends SimpleNode
 		int child = 0;
 
 		// resolve superclass if any
-		Class superClass = null;
+		Class<?> superClass = null;
 		if ( extend ) {
 			BSHAmbiguousName superNode = (BSHAmbiguousName)jjtGetChild(child++);
 			superClass = superNode.toClass( callstack, interpreter );
 		}
 
 		// Get interfaces
-		Class [] interfaces = new Class[numInterfaces];
+		Class<?> [] interfaces = new Class<?>[numInterfaces];
 		for( int i=0; i<numInterfaces; i++) {
 			BSHAmbiguousName node = (BSHAmbiguousName)jjtGetChild(child++);
 			interfaces[i] = node.toClass(callstack, interpreter);
