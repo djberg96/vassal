@@ -18,6 +18,8 @@
 
 package VASSAL.tools.logging;
 
+import java.io.IOException;
+
 import org.slf4j.Logger;
 
 import org.junit.jupiter.api.Test;
@@ -27,46 +29,46 @@ import static org.mockito.Mockito.*;
 public class LoggedOutputStreamTest {
 
   @Test
-  public void testWriteInt() {
+  public void testWriteInt() throws IOException {
     final Logger logger = mock(Logger.class);
-    final LoggedOutputStream out = new LoggedOutputStream(logger);
-
-    out.write((byte) 'x');
-    out.write((byte) 'y');
-    out.write((byte) 'z');
-    out.write((byte) 'z');
-    out.write((byte) 'y');
-    out.write((byte) '\n');
-    out.write((byte) 'f');
-    out.write((byte) 'o');
-    out.write((byte) 'o');
-    out.write((byte) '\n');
+    try (LoggedOutputStream out = new LoggedOutputStream(logger)) {
+      out.write((byte) 'x');
+      out.write((byte) 'y');
+      out.write((byte) 'z');
+      out.write((byte) 'z');
+      out.write((byte) 'y');
+      out.write((byte) '\n');
+      out.write((byte) 'f');
+      out.write((byte) 'o');
+      out.write((byte) 'o');
+      out.write((byte) '\n');
+    }
 
     verify(logger, atMostOnce()).warn(eq("xyzzy"));
     verify(logger, atMostOnce()).warn(eq("foo"));
   }
 
   @Test
-  public void testWriteArray() {
+  public void testWriteArray() throws IOException {
     final Logger logger = mock(Logger.class);
-    final LoggedOutputStream out = new LoggedOutputStream(logger);
+    try (LoggedOutputStream out = new LoggedOutputStream(logger)) {
+      final byte[] xyzzy = new byte[] { 'x', 'y', 'z', 'z', 'y', '\n' };
+      out.write(xyzzy, 0, xyzzy.length);
 
-    final byte[] xyzzy = new byte[] { 'x', 'y', 'z', 'z', 'y', '\n' };
-    out.write(xyzzy, 0, xyzzy.length);
-
-    final byte[] foo = new byte[] { 'f', 'o', 'o' };
-    out.write(foo, 0, foo.length);
+      final byte[] foo = new byte[] { 'f', 'o', 'o' };
+      out.write(foo, 0, foo.length);
+    }
 
     verify(logger, atMostOnce()).warn(eq("xyzzy"));
     verify(logger, atMostOnce()).warn(eq("foo"));
   }
 
   @Test
-  public void testEmptyFlush() {
+  public void testEmptyFlush() throws IOException {
     final Logger logger = mock(Logger.class);
-    final LoggedOutputStream out = new LoggedOutputStream(logger);
-
-    out.write((byte) '\n');
+    try (LoggedOutputStream out = new LoggedOutputStream(logger)) {
+      out.write((byte) '\n');
+    }
 
     verify(logger, never()).warn(anyString());
   }
