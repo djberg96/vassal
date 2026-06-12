@@ -133,7 +133,7 @@ public final class Wizard {
      * @return The component that should be shown for step <code>id</code>
      *  of the <code>Wizard</code>
      */ 
-    public JComponent navigatingTo(String id, Map wizardData) {
+    public JComponent navigatingTo(String id, Map<?, ?> wizardData) {
         return impl.navigatingTo(id, wizardData);
     }
 
@@ -218,7 +218,7 @@ public final class Wizard {
      *  DeferredWizardResult and Summary which will affect the behavior of
      *  the UI.
      */ 
-    public Object finish(Map settings) throws WizardException {
+    public Object finish(Map<?, ?> settings) throws WizardException {
         return impl.finish(settings);
     }
 
@@ -230,7 +230,7 @@ public final class Wizard {
      * @return true if the UI may indeed be closed, false if closing should
      *   not be permitted
      */ 
-    public boolean cancel (Map settings) {
+    public boolean cancel(Map<?, ?> settings) {
         return impl.cancel(settings);
     }
 
@@ -263,8 +263,8 @@ public final class Wizard {
     }
 
     private volatile boolean listeningToImpl = false;
-    private final List listeners = Collections.synchronizedList (
-            new LinkedList());
+    private final List<WizardObserver> listeners = Collections.synchronizedList(
+            new LinkedList<>());
 
     private WizardObserver l = null;
     /**
@@ -296,7 +296,7 @@ public final class Wizard {
 
     private class ImplL implements WizardObserver {
         public void stepsChanged(Wizard wizard) {
-            WizardObserver[] l = (WizardObserver[]) listeners.toArray(
+            WizardObserver[] l = listeners.toArray(
                     new WizardObserver[listeners.size()]);
             for (int i = 0; i < l.length; i++) {
                 l[i].stepsChanged(Wizard.this);
@@ -304,7 +304,7 @@ public final class Wizard {
         }
 
         public void navigabilityChanged(Wizard wizard) {
-            WizardObserver[] l = (WizardObserver[]) listeners.toArray(
+            WizardObserver[] l = listeners.toArray(
                     new WizardObserver[listeners.size()]);
             for (int i = 0; i < l.length; i++) {
                 l[i].navigabilityChanged(Wizard.this);
@@ -312,7 +312,7 @@ public final class Wizard {
         }
 
         public void selectionChanged(Wizard wizard) {
-            WizardObserver[] l = (WizardObserver[]) listeners.toArray(
+            WizardObserver[] l = listeners.toArray(
                     new WizardObserver[listeners.size()]);
             for (int i = 0; i < l.length; i++) {
                 l[i].selectionChanged(Wizard.this);
