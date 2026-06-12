@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,12 +22,14 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 package bsh;
 
 import java.lang.reflect.Field;
-import java.util.Hashtable;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
 	The map of extended features supported by the runtime in which we live.
@@ -89,7 +92,7 @@ public class Capabilities
 		BshClassManager.clearResolveCache();
 	}
 
-	private static Hashtable classes = new Hashtable();
+	private static final Map<String, Class<?>> classes = new ConcurrentHashMap<>();
 	/**
 		Use direct Class.forName() to test for the existence of a class.
 		We should not use BshClassManager here because:
@@ -101,7 +104,7 @@ public class Capabilities
 	*/
 	public static boolean classExists( String name ) 
 	{
-		Object c = classes.get( name );
+		Class<?> c = classes.get( name );
 
 		if ( c == null ) {
 			try {
@@ -114,7 +117,7 @@ public class Capabilities
 			} catch ( ClassNotFoundException e ) { }
 
 			if ( c != null )
-				classes.put(c,"unused");
+				classes.put(name, c);
 		}
 
 		return c != null;
@@ -127,8 +130,9 @@ public class Capabilities
 	*/
 	public static class Unavailable extends UtilEvalError
 	{
+		private static final long serialVersionUID = 0L;
+
 		public Unavailable(String s ){ super(s); }
 	}
 }
-
 
