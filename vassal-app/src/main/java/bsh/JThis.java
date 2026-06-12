@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -66,6 +66,7 @@ class JThis extends This implements
 	TreeExpansionListener, TreeModelListener, TreeSelectionListener, 
 	TreeWillExpandListener, UndoableEditListener
 {
+	private static final long serialVersionUID = 1L;
 
 	JThis( NameSpace namespace, Interpreter declaringInterp ) { 
 		super( namespace, declaringInterp );
@@ -83,7 +84,7 @@ class JThis extends This implements
 		// handleEvent gets all events
 		try {
 			method = namespace.getMethod( 
-				"handleEvent", new Class [] { null } );
+				"handleEvent", new Class<?> [] { null } );
 		} catch ( UtilEvalError e ) {/*squeltch*/  }
 
 		if (method != null)
@@ -97,7 +98,7 @@ class JThis extends This implements
 
 		// send to specific event handler
 		try {
-			method = namespace.getMethod( name, new Class [] { null } );
+			method = namespace.getMethod( name, new Class<?> [] { null } );
 		} catch ( UtilEvalError e ) { /*squeltch*/ }
 		if (method != null)
 			try {
@@ -205,7 +206,7 @@ class JThis extends This implements
 		BshMethod method = null;
 		try {
 			method = namespace.getMethod( "imageUpdate",
-				new Class [] { null, null, null, null, null, null } );
+				new Class<?> [] { null, null, null, null, null, null } );
 		} catch ( UtilEvalError e ) {/*squeltch*/ }
 
 		if(method != null)

@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -53,11 +53,13 @@ import java.util.Hashtable;
 */
 public class XThis extends This
 	{
+	private static final long serialVersionUID = 1L;
+
 	/**
 		A cache of proxy interface handlers.
 		Currently just one per interface.
 	*/
-	Hashtable interfaces;
+	Hashtable<Integer, Object> interfaces;
 
 	transient InvocationHandler invocationHandler = new Handler();
 
@@ -72,24 +74,24 @@ public class XThis extends This
 	/**
 		Get dynamic proxy for interface, caching those it creates.
 	*/
-	public Object getInterface( Class clas )
+	public Object getInterface( Class<?> clas )
 	{
-		return getInterface( new Class[] { clas } );
+		return getInterface( new Class<?>[] { clas } );
 	}
 
 	/**
 		Get dynamic proxy for interface, caching those it creates.
 	*/
-	public Object getInterface( Class [] ca )
+	public Object getInterface( Class<?> [] ca )
 	{
 		if ( interfaces == null )
-			interfaces = new Hashtable();
+			interfaces = new Hashtable<>();
 
 		// Make a hash of the interface hashcodes in order to cache them
 		int hash = 21;
 		for(int i=0; i<ca.length; i++)
 			hash *= ca[i].hashCode() + 3;
-		Object hashKey = Integer.valueOf(hash);
+		Integer hashKey = Integer.valueOf(hash);
 
 		Object interf = interfaces.get( hashKey );
 
@@ -159,7 +161,7 @@ public class XThis extends This
 			BshMethod equalsMethod = null;
 			try {
 				equalsMethod = namespace.getMethod(
-					"equals", new Class [] { Object.class } );
+					"equals", new Class<?> [] { Object.class } );
 			} catch ( UtilEvalError e ) {/*leave null*/ }
 			if ( methodName.equals("equals" ) && equalsMethod == null ) {
 				Object obj = args[0];
@@ -173,12 +175,12 @@ public class XThis extends This
 			BshMethod toStringMethod = null;
 			try {
 				toStringMethod =
-					namespace.getMethod( "toString", new Class [] { } );
+					namespace.getMethod( "toString", new Class<?> [] { } );
 			} catch ( UtilEvalError e ) {/*leave null*/ }
 
 			if ( methodName.equals("toString" ) && toStringMethod == null)
 			{
-				Class [] ints = proxy.getClass().getInterfaces();
+				Class<?> [] ints = proxy.getClass().getInterfaces();
 				// XThis.this refers to the enclosing class instance
 				StringBuffer sb = new StringBuffer(
 					XThis.this.toString() + "\nimplements:" );
@@ -188,7 +190,7 @@ public class XThis extends This
 				return sb.toString();
 			}
 
-			Class [] paramTypes = method.getParameterTypes();
+			Class<?> [] paramTypes = method.getParameterTypes();
 			return Primitive.unwrap(
 				invokeMethod( methodName, Primitive.wrap(args, paramTypes) ) );
 		}
