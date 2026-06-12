@@ -1,4 +1,4 @@
-/**
+/*
 	Display the contents of the current working directory.  
 	The format is similar to the Unix ls -l
 	<em>This is an example of a bsh command written in Java for speed.</em>
