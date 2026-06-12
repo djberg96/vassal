@@ -684,10 +684,6 @@ public class MassPieceLoader {
       this(null, s);
     }
 
-    public ThreeStateCheckBox(String text) {
-      this(text, 0);
-    }
-
     public ThreeStateCheckBox(String text, int s) {
       /*
        * tri-state checkbox has 3 selection states:
