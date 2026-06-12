@@ -617,6 +617,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 	/**
 		@deprecated See #setTypedVariable( String, Class, Object, Modifiers )
 	*/
+	@Deprecated
     public void	setTypedVariable(
 		String	name, Class type, Object value,	boolean	isFinal )
 		throws UtilEvalError 

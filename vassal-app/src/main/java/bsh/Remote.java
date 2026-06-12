@@ -151,7 +151,7 @@ public class Remote
 		String formData = sb.toString(  );
 
 		try {
-		  URL url = new URL( postURL );
+		  URL url = new URI( postURL ).toURL();
 		  HttpURLConnection urlcon =
 			  (HttpURLConnection) url.openConnection(  );
 		  urlcon.setRequestMethod("POST");
@@ -179,7 +179,7 @@ public class Remote
 
 		  System.out.println( "Return Value: "+returnValue );
 
-		} catch (MalformedURLException e) {
+		} catch (MalformedURLException | URISyntaxException e) {
 		  System.out.println(e);     // bad postURL
 		} catch (IOException e2) {
 		  System.out.println(e2);    // I/O error
