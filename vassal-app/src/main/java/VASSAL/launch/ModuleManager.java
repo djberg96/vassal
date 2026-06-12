@@ -120,6 +120,7 @@ public final class ModuleManager {
       System.err.println("VASSAL: " + e.getMessage()); //NON-NLS
       e.printStackTrace();
       System.exit(1);
+      return;
     }
 
     if (lr.mode == LaunchRequest.Mode.TRANSLATE) {
