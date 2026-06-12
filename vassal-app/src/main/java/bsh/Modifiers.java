@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -22,7 +23,8 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 package bsh;
 
 import java.util.Hashtable;
@@ -36,8 +38,10 @@ import java.util.Hashtable;
 */
 public class Modifiers implements java.io.Serializable
 {
+	private static final long serialVersionUID = 0L;
+
 	public static final int CLASS=0, METHOD=1, FIELD=2;
-	Hashtable modifiers;
+	Hashtable<String, Class<?>> modifiers;
 
 	/**
 		@param context is METHOD or FIELD
@@ -45,9 +49,9 @@ public class Modifiers implements java.io.Serializable
 	public void addModifier( int context, String name ) 
 	{
 		if ( modifiers == null )
-			modifiers = new Hashtable();
+			modifiers = new Hashtable<>();
 
-		Object existing = modifiers.put( name, Void.TYPE/*arbitrary flag*/ );
+		Class<?> existing = modifiers.put( name, Void.TYPE/*arbitrary flag*/ );
 		if ( existing != null )
 			throw new IllegalStateException("Duplicate modifier: "+ name );
 
@@ -76,7 +80,7 @@ public class Modifiers implements java.io.Serializable
 	public boolean hasModifier( String name ) 
 	{
 		if ( modifiers == null )
-			modifiers = new Hashtable();
+			modifiers = new Hashtable<>();
 		return modifiers.get(name) != null;
 	}
 
