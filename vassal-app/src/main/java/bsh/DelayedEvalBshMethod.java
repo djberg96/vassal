@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -21,12 +22,15 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 
 package bsh;
 
 public class DelayedEvalBshMethod extends BshMethod
 {
+	private static final long serialVersionUID = 0L;
+
 	String returnTypeDescriptor;
 	BSHReturnType returnTypeNode;
 	String [] paramTypeDescriptors;
@@ -71,7 +75,7 @@ public class DelayedEvalBshMethod extends BshMethod
 
 	public String getReturnTypeDescriptor() { return returnTypeDescriptor; }
 
-	public Class getReturnType() 
+	public Class<?> getReturnType() 
 	{ 
 		if ( returnTypeNode == null )
 			return null;
@@ -86,11 +90,11 @@ public class DelayedEvalBshMethod extends BshMethod
 
 	public String [] getParamTypeDescriptors() { return paramTypeDescriptors; }
 
-	public Class [] getParameterTypes() 
+	public Class<?> [] getParameterTypes() 
 	{ 
 		// BSHFormalParameters will cache the type for us
 		try {
-			return (Class [])paramTypesNode.eval( callstack, interpreter );
+			return (Class<?> [])paramTypesNode.eval( callstack, interpreter );
 		} catch ( EvalError e ) {
 			throw new InterpreterError("can't eval param types: "+e);
 		}
