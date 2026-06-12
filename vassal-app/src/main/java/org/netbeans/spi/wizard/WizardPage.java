@@ -28,9 +28,7 @@ import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -109,6 +107,8 @@ import java.util.logging.Logger;
  */
 public class WizardPage extends JPanel implements WizardPanel {
 
+    private static final long serialVersionUID = 1L;
+
     private static final Logger logger =
             Logger.getLogger(WizardPage.class.getName());
 
@@ -117,7 +117,7 @@ public class WizardPage extends JPanel implements WizardPanel {
 
     //Have an initial dummy map so it's never null.  We'll dump its contents
     //into the real map the first time it's set
-    private Map wizardData;
+    private Map<Object, Object> wizardData;
     //An initial wizardController that will dump its settings into the real
     //one the first time it's set
     private WizardControllerImplementation wc = new WC();
@@ -371,15 +371,15 @@ public class WizardPage extends JPanel implements WizardPanel {
         repaint(0, 0, getWidth(), getHeight());
     }
 
-    public WizardPanelNavResult allowBack(String stepName, Map settings, Wizard wizard) {
+    public WizardPanelNavResult allowBack(String stepName, Map<Object, Object> settings, Wizard wizard) {
         return WizardPanelNavResult.PROCEED;
     }
 
-    public WizardPanelNavResult allowFinish(String stepName, Map settings, Wizard wizard) {
+    public WizardPanelNavResult allowFinish(String stepName, Map<Object, Object> settings, Wizard wizard) {
         return WizardPanelNavResult.PROCEED;
     }
 
-    public WizardPanelNavResult allowNext(String stepName, Map settings, Wizard wizard) {
+    public WizardPanelNavResult allowNext(String stepName, Map<Object, Object> settings, Wizard wizard) {
         return WizardPanelNavResult.PROCEED;
     }
 
@@ -423,7 +423,7 @@ public class WizardPage extends JPanel implements WizardPanel {
      * Create simple Wizard from an array of classes, each of which is a
      * unique subclass of WizardPage.
      */
-    public static Wizard createWizard(Class[] wizardPageClasses, WizardResultProducer finisher) {
+    public static Wizard createWizard(Class<? extends WizardPage>[] wizardPageClasses, WizardResultProducer finisher) {
         return new CWPP(wizardPageClasses, finisher).createWizard();
     }
 
@@ -431,7 +431,7 @@ public class WizardPage extends JPanel implements WizardPanel {
      * Create simple Wizard from an array of classes, each of which is a
      * unique subclass of WizardPage.
      */
-    public static Wizard createWizard(String title, Class[] wizardPageClasses, WizardResultProducer finisher) {
+    public static Wizard createWizard(String title, Class<? extends WizardPage>[] wizardPageClasses, WizardResultProducer finisher) {
         return new CWPP(title, wizardPageClasses, finisher).createWizard();
     }
 
@@ -439,7 +439,7 @@ public class WizardPage extends JPanel implements WizardPanel {
      * Create simple Wizard from an array of classes, each of which is a
      * unique subclass of WizardPage.
      */
-    public static Wizard createWizard(String title, Class[] wizardPageClasses) {
+    public static Wizard createWizard(String title, Class<? extends WizardPage>[] wizardPageClasses) {
         return new CWPP(title, wizardPageClasses, 
                 WizardResultProducer.NO_OP).createWizard();
     }
@@ -448,7 +448,7 @@ public class WizardPage extends JPanel implements WizardPanel {
      * unique subclass of WizardPage, with a
      * no-op WizardResultProducer.
      */
-    public static Wizard createWizard(Class[] wizardPageClasses) {
+    public static Wizard createWizard(Class<? extends WizardPage>[] wizardPageClasses) {
         return createWizard(wizardPageClasses, WizardResultProducer.NO_OP);
     }
 
@@ -462,17 +462,15 @@ public class WizardPage extends JPanel implements WizardPanel {
      *  Subclasses do NOT need to override this method,
      *  they can override renderPage which is always called AFTER the map has been made valid.
      */
-    void setWizardDataMap(Map m) {
+    void setWizardDataMap(Map<Object, Object> m) {
         if (m == null) {
-            wizardData = new HashMap();
+            wizardData = new HashMap<>();
         } else {
             if (wizardData instanceof HashMap) {
                 // our initial map has keys for all of our components
                 // but with dummy empty values
                 // So make sure we don't override data that was put in as part of the initialProperties
-                for (Iterator iter = wizardData.entrySet().iterator(); iter.hasNext();)
-                {
-                    Map.Entry entry = (Map.Entry) iter.next();
+                for (Map.Entry<Object, Object> entry : wizardData.entrySet()) {
                     Object key = entry.getKey();
                     if ( ! m.containsKey(key))
                     {
@@ -681,7 +679,7 @@ public class WizardPage extends JPanel implements WizardPanel {
         } else if (comp instanceof JFormattedTextField) {
             return ((JFormattedTextField) comp).getValue();
         } else if (comp instanceof JList) {
-            Object[] o = ((JList) comp).getSelectedValues();
+            Object[] o = ((JList<?>) comp).getSelectedValuesList().toArray();
             if (o != null) {
                 if (o.length > 1) {
                     return o;
@@ -698,7 +696,7 @@ public class WizardPage extends JPanel implements WizardPanel {
         } else if (comp instanceof JSpinner) {
             return ((JSpinner) comp).getValue();
         } else if (comp instanceof JSlider) {
-            return new Integer(((JSlider) comp).getValue());
+            return Integer.valueOf(((JSlider) comp).getValue());
         }
 
         return null;
@@ -711,7 +709,7 @@ public class WizardPage extends JPanel implements WizardPanel {
      * this method to handle getting an appropriate value out of your
      * custom component and call super for the others.
      */
-    protected void valueTo(Map settings, Component comp) {
+    protected void valueTo(Map<Object, Object> settings, Component comp) {
         String name = comp.getName();
         Object value = settings.get(name);
         if (comp instanceof JRadioButton || comp instanceof JCheckBox || comp instanceof JToggleButton) {
@@ -827,9 +825,9 @@ public class WizardPage extends JPanel implements WizardPanel {
      * Return value will never be null.
      */
     // the map is empty during construction, then later set to the map from the containing WizardController
-    protected Map getWizardDataMap() {
+    protected Map<Object, Object> getWizardDataMap() {
         if (wizardData == null) {
-            wizardData = new HashMap();
+            wizardData = new HashMap<>();
         }
         return wizardData;
     }
@@ -919,7 +917,7 @@ public class WizardPage extends JPanel implements WizardPanel {
         }
 
         protected JComponent createPanel(WizardController controller, String id,
-                                         Map wizardData) {
+                                         Map<Object, Object> wizardData) {
             int idx = indexOfStep(id);
 
             // assert idx != -1 : "Bad ID passed to createPanel: " + id; //NOI18N
@@ -937,7 +935,7 @@ public class WizardPage extends JPanel implements WizardPanel {
          * Make sure we haven't been passed bogus data
          */
         private String valid(WizardPage[] pages) {
-            if (new HashSet(Arrays.asList(pages)).size() != pages.length) {
+            if (new HashSet<>(Arrays.asList(pages)).size() != pages.length) {
                 return "Duplicate entry in array: " +  //NOI18N
                         Arrays.asList(pages);
             }
@@ -951,11 +949,11 @@ public class WizardPage extends JPanel implements WizardPanel {
             return null;
         }
 
-        protected Object finish(Map settings) throws WizardException {
+        protected Object finish(Map<Object, Object> settings) throws WizardException {
             return finish.finish(settings);
         }
 
-        public boolean cancel(Map settings) {
+        public boolean cancel(Map<Object, Object> settings) {
             return finish.cancel (settings);
         }
     
@@ -975,11 +973,11 @@ public class WizardPage extends JPanel implements WizardPanel {
      * instantiates them on demand
      */
     private static final class CWPP extends WizardPanelProvider {
-        private final Class[] classes;
+        private final Class<? extends WizardPage>[] classes;
         private final WizardResultProducer finish;
         private final String[] longDescriptions;
 
-        CWPP(String title, Class[] classes, WizardResultProducer finish) {
+        CWPP(String title, Class<? extends WizardPage>[] classes, WizardResultProducer finish) {
             super(title, Util.getSteps(classes), Util.getDescriptions(classes));
 //            assert classes != null : "Class array may not be null";
 //            assert new HashSet(Arrays.asList(classes)).size() == classes.length :
@@ -992,7 +990,7 @@ public class WizardPage extends JPanel implements WizardPanel {
             longDescriptions = new String [ classes.length ];
         }
 
-        private void _validateArgs (Class [] classes, WizardResultProducer finish)
+        private void _validateArgs (Class<? extends WizardPage>[] classes, WizardResultProducer finish)
         {
 //            assert classes != null : "Class array may not be null";
 //            assert new HashSet(Arrays.asList(classes)).size() == classes.length :
@@ -1003,7 +1001,7 @@ public class WizardPage extends JPanel implements WizardPanel {
             {
                 throw new RuntimeException ("Class array may not be null");
             }
-            if ( new HashSet(Arrays.asList(classes)).size() != classes.length)
+            if ( new HashSet<>(Arrays.asList(classes)).size() != classes.length)
             {
                 throw new RuntimeException ("Duplicate entries in class array");
             }
@@ -1013,7 +1011,7 @@ public class WizardPage extends JPanel implements WizardPanel {
             }
         }
         
-        CWPP(Class[] classes, WizardResultProducer finish) {
+        CWPP(Class<? extends WizardPage>[] classes, WizardResultProducer finish) {
             super(Util.getSteps(classes), Util.getDescriptions(classes));
 
 //            assert classes != null : "Class array may not be null";
@@ -1029,7 +1027,7 @@ public class WizardPage extends JPanel implements WizardPanel {
         }
 
         
-        protected JComponent createPanel(WizardController controller, String id, Map wizardData) {
+        protected JComponent createPanel(WizardController controller, String id, Map<Object, Object> wizardData) {
             int idx = indexOfStep(id);
 
             // assert idx != -1 : "Bad ID passed to createPanel: " + id; //NOI18N
@@ -1038,7 +1036,7 @@ public class WizardPage extends JPanel implements WizardPanel {
                 throw new RuntimeException ( "Bad ID passed to createPanel: " + id); //NOI18N
             }
             try {
-                WizardPage result = (WizardPage) classes[idx].newInstance();
+                WizardPage result = classes[idx].getDeclaredConstructor().newInstance();
                 longDescriptions[idx] = result.getLongDescription();
                 
                 result.setController(controller);
@@ -1053,11 +1051,11 @@ public class WizardPage extends JPanel implements WizardPanel {
             }
         }
 
-        protected Object finish(Map settings) throws WizardException {
+        protected Object finish(Map<Object, Object> settings) throws WizardException {
             return finish.finish(settings);
         }
         
-        public boolean cancel(Map settings) {
+        public boolean cancel(Map<Object, Object> settings) {
             return finish.cancel(settings);
         }
         
@@ -1152,23 +1150,23 @@ public class WizardPage extends JPanel implements WizardPanel {
          *  special handling if an instance of <code>DeferredWizardResult</code>
          *  or <code>Summary</code> is returned from this method.
          */
-        Object finish(Map wizardData) throws WizardException;
+        Object finish(Map<Object, Object> wizardData) throws WizardException;
 
         /**
          * Called when the user presses the cancel button.  Almost all
          * implementations will want to return true.
          */
-        boolean cancel(Map settings);
+        boolean cancel(Map<Object, Object> settings);
 
         /**
          * A no-op WizardResultProducer that returns null.
          */
         WizardResultProducer NO_OP = new WizardResultProducer() {
-            public Object finish(Map wizardData) {
+            public Object finish(Map<Object, Object> wizardData) {
                 return wizardData;
             }
 
-            public boolean cancel (Map settings) {
+            public boolean cancel (Map<Object, Object> settings) {
                 return true;
             }
             

@@ -45,7 +45,7 @@ public interface WizardPanel
      * and call the progress.finished method with one of those constants
      * (or call progress.failed with the error message)
      */
-    public WizardPanelNavResult allowNext (String stepName, Map settings, Wizard wizard);
+    public WizardPanelNavResult allowNext (String stepName, Map<Object, Object> settings, Wizard wizard);
 
     /**
      * This method is invoked when the "back" button has been pushed,
@@ -65,7 +65,7 @@ public interface WizardPanel
      * and call the progress.finished method with one of those constants.
      * (or call progress.failed with the error message)
      */
-    public WizardPanelNavResult allowBack (String stepName, Map settings, Wizard wizard);
+    public WizardPanelNavResult allowBack (String stepName, Map<Object, Object> settings, Wizard wizard);
 
     /**
      * This method is invoked when the "finish" button has been pushed,
@@ -83,7 +83,6 @@ public interface WizardPanel
      * and call the progress.finished method with one of those constants.
      * (or call progress.failed with the error message)
      */
-    public WizardPanelNavResult allowFinish (String stepName, Map settings, Wizard wizard);
+    public WizardPanelNavResult allowFinish (String stepName, Map<Object, Object> settings, Wizard wizard);
 
 }
-

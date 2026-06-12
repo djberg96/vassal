@@ -74,7 +74,7 @@ public abstract class WizardPanelNavResult extends DeferredWizardResult
             return value ? 1 : 2;
         }
         
-        public void start(Map settings, ResultProgressHandle progress)
+        public void start(Map<Object, Object> settings, ResultProgressHandle progress)
         {
             // Should never get here, this is supposed to be immediate!
             throw new RuntimeException("Immediate result was called as deferral!");
@@ -82,4 +82,3 @@ public abstract class WizardPanelNavResult extends DeferredWizardResult
         
     }
 }
-

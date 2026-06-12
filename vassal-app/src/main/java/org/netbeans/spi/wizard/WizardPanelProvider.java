@@ -187,7 +187,7 @@ public abstract class WizardPanelProvider {
      * @return A JComponent that should be displayed in the center of the
      *  wizard
      */
-    protected abstract JComponent createPanel (WizardController controller, String id, Map settings);
+    protected abstract JComponent createPanel (WizardController controller, String id, Map<Object, Object> settings);
     
     /**
      * Instantiate whatever object (if any) the wizard creates from its
@@ -216,7 +216,7 @@ public abstract class WizardPanelProvider {
      *  special handling if an instance of <code>DeferredWizardResult</code>
      *  or <code>Summary</code> is returned from this method.
      */
-    protected Object finish (Map settings) throws WizardException {
+    protected Object finish (Map<Object, Object> settings) throws WizardException {
         return settings;
     }
 
@@ -245,11 +245,11 @@ public abstract class WizardPanelProvider {
      * <code>WizardPage</code>s, you should call the super implementation if
      * you override this method.
      */
-    protected void recycleExistingPanel (String id, WizardController controller, Map wizardData, JComponent panel) {
+    protected void recycleExistingPanel (String id, WizardController controller, Map<Object, Object> wizardData, JComponent panel) {
         //do nothing
     }
 
-    void recycle (String id, WizardController controller, Map wizardData, JComponent panel) {
+    void recycle (String id, WizardController controller, Map<Object, Object> wizardData, JComponent panel) {
         if (panel instanceof WizardPage) {
             WizardPage page = (WizardPage) panel;
             page.setController(controller);
@@ -313,7 +313,7 @@ public abstract class WizardPanelProvider {
      *  want to return true - this is really only applicable in cases such
      *  as an OS installer or such).
      */
-    public boolean cancel(Map settings) {
+    public boolean cancel(Map<Object, Object> settings) {
         return true;
     }
     

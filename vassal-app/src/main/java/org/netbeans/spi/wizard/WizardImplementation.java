@@ -109,7 +109,7 @@ interface WizardImplementation {
      * @return The UI component for this step, which should be displayed in
      *   the wizard
      */
-    public JComponent navigatingTo(String id, Map wizardData);
+    public JComponent navigatingTo(String id, Map<Object, Object> wizardData);
 
     /**
      * Get the String ID of the current panel.
@@ -207,7 +207,7 @@ interface WizardImplementation {
      *  whatever this method needs to do (if not, that's a bug in the 
      *  implementation of <code>Wizard</code>).
      */
-    public Object finish(Map settings) throws WizardException;
+    public Object finish(Map<Object, Object> settings) throws WizardException;
     
     /** Get the title of the wizard.  
      *  @return A human-readable, localized title that should be displayed
@@ -242,5 +242,5 @@ interface WizardImplementation {
     /**
      * Called when the user cancels the wizard.
      */
-    public boolean cancel(Map settings);
+    public boolean cancel(Map<Object, Object> settings);
 }

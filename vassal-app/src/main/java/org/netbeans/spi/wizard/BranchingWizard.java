@@ -49,7 +49,7 @@ final class BranchingWizard implements WizardImplementation {
     private WL wl;
 
     private String currStep;
-    private Map wizardData;
+    private Map<Object, Object> wizardData;
 
     public BranchingWizard(WizardBranchController brancher) {
         this.brancher = brancher;
@@ -57,7 +57,7 @@ final class BranchingWizard implements WizardImplementation {
         setCurrent(initialSteps);
     }
 
-    protected final WizardImplementation createSecondary(Map settings) {
+    protected final WizardImplementation createSecondary(Map<Object, Object> settings) {
         Wizard wiz = brancher.getWizardForStep(currStep, settings);
         return wiz == null ? null : wiz.impl;
     }
@@ -135,7 +135,7 @@ final class BranchingWizard implements WizardImplementation {
         return activeWizard.isBusy();
     }
 
-    public final Object finish(Map settings) throws WizardException {
+    public final Object finish(Map<Object, Object> settings) throws WizardException {
         try {
             Object result = activeWizard.finish(settings);
             initialSteps.removeWizardObserver(wl);
@@ -272,7 +272,7 @@ final class BranchingWizard implements WizardImplementation {
         return activeWizard.getTitle();
     }
 
-    public final JComponent navigatingTo(String id, Map settings) {
+    public final JComponent navigatingTo(String id, Map<Object, Object> settings) {
         if (id == null) {
             throw new NullPointerException();
         }
@@ -326,7 +326,7 @@ final class BranchingWizard implements WizardImplementation {
         }
     }
 
-    public boolean cancel(Map settings) {
+    public boolean cancel(Map<Object, Object> settings) {
         return activeWizard == null ? true : activeWizard.cancel(settings);
     }
 

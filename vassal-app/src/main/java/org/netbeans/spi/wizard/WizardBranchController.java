@@ -116,7 +116,7 @@ public abstract class WizardBranchController {
      * @param settings The settings map, which previous panes of the wizard
      *  have been writing information into
      */
-    protected Wizard getWizardForStep(String step, Map settings) {
+    protected Wizard getWizardForStep(String step, Map<Object, Object> settings) {
         WizardPanelProvider provider = getPanelProviderForStep(step, settings);
         return provider == null ? null : provider.createWizard();
     }
@@ -138,7 +138,7 @@ public abstract class WizardBranchController {
      * @param settings The settings map, which previous panes of the wizard
      *   will have written content into
      */
-    protected WizardPanelProvider getPanelProviderForStep(String step, Map settings) {
+    protected WizardPanelProvider getPanelProviderForStep(String step, Map<Object, Object> settings) {
         throw new Error ("Override either createInfoForStep or " +
                 "createWizardForStep");
     }

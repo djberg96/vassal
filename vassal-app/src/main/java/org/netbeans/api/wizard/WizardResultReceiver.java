@@ -41,5 +41,5 @@ public interface WizardResultReceiver {
      * @param settings The settings that were gathered thus far in the
      *  wizard
      */ 
-    void cancelled (Map settings);
+    void cancelled (Map<Object, Object> settings);
 }

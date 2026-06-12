@@ -80,7 +80,7 @@ public abstract class DeferredWizardResult {
      * @param settings The settings gathered over the course of the wizard
      * @param progress A handle which can be used to affect the progress bar.
      */
-    public abstract void start (Map settings, ResultProgressHandle progress);
+    public abstract void start (Map<Object, Object> settings, ResultProgressHandle progress);
     
     /**
      * If true, the background thread can be aborted.  If it is possible to 

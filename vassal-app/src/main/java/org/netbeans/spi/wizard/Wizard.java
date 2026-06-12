@@ -133,7 +133,7 @@ public final class Wizard {
      * @return The component that should be shown for step <code>id</code>
      *  of the <code>Wizard</code>
      */ 
-    public JComponent navigatingTo(String id, Map<?, ?> wizardData) {
+    public JComponent navigatingTo(String id, Map<Object, Object> wizardData) {
         return impl.navigatingTo(id, wizardData);
     }
 
@@ -218,7 +218,7 @@ public final class Wizard {
      *  DeferredWizardResult and Summary which will affect the behavior of
      *  the UI.
      */ 
-    public Object finish(Map<?, ?> settings) throws WizardException {
+    public Object finish(Map<Object, Object> settings) throws WizardException {
         return impl.finish(settings);
     }
 
@@ -230,7 +230,7 @@ public final class Wizard {
      * @return true if the UI may indeed be closed, false if closing should
      *   not be permitted
      */ 
-    public boolean cancel(Map<?, ?> settings) {
+    public boolean cancel(Map<Object, Object> settings) {
         return impl.cancel(settings);
     }
 

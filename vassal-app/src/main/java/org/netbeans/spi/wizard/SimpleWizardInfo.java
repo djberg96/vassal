@@ -107,7 +107,7 @@ final class SimpleWizardInfo implements WizardControllerImplementation {
      *   the wizard
      * @return A JComponent
      */
-    protected JComponent createPanel (String id, Map settings) {
+    protected JComponent createPanel (String id, Map<Object, Object> settings) {
         try {
             JComponent result = provider.createPanel(controller, id, settings);
             if (result instanceof WizardPage) {
@@ -131,7 +131,7 @@ final class SimpleWizardInfo implements WizardControllerImplementation {
      * Instantiate whatever object (if any) the wizard creates from its
      * gathered data.
      */
-    protected Object finish (Map settings) throws WizardException {
+    protected Object finish (Map<Object, Object> settings) throws WizardException {
         //XXX fixme
 //        assert canFinish();
         
@@ -168,7 +168,7 @@ final class SimpleWizardInfo implements WizardControllerImplementation {
      * Settings map instance that was passed to <code>createPanel()</code>
      * when the panel was created.
      */
-    protected void recycleExistingPanel (String id, Map settings, JComponent panel) {
+    protected void recycleExistingPanel (String id, Map<Object, Object> settings, JComponent panel) {
         provider.recycle(id, controller, settings, panel);
     }
 
@@ -331,7 +331,7 @@ final class SimpleWizardInfo implements WizardControllerImplementation {
         return result + (title == null ? 0 : title.hashCode());
     }    
 
-    boolean cancel(Map settings) {
+    boolean cancel(Map<Object, Object> settings) {
         return provider.cancel(settings);
     }
     

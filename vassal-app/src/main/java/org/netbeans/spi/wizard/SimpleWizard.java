@@ -99,7 +99,7 @@ final class SimpleWizard implements WizardImplementation {
         return info.getLongDescription (id);
     }
     
-    public JComponent navigatingTo(String id, Map settings) {
+    public JComponent navigatingTo(String id, Map<Object, Object> settings) {
 //        assert SwingUtilities.isEventDispatchThread();
 
         // if info.getSteps() does not yet contain the ID, then create it
@@ -171,11 +171,11 @@ final class SimpleWizard implements WizardImplementation {
         }
     }
 
-    public Object finish(Map settings) throws WizardException {
+    public Object finish(Map<Object, Object> settings) throws WizardException {
         return info.finish(settings);
     }
 
-    public boolean cancel(Map settings) {
+    public boolean cancel(Map<Object, Object> settings) {
         return info.cancel(settings);
     }
     
