@@ -601,19 +601,25 @@ class Types
 				&& fromType != Void.TYPE && fromType != null )
 			{
 				// primitive to wrapper type
-				return checkOnly ? VALID_CAST :
-					Primitive.castWrapper( 
-						Primitive.unboxType(toType), 
-						((Primitive)fromValue).getValue() );
-			}
+				if ( checkOnly )
+					return VALID_CAST;
 
+				final Primitive primitiveFromValue = (Primitive)fromValue;
+				return Primitive.castWrapper(
+					Primitive.unboxType(toType),
+					primitiveFromValue.getValue() );
+			}
+	
 			// Primitive (not null or void) to Object.class type
 			if ( toType == Object.class 
 				&& fromType != Void.TYPE && fromType != null )
 			{
 				// box it
-				return checkOnly ? VALID_CAST :
-					((Primitive)fromValue).getValue();
+				if ( checkOnly )
+					return VALID_CAST;
+
+				final Primitive primitiveFromValue = (Primitive)fromValue;
+				return primitiveFromValue.getValue();
 			}
 
 			// Primitive to arbitrary object type. 
@@ -635,16 +641,25 @@ class Types
 		if ( toType.isInterface() 
 			&& bsh.This.class.isAssignableFrom( fromType ) 
 		)
-			return checkOnly ? VALID_CAST : 
-				((bsh.This)fromValue).getInterface( toType );
+		{
+			if ( checkOnly )
+				return VALID_CAST;
+
+			final bsh.This scriptedObject = (bsh.This)fromValue;
+			return scriptedObject.getInterface( toType );
+		}
 
 		// Both numeric wrapper types? 
 		// Try numeric style promotion wrapper cast
 		if ( Primitive.isWrapperType( toType ) 
 			&& Primitive.isWrapperType( fromType ) 
 		)
-			return checkOnly ? VALID_CAST :
-				Primitive.castWrapper( toType, fromValue );
+		{
+			if ( checkOnly )
+				return VALID_CAST;
+
+			return Primitive.castWrapper( toType, fromValue );
+		}
 		
 		if ( checkOnly )
 			return INVALID_CAST;
