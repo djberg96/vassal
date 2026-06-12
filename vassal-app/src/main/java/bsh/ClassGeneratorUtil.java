@@ -803,6 +803,9 @@ public class ClassGeneratorUtil implements Constants {
 		if (altConstructor == null) {
 			return ConstructorArgs.DEFAULT;
 		} // use default super constructor
+		if (argsNode == null) {
+			throw new InterpreterError("Missing constructor arguments for " + altConstructor + "()");
+		}
 
 		// Make a tmp namespace to hold the original constructor args for
 		// use in eval of the parameters node
