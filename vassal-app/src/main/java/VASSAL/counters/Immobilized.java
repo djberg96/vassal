@@ -47,7 +47,7 @@ import java.util.Objects;
  * selection interface and has not worked since v3.0.
  *
  */
-public class Immobilized extends Decorator implements EditablePiece {
+public class Immobilized extends Decorator {
 
   public static final String ID = "immob;"; // NON-NLS
   protected boolean shiftToSelect = false;

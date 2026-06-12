@@ -63,7 +63,7 @@ import java.util.stream.Collectors;
  * @author rkinney
  *
  */
-public class DynamicProperty extends Decorator implements TranslatablePiece, PropertyPrompt.DialogParent, PropertyChangerConfigurer.Constraints {
+public class DynamicProperty extends Decorator implements TranslatablePiece, PropertyChangerConfigurer.Constraints {
 
   public static final String ID = "PROP;"; // NON-NLS
 

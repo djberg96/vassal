@@ -48,7 +48,7 @@ import javax.swing.KeyStroke;
  *  - Variable list of Key Commands to restrict
  *  - Disable or Invisible
  * */
-public class RestrictCommands extends Decorator implements EditablePiece {
+public class RestrictCommands extends Decorator {
 
   public static final String ID = "hideCmd;"; // NON-NLS
   protected static final String HIDE = "Hide"; // NON-NLS

@@ -63,7 +63,7 @@ import java.util.Objects;
  * module.
  *
  */
-public final class UsePrototype extends Decorator implements EditablePiece, Loopable {
+public final class UsePrototype extends Decorator implements Loopable {
   public static final String ID = "prototype;"; // NON-NLS
   private String prototypeName;
   private String lastCachedPrototype;

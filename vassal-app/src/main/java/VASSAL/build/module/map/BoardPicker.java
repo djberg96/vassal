@@ -37,7 +37,6 @@ import VASSAL.configure.DoubleConfigurer;
 import VASSAL.configure.IntConfigurer;
 import VASSAL.configure.StringConfigurer;
 import VASSAL.configure.ValidationReport;
-import VASSAL.configure.ValidityChecker;
 import VASSAL.i18n.ComponentI18nData;
 import VASSAL.i18n.Localization;
 import VASSAL.i18n.Resources;
@@ -79,7 +78,7 @@ import java.util.stream.Collectors;
  * recognizes {@link Command}s that specify the set of boards to be used on a map. As a {@link GameComponent} it reacts
  * to the start of a game by prompting the player to select boards if none have been specified.
  */
-public class BoardPicker extends AbstractBuildable implements ActionListener, GameComponent, GameSetupStep, Configurable, CommandEncoder, ValidityChecker {
+public class BoardPicker extends AbstractBuildable implements ActionListener, GameComponent, GameSetupStep, Configurable, CommandEncoder {
   public static final String ID = "BoardPicker"; //$NON-NLS-1$
   protected List<Board> possibleBoards = new ArrayList<>();
   protected List<Board> currentBoards = null;

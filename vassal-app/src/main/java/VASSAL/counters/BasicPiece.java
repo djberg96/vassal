@@ -26,7 +26,6 @@ import VASSAL.build.module.Map;
 import VASSAL.build.module.documentation.HelpFile;
 import VASSAL.build.module.map.boardPicker.Board;
 import VASSAL.build.module.map.boardPicker.board.mapgrid.Zone;
-import VASSAL.build.module.properties.PropertyNameSource;
 import VASSAL.command.AddPiece;
 import VASSAL.command.ChangePiece;
 import VASSAL.command.Command;
@@ -65,7 +64,7 @@ import java.util.Objects;
  * Note like traits, BasicPiece implements GamePiece (via TranslatablePiece), but UNLIKE traits it is NOT a
  * Decorator, and thus must be treated specially.
  */
-public class BasicPiece extends AbstractImageFinder implements TranslatablePiece, StateMergeable, PropertyNameSource, PersistentPropertyContainer,
+public class BasicPiece extends AbstractImageFinder implements TranslatablePiece, StateMergeable, PersistentPropertyContainer,
   PropertyExporter {
 
   public static final String ID = "piece;"; // NON-NLS

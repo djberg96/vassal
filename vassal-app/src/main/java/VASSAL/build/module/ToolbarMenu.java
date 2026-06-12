@@ -41,7 +41,6 @@ import java.awt.Component;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -56,9 +55,7 @@ import java.util.Map;
  *
  */
 public class ToolbarMenu extends AbstractToolbarItem
-                         implements ContainerListener,
-                                    PropertyChangeListener,
-                                    GameComponent {
+                         implements ContainerListener {
   public static final String DESCRIPTION = "description"; //NON-NLS //non-standard legacy name key different from AbstractToolbarItem
 
   public static final String MENU_ITEMS = "menuItems"; //$NON-NLS-1$

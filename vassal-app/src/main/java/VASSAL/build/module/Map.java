@@ -216,7 +216,7 @@ import static java.lang.Math.round;
  * are currently "selected" and forwards key commands to them, {@link MenuDisplayer} which listens for "right clicks" and provides
  * "context menu" services, and {@link StackMetrics} which handles the "stacking" of game pieces.
  */
-public class Map extends AbstractToolbarItem implements GameComponent, MouseListener, MouseMotionListener, DropTargetListener, Configurable,
+public class Map extends AbstractToolbarItem implements MouseListener, MouseMotionListener, DropTargetListener,
     UniqueIdManager.Identifyable, ToolBarComponent, MutablePropertiesContainer, PropertySource, PlayerRoster.SideChangeListener, ComponentDescription {
   protected static boolean changeReportingEnabled = true;
   protected String mapID = ""; //$NON-NLS-1$

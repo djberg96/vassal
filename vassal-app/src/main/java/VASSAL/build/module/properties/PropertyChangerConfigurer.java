@@ -325,7 +325,7 @@ public class PropertyChangerConfigurer extends Configurer {
     setValue(p);
   }
 
-  public interface Constraints extends PropertyPrompt.Constraints, IncrementProperty.Constraints, PropertySource {
+  public interface Constraints extends PropertyPrompt.Constraints, IncrementProperty.Constraints {
   }
 
   @Override

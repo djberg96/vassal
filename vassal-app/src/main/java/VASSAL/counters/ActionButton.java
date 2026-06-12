@@ -76,7 +76,7 @@ import java.util.StringTokenizer;
  *
  * @author rkinney
  */
-public class ActionButton extends Decorator implements EditablePiece, Loopable {
+public class ActionButton extends Decorator implements Loopable {
   public static final String ID = "button;"; // NON-NLS
   public static final String LAUNCH_POPUP_MENU = "LaunchPopupMenu"; //NON-NLS
   public static final int ACTION_BUTTON_VERSION = 1;

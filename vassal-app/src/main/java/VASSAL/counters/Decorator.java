@@ -23,7 +23,6 @@ import VASSAL.build.module.GameState;
 import VASSAL.build.module.Map;
 import VASSAL.build.module.map.boardPicker.Board;
 import VASSAL.build.module.map.boardPicker.board.mapgrid.Zone;
-import VASSAL.build.module.properties.PropertyNameSource;
 import VASSAL.build.module.properties.PropertySource;
 import VASSAL.command.ChangePiece;
 import VASSAL.command.ChangeTracker;
@@ -77,8 +76,8 @@ import static VASSAL.counters.Mat.MAT_NAME;
  * So a full logical GamePiece (the thing you see on the board), may consist of many Decorator instances (one for each trait) wrapped around the
  * BasicPiece.
  */
-public abstract class Decorator extends AbstractImageFinder implements EditablePiece, StateMergeable, PropertyNameSource, PersistentPropertyContainer,
-  PropertyExporter, SearchTarget, ImageSearchTarget {
+public abstract class Decorator extends AbstractImageFinder implements EditablePiece, StateMergeable, PersistentPropertyContainer,
+  PropertyExporter, SearchTarget {
 
   protected GamePiece piece;
   private GamePiece innermost;

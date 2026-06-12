@@ -29,7 +29,6 @@ import VASSAL.build.module.map.boardPicker.Board;
 import VASSAL.build.module.map.deck.DeckKeyCommand;
 import VASSAL.build.module.map.deck.DeckSendKeyCommand;
 import VASSAL.build.module.map.deck.DeckSortKeyCommand;
-import VASSAL.build.module.properties.PropertyNameSource;
 import VASSAL.build.module.properties.PropertySource;
 import VASSAL.build.widget.CardSlot;
 import VASSAL.command.AddPiece;
@@ -65,7 +64,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class DrawPile extends SetupStack implements PropertySource, PropertyNameSource, ComponentDescription {
+public class DrawPile extends SetupStack implements PropertySource, ComponentDescription {
   public static final String DESCRIPTION = "description"; //NON-NLS
 
   protected Deck dummy = new Deck(GameModule.getGameModule()); // Used for storing type information

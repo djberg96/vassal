@@ -78,8 +78,7 @@ import java.util.Random;
  * A Decorator that rotates a GamePiece to an arbitrary angle
  */
 public class FreeRotator extends Decorator
-                         implements EditablePiece,
-                                    MouseListener,
+                         implements MouseListener,
                                     MouseMotionListener,
                                     Drawable,
                                     TranslatablePiece {
@@ -1102,4 +1101,3 @@ public class FreeRotator extends Decorator
     return List.of(setAngleText, rotateCWText, rotateCCWText, rotateRNDText);
   }
 }
-

@@ -31,7 +31,6 @@ import VASSAL.configure.ComponentDescription;
 import VASSAL.configure.Configurer;
 import VASSAL.configure.StringConfigurer;
 import VASSAL.configure.ValidationReport;
-import VASSAL.configure.ValidityChecker;
 import VASSAL.counters.BasicName;
 import VASSAL.counters.BasicPiece;
 import VASSAL.counters.Decorator;
@@ -66,7 +65,6 @@ import java.util.HashMap;
 
 public class PrototypeDefinition extends AbstractConfigurable
                                  implements UniqueIdManager.Identifyable,
-                                            ValidityChecker,
                                             ComponentDescription {
   private String name = "Prototype"; //$NON-NLS-1$
   private String description = "";

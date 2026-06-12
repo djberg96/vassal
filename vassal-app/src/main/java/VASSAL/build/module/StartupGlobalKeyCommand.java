@@ -48,7 +48,7 @@ import java.util.List;
  * @author Pieter Geerkens, Brian Reynolds
  *
  */
-public final class StartupGlobalKeyCommand extends GlobalKeyCommand implements GameComponent, CommandEncoder, UniqueIdManager.Identifyable {
+public final class StartupGlobalKeyCommand extends GlobalKeyCommand implements CommandEncoder, UniqueIdManager.Identifyable {
   public static final String WHEN_TO_APPLY                   = "whenToApply";          //NON-NLS
   public static final String APPLY_FIRST_LAUNCH_OF_SESSION   = "firstLaunchOfSession"; //NON-NLS
   public static final String APPLY_EVERY_LAUNCH_OF_SESSION   = "everyLaunchOfSession"; //NON-NLS

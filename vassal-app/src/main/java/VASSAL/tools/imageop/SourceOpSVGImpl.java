@@ -43,7 +43,7 @@ import VASSAL.tools.image.svg.SVGRenderer;
  * @author Joel Uckelman
  */
 public class SourceOpSVGImpl extends AbstractTiledOpImpl
-                             implements SourceOp, SVGOp {
+                             implements SVGOp {
   /** The name of the image file. */
   protected final String name;
 

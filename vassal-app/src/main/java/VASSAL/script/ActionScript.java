@@ -37,7 +37,6 @@ import VASSAL.configure.Configurer;
 import VASSAL.configure.StringConfigurer;
 import VASSAL.configure.TextConfigurer;
 import VASSAL.configure.ValidationReport;
-import VASSAL.configure.ValidityChecker;
 import VASSAL.tools.UniqueIdManager;
 
 /**
@@ -45,7 +44,7 @@ import VASSAL.tools.UniqueIdManager;
  *
  */
 public class ActionScript extends AbstractScript
-   implements UniqueIdManager.Identifyable, ValidityChecker {
+   implements UniqueIdManager.Identifyable {
 
   private static final UniqueIdManager idMgr = new UniqueIdManager("Action-"); //NON-NLS
 

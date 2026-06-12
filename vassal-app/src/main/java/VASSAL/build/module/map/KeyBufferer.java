@@ -26,7 +26,6 @@ import java.awt.Rectangle;
 import java.awt.Stroke;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseMotionListener;
 
 import javax.swing.JComponent;
 
@@ -77,7 +76,7 @@ import static VASSAL.counters.Mat.MAT_NAME;
  * <br><br>
  * @see Map#addLocalMouseListener
  */
-public class KeyBufferer extends MouseAdapter implements Buildable, MouseMotionListener, Drawable {
+public class KeyBufferer extends MouseAdapter implements Buildable, Drawable {
   protected Map map;                            // Parent map
   protected Rectangle selection;                // Current lasso/band-select bounds.
   protected Point anchor;                       // Anchor point for band-select

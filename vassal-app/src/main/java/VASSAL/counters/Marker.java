@@ -40,7 +40,7 @@ import VASSAL.tools.SequenceEncoder;
  * that is one of {@link #getKeys()}, the <code>String</code> value of that
  * property will be reflected in the #myGetState() method.
  */
-public class Marker extends Decorator implements EditablePiece {
+public class Marker extends Decorator {
   public static final String ID = "mark;"; // NON-NLS
 
   protected String[] keys;

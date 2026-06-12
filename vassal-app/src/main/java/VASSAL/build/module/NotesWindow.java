@@ -52,7 +52,7 @@ import java.awt.event.WindowEvent;
  * him
  */
 public final class NotesWindow extends AbstractToolbarItem
-    implements GameComponent, CommandEncoder, ComponentDescription {
+    implements CommandEncoder, ComponentDescription {
 
   public static final String BUTTON_TEXT = "buttonText"; //NON-NLS // non-standard legacy difference from AbstractToolbarItem
   public static final String DESCRIPTION = "description"; //NON-NLS

@@ -79,7 +79,7 @@ import org.apache.commons.lang3.StringUtils;
  * */
 public class LOS_Thread extends AbstractToolbarItem implements
     MouseListener, MouseMotionListener,
-    Drawable, Configurable,
+    Drawable,
     UniqueIdManager.Identifyable,
     CommandEncoder {
 

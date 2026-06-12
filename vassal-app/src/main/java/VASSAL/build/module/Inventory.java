@@ -107,8 +107,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Inventory extends AbstractToolbarItem
-                       implements GameComponent,
-                                  PlayerRoster.SideChangeListener {
+                       implements PlayerRoster.SideChangeListener {
 
   public static final String REFRESH_HOTKEY = "refreshHotkey"; //NON-NLS
   protected NamedKeyStrokeListener refreshListener;

@@ -45,7 +45,7 @@ import javax.swing.KeyStroke;
  *
  * A GamePiece with the Restricted trait can only be manipulated by the player playing a specific side
  */
-public class Restricted extends Decorator implements EditablePiece {
+public class Restricted extends Decorator {
   public static final String ID = "restrict;"; // NON-NLS
   private String[] side;
   private boolean restrictByPlayer;

@@ -39,7 +39,7 @@ import VASSAL.i18n.Resources;
  * This component places a button into the controls window toolbar. Pressing the button generates random numbers and
  * displays the result in the Chatter
  */
-public class InternetDiceButton extends DiceButton implements GameComponent, CommandEncoder {
+public class InternetDiceButton extends DiceButton implements CommandEncoder {
   protected static DieManager dieManager;
   private static final String COMMAND_PREFIX = "SEMAIL\t"; //$NON-NLS-1$
   /** Report format variale */

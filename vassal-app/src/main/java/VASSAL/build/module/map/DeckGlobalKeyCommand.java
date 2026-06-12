@@ -42,7 +42,6 @@ import VASSAL.script.expression.Auditable;
 import VASSAL.script.expression.Expression;
 import VASSAL.script.expression.FormattedStringExpression;
 import VASSAL.tools.NamedKeyStroke;
-import VASSAL.tools.RecursionLimiter;
 import VASSAL.tools.RecursionLimiter.Loopable;
 import VASSAL.tools.SequenceEncoder;
 
@@ -71,7 +70,7 @@ import java.util.List;
  * Individual counters processing the GKC will generate their own internal audit trails.
  *
  */
-public final class DeckGlobalKeyCommand extends MassKeyCommand implements RecursionLimiter.Loopable {
+public final class DeckGlobalKeyCommand extends MassKeyCommand {
   private static final String[] ATTRIBUTE_NAMES = {
     NAME,
     KEY_COMMAND,

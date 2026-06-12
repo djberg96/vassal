@@ -65,7 +65,7 @@ import java.util.Objects;
 /**
  * Maintains a list of players involved in the current game
  */
-public class PlayerRoster extends AbstractToolbarItem implements CommandEncoder, GameComponent, GameSetupStep, ComponentDescription {
+public class PlayerRoster extends AbstractToolbarItem implements CommandEncoder, GameSetupStep, ComponentDescription {
   public static final String DESCRIPTION = "description"; //NON-NLS
 
   public static final String BUTTON_ICON = "buttonIcon"; //$NON-NLS-1$

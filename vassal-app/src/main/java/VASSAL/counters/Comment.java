@@ -37,7 +37,7 @@ import java.util.Objects;
  * Behaviour should be exactly the same as a UsePrototype trait that does
  * not have a matching definition for the selected protoype.
  */
-public class Comment extends Decorator implements EditablePiece {
+public class Comment extends Decorator {
   public static final String ID = "cmt;"; // NON-NLS
   private String comment;
 

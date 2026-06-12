@@ -38,7 +38,7 @@ import VASSAL.tools.swing.SwingUtils;
  * @since 3.1.0
  * @author Joel Uckelman
  */
-public class OpIcon extends ImageIcon implements Icon {
+public class OpIcon extends ImageIcon {
   private static final long serialVersionUID = 1L;
   protected transient ImageOp sop;
 

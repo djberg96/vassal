@@ -45,7 +45,7 @@ import javax.swing.KeyStroke;
  * Conditional Marker
  * A marker with a variable value depending on conditions.
  * */
-public class CalculatedProperty extends Decorator implements EditablePiece, Loopable {
+public class CalculatedProperty extends Decorator implements Loopable {
 
   public static final String ID = "calcProp;"; // NON-NLS
 

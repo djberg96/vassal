@@ -23,7 +23,6 @@ import VASSAL.build.AbstractToolbarItem;
 import VASSAL.build.AutoConfigurable;
 import VASSAL.build.Buildable;
 import VASSAL.build.GameModule;
-import VASSAL.build.module.GameComponent;
 import VASSAL.build.module.Map;
 import VASSAL.build.module.documentation.HelpFile;
 import VASSAL.build.module.map.boardPicker.Board;
@@ -74,7 +73,7 @@ import java.util.List;
  *
  * @author Brent Easton
  */
-public class MapShader extends AbstractToolbarItem implements GameComponent, Drawable, UniqueIdManager.Identifyable {
+public class MapShader extends AbstractToolbarItem implements Drawable, UniqueIdManager.Identifyable {
 
   public static final String NAME = "name"; //NON-NLS
   public static final String HOT_KEY = "hotkey"; //NON-NLS

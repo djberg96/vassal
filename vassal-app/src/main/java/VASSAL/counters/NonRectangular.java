@@ -75,7 +75,7 @@ import org.apache.commons.lang3.tuple.Pair;
  *
  * @see GamePiece#getShape
  */
-public class NonRectangular extends Decorator implements EditablePiece {
+public class NonRectangular extends Decorator {
   public static final String ID = "nonRect2;"; //NON-NLS
   public static final String OLD_ID = "nonRect;"; // NON-NLS
   private static final Map<String, Pair<String, Shape>> cache = new HashMap<>();
