@@ -83,7 +83,7 @@ final class Reflect {
 		// Plain Java object, find the java method
 		try {
 			BshClassManager bcm = interpreter == null ? null : interpreter.getClassManager();
-			Class clas = object.getClass();
+			Class<?> clas = object.getClass();
 
 			Method method = resolveExpectedJavaMethod(bcm, clas, object, methodName, args, false);
 
@@ -99,7 +99,7 @@ final class Reflect {
 	 * No object instance is needed and there is no possibility of the
 	 * method being a bsh scripted method.
 	 */
-	public static Object invokeStaticMethod(BshClassManager bcm, Class clas, String methodName, Object[] args) throws ReflectError, UtilEvalError, InvocationTargetException {
+	public static Object invokeStaticMethod(BshClassManager bcm, Class<?> clas, String methodName, Object[] args) throws ReflectError, UtilEvalError, InvocationTargetException {
 		Interpreter.debug("invoke static Method");
 		Method method = resolveExpectedJavaMethod(bcm, clas, null, methodName, args, true);
 		return invokeMethod(method, null, args);
@@ -122,7 +122,7 @@ final class Reflect {
 		boolean isVarArgs = method.isVarArgs();
 
 		// Map types to assignable forms, need to keep this fast...
-		Class[] types = method.getParameterTypes();
+		Class<?>[] types = method.getParameterTypes();
 		Object[] tmpArgs = new Object[types.length];
 		int fixedArgLen = types.length;
 		if (isVarArgs) {
@@ -137,7 +137,7 @@ final class Reflect {
 				tmpArgs[i] = Types.castObject(args[i]/*rhs*/, types[i]/*lhsType*/, Types.ASSIGNMENT);
 			}
 			if (isVarArgs) {
-				Class varType = types[fixedArgLen].getComponentType();
+				Class<?> varType = types[fixedArgLen].getComponentType();
 				Object varArgs = Array.newInstance(varType, args.length - fixedArgLen);
 				for (int i = fixedArgLen, j = 0; i < args.length; i++, j++) {
 					Array.set(varArgs, j, Primitive.unwrap(Types.castObject(args[i]/*rhs*/, varType/*lhsType*/, Types.ASSIGNMENT)));
@@ -158,7 +158,7 @@ final class Reflect {
 			if (returnValue == null) {
 				returnValue = Primitive.NULL;
 			}
-			Class returnType = method.getReturnType();
+			Class<?> returnType = method.getReturnType();
 
 			return Primitive.wrap(returnValue, returnType);
 		} catch (IllegalAccessException e) {
@@ -197,7 +197,7 @@ final class Reflect {
 	}
 
 
-	public static Object getStaticFieldValue(Class clas, String fieldName) throws UtilEvalError, ReflectError {
+	public static Object getStaticFieldValue(Class<?> clas, String fieldName) throws UtilEvalError, ReflectError {
 		return getFieldValue(clas, null, fieldName, true/*onlystatic*/);
 	}
 
@@ -226,7 +226,7 @@ final class Reflect {
 	}
 
 
-	static LHS getLHSStaticField(Class clas, String fieldName) throws UtilEvalError, ReflectError {
+	static LHS getLHSStaticField(Class<?> clas, String fieldName) throws UtilEvalError, ReflectError {
 		Field f = resolveExpectedJavaField(clas, fieldName, true/*onlystatic*/);
 		return new LHS(f);
 	}
@@ -260,12 +260,12 @@ final class Reflect {
 	}
 
 
-	private static Object getFieldValue(Class clas, Object object, String fieldName, boolean staticOnly) throws UtilEvalError, ReflectError {
+	private static Object getFieldValue(Class<?> clas, Object object, String fieldName, boolean staticOnly) throws UtilEvalError, ReflectError {
 		try {
 			Field f = resolveExpectedJavaField(clas, fieldName, staticOnly);
 
 			Object value = f.get(object);
-			Class returnType = f.getType();
+			Class<?> returnType = f.getType();
 			return Primitive.wrap(value, returnType);
 
 		} catch (NullPointerException e) { // shouldn't happen
@@ -283,7 +283,7 @@ final class Reflect {
 		 */
 
 
-	protected static Field resolveJavaField(Class clas, String fieldName, boolean staticOnly) throws UtilEvalError {
+	protected static Field resolveJavaField(Class<?> clas, String fieldName, boolean staticOnly) throws UtilEvalError {
 		try {
 			return resolveExpectedJavaField(clas, fieldName, staticOnly);
 		} catch (ReflectError e) {
@@ -299,7 +299,7 @@ final class Reflect {
 			 Note: this should really just throw NoSuchFieldException... need
 			 to change related signatures and code.
 		 */
-	protected static Field resolveExpectedJavaField(Class clas, String fieldName, boolean staticOnly) throws UtilEvalError, ReflectError {
+	protected static Field resolveExpectedJavaField(Class<?> clas, String fieldName, boolean staticOnly) throws UtilEvalError, ReflectError {
 		Field field;
 		try {
 			if (Capabilities.haveAccessibility()) {
@@ -340,7 +340,7 @@ final class Reflect {
 			 This method should be rewritten to use getFields() and avoid catching
 			 exceptions during the search.
 		 */
-	private static Field findAccessibleField(Class clas, String fieldName) throws UtilEvalError, NoSuchFieldException {
+	private static Field findAccessibleField(Class<?> clas, String fieldName) throws UtilEvalError, NoSuchFieldException {
 		// Quick check catches public fields include those in interfaces
         try {
             return clas.getField(fieldName);
@@ -373,13 +373,13 @@ final class Reflect {
 	 * This method wraps resolveJavaMethod() and expects a non-null method
 	 * result. If the method is not found it throws a descriptive ReflectError.
 	 */
-	protected static Method resolveExpectedJavaMethod(BshClassManager bcm, Class clas, Object object, String name, Object[] args, boolean staticOnly) throws ReflectError, UtilEvalError {
+	protected static Method resolveExpectedJavaMethod(BshClassManager bcm, Class<?> clas, Object object, String name, Object[] args, boolean staticOnly) throws ReflectError, UtilEvalError {
 		if (object == Primitive.NULL) {
 			//noinspection ThrowableInstanceNeverThrown
 			throw new UtilTargetError(new NullPointerException("Attempt to invoke method " + name + " on null value"));
 		}
 
-		Class[] types = Types.getTypes(args);
+		Class<?>[] types = Types.getTypes(args);
 		Method method = resolveJavaMethod(bcm, clas, name, types, staticOnly);
 
 		if (method == null) {
@@ -416,7 +416,7 @@ final class Reflect {
 	 * @param staticOnly The method located must be static, the object param may be null.
 	 * @return the method or null if no matching method was found.
 	 */
-	protected static Method resolveJavaMethod(BshClassManager bcm, Class clas, String name, Class[] types, boolean staticOnly) throws UtilEvalError {
+	protected static Method resolveJavaMethod(BshClassManager bcm, Class<?> clas, String name, Class<?>[] types, boolean staticOnly) throws UtilEvalError {
 		if (clas == null) {
 			throw new InterpreterError("null class");
 		}
@@ -472,7 +472,7 @@ final class Reflect {
 	 *
 	 * @return the method or null for not found
 	 */
-	private static Method findOverloadedMethod(final Class baseClass, final String methodName, final Class[] types, final boolean publicOnly) {
+	private static Method findOverloadedMethod(final Class<?> baseClass, final String methodName, final Class<?>[] types, final boolean publicOnly) {
 		if (Interpreter.DEBUG) {
 			Interpreter.debug("Searching for method: " + StringUtil.methodString(methodName, types) + " in '" + baseClass.getName() + "'");
 		}
@@ -502,8 +502,8 @@ final class Reflect {
 	 * and we have to find the same public method in a parent class or
 	 * interface.
 	 */
-	private static void collectMethods(final Class baseClass, final String methodName, final int numArgs, final Collection<Method> publicMethods, final Collection<Method> nonPublicMethods) {
-		final Class superclass = baseClass.getSuperclass();
+	private static void collectMethods(final Class<?> baseClass, final String methodName, final int numArgs, final Collection<Method> publicMethods, final Collection<Method> nonPublicMethods) {
+		final Class<?> superclass = baseClass.getSuperclass();
 		if (superclass != null) {
 			collectMethods(superclass, methodName, numArgs, publicMethods, nonPublicMethods);
 		}
@@ -517,7 +517,7 @@ final class Reflect {
 				}
 			}
 		}
-		for (final Class interfaceClass :baseClass.getInterfaces()){
+		for (final Class<?> interfaceClass :baseClass.getInterfaces()){
 			collectMethods(interfaceClass, methodName, numArgs, publicMethods, nonPublicMethods);
 		}
 	}
@@ -538,21 +538,21 @@ final class Reflect {
 	 * flag on the method as necessary.
 	 * <p/>
 	 */
-	static Object constructObject(Class clas, Object[] args) throws ReflectError, InvocationTargetException {
+	static Object constructObject(Class<?> clas, Object[] args) throws ReflectError, InvocationTargetException {
 		if (clas.isInterface()) {
 			throw new ReflectError("Can't create instance of an interface: " + clas);
 		}
 
-		Class[] types = Types.getTypes(args);
+		Class<?>[] types = Types.getTypes(args);
 
 		// Find the constructor.
 		// (there are no inherited constructors to worry about)
-		Constructor[] constructors = Capabilities.haveAccessibility() ? clas.getDeclaredConstructors() : clas.getConstructors();
+		Constructor<?>[] constructors = Capabilities.haveAccessibility() ? clas.getDeclaredConstructors() : clas.getConstructors();
 
 		if (Interpreter.DEBUG) {
 			Interpreter.debug("Looking for most specific constructor: " + clas);
 		}
-		Constructor con = findMostSpecificConstructor(types, constructors);
+		Constructor<?> con = findMostSpecificConstructor(types, constructors);
 		if (con == null) {
 			throw cantFindConstructor(clas, types);
 		}
@@ -579,14 +579,14 @@ final class Reflect {
 			The only reason it can't be combined is that Method and Constructor
 			don't have a common interface for their signatures
 		*/
-	static Constructor findMostSpecificConstructor(Class[] idealMatch, Constructor[] constructors) {
+	static Constructor<?> findMostSpecificConstructor(Class<?>[] idealMatch, Constructor<?>[] constructors) {
 		int match = findMostSpecificConstructorIndex(idealMatch, constructors);
 		return (match == -1) ? null : constructors[match];
 	}
 
 
-	static int findMostSpecificConstructorIndex(Class[] idealMatch, Constructor[] constructors) {
-		Class[][] candidates = new Class[constructors.length][];
+	static int findMostSpecificConstructorIndex(Class<?>[] idealMatch, Constructor<?>[] constructors) {
+		Class<?>[][] candidates = new Class<?>[constructors.length][];
 		for (int i = 0; i < candidates.length; i++) {
 			candidates[i] = constructors[i].getParameterTypes();
 		}
@@ -607,24 +607,24 @@ final class Reflect {
 	 *                types of their arguments.
 	 * @see #findMostSpecificSignature(Class[], Class[][])
 	 */
-	private static Method findMostSpecificMethod(final Class[] idealMatch, final Collection<Method> methods) {
+	private static Method findMostSpecificMethod(final Class<?>[] idealMatch, final Collection<Method> methods) {
 		if (Interpreter.DEBUG) {
 			Interpreter.debug("Looking for most specific method");
 		}
 		// copy signatures into array for findMostSpecificMethod()
-		List<Class[]> candidateSigs = new ArrayList<Class[]>();
+		List<Class<?>[]> candidateSigs = new ArrayList<>();
 		List<Method> methodList = new ArrayList<Method>();
 		for (Method method : methods) {
-			Class[] parameterTypes = method.getParameterTypes();
+			Class<?>[] parameterTypes = method.getParameterTypes();
 			methodList.add(method);
 			candidateSigs.add(parameterTypes);
 			if (method.isVarArgs()) {
-				Class[] candidateSig = new Class[idealMatch.length];
+				Class<?>[] candidateSig = new Class<?>[idealMatch.length];
 				int j = 0;
 				for (; j < parameterTypes.length - 1; j++) {
 					candidateSig[j] = parameterTypes[j];
 				}
-				Class varType = parameterTypes[j].getComponentType();
+				Class<?> varType = parameterTypes[j].getComponentType();
 				for (; j < idealMatch.length; j++) {
 					candidateSig[j] = varType;
 				}
@@ -633,7 +633,7 @@ final class Reflect {
 			}
 		}
 
-		int match = findMostSpecificSignature(idealMatch, candidateSigs.toArray(new Class[candidateSigs.size()][]));
+		int match = findMostSpecificSignature(idealMatch, candidateSigs.toArray(new Class<?>[candidateSigs.size()][]));
 		return match == -1 ? null : methodList.get(match);
 	}
 
@@ -658,13 +658,13 @@ final class Reflect {
 		  performance.  Method selection is now cached at a high level, so a few
 		  friendly extraneous tests shouldn't be a problem.
 		 */
-	static int findMostSpecificSignature(Class[] idealMatch, Class[][] candidates) {
+	static int findMostSpecificSignature(Class<?>[] idealMatch, Class<?>[][] candidates) {
 		for (int round = Types.FIRST_ROUND_ASSIGNABLE; round <= Types.LAST_ROUND_ASSIGNABLE; round++) {
-			Class[] bestMatch = null;
+			Class<?>[] bestMatch = null;
 			int bestMatchIndex = -1;
 
 			for (int i = 0; i < candidates.length; i++) {
-				Class[] targetMatch = candidates[i];
+				Class<?>[] targetMatch = candidates[i];
 
 				// If idealMatch fits targetMatch and this is the first match
 				// or targetMatch is more specific than the best match, make it
@@ -689,18 +689,18 @@ final class Reflect {
 	}
 
 
-	public static boolean hasObjectPropertyGetter(Class clas, String propName) {
+	public static boolean hasObjectPropertyGetter(Class<?> clas, String propName) {
 		if (clas == Primitive.class) {
 			return false;
 		}
 		String getterName = accessorName("get", propName);
 		try {
-			clas.getMethod(getterName, new Class[0]);
+			clas.getMethod(getterName, new Class<?>[0]);
 			return true;
 		} catch (NoSuchMethodException e) { /* fall through */ }
 		getterName = accessorName("is", propName);
 		try {
-			Method m = clas.getMethod(getterName, new Class[0]);
+			Method m = clas.getMethod(getterName, new Class<?>[0]);
 			return (m.getReturnType() == Boolean.TYPE);
 		} catch (NoSuchMethodException e) {
 			return false;
@@ -708,7 +708,7 @@ final class Reflect {
 	}
 
 
-	public static boolean hasObjectPropertySetter(Class clas, String propName) {
+	public static boolean hasObjectPropertySetter(Class<?> clas, String propName) {
 		String setterName = accessorName("set", propName);
 		Method[] methods = clas.getMethods();
 
@@ -779,7 +779,7 @@ final class Reflect {
 	 * e.g. return "int []" for integer array instead of "class [I" as
 	 * would be returned by Class getName() in that case.
 	 */
-	public static String normalizeClassName(Class type) {
+	public static String normalizeClassName(Class<?> type) {
 		if (!type.isArray()) {
 			return type.getName();
 		}
@@ -801,7 +801,7 @@ final class Reflect {
 	 * returns the dimensionality of the Class
 	 * returns 0 if the Class is not an array class
 	 */
-	public static int getArrayDimensions(Class arrayClass) {
+	public static int getArrayDimensions(Class<?> arrayClass) {
 		if (!arrayClass.isArray()) {
 			return 0;
 		}
@@ -814,7 +814,7 @@ final class Reflect {
 	 * Returns the base type of an array Class.
 	 * throws ReflectError if the Class is not an array class.
 	 */
-	public static Class getArrayBaseType(Class arrayClass) throws ReflectError {
+	public static Class<?> getArrayBaseType(Class<?> arrayClass) throws ReflectError {
 		if (!arrayClass.isArray()) {
 			throw new ReflectError("The class is not an array.");
 		}
@@ -832,7 +832,7 @@ final class Reflect {
 	 * This method adds the arguments and invokes the static method, returning
 	 * the result.
 	 */
-	public static Object invokeCompiledCommand(Class commandClass, Object[] args, Interpreter interpreter, CallStack callstack) throws UtilEvalError {
+	public static Object invokeCompiledCommand(Class<?> commandClass, Object[] args, Interpreter interpreter, CallStack callstack) throws UtilEvalError {
 		// add interpereter and namespace to args list
 		Object[] invokeArgs = new Object[args.length + 2];
 		invokeArgs[0] = interpreter;
@@ -860,7 +860,7 @@ final class Reflect {
 	}
 
 
-	private static void checkFoundStaticMethod(Method method, boolean staticOnly, Class clas) throws UtilEvalError {
+	private static void checkFoundStaticMethod(Method method, boolean staticOnly, Class<?> clas) throws UtilEvalError {
 		// We're looking for a static method but found an instance method
 		if (method != null && staticOnly && !isStatic(method)) {
 			throw new UtilEvalError("Cannot reach instance method: " + StringUtil.methodString(method.getName(), method.getParameterTypes()) + " from static context: " + clas.getName());
@@ -868,7 +868,7 @@ final class Reflect {
 	}
 
 
-	private static ReflectError cantFindConstructor(Class clas, Class[] types) {
+	private static ReflectError cantFindConstructor(Class<?> clas, Class<?>[] types) {
 		if (types.length == 0) {
 			return new ReflectError("Can't find default constructor for: " + clas);
 		} else {
@@ -882,7 +882,7 @@ final class Reflect {
 	}
 
 
-	private static boolean isPublic(Class clazz) {
+	private static boolean isPublic(Class<?> clazz) {
 		return Modifier.isPublic(clazz.getModifiers());
 	}
 
