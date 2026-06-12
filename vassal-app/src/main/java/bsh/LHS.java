@@ -27,7 +27,6 @@
 package bsh;
 
 import java.lang.reflect.Field;
-import java.util.Hashtable;
 
 /**
 	An LHS is a wrapper for an variable, field, or property.  It ordinarily 
@@ -259,4 +258,3 @@ throw new Error("namespace lhs");
 			+(nameSpace!=null ? " nameSpace = "+nameSpace.toString(): "");
 	}
 }
-

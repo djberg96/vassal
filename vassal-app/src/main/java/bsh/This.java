@@ -26,7 +26,6 @@
 
 package bsh;
 
-import java.io.IOException;
 import java.lang.reflect.*;
 import java.util.Map;
 import java.util.HashMap;
@@ -442,4 +441,3 @@ public class This implements java.io.Serializable, Runnable
 	}
 
 }
-

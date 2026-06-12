@@ -27,10 +27,7 @@
 package bsh;
 
 import java.lang.reflect.Array;
-import java.util.Hashtable;
-import java.io.*;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 /**
 	What's in a name?  I'll tell you...
@@ -1062,4 +1059,3 @@ class Name implements java.io.Serializable
 	public String toString() { return value; }
 
 }
-

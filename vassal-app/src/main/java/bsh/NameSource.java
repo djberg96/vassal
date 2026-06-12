@@ -24,8 +24,6 @@
  *****************************************************************************/
 
 package bsh;
-import java.util.*;
-
 /**
 	This interface supports name completion, which is used primarily for 
 	command line tools, etc.  It provides a flat source of "names" in a 

@@ -29,9 +29,7 @@
 package bsh;
 
 import java.awt.event.*;
-import javax.swing.*;
 import javax.swing.event.*;
-import java.io.*;
 import java.beans.*;
 
 /**
@@ -228,4 +226,3 @@ class JThis extends This implements
 	}
 
 }
-

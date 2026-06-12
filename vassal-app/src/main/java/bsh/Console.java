@@ -26,8 +26,6 @@
 
 package bsh;
 
-import bsh.util.*;
-
 /**
 	Console startup class.
 */
