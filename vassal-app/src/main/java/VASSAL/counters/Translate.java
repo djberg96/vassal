@@ -279,7 +279,7 @@ public class Translate extends Decorator implements TranslatablePiece {
       c = c.append(movePiece(target, p));
 
       // Mat Support
-      if (GameModule.getGameModule().isMatSupport() && (offsets != null)) {
+      if (GameModule.getGameModule().isMatSupport() && offsets != null && contents != null) {
         // If a Mat has been sent, send all its contents, at an appropriate offset.
         final Map ourMap = outer.getMap();
         if (ourMap != null) {
