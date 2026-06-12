@@ -1,4 +1,4 @@
-/*****************************************************************************
+/*
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -112,11 +112,11 @@ public class ClassGeneratorUtil implements Constants {
 	 * fully qualified class name (with package) e.g. foo/bar/Blah
 	 */
 	private final String fqClassName;
-	private final Class superClass;
+	private final Class<?> superClass;
 	private final String superClassName;
-	private final Class[] interfaces;
+	private final Class<?>[] interfaces;
 	private final Variable[] vars;
-	private final Constructor[] superConstructors;
+	private final Constructor<?>[] superConstructors;
 	private final DelayedEvalBshMethod[] constructors;
 	private final DelayedEvalBshMethod[] methods;
 	private final NameSpace classStaticNameSpace;
@@ -127,7 +127,7 @@ public class ClassGeneratorUtil implements Constants {
 	/**
 	 * @param packageName e.g. "com.foo.bar"
 	 */
-	public ClassGeneratorUtil(Modifiers classModifiers, String className, String packageName, Class superClass, Class[] interfaces, Variable[] vars, DelayedEvalBshMethod[] bshmethods, NameSpace classStaticNameSpace, boolean isInterface) {
+	public ClassGeneratorUtil(Modifiers classModifiers, String className, String packageName, Class<?> superClass, Class<?>[] interfaces, Variable[] vars, DelayedEvalBshMethod[] bshmethods, NameSpace classStaticNameSpace, boolean isInterface) {
 		this.classModifiers = classModifiers;
 		this.className = className;
 		if (packageName != null) {
@@ -141,7 +141,7 @@ public class ClassGeneratorUtil implements Constants {
 		this.superClass = superClass;
 		this.superClassName = Type.getInternalName(superClass);
 		if (interfaces == null) {
-			interfaces = new Class[0];
+			interfaces = new Class<?>[0];
 		}
 		this.interfaces = interfaces;
 		this.vars = vars;
@@ -149,8 +149,8 @@ public class ClassGeneratorUtil implements Constants {
 		this.superConstructors = superClass.getDeclaredConstructors();
 
 		// Split the methods into constructors and regular method lists
-		List consl = new ArrayList();
-		List methodsl = new ArrayList();
+		List<DelayedEvalBshMethod> consl = new ArrayList<>();
+		List<DelayedEvalBshMethod> methodsl = new ArrayList<>();
 		String classBaseName = getBaseName(className); // for inner classes
 		for (DelayedEvalBshMethod bshmethod : bshmethods) {
 			if (bshmethod.getName().equals(classBaseName)) {
@@ -163,8 +163,8 @@ public class ClassGeneratorUtil implements Constants {
 			}
 		}
 
-		this.constructors = (DelayedEvalBshMethod[]) consl.toArray(new DelayedEvalBshMethod[consl.size()]);
-		this.methods = (DelayedEvalBshMethod[]) methodsl.toArray(new DelayedEvalBshMethod[methodsl.size()]);
+		this.constructors = consl.toArray(new DelayedEvalBshMethod[consl.size()]);
+		this.methods = methodsl.toArray(new DelayedEvalBshMethod[methodsl.size()]);
 
 		try {
 			classStaticNameSpace.setLocalVariable(BSHCONSTRUCTORS, constructors, false/*strict*/);
@@ -597,7 +597,7 @@ public class ClassGeneratorUtil implements Constants {
 	}
 
 
-	boolean classContainsMethod(Class clas, String methodName, String[] paramTypes) {
+	boolean classContainsMethod(Class<?> clas, String methodName, String[] paramTypes) {
 		while (clas != null) {
 			Method[] methods = clas.getDeclaredMethods();
 			for (Method method : methods) {
@@ -810,7 +810,7 @@ public class ClassGeneratorUtil implements Constants {
 		// use in eval of the parameters node
 		NameSpace consArgsNameSpace = new NameSpace(classStaticThis.getNameSpace(), "consArgs");
 		String[] consArgNames = constructor.getParameterNames();
-		Class[] consArgTypes = constructor.getParameterTypes();
+		Class<?>[] consArgTypes = constructor.getParameterTypes();
 		for (int i = 0; i < consArgs.length; i++) {
 			try {
 				consArgsNameSpace.setTypedVariable(consArgNames[i], consArgTypes[i], consArgs[i], null/*modifiers*/);
@@ -832,13 +832,13 @@ public class ClassGeneratorUtil implements Constants {
 			throw new InterpreterError("Error evaluating constructor args: " + e);
 		}
 
-		Class[] argTypes = Types.getTypes(args);
+		Class<?>[] argTypes = Types.getTypes(args);
 		args = Primitive.unwrap(args);
-		Class superClass = interpreter.getClassManager().classForName(superClassName);
+		Class<?> superClass = interpreter.getClassManager().classForName(superClassName);
 		if (superClass == null) {
 			throw new InterpreterError("can't find superclass: " + superClassName);
 		}
-		Constructor[] superCons = superClass.getDeclaredConstructors();
+		Constructor<?>[] superCons = superClass.getDeclaredConstructors();
 
 		// find the matching super() constructor for the args
 		if (altConstructor.equals("super")) {
@@ -850,7 +850,7 @@ public class ClassGeneratorUtil implements Constants {
 		}
 
 		// find the matching this() constructor for the args
-		Class[][] candidates = new Class[constructors.length][];
+		Class<?>[][] candidates = new Class<?>[constructors.length][];
 		for (int i = 0; i < candidates.length; i++) {
 			candidates[i] = constructors[i].getParameterTypes();
 		}
@@ -901,7 +901,7 @@ public class ClassGeneratorUtil implements Constants {
 	 * namespace.
 	 */
 	public static void initInstance(GeneratedClass instance, String className, Object[] args) {
-		Class[] sig = Types.getTypes(args);
+		Class<?>[] sig = Types.getTypes(args);
 		CallStack callstack = new CallStack();
 		Interpreter interpreter;
 		NameSpace instanceNameSpace;
@@ -1005,7 +1005,7 @@ public class ClassGeneratorUtil implements Constants {
 	 *
 	 * @param className may be the name of clas itself or a superclass of clas.
 	 */
-	private static This getClassStaticThis(Class clas, String className) {
+	private static This getClassStaticThis(Class<?> clas, String className) {
 		try {
 			return (This) Reflect.getStaticFieldValue(clas, BSHSTATIC + className);
 		} catch (Exception e) {
@@ -1038,7 +1038,7 @@ public class ClassGeneratorUtil implements Constants {
 	}
 
 
-	private static String[] getTypeDescriptors(Class[] cparams) {
+	private static String[] getTypeDescriptors(Class<?>[] cparams) {
 		String[] sa = new String[cparams.length];
 		for (int i = 0; i < sa.length; i++) {
 			sa[i] = BSHType.getTypeDescriptor(cparams[i]);
