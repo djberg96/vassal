@@ -911,8 +911,6 @@ class Name implements java.io.Serializable
         if ( meth != null )
 			return meth.invoke( args, interpreter, callstack, callerInfo );
 
-		BshClassManager bcm = interpreter.getClassManager();
-
 		// Look for a BeanShell command
 
 		Object commandObject;

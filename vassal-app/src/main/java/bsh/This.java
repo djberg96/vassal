@@ -180,7 +180,6 @@ public class This implements java.io.Serializable, Runnable
 			throws EvalError 
 		{
 			String methodName = method.getName();
-			CallStack callstack = new CallStack( namespace );
 
 			/*
 				If equals() is not explicitly defined we must override the 

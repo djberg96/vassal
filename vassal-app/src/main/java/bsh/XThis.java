@@ -148,7 +148,6 @@ public class XThis extends This
 			throws EvalError
 		{
 			String methodName = method.getName();
-			CallStack callstack = new CallStack( namespace );
 
 			/*
 				If equals() is not explicitly defined we must override the

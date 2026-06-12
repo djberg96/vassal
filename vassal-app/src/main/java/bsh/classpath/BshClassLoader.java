@@ -138,8 +138,6 @@ public class BshClassLoader extends URLClassLoader
 		// Don't add the method to BshClassManager... it's really an impl thing
 		ClassLoader cl = bcm.getLoaderForClass( name );
 
-		Class<?> c;
-
 		// If there is a designated loader and it's not us delegate to it
 		if ( cl != null && cl != this )
 			try {

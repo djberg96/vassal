@@ -382,7 +382,6 @@ public class BshClassPath
 		// add to package map
 		String [] sa = splitClassname( className );
 		String pack = sa[0];
-		String clas = sa[1];
 		Set<String> set = packageMap.get( pack );
 		if ( set == null ) {
 			set = new HashSet<>();
@@ -752,7 +751,7 @@ public class BshClassPath
 		URL [] urls = new URL [ args.length ];
 		for(int i=0; i< args.length; i++)
 			urls[i] =  new File(args[i]).toURI().toURL();
-		BshClassPath bcp = new BshClassPath( "Test", urls );
+		new BshClassPath( "Test", urls );
 	}
 
 	public String toString() {
