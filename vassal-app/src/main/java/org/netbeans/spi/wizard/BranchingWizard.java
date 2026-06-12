@@ -38,8 +38,8 @@ import java.util.Map;
  * @author Tim Boudreau
  */
 final class BranchingWizard implements WizardImplementation {
-    private final List listenerList = Collections.synchronizedList (
-            new LinkedList());
+    private final List<WizardObserver> listenerList = Collections.synchronizedList(
+            new LinkedList<>());
 
     private final WizardBranchController brancher;
     final WizardImplementation initialSteps;
@@ -298,11 +298,10 @@ final class BranchingWizard implements WizardImplementation {
     }
 
     private void fireStepsChanged() {
-        WizardObserver[] listeners = (WizardObserver[]) 
-                listenerList.toArray (new WizardObserver[0]);
+        WizardObserver[] listeners = listenerList.toArray(new WizardObserver[0]);
 
         for (int i = listeners.length - 1; i >= 0; i --) {
-            WizardObserver l = (WizardObserver) listeners[i];
+            WizardObserver l = listeners[i];
             l.stepsChanged(null);
         }
     }
@@ -310,21 +309,19 @@ final class BranchingWizard implements WizardImplementation {
     private void fireNavigabilityChanged() {
         checkForSecondary();
 
-        WizardObserver[] listeners = (WizardObserver[]) 
-                listenerList.toArray (new WizardObserver[0]);
+        WizardObserver[] listeners = listenerList.toArray(new WizardObserver[0]);
 
         for (int i = listeners.length - 1; i >= 0; i --) {
-            WizardObserver l = (WizardObserver) listeners[i];
+            WizardObserver l = listeners[i];
             l.navigabilityChanged(null);
         }
     }
 
     private void fireSelectionChanged() {
-        WizardObserver[] listeners = (WizardObserver[]) 
-                listenerList.toArray (new WizardObserver[0]);
+        WizardObserver[] listeners = listenerList.toArray(new WizardObserver[0]);
 
         for (int i = listeners.length - 1; i >= 0; i --) {
-            WizardObserver l = (WizardObserver) listeners[i];
+            WizardObserver l = listeners[i];
             l.selectionChanged(null);
         }
     }
