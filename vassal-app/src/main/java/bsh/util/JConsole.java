@@ -73,7 +73,6 @@ public class JConsole extends JScrollPane implements GUIConsoleInterface, Runnab
 
     private JPopupMenu menu;
     private JTextPane text;
-    private DefaultStyledDocument doc;
 
 	NameCompletion nameCompletion;
 	final int SHOW_AMBIG_MAX = 10;
@@ -91,7 +90,8 @@ public class JConsole extends JScrollPane implements GUIConsoleInterface, Runnab
 
 		// Special TextPane which catches for cut and paste, both L&F keys and
 		// programmatic	behaviour
-		text = new JTextPane( doc=new DefaultStyledDocument() ) 
+		final DefaultStyledDocument doc = new DefaultStyledDocument();
+		text = new JTextPane( doc )
 			{
 				public void	cut() {
 					if (text.getCaretPosition() < cmdStart)	{
@@ -569,14 +569,6 @@ public class JConsole extends JScrollPane implements GUIConsoleInterface, Runnab
 				setStyle(old, true);
 			}
 		});			
-    }
-
-    private AttributeSet setStyle(Font font) {
-	    return setStyle(font, null);
-    }
-
-    private AttributeSet setStyle(Color color) {
-	    return setStyle(null, color);
     }
 
     private AttributeSet setStyle( Font font, Color color) 

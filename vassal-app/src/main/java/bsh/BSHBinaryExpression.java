@@ -242,27 +242,6 @@ class BSHBinaryExpression extends SimpleNode implements ParserConstants {
   }
     
   /*
-   * VASSAL - Convert Strings to a Primitive if possible
-   */
-  private Object convert(String obj) {
-    if (obj.equals("true")) {
-      return new Primitive(true);      
-    }
-    else if (obj.equals("false")) {
-      return new Primitive(false);    
-    }
-    int i;
-    try {
-      i = Integer.parseInt(obj);
-    }
-    catch (NumberFormatException e) {
-      // Not an Error
-      return null;
-    }
-    return new Primitive(i);
-  }
-
-  /*
    * object is a non-null and non-void Primitive type
    */
   private boolean isPrimitiveValue(Object obj) {

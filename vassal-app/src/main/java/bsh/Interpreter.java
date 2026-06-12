@@ -1014,10 +1014,6 @@ public class Interpreter
 		return parser.jjtree;
 	}
 
-	private JavaCharStream get_jj_input_stream() {
-		return parser.jj_input_stream;
-	}
-
 	private boolean Line() throws ParseException {
 		return parser.Line();
 	}

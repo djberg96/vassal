@@ -119,7 +119,6 @@ public class ClassGeneratorUtil implements Constants {
 	private final Constructor<?>[] superConstructors;
 	private final DelayedEvalBshMethod[] constructors;
 	private final DelayedEvalBshMethod[] methods;
-	private final NameSpace classStaticNameSpace;
 	private final Modifiers classModifiers;
 	private boolean isInterface;
 
@@ -145,7 +144,6 @@ public class ClassGeneratorUtil implements Constants {
 		}
 		this.interfaces = interfaces;
 		this.vars = vars;
-		this.classStaticNameSpace = classStaticNameSpace;
 		this.superConstructors = superClass.getDeclaredConstructors();
 
 		// Split the methods into constructors and regular method lists
