@@ -1,4 +1,5 @@
-/*****************************************************************************
+/*
+ *****************************************************************************
  * Licensed to the Apache Software Foundation (ASF) under one                *
  * or more contributor license agreements.  See the NOTICE file              *
  * distributed with this work for additional information                     *
@@ -22,7 +23,8 @@
  * Patrick Niemeyer (pat@pat.net)                                            *
  * Author of Learning Java, O'Reilly & Associates                            *
  *                                                                           *
- *****************************************************************************/
+ *****************************************************************************
+ */
 package bsh;
 
 import java.io.*;
@@ -49,7 +51,7 @@ public final class ClassGenerator {
     /**
      * Parse the BSHBlock for the class definition and generate the class.
      */
-    public Class generateClass(String name, Modifiers modifiers, Class[] interfaces, Class superClass, BSHBlock block, boolean isInterface, CallStack callstack, Interpreter interpreter) throws EvalError {
+    public Class<?> generateClass(String name, Modifiers modifiers, Class<?>[] interfaces, Class<?> superClass, BSHBlock block, boolean isInterface, CallStack callstack, Interpreter interpreter) throws EvalError {
         // Delegate to the static method
         return generateClassImpl(name, modifiers, interfaces, superClass, block, isInterface, callstack, interpreter);
     }
@@ -82,7 +84,7 @@ public final class ClassGenerator {
      * Parse the BSHBlock for for the class definition and generate the class
      * using ClassGenerator.
      */
-    public static Class generateClassImpl(String name, Modifiers modifiers, Class[] interfaces, Class superClass, BSHBlock block, boolean isInterface, CallStack callstack, Interpreter interpreter) throws EvalError {
+    public static Class<?> generateClassImpl(String name, Modifiers modifiers, Class<?>[] interfaces, Class<?> superClass, BSHBlock block, boolean isInterface, CallStack callstack, Interpreter interpreter) throws EvalError {
         NameSpace enclosingNameSpace = callstack.top();
         String packageName = enclosingNameSpace.getPackage();
         String className = enclosingNameSpace.isClass ? (enclosingNameSpace.getName() + "$" + name) : name;
@@ -257,13 +259,13 @@ public final class ClassGenerator {
         String superName = ClassGeneratorUtil.BSHSUPER + methodName;
 
         // look for the specially named super delegate method
-        Class clas = instance.getClass();
+        Class<?> clas = instance.getClass();
         Method superMethod = Reflect.resolveJavaMethod(bcm, clas, superName, Types.getTypes(args), false/*onlyStatic*/);
         if (superMethod != null) return Reflect.invokeMethod(superMethod, instance, args);
 
         // No super method, try to invoke regular method
         // could be a superfluous "super." which is legal.
-        Class superClass = clas.getSuperclass();
+        Class<?> superClass = clas.getSuperclass();
         superMethod = Reflect.resolveExpectedJavaMethod(bcm, superClass, instance, methodName, args, false/*onlyStatic*/);
         return Reflect.invokeMethod(superMethod, instance, args);
     }
