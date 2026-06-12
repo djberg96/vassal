@@ -582,7 +582,7 @@ public class SendToLocation extends Decorator implements TranslatablePiece {
     // Mat support
     if ((c != null) && GameModule.getGameModule().isMatSupport()) {
       // If a Mat has been sent, send all its contents, at an appropriate offset.
-      if ((offsets != null) && dest != null) {
+      if (offsets != null && contents != null && dest != null) {
         for (int i = 0; i < contents.size(); i++) {
           final GamePiece piece = contents.get(i);
           final MatCargo cargo = (MatCargo) getDecorator(piece, MatCargo.class);
