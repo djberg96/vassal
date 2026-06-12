@@ -24,7 +24,7 @@ final class Util {
     static String[] getSteps(WizardPage[] pages) {
         String[] result = new String[pages.length];
 
-        Set uniqueNames = new HashSet(pages.length);
+        Set<String> uniqueNames = new HashSet<>(pages.length);
         for (int i = 0; i < pages.length; i++) {
             result[i] = pages[i].id();
             if (result[i] == null || uniqueNames.contains(result[i])) {
@@ -37,7 +37,7 @@ final class Util {
         return result;
     }
     
-    static String uniquify (String s, Set /* <String> */ used) {
+    static String uniquify(String s, Set<String> used) {
         String test = s;
         if (test != null) {
             int ix = 0;
@@ -64,11 +64,11 @@ final class Util {
         return result;
     }
 
-    static String getIDFromStaticMethod (Class clazz) {
+    static String getIDFromStaticMethod(Class<?> clazz) {
         // System.err.println("GetID by method for " + clazz);
         String result = null;
         try {
-            Method m = clazz.getDeclaredMethod("getStep", new Class[] {});
+            Method m = clazz.getDeclaredMethod("getStep");
             // assert m.getReturnType() == String.class;
             result = (String) m.invoke(clazz, (Object[]) null);
             if (result == null) {
@@ -84,14 +84,14 @@ final class Util {
      * Get an array of steps by looking for a static method getID() on each
      * class object passed
      */
-    static String[] getSteps(Class[] pages) {
+    static String[] getSteps(Class<?>[] pages) {
         if (pages == null) {
             throw new NullPointerException("Null array of classes"); //NOI18N
         }
 
         String[] result = new String[pages.length];
 
-        Set used = new HashSet (pages.length);
+        Set<String> used = new HashSet<>(pages.length);
         for (int i = 0; i < pages.length; i++) {
             if (pages[i] == null) {
                 throw new NullPointerException("Null at " + i + " in array " + //NOI18N
@@ -125,7 +125,7 @@ final class Util {
      * Get an array of descriptions by looking for the static method
      * getDescription() on each passed class object
      */
-    static String[] getDescriptions(Class[] pages) {
+    static String[] getDescriptions(Class<?>[] pages) {
         String[] result = new String[pages.length];
 
         for (int i = 0; i < pages.length; i++) {
@@ -135,11 +135,11 @@ final class Util {
         return result;
     }
 
-    static String getDescriptionFromStaticMethod(Class clazz) {
+    static String getDescriptionFromStaticMethod(Class<?> clazz) {
         String result = null;
         Method m;
         try {
-            m = clazz.getDeclaredMethod("getDescription", (Class[]) null); //NOI18N
+            m = clazz.getDeclaredMethod("getDescription"); //NOI18N
         } catch (Exception e) {
             throw new IllegalArgumentException("Could not find or access " + //NOI18N
                     "public static String " + clazz.getName() +  //NOI18N
