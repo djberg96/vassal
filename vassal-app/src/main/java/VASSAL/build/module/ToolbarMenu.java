@@ -102,7 +102,9 @@ public class ToolbarMenu extends AbstractToolbarItem
   @Override
   public Class<?>[] getAttributeTypes() {
     return ArrayUtils.addAll(super.getAttributeTypes(),
-                             String[].class
+                             new Class<?>[] {
+                               String[].class
+                             }
     );
   }
 

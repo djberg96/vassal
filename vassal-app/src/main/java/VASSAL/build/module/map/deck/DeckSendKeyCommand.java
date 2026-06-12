@@ -154,17 +154,19 @@ public class DeckSendKeyCommand extends AbstractDeckKeyCommand {
   public Class<?>[] getAttributeTypes() {
     return ArrayUtils.addAll(
       super.getAttributeTypes(),
-      Boolean.class,
-      DrawPile.AssignedDeckPrompt.class,
-      FormattedStringExpression.class,
-      Boolean.class,
-      FormattedStringExpression.class,
-      Boolean.class,
-      FormattedStringExpression.class,
-      Boolean.class,
-      FormattedStringExpression.class,
-      Boolean.class,
-      Boolean.class
+      new Class<?>[] {
+        Boolean.class,
+        DrawPile.AssignedDeckPrompt.class,
+        FormattedStringExpression.class,
+        Boolean.class,
+        FormattedStringExpression.class,
+        Boolean.class,
+        FormattedStringExpression.class,
+        Boolean.class,
+        FormattedStringExpression.class,
+        Boolean.class,
+        Boolean.class
+      }
     );
   }
 

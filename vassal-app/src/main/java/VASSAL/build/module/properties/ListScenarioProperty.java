@@ -40,7 +40,9 @@ public class ListScenarioProperty extends AbstractScenarioProperty {
   public Class<?>[] getAttributeTypes() {
     return ArrayUtils.addAll(
       super.getAttributeTypes(),
-      OptionsPrompt.class
+      new Class<?>[] {
+        OptionsPrompt.class
+      }
     );
   }
 

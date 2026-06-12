@@ -136,10 +136,12 @@ public final class LayerControl extends AbstractToolbarItem implements Component
   public Class<?>[] getAttributeTypes() {
     return ArrayUtils.addAll(
       super.getAttributeTypes(),
-      String.class,
-      CommandConfig.class,
-      Boolean.class,
-      String[].class
+      new Class<?>[] {
+        String.class,
+        CommandConfig.class,
+        Boolean.class,
+        String[].class
+      }
     );
   }
 

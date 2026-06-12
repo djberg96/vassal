@@ -314,10 +314,12 @@ public class ListTurnLevel extends TurnLevel implements ActionListener {
   public Class<?>[] getAttributeTypes() {
     return ArrayUtils.addAll(
       super.getAttributeTypes(),
-      String[].class,
-      Boolean.class,
-      Boolean.class,
-      String.class
+      new Class<?>[] {
+        String[].class,
+        Boolean.class,
+        Boolean.class,
+        String.class
+      }
     );
   }
 

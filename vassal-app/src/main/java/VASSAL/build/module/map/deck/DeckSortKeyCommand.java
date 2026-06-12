@@ -65,7 +65,10 @@ public class DeckSortKeyCommand extends AbstractDeckKeyCommand {
 
   @Override
   public Class<?>[] getAttributeTypes() {
-    return ArrayUtils.addAll(super.getAttributeTypes(), SortParameterConfig.class);
+    return ArrayUtils.addAll(
+      super.getAttributeTypes(),
+      new Class<?>[] { SortParameterConfig.class }
+    );
   }
 
   @Override
@@ -137,6 +140,4 @@ public class DeckSortKeyCommand extends AbstractDeckKeyCommand {
     }
   }
 }
-
-
 

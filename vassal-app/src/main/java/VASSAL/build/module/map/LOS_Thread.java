@@ -855,19 +855,21 @@ public class LOS_Thread extends AbstractToolbarItem implements
   public Class<?>[] getAttributeTypes() {
     return ArrayUtils.addAll(
       super.getAttributeTypes(),
-      ReportFormatConfig.class,
-      PersistenceOptions.class,
-      PersistentIconConfig.class,
-      GlobalOptions.class,
-      Boolean.class,
-      Boolean.class,
-      Boolean.class,
-      Integer.class,
-      RoundingOptions.class,
-      Boolean.class,
-      Integer.class,
-      Integer.class,
-      Color.class
+      new Class<?>[] {
+        ReportFormatConfig.class,
+        PersistenceOptions.class,
+        PersistentIconConfig.class,
+        GlobalOptions.class,
+        Boolean.class,
+        Boolean.class,
+        Boolean.class,
+        Integer.class,
+        RoundingOptions.class,
+        Boolean.class,
+        Integer.class,
+        Integer.class,
+        Color.class
+      }
     );
   }
 

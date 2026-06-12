@@ -314,33 +314,37 @@ public class MassKeyCommand extends AbstractToolbarItem
     if (condition == null) {
       return ArrayUtils.addAll(
         super.getAttributeTypes(),
-        NamedKeyStroke.class,               // Key Command
-        Boolean.class,                      // Apply to counters on this map only
+        new Class<?>[] {
+          NamedKeyStroke.class,               // Key Command
+          Boolean.class,                      // Apply to counters on this map only
 
-        GlobalCommandTarget.class,          // Fast Match target info
+          GlobalCommandTarget.class,          // Fast Match target info
 
-        PropertyExpression.class,           // Match properties
-        DeckPolicyConfig.class,             // Apply to pieces in deck
-        Boolean.class,                      // Suppress individual reports?
-        Boolean.class,                      // Suppress sounds
-        ReportFormatConfig.class,           // Report format
-        ParameterListConfig.class           // Parameter list
+          PropertyExpression.class,           // Match properties
+          DeckPolicyConfig.class,             // Apply to pieces in deck
+          Boolean.class,                      // Suppress individual reports?
+          Boolean.class,                      // Suppress sounds
+          ReportFormatConfig.class,           // Report format
+          ParameterListConfig.class           // Parameter list
+        }
       );
     }
     else {
       // Backward compatibility
       return ArrayUtils.addAll(
         super.getAttributeTypes(),
-        NamedKeyStroke.class,
-        Boolean.class,
+        new Class<?>[] {
+          NamedKeyStroke.class,
+          Boolean.class,
 
-        GlobalCommandTarget.class,
+          GlobalCommandTarget.class,
 
-        String.class,
-        DeckPolicyConfig.class,
-        Boolean.class,
-        ReportFormatConfig.class,
-        Prompt.class
+          String.class,
+          DeckPolicyConfig.class,
+          Boolean.class,
+          ReportFormatConfig.class,
+          Prompt.class
+        }
       );
     }
   }

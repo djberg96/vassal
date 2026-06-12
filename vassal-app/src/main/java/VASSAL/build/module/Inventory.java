@@ -632,26 +632,28 @@ public class Inventory extends AbstractToolbarItem
   @Override
   public Class<?>[] getAttributeTypes() {
     return ArrayUtils.addAll(super.getAttributeTypes(),
-      // DestConfig.class,
-      PropertyExpression.class,
-      String[].class,
-      String.class,
-      Boolean.class,
-      PieceFormatConfig.class,
-      Boolean.class,
-      PieceFormatConfig.class,
-      SortConfig.class,
-      Boolean.class,
-      Boolean.class,
-      Boolean.class,
-      Boolean.class,
-      Boolean.class,
-      Double.class,
-      Double.class,
-      Double.class,
-      String[].class,
-      FunctionConfig.class,
-      NamedKeyStroke.class
+      new Class<?>[] {
+        // DestConfig.class,
+        PropertyExpression.class,
+        String[].class,
+        String.class,
+        Boolean.class,
+        PieceFormatConfig.class,
+        Boolean.class,
+        PieceFormatConfig.class,
+        SortConfig.class,
+        Boolean.class,
+        Boolean.class,
+        Boolean.class,
+        Boolean.class,
+        Boolean.class,
+        Double.class,
+        Double.class,
+        Double.class,
+        String[].class,
+        FunctionConfig.class,
+        NamedKeyStroke.class
+      }
     );
   }
 

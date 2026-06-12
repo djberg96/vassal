@@ -173,10 +173,12 @@ public class CounterTurnLevel extends TurnLevel {
   public Class<?>[] getAttributeTypes() {
     return ArrayUtils.addAll(
       super.getAttributeTypes(),
-      Integer.class,
-      Integer.class,
-      Boolean.class,
-      Integer.class
+      new Class<?>[] {
+        Integer.class,
+        Integer.class,
+        Boolean.class,
+        Integer.class
+      }
     );
   }
 

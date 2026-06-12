@@ -237,17 +237,19 @@ public final class MoveCameraButton extends AbstractToolbarItem {
   public Class<?>[] getAttributeTypes() {
     return ArrayUtils.addAll(
       super.getAttributeTypes(),
-      DestConfig.class,
-      EmptyFormatConfig.class,
-      EmptyFormatConfig.class,
-      EmptyFormatConfig.class,
-      EmptyFormatConfig.class,
-      EmptyFormatConfig.class,
-      EmptyFormatConfig.class,
-      EmptyFormatConfig.class,
-      EmptyFormatConfig.class,
-      PropertyExpression.class,
-      EmptyFormatConfig.class
+      new Class<?>[] {
+        DestConfig.class,
+        EmptyFormatConfig.class,
+        EmptyFormatConfig.class,
+        EmptyFormatConfig.class,
+        EmptyFormatConfig.class,
+        EmptyFormatConfig.class,
+        EmptyFormatConfig.class,
+        EmptyFormatConfig.class,
+        EmptyFormatConfig.class,
+        PropertyExpression.class,
+        EmptyFormatConfig.class
+      }
     );
   }
 
