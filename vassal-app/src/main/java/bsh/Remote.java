@@ -29,6 +29,9 @@ package bsh;
 
 import java.io.*;
 import java.net.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 /**
 	Remote executor class. Posts a script from the command line to a BshServlet
  	or embedded  interpreter using (respectively) HTTP or the bsh telnet
@@ -119,31 +122,15 @@ public class Remote
     private static void sendLine( String line, OutputStream outPipe )
 		throws IOException
 	{
-		outPipe.write( line.getBytes() );
+		outPipe.write( line.getBytes( StandardCharsets.UTF_8 ) );
 		outPipe.flush();
     }
 
 
-	/*
-		TODO: this is not unicode friendly, nor is getFile()
-		The output is urlencoded 8859_1 text.
-		should probably be urlencoded UTF-8... how does the servlet determine
-		the encoded charset?  I guess we're supposed to add a ";charset" clause
-		to the content type?
-	*/
 	static String doHttp( String postURL, String text )
 	{
 		String returnValue = null;
-		StringBuffer sb = new StringBuffer();
-		sb.append( "bsh.client=Remote" );
-		sb.append( "&bsh.script=" );
-		// This requires Java 1.3
-		try {
-			sb.append( URLEncoder.encode( text, "UTF-8" ) );
-		} catch ( UnsupportedEncodingException e ) {
-			e.printStackTrace();
-		}
-		String formData = sb.toString(  );
+		String formData = buildFormData( text );
 
 		try {
 		  URL url = new URI( postURL ).toURL();
@@ -151,13 +138,13 @@ public class Remote
 			  (HttpURLConnection) url.openConnection(  );
 		  urlcon.setRequestMethod("POST");
 		  urlcon.setRequestProperty("Content-type",
-			  "application/x-www-form-urlencoded");
+			  "application/x-www-form-urlencoded; charset=UTF-8");
 		  urlcon.setDoOutput(true);
 		  urlcon.setDoInput(true);
-		  PrintWriter pout = new PrintWriter( new OutputStreamWriter(
-			  urlcon.getOutputStream(), "8859_1"), true );
-		  pout.print( formData );
-		  pout.flush();
+		  try (Writer pout = new OutputStreamWriter(
+			  urlcon.getOutputStream(), StandardCharsets.UTF_8)) {
+			pout.write( formData );
+		  }
 
 		  // read results...
 		  int rc = urlcon.getResponseCode();
@@ -166,11 +153,12 @@ public class Remote
 
 		  returnValue = urlcon.getHeaderField("Bsh-Return");
 
-		  BufferedReader bin = new BufferedReader(
-			new InputStreamReader( urlcon.getInputStream() ) );
-		  String line;
-		  while ( (line=bin.readLine()) != null )
-			System.out.println( line );
+		  try (BufferedReader bin = new BufferedReader(
+			new InputStreamReader( urlcon.getInputStream(), StandardCharsets.UTF_8 ) )) {
+			String line;
+			while ( (line=bin.readLine()) != null )
+			  System.out.println( line );
+		  }
 
 		  System.out.println( "Return Value: "+returnValue );
 
@@ -183,19 +171,16 @@ public class Remote
 		return returnValue;
 	}
 
-	/*
-		Note: assumes default character encoding
-	*/
+	static String buildFormData( String text )
+	{
+		return "bsh.client=Remote&bsh.script="
+			+ URLEncoder.encode( text, StandardCharsets.UTF_8 );
+	}
+
 	static String getFile( String name )
 		throws FileNotFoundException, IOException
 	{
-		StringBuffer sb = new StringBuffer();
-		try (BufferedReader bin = new BufferedReader( new FileReader( name ) )) {
-			String line;
-			while ( (line=bin.readLine()) != null )
-				sb.append( line ).append( "\n" );
-		}
-		return sb.toString();
+		return Files.readString( Path.of( name ), StandardCharsets.UTF_8 );
 	}
 
 }
