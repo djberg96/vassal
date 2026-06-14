@@ -103,8 +103,6 @@ public class OpCache {
    * synchronously and set manually.
    */
   private static final class Result<V> implements Future<V> {
-    private static final long serialVersionUID = 1L;
-
     private V value = null;
     private boolean failed = false;
     private final CountDownLatch done = new CountDownLatch(1);
@@ -340,10 +338,10 @@ public class OpCache {
     }
     else {
       // Are we a synchronous request in the queue being re-requested?
-      if (obs == null && fut instanceof Runnable) {
-        if (requestQueue.remove(fut)) {
+      if (obs == null && fut instanceof Runnable request) {
+        if (requestQueue.remove(request)) {
           // Then run on this thread to prevent deadlock.
-          ((Runnable) fut).run();
+          request.run();
         }
       }
     }
