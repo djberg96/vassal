@@ -16,7 +16,6 @@ import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 import org.junit.platform.launcher.listeners.LoggingListener;
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener;
-import org.junit.platform.launcher.listeners.TestExecutionSummary;
 
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectDirectory;
 import static org.junit.platform.engine.discovery.DiscoverySelectors.selectPackage;
@@ -45,7 +44,7 @@ public final class AllTests {
 
     launcher.execute(request);
 
-    TestExecutionSummary summary = listener.getSummary();
+    listener.getSummary();
   }
 
   private static File findClassesDir() {

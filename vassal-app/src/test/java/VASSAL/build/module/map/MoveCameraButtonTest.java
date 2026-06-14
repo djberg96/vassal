@@ -32,8 +32,10 @@ class MoveCameraButtonTest {
   void offsetDestAppliesXAndYOffsetAttributes()
     throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
 
-    try (MockedConstruction<LaunchButton> ignored = Mockito.mockConstruction(LaunchButton.class)) {
+    try (MockedConstruction<LaunchButton> launchButtons = Mockito.mockConstruction(LaunchButton.class)) {
       final MoveCameraButton button = new MoveCameraButton();
+      assertEquals(1, launchButtons.constructed().size());
+
       button.setAttribute(MoveCameraButton.X_OFFSET, "3");
       button.setAttribute(MoveCameraButton.Y_OFFSET, "5");
 

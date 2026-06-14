@@ -42,7 +42,7 @@ public class ColorConfigurerTest {
     final Color color = new Color(R,G,B,A);
     final ColorConfigurer cc = new ColorConfigurer(key, name, color);
 
-    final Color newColor = cc.stringToColor(colorString);
+    final Color newColor = ColorConfigurer.stringToColor(colorString);
     assertEquals(color.getBlue(), newColor.getBlue());
     assertEquals(color.getRed(), newColor.getRed());
     assertEquals(color.getGreen(), newColor.getGreen());

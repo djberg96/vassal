@@ -19,7 +19,6 @@ package VASSAL.counters;
 
 import VASSAL.tools.NamedKeyStroke;
 import java.lang.reflect.InvocationTargetException;
-import javax.swing.KeyStroke;
 import org.junit.jupiter.api.Test;
 
 public class TableInfoTest extends DecoratorTest {

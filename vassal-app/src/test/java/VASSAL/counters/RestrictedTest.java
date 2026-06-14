@@ -20,7 +20,6 @@ package VASSAL.counters;
 import static org.mockito.Mockito.mock;
 
 import VASSAL.build.GameModule;
-import VASSAL.build.GpIdSupport;
 
 import java.lang.reflect.InvocationTargetException;
 import org.junit.jupiter.api.Test;
@@ -49,9 +48,6 @@ public class RestrictedTest extends DecoratorTest {
 
   private Restricted createTrait() {
     try (MockedStatic<GameModule> staticGm = Mockito.mockStatic(GameModule.class)) {
-
-      // Mock some GpID Support
-      final GpIdSupport gpid = mock(GpIdSupport.class);
 
       // Mock GameModule to return various resources
       final GameModule gm = mock(GameModule.class);

@@ -30,7 +30,6 @@ import javax.imageio.ImageIO;
 import VASSAL.tools.io.TemporaryFileFactory;
 import VASSAL.tools.lang.Reference;
 
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

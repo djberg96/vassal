@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 
 import VASSAL.build.GameModule;
 import VASSAL.tools.DataArchive;
-import VASSAL.tools.NamedKeyManager;
 import VASSAL.tools.NamedKeyStroke;
 import VASSAL.tools.icon.IconFactory;
 import java.awt.image.BufferedImage;
@@ -46,7 +45,6 @@ public class NamedHotKeyConfigurerTest {
         // Return Dummy icons from IconFactory
         staticIf.when(() -> IconFactory.getIcon(any(String.class), anyInt())).thenReturn(new ImageIcon(dummyImage));
 
-        NamedKeyManager nkm = new NamedKeyManager();
         final String key = "key"; // NON-NLS
         final String name = "name"; // NON-NLS
         final NamedKeyStroke namedStroke = NamedKeyStroke.of("xyzzy");
