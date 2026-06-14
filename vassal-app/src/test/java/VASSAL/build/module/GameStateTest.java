@@ -1,8 +1,8 @@
 package VASSAL.build.module;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,19 +34,27 @@ public class GameStateTest {
   }
 
   @Test
-  public void droppedTextUrlIgnoresBlankRelativeAndInvalidText() {
-    assertTrue(GameState.getDroppedTextUrl("").isEmpty());
-    assertTrue(GameState.getDroppedTextUrl("   ").isEmpty());
-    assertTrue(GameState.getDroppedTextUrl("piece-drag").isEmpty());
-    assertTrue(GameState.getDroppedTextUrl("not a url").isEmpty());
+  public void droppedSaveFileUrlIgnoresNonSaveFileText() {
+    assertTrue(GameState.getDroppedSaveFileUrl("").isEmpty());
+    assertTrue(GameState.getDroppedSaveFileUrl("   ").isEmpty());
+    assertTrue(GameState.getDroppedSaveFileUrl("piece-drag").isEmpty());
+    assertTrue(GameState.getDroppedSaveFileUrl("not a url").isEmpty());
+    assertTrue(GameState.getDroppedSaveFileUrl("https://example.com/image.png").isEmpty());
+    assertTrue(GameState.getDroppedSaveFileUrl("ftp://example.com/game.vsav").isEmpty());
   }
 
   @Test
-  public void droppedTextUrlAcceptsAbsoluteUrls() {
-    final Optional<URL> url = GameState.getDroppedTextUrl(" https://example.com/save.vsav ");
+  public void droppedSaveFileUrlAcceptsVassalSaveAndLogUrls() {
+    final Optional<URL> save = GameState.getDroppedSaveFileUrl(" https://example.com/save.vsav ");
+    final Optional<URL> log = GameState.getDroppedSaveFileUrl("https://example.com/game.vlog");
+    final Optional<URL> localSave = GameState.getDroppedSaveFileUrl("file:///tmp/save.vsav");
 
-    assertTrue(url.isPresent());
-    assertEquals("https://example.com/save.vsav", url.get().toExternalForm());
+    assertTrue(save.isPresent());
+    assertEquals("https://example.com/save.vsav", save.get().toExternalForm());
+    assertTrue(log.isPresent());
+    assertEquals("https://example.com/game.vlog", log.get().toExternalForm());
+    assertTrue(localSave.isPresent());
+    assertEquals("file:/tmp/save.vsav", localSave.get().toExternalForm());
   }
 
   private static GamePiece piece(String id) {

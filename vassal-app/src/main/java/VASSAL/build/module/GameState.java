@@ -96,9 +96,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -117,6 +119,7 @@ import java.util.zip.ZipInputStream;
 public class GameState implements CommandEncoder {
   private static final org.slf4j.Logger log =
     LoggerFactory.getLogger(GameState.class);
+  private static final Set<String> DROPPED_TEXT_URL_SCHEMES = Set.of("http", "https", "file"); //NON-NLS
 
   protected Map<String, GamePiece> pieces = new HashMap<>();
   protected List<GameComponent> gameComponents = new ArrayList<>();
@@ -949,16 +952,15 @@ public class GameState implements CommandEncoder {
     final DataFlavor[] flavors = transferable.getTransferDataFlavors();
     for (final DataFlavor flavor : flavors) {
 
-      // If the drop item is a Discord file link (or a text URL), we attempt to open the connection and Load That Shit Right Off The Internet
       if (flavor.isFlavorTextType()) {
         try {
-          final String text = transferable.getTransferData(flavor).toString();
-          final Optional<URL> droppedUrl = getDroppedTextUrl(text);
+          final Optional<URL> droppedUrl = getDroppedSaveFileUrl(transferable.getTransferData(flavor).toString());
           if (droppedUrl.isEmpty()) {
             continue;
           }
 
           final URL url = droppedUrl.get();
+          final String source = url.toExternalForm();
           final URLConnection uc = url.openConnection();
 
           final int optionToSave = maybeSaveGame();
@@ -975,15 +977,15 @@ public class GameState implements CommandEncoder {
                 setup(false);        // Completely wipe the game state *before* we decode the saved game
               }
               else {
-                GameModule.getGameModule().setGameFile(text, GameModule.GameFileMode.LOADED_GAME);
+                GameModule.getGameModule().setGameFile(source, GameModule.GameFileMode.LOADED_GAME);
               }
 
               try {
                 try {
-                  loadGameInForeground(text, bis);
+                  loadGameInForeground(source, bis);
                 }
                 catch (IOException e) {
-                  ReadErrorDialog.error(e, text);
+                  ReadErrorDialog.error(e, source);
                 }
                 break; // Once we have a successful load, nothing else.
               }
@@ -1025,14 +1027,26 @@ public class GameState implements CommandEncoder {
     dtde.dropComplete(true);
   }
 
-  static Optional<URL> getDroppedTextUrl(String text) {
+  static Optional<URL> getDroppedSaveFileUrl(String text) {
     if (StringUtils.isBlank(text)) {
       return Optional.empty();
     }
 
     try {
       final URI uri = URI.create(text.strip());
-      return uri.isAbsolute() ? Optional.of(uri.toURL()) : Optional.empty();
+      final String scheme = uri.getScheme();
+      if (scheme == null || !DROPPED_TEXT_URL_SCHEMES.contains(scheme.toLowerCase(Locale.ROOT))) {
+        return Optional.empty();
+      }
+
+      final String path = uri.getPath();
+      if (StringUtils.isBlank(path)) {
+        return Optional.empty();
+      }
+
+      return LogAndSaveFileFilter.acceptsFileName(path) ?
+        Optional.of(uri.toURL()) :
+        Optional.empty();
     }
     catch (IllegalArgumentException | MalformedURLException e) {
       return Optional.empty();
