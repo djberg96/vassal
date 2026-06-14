@@ -114,20 +114,9 @@ class BSHTryStatement extends SimpleNode
 							"(Strict Java) Untyped catch block", this, callstack );
 
 					// If the param is typed check assignability
-					if ( fp.type != null )
-						try {
-							thrown = (Throwable)Types.castObject(
-								thrown/*rsh*/, fp.type/*lhsType*/, Types.ASSIGNMENT );
-						} catch( UtilEvalError e ) {
-							/*
-								Catch the mismatch and continue to try the next
-								Note: this is innefficient, should have an
-								isAssignableFrom() that doesn't throw
-								// TODO: we do now have a way to test assignment
-								// 	in castObject(), use it?
-							*/
-							continue;
-						}
+					if ( fp.type != null && !Types.isBshAssignable(
+						fp.type, Types.getType( thrown ) ) )
+						continue;
 
 					// Found match, execute catch block
 					BSHBlock cb = catchBlocks.get(i);
