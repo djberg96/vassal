@@ -95,7 +95,6 @@ public class DefaultMultiEventListenerSupport
 
   /** {@inheritDoc} */
   @Override
-  @SuppressWarnings("unchecked")
   public <T> List<EventListener<? super T>> getEventListeners(Class<T> c) {
     final List<EventListener<? super T>> list = new ArrayList<>();
 
@@ -103,11 +102,21 @@ public class DefaultMultiEventListenerSupport
     for (final Map.Entry<Class<?>, List<EventListener<?>>> e : listeners.entrySet()) {
       final Class<?> other = e.getKey();
       if (other.isAssignableFrom(c)) {
-        list.addAll((List) e.getValue());
+        addEventListeners(list, e.getValue());
       }
     }
 
     return list;
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> void addEventListeners(
+    List<EventListener<? super T>> target,
+    List<EventListener<?>> source
+  ) {
+    for (final EventListener<?> listener : source) {
+      target.add((EventListener<? super T>) listener);
+    }
   }
 
   /** {@inheritDoc} */
