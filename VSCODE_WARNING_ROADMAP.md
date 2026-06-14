@@ -38,10 +38,7 @@ locations rather than every matching diagnostic.
 
 ### Placeholder Text And Non-Actionable XXX Matches
 
-- Representatives:
-  - `vassal-app/src/main/java/VASSAL/build/module/Chatter.java:521`
-  - `vassal-app/src/main/java/VASSAL/build/module/gamepieceimage/ItemInstance.java:26`
-  - documentation/examples that use `XXX` as a literal placeholder rather than a task marker
+- Exclusion rule: Do not touch `XXX` occurrences unless the match is on a comment line and is being used as a task marker.
 - Rationale: Only `XXX` markers on comment lines should be treated as actionable cleanup. Other `XXX` occurrences can be legitimate placeholder text, documentation examples, UI sentinel values, or naming conventions.
 - Recommended next action: Ignore non-comment `XXX` matches. For comment-line `XXX` markers, either convert them into clear TODO/FIXME wording or resolve/remove the stale comment.
 - Comment-line `XXX` diagnostics such as `vassal-app/src/main/java/bsh/NameSpace.java:514`, `vassal-app/src/main/java/bsh/ClassGeneratorUtil.java:915`, and `vassal-app/src/main/java/org/netbeans/spi/wizard/SimpleWizardInfo.java:135` are actionable task-tag comments, not representatives of this non-actionable bucket.
