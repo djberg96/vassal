@@ -109,6 +109,7 @@ public class SpecialDiceButton extends DoActionButton implements CommandEncoder,
   public static final String DESCRIPTION = "description"; //NON-NLS
   private static final int[] EMPTY = new int[0];
 
+  @SuppressWarnings("this-escape")
   public SpecialDiceButton() {
     super(false); // Make a DoActionButton, but don't call its normal constructor
 

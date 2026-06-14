@@ -98,6 +98,7 @@ public class PlayerRoster extends AbstractToolbarItem implements CommandEncoder,
   /** Controls how the pick side drop-down interacts with the Startup Wizard. See below for full details */
   protected boolean freshStart = true;
 
+  @SuppressWarnings("this-escape")
   public PlayerRoster() {
     setButtonTextKey(BUTTON_TEXT);
     setTooltipKey(TOOL_TIP);

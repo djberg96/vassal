@@ -212,6 +212,7 @@ public class Inventory extends AbstractToolbarItem
   private JButton zoomPlusButton;
   private JButton zoomMinusButton;
 
+  @SuppressWarnings("this-escape")
   public Inventory() {
     setLaunchButton(makeLaunchButton(
       Resources.getString("Inventory.show_inventory"),
@@ -1343,6 +1344,7 @@ public class Inventory extends AbstractToolbarItem
       this.level = level;
     }
 
+    @SuppressWarnings("this-escape")
     protected CounterNode(String entry, Counter counter) {
       this.level = 0;
       // this.depth = 0;

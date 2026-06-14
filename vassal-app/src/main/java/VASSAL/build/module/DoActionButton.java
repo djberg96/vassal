@@ -104,6 +104,7 @@ public class DoActionButton extends AbstractToolbarItem
   protected MutableProperty.Impl loopIndexProperty;
   protected boolean loopPropertyRegistered = false;
 
+  @SuppressWarnings("this-escape")
   public DoActionButton() {
     final ActionListener rollAction = e -> {
       try {
@@ -238,6 +239,7 @@ public class DoActionButton extends AbstractToolbarItem
   }
 
   public static class LoopTypeConfig extends StringEnumConfigurer {
+    @SuppressWarnings("this-escape")
     public LoopTypeConfig(String key, String name, String loopType) {
       super(key, name, LoopControl.loopTypeDescriptions());
       setValue(LoopControl.loopTypeToDesc(loopType));

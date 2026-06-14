@@ -71,6 +71,7 @@ public class ToolbarMenu extends AbstractToolbarItem
   protected JPopupMenu menu;
   protected Runnable menuBuilder;
 
+  @SuppressWarnings("this-escape")
   public ToolbarMenu() {
     setNameKey(DESCRIPTION); // We have a legacy name key that's different from the standard AbstractToolbarItem name key
 

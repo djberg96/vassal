@@ -137,6 +137,7 @@ public class DiceButton extends AbstractToolbarItem {
   public static final String RESULT_N = "result#"; //$NON-NLS-1$
   public static final String NUMERIC_TOTAL = "numericalTotal"; //$NON-NLS-1$
 
+  @SuppressWarnings("this-escape")
   public DiceButton() {
     initLaunchButton();
   }

@@ -121,6 +121,7 @@ public class ChessClockControl extends AbstractConfigurable
 
   public static final String COMMAND_PREFIX = "CLOCKCONTROL" + DELIMITER; //NON-NLS-1$
 
+  @SuppressWarnings("this-escape")
   public ChessClockControl() {
     setConfigureName(Resources.getString("Editor.ChessClock.chess_clock_control"));
 
