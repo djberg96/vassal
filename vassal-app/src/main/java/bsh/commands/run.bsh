@@ -46,7 +46,7 @@ run( String filename, Object runArgument )
 		.getClassPath().getUserClassPathComponents();
 
 	// Cut us off... make us the root (global) namespace for this command
-	// Prune() will also create a new class manager for us.
+	// The namespace will create a new class manager when we next need one.
 	this.namespace.prune();
 
 	// Inherit user classpath 

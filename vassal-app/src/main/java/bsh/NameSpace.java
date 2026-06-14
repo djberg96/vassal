@@ -510,12 +510,6 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 		// Should we do it by default when we create a namespace will no
 		// parent of class manager?
 
-		if ( this.classManager == null )
-// XXX if we keep the createClassManager in getClassManager then we can axe
-// this?
-			setClassManager( 
-				BshClassManager.createClassManager( null/*interp*/ ) );
-
 		setParent( null );
 	}
 
