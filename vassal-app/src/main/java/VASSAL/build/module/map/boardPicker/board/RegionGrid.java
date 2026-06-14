@@ -99,8 +99,6 @@ import java.util.List;
 import java.util.Map;
 
 public class RegionGrid extends AbstractConfigurable implements MapGrid, ConfigureTree.Mutable {
-  private static final long serialVersionUID = 1L;
-
   // AreaList is the table of Map areas
   // pointList is a cross-reference of points to Area names
 
@@ -554,6 +552,10 @@ public class RegionGrid extends AbstractConfigurable implements MapGrid, Configu
         // If any regions have been defined, then use that list
         Rectangle rect = null;
         for (final Region r : grid.regionList.values()) {
+          if (r == null) {
+            continue;
+          }
+
           final Point p = r.getOrigin();
           if (rect == null) {
             rect = new Rectangle(p);
@@ -563,18 +565,23 @@ public class RegionGrid extends AbstractConfigurable implements MapGrid, Configu
           }
         }
 
-        final Rectangle r = new Rectangle(0, 0, 800, 600);
-        if (rect.getWidth() < r.getWidth()/2) {
-          rect.x = (int) (rect.x + rect.getWidth()/2 - r.getWidth()/2);
-          rect.width = (int)r.getWidth()/2;
-        }
+        if (rect != null) {
+          final Rectangle r = new Rectangle(0, 0, 800, 600);
+          if (rect.getWidth() < r.getWidth()/2) {
+            rect.x = (int) (rect.x + rect.getWidth()/2 - r.getWidth()/2);
+            rect.width = (int)r.getWidth()/2;
+          }
 
-        if (rect.getHeight() < r.getHeight()/2) {
-          rect.y = (int) (rect.y + rect.getHeight()/2 - r.getHeight()/2);
-          rect.height = (int)r.getHeight()/2;
-        }
+          if (rect.getHeight() < r.getHeight()/2) {
+            rect.y = (int) (rect.y + rect.getHeight()/2 - r.getHeight()/2);
+            rect.height = (int)r.getHeight()/2;
+          }
 
-        view.scrollRectToVisible(rect);
+          view.scrollRectToVisible(rect);
+        }
+        else {
+          scrollToZone();
+        }
       }
       else {
         // If no regions yet, scroll to the Zone that we're in, if we're in a Zone
