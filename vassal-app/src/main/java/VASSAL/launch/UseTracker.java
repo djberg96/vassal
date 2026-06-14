@@ -54,7 +54,7 @@ public class UseTracker {
 
   public synchronized void incrementUsed(File file) {
     final boolean wasOpen = using.isEmpty();
-    using.merge(file, 1, Integer::sum);
+    using.merge(file, 1, (current, increment) -> current + increment);
     final boolean isOpen = using.isEmpty();
     if (wasOpen != isOpen) {
       getPropertyChangeSupport().firePropertyChange("open", wasOpen, isOpen);
