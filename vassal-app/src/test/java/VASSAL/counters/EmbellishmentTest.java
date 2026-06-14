@@ -30,10 +30,5 @@ public class EmbellishmentTest extends DecoratorTest {
 
     // Default trait
     serializeTest("Default trait", trait); // NON-NLS
-
-    // TODO Need some more complex Embellishment tests here
-    trait = new Embellishment();
-
-
   }
 }
