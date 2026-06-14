@@ -102,6 +102,7 @@ public class ZipArchiveTest {
     }
 
     try (InputStream in = z.getInputStream(name)) {
+      assertNotNull(in);
       fail("Expected FileNotFoundException");
     }
     catch (FileNotFoundException | NoSuchFileException e) {

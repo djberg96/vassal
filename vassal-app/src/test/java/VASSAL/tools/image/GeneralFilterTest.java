@@ -73,14 +73,16 @@ public class GeneralFilterTest {
   protected static long[] run(BufferedImage src, int dw, int dh, int times) {
     final GeneralFilter.Filter filter = new GeneralFilter.Lanczos3Filter();
 
-    BufferedImage dst;
-
     final long[] time = new long[times];
 
     for (int i = 0; i < times; ++i) {
       final long start = System.currentTimeMillis();
-      dst = GeneralFilter.zoom(new Rectangle(0, 0, dw, dh), src, filter);
+      final BufferedImage dst = GeneralFilter.zoom(new Rectangle(0, 0, dw, dh), src, filter);
       time[i] = System.currentTimeMillis() - start;
+
+      if (dst.getWidth() != dw || dst.getHeight() != dh) {
+        throw new AssertionError("Unexpected filtered image size");
+      }
     }
 
     return time;
