@@ -2043,7 +2043,6 @@ public final class ModuleManagerWindow extends JFrame {
    * Saved Game Folder Node User Information
    */
   private class GameFolderInfo extends AbstractInfo {
-    protected String comment;
     protected final ModuleInfo moduleInfo;
     protected final long dtm;
 
