@@ -137,13 +137,26 @@ public class SinglePropertyContainer<V> implements PropertyContainer {
 
   /** {@inheritDoc} */
   @Override
-  @SuppressWarnings("unchecked")
   public <T> List<PropertyListener<? super T>>
                                        getPropertyListeners(Property<T> prop) {
     if (!this.prop.equals(prop)) throw new IllegalArgumentException();
     return plisteners.isEmpty() ?
       Collections.emptyList() :
-      new ArrayList<PropertyListener<? super T>>((List) plisteners);
+      copyPropertyListeners(plisteners);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T, V> List<PropertyListener<? super T>> copyPropertyListeners(
+    List<PropertyListener<? super V>> listeners
+  ) {
+    final List<PropertyListener<? super T>> copy =
+      new ArrayList<>(listeners.size());
+
+    for (final PropertyListener<? super V> listener : listeners) {
+      copy.add((PropertyListener<? super T>) listener);
+    }
+
+    return copy;
   }
 
   /** {@inheritDoc} */
