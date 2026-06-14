@@ -3,8 +3,8 @@
 Source: `/Users/dberger/vscode_vassal_warnings3.json`
 
 This is a triage roadmap for VS Code task-tag diagnostics, not an implementation
-commit list. The goal is to sort TODO, FIXME, and XXX markers into practical
-work buckets so cleanup can proceed in batches with focused tests.
+commit list. The goal is to sort TODO, FIXME, and comment-line XXX markers into
+practical work buckets so cleanup can proceed in batches with focused tests.
 
 ## Summary
 
@@ -36,14 +36,14 @@ locations rather than every matching diagnostic.
 - Recommended next action: Confirm current callers, remove obsolete comments, and either remove the legacy code or move the remaining compatibility concern into a named test.
 - Suggested test scope: Targeted compile plus launch/load smoke tests for any removed launcher or save/load compatibility code.
 
-### Placeholder Text And Non-Actionable XXX Markers
+### Placeholder Text And Non-Actionable XXX Matches
 
 - Representatives:
   - `vassal-app/src/main/java/VASSAL/build/module/Chatter.java:521`
   - `vassal-app/src/main/java/VASSAL/build/module/gamepieceimage/ItemInstance.java:26`
-  - message-only `XXX` diagnostics where the tag is a placeholder or explanatory convention
-- Rationale: Some `XXX` occurrences are not engineering tasks; they are placeholder strings, documentation-style naming patterns, or vague notes with no actionable defect.
-- Recommended next action: Replace placeholder comments with ordinary wording, or suppress the task tag by rephrasing if the text is still useful.
+  - message-only `XXX` diagnostics where the match is code, data, documentation, or a naming convention rather than a comment-line task marker
+- Rationale: Only `XXX` markers on comment lines should be treated as actionable cleanup. Other `XXX` occurrences can be legitimate placeholder text, documentation examples, UI sentinel values, or naming conventions.
+- Recommended next action: Ignore non-comment `XXX` matches. For comment-line `XXX` markers, either convert them into clear TODO/FIXME wording or resolve/remove the stale comment.
 - Suggested test scope: No Maven tests for comment-only edits; run `git diff --check`.
 
 ### Comments Superseded By Recent Warning Cleanup
@@ -236,7 +236,8 @@ locations rather than every matching diagnostic.
 
 - `bsh/Parser.java` dead-code and unused-variable diagnostics are generated parser artifacts and are not part of this task-tag roadmap.
 - VS Code compiler-option diagnostics such as unused/serial-analysis options being ignored are environment/configuration noise, not source task tags.
-- Non-task warnings from the JSON should remain in the ordinary warning cleanup workflow, not this TODO/FIXME/XXX roadmap.
+- Non-task warnings from the JSON should remain in the ordinary warning cleanup workflow, not this TODO/FIXME/comment-line-XXX roadmap.
+- `XXX` occurrences outside comments should be excluded unless surrounding context proves they are intentional task markers.
 
 ## Recommended Cleanup Order
 
