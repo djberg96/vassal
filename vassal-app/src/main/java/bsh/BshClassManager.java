@@ -303,8 +303,11 @@ public class BshClassManager
 	 */
 	public void associateClass( Class<?> clas )
 	{
-		// TODO should check to make sure it's a generated class here
-		// just need to add a method to classgenerator API to test it
+		if ( clas == null )
+			throw new IllegalArgumentException("Class must not be null");
+		if ( !GeneratedClass.class.isAssignableFrom( clas ) )
+			throw new IllegalArgumentException(
+				"Class is not a BeanShell generated class: " + clas.getName() );
 		associatedClasses.put( clas.getName(), clas );
 	}
 
