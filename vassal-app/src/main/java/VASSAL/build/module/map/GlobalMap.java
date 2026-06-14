@@ -87,8 +87,6 @@ public class GlobalMap implements AutoConfigurable,
                                   Drawable,
                                   SearchTarget,
                                   ImageSearchTarget {
-  private static final long serialVersionUID = 2L;
-
   protected Map map;
   protected double scale = 0.19444444; // Zoom factor
 
