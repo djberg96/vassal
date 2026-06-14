@@ -137,7 +137,7 @@ public class Interpreter
 	transient Reader in;
 	transient PrintStream out;
 	transient PrintStream err;
-	ConsoleInterface console; 
+	transient ConsoleInterface console; 
 
 	/** If this interpeter is a child of another, the parent */
 	Interpreter parent;

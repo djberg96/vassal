@@ -105,7 +105,7 @@ class Name implements java.io.Serializable
 	*/
 	private String lastEvalName;
 	private static String FINISHED = null; // null evalname and we're finished
-	private Object evalBaseObject;	// base object for current eval
+	private transient Object evalBaseObject;	// base object for current eval
 
 	private int callstackDepth;		// number of times eval hit 'this.caller'
 

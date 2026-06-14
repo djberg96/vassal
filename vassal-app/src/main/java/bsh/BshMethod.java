@@ -73,8 +73,8 @@ public class BshMethod
 	BSHBlock methodBody;
 
 	// Java Method, for a BshObject that delegates to a real Java method
-	private Method javaMethod;
-	private Object javaObject;
+	private transient Method javaMethod;
+	private transient Object javaObject;
 
 	// End method components
 
