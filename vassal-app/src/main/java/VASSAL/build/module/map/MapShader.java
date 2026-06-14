@@ -407,7 +407,13 @@ public class MapShader extends AbstractToolbarItem implements Drawable, UniqueId
       zoom = 1.0;
     }
 
-    texture = textures.computeIfAbsent(zoom, this::makeTexture);
+    texture = textures.get(zoom);
+    if (texture == null && !textures.containsKey(zoom)) {
+      texture = makeTexture(zoom);
+      if (texture != null) {
+        textures.put(zoom, texture);
+      }
+    }
     return texture;
   }
 
