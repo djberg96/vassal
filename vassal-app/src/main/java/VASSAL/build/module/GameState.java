@@ -97,6 +97,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -1574,9 +1575,11 @@ public class GameState implements CommandEncoder {
 
       @Override
       public int compare(GamePiece a, GamePiece b) {
+        Objects.requireNonNull(a);
+        Objects.requireNonNull(b);
 
-        final VASSAL.build.module.Map amap = a == null ? null : a.getMap();
-        final VASSAL.build.module.Map bmap = b == null ? null : b.getMap();
+        final VASSAL.build.module.Map amap = a.getMap();
+        final VASSAL.build.module.Map bmap = b.getMap();
 
         if (amap == null) {
           return bmap == null ?
