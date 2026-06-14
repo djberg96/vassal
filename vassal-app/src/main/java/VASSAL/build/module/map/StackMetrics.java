@@ -27,6 +27,7 @@ import java.awt.Shape;
 import java.awt.event.KeyEvent;
 import java.awt.geom.AffineTransform;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.KeyStroke;
 
@@ -657,21 +658,22 @@ public class StackMetrics extends AbstractConfigurable {
           comm = comm.append(new AddPiece(moving));
         }
 
+        final Stack targetParent = Objects.requireNonNull(fixedParent);
         if (moving instanceof Stack) {
           for (final GamePiece p : ((Stack) moving).asList()) {
             final MoveTracker t = new MoveTracker(p);
-            fixedParent.insertChild(p, index++);
+            targetParent.insertChild(p, index++);
             comm = comm.append(t.getMoveCommand());
           }
         }
         else {
-          if (moving.getParent() == fixedParent && fixedParent != null && fixedParent.indexOf(moving) < index) {
+          if (moving.getParent() == targetParent && targetParent.indexOf(moving) < index) {
             index--;
           }
           if (moving.getMap() != null && moving.getMap() != map) {
             moving.getMap().removePiece(moving);
           }
-          fixedParent.insert(moving, index);
+          targetParent.insert(moving, index);
 
           comm = comm.append(tracker.getMoveCommand());
 
