@@ -99,13 +99,26 @@ public class ConcurrentPropertySupport implements PropertySupport {
 
   /** {@inheritDoc} */
   @Override
-  @SuppressWarnings("unchecked")
   public <T> List<PropertyListener<? super T>>
-                                       getPropertyListeners(Property<T> prop) {
+                                           getPropertyListeners(Property<T> prop) {
     final List<PropertyListener<?>> list = plisteners.get(prop);
     return list == null || list.isEmpty() ?
       Collections.emptyList() :
-      new ArrayList<PropertyListener<? super T>>((List) list);
+      copyPropertyListeners(list);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T> List<PropertyListener<? super T>> copyPropertyListeners(
+    List<PropertyListener<?>> listeners
+  ) {
+    final List<PropertyListener<? super T>> copy =
+      new ArrayList<>(listeners.size());
+
+    for (final PropertyListener<?> listener : listeners) {
+      copy.add((PropertyListener<? super T>) listener);
+    }
+
+    return copy;
   }
 
   /** {@inheritDoc} */
