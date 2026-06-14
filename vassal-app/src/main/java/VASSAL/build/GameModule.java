@@ -463,6 +463,7 @@ public class GameModule extends AbstractConfigurable
    * Manages the tiling of large map images
    */
   private ImageTileSource tcache;
+  private String tcacheKey;
 
   /**
    * For the startup Wizard
@@ -2168,18 +2169,20 @@ public class GameModule extends AbstractConfigurable
    * @return the object that provides tiling and caching services for tiling large map images.
    */
   public ImageTileSource getImageTileSource() {
-    if (tcache == null) {
-      // FIXME: There's no guarantee that getGameName() and getGameVersion()
-      // are properly set at this point.
-
-      final String hstr =
-        DigestUtils.sha1Hex(getGameName() + "_" + getGameVersion()); //NON-NLS
-
+    final String hstr = tileCacheName(getGameName(), getGameVersion());
+    if (tcache == null || !hstr.equals(tcacheKey)) {
       final File tc = new File(Info.getCacheDir(), "tiles/" + hstr); //NON-NLS
       tcache = new ImageTileDiskCache(tc.getAbsolutePath());
+      tcacheKey = hstr;
     }
 
     return tcache;
+  }
+
+  static String tileCacheName(String moduleName, String moduleVersion) {
+    return DigestUtils.sha1Hex(
+      StringUtils.defaultString(moduleName) + "_" + StringUtils.defaultString(moduleVersion) //NON-NLS
+    );
   }
 
   /**

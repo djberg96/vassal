@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import VASSAL.command.Command;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
 
 public class GameModuleTest {
@@ -94,5 +95,18 @@ public class GameModuleTest {
       "ROOT" + COMMAND_SEPARATOR + "CHILD\\" + COMMAND_SEPARATOR + "GRANDCHILD",
       writeEncoded(command)
     );
+  }
+
+  @Test
+  public void tileCacheNameMatchesLegacyModuleMetadataHash() {
+    assertEquals(
+      DigestUtils.sha1Hex("Module Name_1.2.3"),
+      GameModule.tileCacheName("Module Name", "1.2.3")
+    );
+  }
+
+  @Test
+  public void tileCacheNameTreatsNullValuesAsEmpty() {
+    assertEquals(DigestUtils.sha1Hex("_"), GameModule.tileCacheName(null, null));
   }
 }
