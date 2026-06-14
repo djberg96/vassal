@@ -93,6 +93,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
 
@@ -590,13 +591,13 @@ public class WizardSupport {
             throw new IOException(Resources.getString("WizardSupport.InvalidSavefile")); //$NON-NLS-1$
           }
           // Strip out the setup(true) command. This will be applied when the "Finish" button is pressed
-          setupCommand = new CommandFilter() {
+          setupCommand = Objects.requireNonNull(new CommandFilter() {
             @Override
             protected boolean accept(Command c) {
               return !(c instanceof GameState.SetupCommand) ||
                 !((GameState.SetupCommand) c).isGameStarting();
             }
-          }.apply(setupCommand);
+          }.apply(setupCommand));
         }
         catch (IllegalStateException e) {
           final String msg = e.getMessage();
@@ -738,13 +739,13 @@ public class WizardSupport {
           throw new IOException(Resources.getString("WizardSupport.InvalidSavefile")); //$NON-NLS-1$
         }
         // Strip out the setup(true) command. This will be applied when the "Finish" button is pressed
-        setupCommand = new CommandFilter() {
+        setupCommand = Objects.requireNonNull(new CommandFilter() {
           @Override
           protected boolean accept(Command c) {
             return !(c instanceof GameState.SetupCommand) ||
               !((GameState.SetupCommand) c).isGameStarting();
           }
-        }.apply(setupCommand);
+        }.apply(setupCommand));
       }
       catch (IllegalStateException e) {
         final String msg = e.getMessage();
