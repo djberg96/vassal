@@ -442,7 +442,7 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <configuration>
                             <compilerArgs>
-                                <arg>-Xlint:all</arg>
+                                <arg>-Xlint:all,-processing</arg>
                                 <arg>-Xmaxwarns</arg>
                                 <arg>10000</arg>
                             </compilerArgs>
