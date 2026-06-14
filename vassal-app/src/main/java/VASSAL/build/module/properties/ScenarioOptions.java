@@ -68,6 +68,7 @@ public class ScenarioOptions implements GameComponent {
     return instance;
   }
 
+  @SuppressWarnings("this-escape")
   public ScenarioOptions(GlobalProperties props) {
     final GameModule gm = GameModule.getGameModule();
     final GlobalOptions go = GlobalOptions.getInstance();

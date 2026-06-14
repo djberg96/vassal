@@ -169,9 +169,12 @@ public class TurnTracker extends TurnComponent implements CommandEncoder, GameCo
   protected int turnButtonHeight = DEFAULT_SIZE;
   protected boolean fwdOnly = false;
 
+  @SuppressWarnings("this-escape")
   protected MutableProperty.Impl lastCommand = new MutableProperty.Impl(SET, this);
+  @SuppressWarnings("this-escape")
   protected MutableProperty.Impl lastTurn = new MutableProperty.Impl("", this);
 
+  @SuppressWarnings("this-escape")
   public TurnTracker() {
 
     final ActionListener al = e -> {

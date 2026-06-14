@@ -65,6 +65,7 @@ public abstract class TurnLevel extends TurnComponent {
 
   protected boolean subLevelRolledOver = false;
   protected boolean rolledOver = false;
+  @SuppressWarnings("this-escape")
   protected MutableProperty.Impl myValue = new MutableProperty.Impl("", this); //$NON-NLS-1$
 
   protected FormattedString turnFormat;

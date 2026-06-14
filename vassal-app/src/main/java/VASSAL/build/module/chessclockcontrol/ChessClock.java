@@ -136,6 +136,7 @@ public class ChessClock extends AbstractConfigurable implements CommandEncoder, 
   protected String description;
 
 
+  @SuppressWarnings("this-escape")
   public ChessClock(String side) {
     this();
     this.side       = side;
@@ -145,6 +146,7 @@ public class ChessClock extends AbstractConfigurable implements CommandEncoder, 
   }
 
 
+  @SuppressWarnings("this-escape")
   public ChessClock() {
     defaultColor = UIManager.getColor("Panel.background");      // Store our original default background color
     defaultFontColor = UIManager.getColor("Button.foreground"); // Store our original default font color

@@ -45,6 +45,7 @@ public class ColorSwatchConfigurer extends Configurer {
     this(key, name, ColorSwatch.getDefaultSwatch());
   }
 
+  @SuppressWarnings("this-escape")
   public ColorSwatchConfigurer(String key, String name, ColorSwatch swatch) {
     super(key, name);
     setValue(swatch);

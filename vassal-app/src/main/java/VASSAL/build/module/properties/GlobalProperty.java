@@ -63,13 +63,16 @@ public class GlobalProperty extends AbstractConfigurable implements ToolBarCompo
   protected VisibilityCondition numericVisibility;
   protected FormattedString format = new FormattedString();
   protected PropertySource propertySource;
+  @SuppressWarnings("this-escape")
   protected MutableProperty.Impl property = new MutableProperty.Impl("", this);
   protected MutablePropertiesContainer parentContainer;
 
+  @SuppressWarnings("this-escape")
   public GlobalProperty() {
     numericVisibility = this::isNumeric;
   }
 
+  @SuppressWarnings("this-escape")
   public GlobalProperty(GlobalProperty p) {
     this();
     setConfigureName(p.getConfigureName());

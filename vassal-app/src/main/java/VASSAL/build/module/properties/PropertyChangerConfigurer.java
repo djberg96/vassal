@@ -93,6 +93,7 @@ public class PropertyChangerConfigurer extends Configurer {
   protected JPanel changerControls;
   private List<Configurer> subConfigurers;
 
+  @SuppressWarnings("this-escape")
   public PropertyChangerConfigurer(String key, String name, Constraints constraints) {
     super(key, name);
     this.constraints = constraints;

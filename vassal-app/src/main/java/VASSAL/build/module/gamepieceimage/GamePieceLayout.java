@@ -149,6 +149,7 @@ public class GamePieceLayout extends AbstractConfigurable implements Visualizabl
   protected Image visImage;
   protected List<Item> items = new ArrayList<>();
 
+  @SuppressWarnings("this-escape")
   public GamePieceLayout() {
     super();
     name = ""; //$NON-NLS-1$

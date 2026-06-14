@@ -60,6 +60,7 @@ public class InstanceConfigurer extends Configurer {
     me = this;
   }
 
+  @SuppressWarnings("this-escape")
   protected InstanceConfigurer(String key, String name, GamePieceImage defn) {
     super(key, name);
     this.defn = defn;

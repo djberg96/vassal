@@ -72,6 +72,7 @@ public class PrototypeDefinition extends AbstractConfigurable
   private final java.util.Map<String, GamePiece> pieces = new HashMap<>();
   private String pieceDefinition;
   private static final UniqueIdManager idMgr = new UniqueIdManager("prototype-"); //$NON-NLS-1$
+  @SuppressWarnings("this-escape")
   private final PropertyChangeSupport propSupport = new PropertyChangeSupport(this);
 
   @Override

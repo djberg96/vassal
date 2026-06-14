@@ -49,13 +49,16 @@ public class GlobalTranslatableMessage extends AbstractConfigurable implements T
   protected String initialValue = "";
   protected FormattedString format = new FormattedString();
   protected PropertySource propertySource;
+  @SuppressWarnings("this-escape")
   protected TranslatableString.Impl property = new TranslatableString.Impl("", this);
   protected TranslatableStringContainer parentContainer;
 
+  @SuppressWarnings("this-escape")
   public GlobalTranslatableMessage() {
 
   }
 
+  @SuppressWarnings("this-escape")
   public GlobalTranslatableMessage(GlobalTranslatableMessage p) {
     this();
     setConfigureName(p.getConfigureName());
