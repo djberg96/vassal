@@ -65,8 +65,8 @@ class LHS implements ParserConstants, java.io.Serializable
 
 	String varName;
 	String propName;
-	Field field;
-	Object object;
+	transient Field field;
+	transient Object object;
 	int index;
 
 /**

@@ -38,7 +38,7 @@ class BSHLiteral extends SimpleNode
 {
 	private static final long serialVersionUID = 1L;
 
-    public Object value;
+    public java.io.Serializable value;
 
     BSHLiteral(int id) { super(id); }
 

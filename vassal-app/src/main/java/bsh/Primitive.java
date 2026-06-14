@@ -95,7 +95,7 @@ public final class Primitive implements ParserConstants, java.io.Serializable
 	}
 
     /** The primitive value stored in its java.lang wrapper class */
-    private Object value;
+    private java.io.Serializable value;
 
     private static class Special implements java.io.Serializable
     {
@@ -133,7 +133,7 @@ public final class Primitive implements ParserConstants, java.io.Serializable
 		)
             throw new InterpreterError( "Not a wrapper type: "+value);
 
-        this.value = value;
+        this.value = (java.io.Serializable) value;
     }
 
     public Primitive(boolean value) { this(Boolean.valueOf(value)); }

@@ -42,7 +42,6 @@ class BSHPrimarySuffix extends SimpleNode
 		PROPERTY = 3;
 
 	public int operation;
-	Object index;
 	public String field;
 
 	BSHPrimarySuffix(int id) { super(id); }
