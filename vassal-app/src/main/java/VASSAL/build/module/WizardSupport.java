@@ -585,19 +585,22 @@ public class WizardSupport {
       }
 
       try (InputStream in = setup.getSavedGameContents(); BufferedInputStream bis = new BufferedInputStream(in)) {
-        Command setupCommand = GameModule.getGameModule().getGameState().decodeSavedGame(bis);
+        final Command decodedCommand = GameModule.getGameModule().getGameState().decodeSavedGame(bis);
+        if (decodedCommand == null) {
+          throw new IOException(Resources.getString("WizardSupport.InvalidSavefile")); //$NON-NLS-1$
+        }
+
+        Command setupCommand = decodedCommand;
         try {
-          if (setupCommand == null) {
-            throw new IOException(Resources.getString("WizardSupport.InvalidSavefile")); //$NON-NLS-1$
-          }
           // Strip out the setup(true) command. This will be applied when the "Finish" button is pressed
-          setupCommand = Objects.requireNonNull(new CommandFilter() {
+          final Command filteredCommand = Objects.requireNonNull(new CommandFilter() {
             @Override
             protected boolean accept(Command c) {
               return !(c instanceof GameState.SetupCommand) ||
                 !((GameState.SetupCommand) c).isGameStarting();
             }
           }.apply(setupCommand));
+          setupCommand = filteredCommand;
         }
         catch (IllegalStateException e) {
           final String msg = e.getMessage();
@@ -732,20 +735,23 @@ public class WizardSupport {
     }
 
     protected Command loadSavedGame() throws IOException {
-      Command setupCommand =
+      final Command decodedCommand =
         GameModule.getGameModule().getGameState().decodeSavedGame(in);
+      if (decodedCommand == null) {
+        throw new IOException(Resources.getString("WizardSupport.InvalidSavefile")); //$NON-NLS-1$
+      }
+
+      Command setupCommand = decodedCommand;
       try {
-        if (setupCommand == null) {
-          throw new IOException(Resources.getString("WizardSupport.InvalidSavefile")); //$NON-NLS-1$
-        }
         // Strip out the setup(true) command. This will be applied when the "Finish" button is pressed
-        setupCommand = Objects.requireNonNull(new CommandFilter() {
+        final Command filteredCommand = Objects.requireNonNull(new CommandFilter() {
           @Override
           protected boolean accept(Command c) {
             return !(c instanceof GameState.SetupCommand) ||
               !((GameState.SetupCommand) c).isGameStarting();
           }
         }.apply(setupCommand));
+        setupCommand = filteredCommand;
       }
       catch (IllegalStateException e) {
         final String msg = e.getMessage();
