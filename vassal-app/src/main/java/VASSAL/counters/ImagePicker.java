@@ -54,6 +54,7 @@ public class ImagePicker extends JPanel
   private final JPanel imageViewer;
   private final JScrollPane imageScroller;
 
+  @SuppressWarnings("this-escape")
   public ImagePicker() {
     noImage = new JTextArea(1, 10);
     noImage.setFont(FONT);

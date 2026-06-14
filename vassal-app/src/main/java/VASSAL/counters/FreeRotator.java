@@ -138,6 +138,7 @@ public class FreeRotator extends Decorator
     this(ID + "6;];[;" + Resources.getString("Editor.FreeRotator.default_rotate_cw_command") + ";" + Resources.getString("Editor.FreeRotator.default_rotate_ccw_command") + ";;;;", null); //$NON-NLS-1$//
   }
 
+  @SuppressWarnings("this-escape")
   public FreeRotator(String type, GamePiece inner) {
     mySetType(type);
     setInner(inner);

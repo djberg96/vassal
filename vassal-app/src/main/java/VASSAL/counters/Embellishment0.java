@@ -130,6 +130,7 @@ public class Embellishment0 extends Decorator implements TranslatablePiece {
     this(ID + Resources.getString("Editor.Embellishment.activate"), null);
   }
 
+  @SuppressWarnings("this-escape")
   public Embellishment0(String type, GamePiece d) {
     mySetType(type);
     setInner(d);

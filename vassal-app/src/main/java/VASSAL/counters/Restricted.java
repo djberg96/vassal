@@ -58,6 +58,7 @@ public class Restricted extends Decorator {
     this(ID, null);
   }
 
+  @SuppressWarnings("this-escape")
   public Restricted(String type, GamePiece p) {
     setInner(p);
     mySetType(type);

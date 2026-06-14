@@ -485,6 +485,7 @@ public class ActionButton extends Decorator implements Loopable {
     protected StringConfigurer descConfig;
     private Polygon polygon;
 
+    @SuppressWarnings("this-escape")
     public Ed(ActionButton p) {
       box = new TraitConfigPanel();
 

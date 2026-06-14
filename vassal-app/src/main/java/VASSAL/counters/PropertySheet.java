@@ -172,6 +172,7 @@ public class PropertySheet extends Decorator implements TranslatablePiece {
   }
 
 
+  @SuppressWarnings("this-escape")
   public PropertySheet(String type, GamePiece p) {
     mySetType(type);
     setInner(p);

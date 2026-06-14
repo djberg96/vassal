@@ -65,6 +65,7 @@ public class PlaySound extends Decorator implements TranslatablePiece {
     this(ID, null);
   }
 
+  @SuppressWarnings("this-escape")
   public PlaySound(String type, GamePiece piece) {
     mySetType(type);
     setInner(piece);

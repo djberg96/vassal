@@ -34,6 +34,7 @@ public class MassPieceDefiner extends PieceDefiner {
   protected transient List<Entry> definers;
   protected ConfigureTree tree;
 
+  @SuppressWarnings("this-escape")
   public MassPieceDefiner(Configurable top) {
     super();
     definers = new ArrayList<>();

@@ -124,6 +124,7 @@ public class Immobilized extends Decorator {
     this(ID, null);
   }
 
+  @SuppressWarnings("this-escape")
   public Immobilized(String type, GamePiece p) {
     setInner(p);
     mySetType(type);

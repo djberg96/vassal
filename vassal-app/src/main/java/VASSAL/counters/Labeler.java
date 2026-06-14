@@ -121,6 +121,7 @@ public class Labeler extends Decorator implements TranslatablePiece, Loopable {
     this(ID, null);
   }
 
+  @SuppressWarnings("this-escape")
   public Labeler(String s, GamePiece d) {
     mySetType(s);
     setInner(d);

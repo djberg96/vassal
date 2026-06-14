@@ -42,6 +42,7 @@ public class MultiImagePicker extends JPanel {
   protected CardLayout cl = new CardLayout();
   protected JPanel multiPanel = new JPanel();
 
+  @SuppressWarnings("this-escape")
   public MultiImagePicker() {
     setLayout(new MigLayout("ins 0", "[grow][]", "[grow]")); // NON-NLS
 

@@ -56,6 +56,7 @@ import java.util.Objects;
  * applies them to Global Properties.
  */
 public class SetGlobalProperty extends DynamicProperty {
+  @SuppressWarnings("this-escape")
   protected PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(this);
   public static final String ID = "setprop;"; // NON-NLS
   public static final String CURRENT_ZONE = "Current Zone/Current Map/Module"; // NON-NLS

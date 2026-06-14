@@ -118,6 +118,7 @@ public interface PieceFinder {
     protected Shape[] shapes = new Shape[0];
     protected Map map;
     protected Point pt;
+    @SuppressWarnings("this-escape")
     protected DeckVisitorDispatcher dispatcher = new DeckVisitorDispatcher(this);
 
     // This constructor is safe only if using the PieceFinder.select() method
@@ -181,4 +182,3 @@ public interface PieceFinder {
     }
   }
 }
-

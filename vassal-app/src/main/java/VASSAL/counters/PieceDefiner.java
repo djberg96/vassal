@@ -150,6 +150,7 @@ public class PieceDefiner extends JPanel {
   private boolean splitDragInProgress = false;
 
   /** Creates new form test */
+  @SuppressWarnings("this-escape")
   public PieceDefiner() {
     prefs = GameModule.getGameModule().getPrefs();
     final IntConfigurer maxSplitConfig = new IntConfigurer(MAX_SPLIT_PREF, null, DEFAULT_MAX_SPLIT);

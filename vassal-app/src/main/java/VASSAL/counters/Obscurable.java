@@ -105,6 +105,7 @@ public class Obscurable extends Decorator implements TranslatablePiece {
     this(ID + "M;", null); //$NON-NLS-1$//
   }
 
+  @SuppressWarnings("this-escape")
   public Obscurable(String type, GamePiece d) {
     mySetType(type);
     setInner(d);

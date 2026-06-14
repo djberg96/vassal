@@ -86,6 +86,7 @@ public class DynamicProperty extends Decorator implements TranslatablePiece, Pro
     this(ID, null);
   }
 
+  @SuppressWarnings("this-escape")
   public DynamicProperty(String type, GamePiece p) {
     setInner(p);
     keyCommandListConfig = new DynamicKeyCommandListConfigurer(null, Resources.getString("Editor.DynamicProperty.commands"), this);

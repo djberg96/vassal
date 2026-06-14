@@ -131,6 +131,7 @@ public class Hideable extends Decorator implements TranslatablePiece {
     this(ID + "I", null); // NON-NLS
   }
 
+  @SuppressWarnings("this-escape")
   public Hideable(String type, GamePiece p) {
     setInner(p);
     mySetType(type);
