@@ -63,9 +63,9 @@ public final class FlowLabel extends JTextPane {
     setEditable(false);
     setText(text);
 
-    // FIXME: This is a workaround for Redhat Bugzilla Bug #459967:
-    // JTextPane.setBackground() fails when using GTK LookAndFeel. Once this
-    // bug is resolved, there is no need to make this component nonopaque.
+    // Keep this nonopaque for compatibility with GTK LookAndFeel versions
+    // where JTextPane.setBackground() did not repaint correctly.
+    // Historical reference: Red Hat Bugzilla #459967.
     setOpaque(false);
 
     // set the colors and font a JLabel would have
