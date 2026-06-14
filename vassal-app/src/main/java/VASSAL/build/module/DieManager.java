@@ -134,29 +134,17 @@ public final class DieManager extends AbstractConfigurable {
 
   // Return names of all known Dice Servers
   public String[] getNames() {
-// FIXME: better to return zero-length array
-    if (servers == null) {
-      return null;
-    }
-    else {
-      return servers.keySet().toArray(new String[0]);
-    }
+    return servers.keySet().toArray(new String[0]);
   }
 
   // Return descriptions of all known dice servers
   public String[] getDescriptions() {
-// FIXME: better to return zero-length array
-    if (servers == null) {
-      return null;
+    final String[] s = new String[servers.size()];
+    int i = 0;
+    for (final DieServer d : servers.values()) {
+      s[i++] = d.getDescription();
     }
-    else {
-      final String[] s = new String[servers.size()];
-      int i = 0;
-      for (final DieServer d : servers.values()) {
-        s[i++] = d.getDescription();
-      }
-      return s;
-    }
+    return s;
   }
 
   // Return server matching Name

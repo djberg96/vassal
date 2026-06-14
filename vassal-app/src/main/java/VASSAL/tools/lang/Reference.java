@@ -29,9 +29,6 @@ package VASSAL.tools.lang;
  * @author Joel Uckelman
  */
 public class Reference<T> {
-  // FIXME: Replace this class with Mutable<T> from Apache Commons lang
-  // once we move from 2.5 to 3.0.
-
   public T obj;
 
   /**
