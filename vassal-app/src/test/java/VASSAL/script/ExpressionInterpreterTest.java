@@ -273,6 +273,21 @@ public class ExpressionInterpreterTest {
   }
 
   @Test
+  public void countHelpersTreatNullPropertyAsBlank() throws ExpressionException {
+    final BasicPiece bp = new BasicPiece();
+    final ExpressionInterpreter interpreter = new ExpressionInterpreter("");
+
+    try (MockedStatic<GameModule> staticGm = Mockito.mockStatic(GameModule.class)) {
+      final GameModule gm = mock(GameModule.class);
+      staticGm.when(GameModule::getGameModule).thenReturn(gm);
+
+      assertThat(interpreter.countStack(null, bp), is(equalTo(1)));
+      assertThat(interpreter.countAttachment("attachment", null, bp), is(equalTo(0)));
+      assertThat(interpreter.countMat(null, bp), is(equalTo(1)));
+    }
+  }
+
+  @Test
   public void random() throws ExpressionException {
 
     try (MockedStatic<GameModule> staticGm = Mockito.mockStatic(GameModule.class)) {

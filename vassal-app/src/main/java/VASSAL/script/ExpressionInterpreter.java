@@ -593,6 +593,15 @@ public class ExpressionInterpreter extends AbstractInterpreter implements Loopab
     return 0;
   }
 
+  private static boolean isFilterExpression(Object propertyOrExpression) {
+    return propertyOrExpression != null &&
+      propertyOrExpression.toString().trim().startsWith("{");
+  }
+
+  private static String propertyName(Object propertyOrExpression) {
+    return propertyOrExpression == null ? "" : propertyOrExpression.toString();
+  }
+
   /**
    * SumStack(property) function
    * Total the value of the named property in all counters in the
@@ -675,11 +684,11 @@ public class ExpressionInterpreter extends AbstractInterpreter implements Loopab
    * @return total
    */
   public Object countStack(Object propertyOrExpression, PropertySource ps) {
-    if (propertyOrExpression != null && propertyOrExpression.toString().trim().startsWith("{")) {
+    if (isFilterExpression(propertyOrExpression)) {
       return countStack("", propertyOrExpression, ps);
     }
     else {
-      return countStack(propertyOrExpression.toString(), (PieceFilter) null, ps);
+      return countStack(propertyName(propertyOrExpression), (PieceFilter) null, ps);
     }
   }
 
@@ -816,11 +825,11 @@ public class ExpressionInterpreter extends AbstractInterpreter implements Loopab
    */
 
   public Object countAttachment(Object attachment, Object propertyOrExpression, PropertySource ps) {
-    if (propertyOrExpression != null && propertyOrExpression.toString().trim().startsWith("{")) {
+    if (isFilterExpression(propertyOrExpression)) {
       return countAttachment(attachment, "", propertyOrExpression, ps);
     }
     else {
-      return countAttachment(attachment, propertyOrExpression.toString(), "", ps);
+      return countAttachment(attachment, propertyName(propertyOrExpression), "", ps);
     }
   }
 
@@ -912,11 +921,11 @@ public class ExpressionInterpreter extends AbstractInterpreter implements Loopab
    * @return total
    */
   public Object countMat(Object propertyOrExpression, PropertySource ps) {
-    if (propertyOrExpression != null && propertyOrExpression.toString().trim().startsWith("{")) {
+    if (isFilterExpression(propertyOrExpression)) {
       return countMat("", propertyOrExpression, ps);
     }
     else {
-      return countMat(propertyOrExpression.toString(), (PieceFilter) null, ps);
+      return countMat(propertyName(propertyOrExpression), (PieceFilter) null, ps);
     }
   }
 
