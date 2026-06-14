@@ -32,9 +32,10 @@ public class NamedKeyStrokeTest {
   public void matchesEquivalentRawKeyStroke() {
     final KeyStroke keyStroke = KeyStroke.getKeyStroke(KeyEvent.VK_A, InputEvent.CTRL_DOWN_MASK);
     final NamedKeyStroke namedKeyStroke = NamedKeyStroke.of(keyStroke);
+    final Object rawKeyStroke = keyStroke;
 
     assertTrue(namedKeyStroke.matches(keyStroke));
-    assertTrue(namedKeyStroke.equals(keyStroke));
+    assertTrue(namedKeyStroke.equals(rawKeyStroke));
   }
 
   @Test
