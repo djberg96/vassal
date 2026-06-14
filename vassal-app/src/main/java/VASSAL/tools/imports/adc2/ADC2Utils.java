@@ -33,8 +33,6 @@ import VASSAL.tools.imports.FileFormatException;
 
 public class ADC2Utils {
 
-  private static final long serialVersionUID = 1L;
-
   public static class NoMoreBlocksException extends EOFException {
     private static final long serialVersionUID = 1L;
 
