@@ -155,6 +155,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.NoSuchFileException;
 import java.security.SecureRandom;
@@ -164,6 +168,7 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.function.Function;
 
 import static VASSAL.preferences.Prefs.MAIN_WINDOW_HEIGHT;
 import static VASSAL.preferences.Prefs.MAIN_WINDOW_REMEMBER;
@@ -1560,23 +1565,80 @@ public class GameModule extends AbstractConfigurable
    */
   @Override
   public String encode(Command c) {
+    return encode(c, this::encodeSubCommand);
+  }
+
+  static String encode(Command c, Function<Command, String> encodeSubCommand) {
     if (c == null) {
       return null;
     }
-    String s = encodeSubCommand(c);
-    String s2;
-    final Command[] sub = c.getSubCommands();
-    if (sub.length > 0) {
-      final SequenceEncoder se = new SequenceEncoder(s, COMMAND_SEPARATOR);
-      for (final Command command : sub) {
-        s2 = encode(command);
-        if (s2 != null) {
-          se.append(s2);
-        }
-      }
-      s = se.getValue();
+
+    final StringWriter out = new StringWriter();
+    try {
+      writeEncoded(c, encodeSubCommand, out);
     }
-    return s;
+    catch (IOException e) {
+      throw new AssertionError("StringWriter should not throw IOException", e);
+    }
+
+    final Command[] sub = c.getSubCommands();
+    return sub.length > 0 || out.getBuffer().length() > 0 ? out.toString() : null;
+  }
+
+  public void writeEncoded(Command c, OutputStream out) throws IOException {
+    final Writer writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+    writeEncoded(c, this::encodeSubCommand, writer);
+    writer.flush();
+  }
+
+  static void writeEncoded(Command c, Function<Command, String> encodeSubCommand, Writer out) throws IOException {
+    if (c == null) {
+      return;
+    }
+
+    final String s = encodeSubCommand.apply(c);
+    final Command[] sub = c.getSubCommands();
+    if (sub.length == 0) {
+      if (s != null) {
+        out.write(s);
+      }
+      return;
+    }
+
+    writeSequenceElement(s, out);
+    for (final Command command : sub) {
+      final String s2 = encode(command, encodeSubCommand);
+      if (s2 != null) {
+        out.write(COMMAND_SEPARATOR);
+        writeSequenceElement(s2, out);
+      }
+    }
+  }
+
+  private static void writeSequenceElement(String s, Writer out) throws IOException {
+    if (s == null || s.isEmpty()) {
+      return;
+    }
+
+    if (s.charAt(0) == '\\' ||
+        (s.charAt(0) == '\'' && s.charAt(s.length() - 1) == '\'')) {
+      out.write('\'');
+      writeEscapedSequenceElement(s, out);
+      out.write('\'');
+    }
+    else {
+      writeEscapedSequenceElement(s, out);
+    }
+  }
+
+  private static void writeEscapedSequenceElement(String s, Writer out) throws IOException {
+    for (int i = 0; i < s.length(); ++i) {
+      final char c = s.charAt(i);
+      if (c == COMMAND_SEPARATOR) {
+        out.write('\\');
+      }
+      out.write(c);
+    }
   }
 
   /**

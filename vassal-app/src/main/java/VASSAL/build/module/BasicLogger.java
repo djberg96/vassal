@@ -59,7 +59,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -458,12 +457,9 @@ public class BasicLogger implements Logger, Buildable, GameComponent, CommandEnc
         log.append(new LogCommand(c, logInput, getStepAction()));
       }
 
-// FIXME: Extremely inefficient! Make encode write to an OutputStream
-      final String logString = GameModule.getGameModule().encode(log);
-
       try (ZipWriter zw = new ZipWriter(outputFile)) {
         try (OutputStream out = new ObfuscatingOutputStream(new BufferedOutputStream(zw.write(GameState.SAVEFILE_ZIP_ENTRY)))) {
-          out.write(logString.getBytes(StandardCharsets.UTF_8));
+          GameModule.getGameModule().writeEncoded(log, out);
         }
         metadata.save(zw);
       }
