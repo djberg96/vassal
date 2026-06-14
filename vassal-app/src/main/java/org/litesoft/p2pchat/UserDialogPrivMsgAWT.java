@@ -50,9 +50,9 @@ import java.awt.event.*;
  */
 public class UserDialogPrivMsgAWT extends Frame {
   private static final long serialVersionUID = 1L;
-  private UserDialogAWT zUserDialog;
-  private MyInfo zMyInfo;
-  private ActivePeer zPeerListener;
+  private transient UserDialogAWT zUserDialog;
+  private transient MyInfo zMyInfo;
+  private transient ActivePeer zPeerListener;
 
   private TextField zChatText;
   private TextArea zMessagesTextArea;
