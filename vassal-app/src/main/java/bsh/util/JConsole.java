@@ -56,10 +56,10 @@ public class JConsole extends JScrollPane implements GUIConsoleInterface, Runnab
     private final static String	COPY = "Copy";
     private final static String	PASTE =	"Paste";
 
-	private	OutputStream outPipe;
-	private	InputStream inPipe;
-	private	InputStream in;
-	private	PrintStream out;
+	private	transient OutputStream outPipe;
+	private	transient InputStream inPipe;
+	private	transient InputStream in;
+	private	transient PrintStream out;
 
 	public InputStream getInputStream() { return in; }
 	public Reader getIn() { return new InputStreamReader(in); }
@@ -74,7 +74,7 @@ public class JConsole extends JScrollPane implements GUIConsoleInterface, Runnab
     private JPopupMenu menu;
     private JTextPane text;
 
-	NameCompletion nameCompletion;
+	transient NameCompletion nameCompletion;
 	final int SHOW_AMBIG_MAX = 10;
 
 	// hack to prevent key repeat for some reason?

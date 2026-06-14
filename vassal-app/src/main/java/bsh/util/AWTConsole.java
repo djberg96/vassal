@@ -80,12 +80,12 @@ public class AWTConsole extends TextArea
 
 	private static final long serialVersionUID = 0L;
 
-	private OutputStream outPipe;
-	private InputStream inPipe;
+	private transient OutputStream outPipe;
+	private transient InputStream inPipe;
 
 	// formerly public
-	private InputStream in;
-	private PrintStream out;
+	private transient InputStream in;
+	private transient PrintStream out;
 
 	public Reader getIn() { return new InputStreamReader(in); }
 	public PrintStream getOut() { return out; }
