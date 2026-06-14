@@ -73,6 +73,7 @@ import org.apache.commons.lang3.ArrayUtils;
 public class NodeClient implements LockableChatServerConnection,
     PlayerEncoder, ChatControlsInitializer, SocketWatcher {
   public static final String ZIP_HEADER = "!ZIP!"; //$NON-NLS-1$
+  @SuppressWarnings("this-escape")
   protected PropertyChangeSupport propSupport = new PropertyChangeSupport(this);
   protected NodePlayer me;
   protected SimpleRoom currentRoom;
@@ -100,6 +101,7 @@ public class NodeClient implements LockableChatServerConnection,
 
   protected final WelcomeMessageServer welcomer;
 
+  @SuppressWarnings("this-escape")
   public NodeClient(String moduleName, String playerId, CommandEncoder encoder,  String host, int port, WelcomeMessageServer welcomer) {
 
     this.host = host;

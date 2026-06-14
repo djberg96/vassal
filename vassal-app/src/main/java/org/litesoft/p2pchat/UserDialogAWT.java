@@ -60,6 +60,7 @@ public class UserDialogAWT extends Frame implements UserDialog {
   private List zPeersList;
   private Hashtable<PeerInfo, UserDialogPrivMsgAWT> zPrivateMessagersMap = new Hashtable<>();
 
+  @SuppressWarnings("this-escape")
   public UserDialogAWT(String pTitle, MyInfo pMyInfo) {
     super(pTitle);
     IllegalArgument.ifNull("Title", pTitle);

@@ -57,6 +57,7 @@ public class UserDialogPrivateMessageAWT extends Frame {
   private TextField zChatText;
   private TextArea zMessagesTextArea;
 
+  @SuppressWarnings("this-escape")
   public UserDialogPrivateMessageAWT(UserDialogAWT pUserDialog, MyInfo pMyInfo, ActivePeer pPeerListener) {
     super("P2P Chat Private Messaging with " + pPeerListener.getPeerInfo().toString());
 

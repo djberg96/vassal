@@ -62,6 +62,7 @@ public class P2PClient implements ChatServerConnection, ChatControlsInitializer,
   private final WelcomeMessageServer welcomeMessageServer;
   private final RoomManager roomMgr;
   private final RoomTracker tracker;
+  @SuppressWarnings("this-escape")
   private final PropertyChangeSupport propSupport = new PropertyChangeSupport(this);
   private final CommandEncoder encoder;
   private boolean connected = false;
@@ -77,6 +78,7 @@ public class P2PClient implements ChatServerConnection, ChatControlsInitializer,
     this(encoder, welcomeMessageServer, pool, new Properties());
   }
 
+  @SuppressWarnings("this-escape")
   public P2PClient(CommandEncoder encoder, WelcomeMessageServer welcomeMessageServer, PeerPool pool, Properties param) {
     this.encoder = encoder;
     this.welcomeMessageServer = welcomeMessageServer;

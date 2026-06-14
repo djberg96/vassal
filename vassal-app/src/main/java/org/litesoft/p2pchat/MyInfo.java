@@ -57,6 +57,7 @@ public class MyInfo extends PeerInfo {
     this(pChatName, (String) null, pPort);
   }
 
+  @SuppressWarnings("this-escape")
   public MyInfo(String pChatName, String pOverideIPs, int pPort) {
     super("(you)", getIPs(pOverideIPs), pPort);
     setID("--");

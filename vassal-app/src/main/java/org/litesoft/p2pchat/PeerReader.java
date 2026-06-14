@@ -58,6 +58,7 @@ public class PeerReader extends Thread {
   private BufferedReader zReader;
   private boolean isOpen = true;
 
+  @SuppressWarnings("this-escape")
   public PeerReader(InputStream pIs) {
     IllegalArgument.ifNull("Is", pIs);
     zReader = new BufferedReader(new InputStreamReader(pIs,Charset.forName("UTF-8")));

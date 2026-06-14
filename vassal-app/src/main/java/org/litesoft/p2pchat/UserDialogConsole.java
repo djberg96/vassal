@@ -52,6 +52,7 @@ public class UserDialogConsole extends Thread implements UserDialog {
   private ActivePeerManager zActivePeerManager = null;
   private BufferedReader zReader;
 
+  @SuppressWarnings("this-escape")
   public UserDialogConsole(String pTitle, MyInfo pMyInfo) {
     IllegalArgument.ifNull("Title", pTitle);
     IllegalArgument.ifNull("MyInfo", zMyInfo = pMyInfo);

@@ -66,6 +66,7 @@ public class ActivePeer extends Thread {
   private PeerReader zReader;
   private PeerWriter zWriter;
 
+  @SuppressWarnings("this-escape")
   public ActivePeer(MyInfo pMyInfo, UserDialog pUserDialog,
                     ActivePeersSupport pActivePeersSupport,
                     NewPeersSupport pNewPeersSupport,
@@ -73,6 +74,7 @@ public class ActivePeer extends Thread {
     this(pMyInfo, pUserDialog, pActivePeersSupport, pNewPeersSupport, pPeerInfo, new PeerReader(pIs), new PeerWriter(pOs));
   }
 
+  @SuppressWarnings("this-escape")
   public ActivePeer(MyInfo pMyInfo, UserDialog pUserDialog,
                     ActivePeersSupport pActivePeersSupport,
                     NewPeersSupport pNewPeersSupport,

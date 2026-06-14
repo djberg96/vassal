@@ -62,6 +62,7 @@ public class PendingPeerManager extends Thread implements NewPeersSupport {
   private int maxRetries = 3;
   private boolean finish = false;
 
+  @SuppressWarnings("this-escape")
   public PendingPeerManager(UserDialog pUserDialog) {
     IllegalArgument.ifNull("UserDialog", zUserDialog = pUserDialog);
     zUserDialog.setPendingPeerManager(this);

@@ -38,11 +38,13 @@ import VASSAL.i18n.Resources;
 public class HybridClient implements ChatServerConnection, PlayerEncoder, ChatControlsInitializer {
   protected ChatServerConnection delegate;
   protected String defaultRoom = Resources.getString("Chat.main_room"); //$NON-NLS-1$
+  @SuppressWarnings("this-escape")
   protected PropertyChangeSupport propSupport = new PropertyChangeSupport(this);
   protected ChatServerControls controls;
   protected Icon currentIcon;
   protected String currentText;
 
+  @SuppressWarnings("this-escape")
   public HybridClient() {
     setDelegate(new DummyClient());
   }

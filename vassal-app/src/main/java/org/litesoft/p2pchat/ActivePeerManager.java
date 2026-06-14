@@ -58,6 +58,7 @@ public class ActivePeerManager
   private Vector<ActivePeer> zListofPeers = new Vector<ActivePeer>();
   private int zPeerCnt = 0;
 
+  @SuppressWarnings("this-escape")
   public ActivePeerManager(MyInfo pMyInfo, UserDialog pUserDialog, PendingPeerManager pPendingPeerManager) {
     IllegalArgument.ifNull("MyInfo", zMyInfo = pMyInfo);
     IllegalArgument.ifNull("UserDialog", zUserDialog = pUserDialog);

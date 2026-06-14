@@ -60,6 +60,7 @@ public class PeerWriter extends Thread {
   private BufferedWriter zWriter;
   private long pingInterval = 15L*60L*1000L;
 
+  @SuppressWarnings("this-escape")
   public PeerWriter(OutputStream pOs) {
     IllegalArgument.ifNull("Os", pOs);
     zWriter = new BufferedWriter(new OutputStreamWriter(pOs,Charset.forName("UTF-8")));
