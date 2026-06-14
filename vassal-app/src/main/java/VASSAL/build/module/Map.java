@@ -303,6 +303,7 @@ public class Map extends AbstractToolbarItem implements MouseListener, MouseMoti
     drawingMouseOver = flag;
   }
 
+  @SuppressWarnings("this-escape")
   public Map() {
     getView();
     theMap.addMouseListener(this);
@@ -3979,6 +3980,7 @@ public class Map extends AbstractToolbarItem implements MouseListener, MouseMoti
      * Create our view
      * @param m lets us know what Map we represent
      */
+    @SuppressWarnings("this-escape")
     public View(Map m) {
       setFocusTraversalKeysEnabled(false);
       map = m;

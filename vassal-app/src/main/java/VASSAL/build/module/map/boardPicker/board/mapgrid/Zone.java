@@ -128,6 +128,7 @@ public class Zone extends AbstractConfigurable implements GridContainer, Mutable
   protected MutableProperty highlightProperty = null;
   protected PropertyChangeListener highlightPropertyChangeListener = null;
 
+  @SuppressWarnings("this-escape")
   public Zone() {
     myPolygon = new Polygon();
     setConfigureName("");
@@ -673,6 +674,7 @@ public class Zone extends AbstractConfigurable implements GridContainer, Mutable
     protected Zone zone;
     protected final JLabel warning = new JLabel(Resources.getString("Editor.Zone.zone_has_not_been_defined"));
 
+    @SuppressWarnings("this-escape")
     public Editor(final Zone zone) {
       super(PATH, null);
 

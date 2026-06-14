@@ -76,6 +76,7 @@ public abstract class GridEditor extends JDialog implements MouseListener, KeyLi
   protected double saveDx, saveDy;
   protected Point saveOrigin;
 
+  @SuppressWarnings("this-escape")
   public GridEditor(EditableGrid grid) {
     super(GameModule.getGameModule().getPlayerWindow());
     setTitle(Resources.getString("Editor.ModuleEditor.edit", grid.getGridName())); //$NON-NLS-1$

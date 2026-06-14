@@ -252,6 +252,7 @@ public class CounterDetailViewer extends AbstractConfigurable implements Drawabl
     return stopAfterShowing;
   }
 
+  @SuppressWarnings("this-escape")
   public CounterDetailViewer() {
     // Set up the timer; this isn't the real delay---we always check the
     // preferences for that.

@@ -249,6 +249,7 @@ public class Zoomer extends AbstractConfigurable implements GameComponent {
       SwingUtilities.getWindowAncestor(map.getView());
   }
 
+  @SuppressWarnings("this-escape")
   public Zoomer() {
     state = new State(defaultZoomLevels, defaultInitialZoomLevel);
 

@@ -162,6 +162,7 @@ public class LOS_Thread extends AbstractToolbarItem implements
   protected boolean ctrlWhenClick = false;
   protected boolean initializing;
 
+  @SuppressWarnings("this-escape")
   public LOS_Thread() {
     anchor = new Point(0, 0);
     arrow = new Point(0, 0);

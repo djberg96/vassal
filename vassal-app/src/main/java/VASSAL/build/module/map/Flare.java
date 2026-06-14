@@ -135,6 +135,7 @@ public class Flare extends AbstractConfigurable
 
   private static final int STROKE = 3;
 
+  @SuppressWarnings("this-escape")
   public Flare() {
     circleSize   = 100;
     circleScale  = true;

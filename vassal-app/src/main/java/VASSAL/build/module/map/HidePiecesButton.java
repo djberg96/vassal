@@ -82,6 +82,7 @@ public class HidePiecesButton extends JPanel implements MouseListener,
   public static final String SHOWING_ICON = "showingIcon"; //NON-NLS
 
 
+  @SuppressWarnings("this-escape")
   public HidePiecesButton() {
     final ActionListener al = e -> setPiecesVisible(!piecesVisible);
     launch = new LaunchButton(null, TOOLTIP, BUTTON_TEXT, HOTKEY, LAUNCH_ICON, al);

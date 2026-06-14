@@ -69,6 +69,7 @@ public class PolygonEditor extends JPanel {
     this (p, new Point(0, 0));
   }
 
+  @SuppressWarnings("this-escape")
   public PolygonEditor(Polygon p, Point offsetView) {
     polygon = p;
     this.offsetView = offsetView;

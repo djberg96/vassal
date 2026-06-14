@@ -484,6 +484,7 @@ public class RegionGrid extends AbstractConfigurable implements MapGrid, Configu
 
     protected boolean dirty = false;
 
+    @SuppressWarnings("this-escape")
     public Config(RegionGrid grid) {
       super(Resources.getString("Editor.IrregularGrid.regions_for", grid.container.getBoard().getName())); //$NON-NLS-1$
       board = grid.container.getBoard();
@@ -729,6 +730,7 @@ public class RegionGrid extends AbstractConfigurable implements MapGrid, Configu
       protected int originalPieceOffsetX;
       protected int originalPieceOffsetY;
 
+      @SuppressWarnings("this-escape")
       public View(Board b, RegionGrid grid, Config config) {
         myBoard = b;
         this.grid = grid;

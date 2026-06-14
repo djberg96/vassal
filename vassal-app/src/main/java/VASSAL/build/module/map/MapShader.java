@@ -158,6 +158,7 @@ public class MapShader extends AbstractToolbarItem implements Drawable, UniqueId
    */
   protected boolean addToMapToolbar = false;
 
+  @SuppressWarnings("this-escape")
   public MapShader() {
     setButtonTextKey(BUTTON_TEXT);
 

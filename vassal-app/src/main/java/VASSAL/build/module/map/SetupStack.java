@@ -804,6 +804,7 @@ public class SetupStack extends AbstractConfigurable implements GameComponent, U
     protected JCheckBox shouldShowOthers;
     protected Rectangle cachedBoundingBox;
 
+    @SuppressWarnings("this-escape")
     public StackConfigurer(SetupStack stack) {
       super(Resources.getString("Editor.SetupStack.adjust_at_start_stack"));
       setJMenuBar(MenuManager.getInstance().getMenuBarFor(this));
@@ -1186,6 +1187,7 @@ public class SetupStack extends AbstractConfigurable implements GameComponent, U
 
     protected transient List<SetupStack> otherStacks;
 
+    @SuppressWarnings("this-escape")
     public View(Board b, SetupStack s) {
       myBoard = b;
       myGrid = b.getGrid();

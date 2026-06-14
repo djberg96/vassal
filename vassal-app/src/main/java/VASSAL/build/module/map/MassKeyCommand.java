@@ -143,6 +143,7 @@ public class MassKeyCommand extends AbstractToolbarItem
     this(gkcType, new GlobalCommand());
   }
 
+  @SuppressWarnings("this-escape")
   protected MassKeyCommand(GlobalCommandTarget.GKCtype gkcType, GlobalCommand globalCommand) {
     this.gkcType = gkcType;
     this.globalCommand = globalCommand;
@@ -167,6 +168,7 @@ public class MassKeyCommand extends AbstractToolbarItem
     this(GlobalCommandTarget.GKCtype.MAP, gkc);
   }
 
+  @SuppressWarnings("this-escape")
   protected MassKeyCommand(GlobalCommandTarget.GKCtype gkcType, MassKeyCommand gkc) {
     this(gkcType);
     copyAttributesFrom(gkc, getMassKeyCommandAttributeNames());
@@ -383,6 +385,7 @@ public class MassKeyCommand extends AbstractToolbarItem
       this(showPrompt, null);
     }
 
+    @SuppressWarnings("this-escape")
     public DeckPolicyConfig(boolean showPrompt, GamePiece sourcePiece) {
 
       super(null, "");

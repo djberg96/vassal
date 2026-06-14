@@ -47,6 +47,7 @@ import javax.swing.JComponent;
  * Abstract base class for grid numbering classes for hexagonal and rectangular grids
  */
 public abstract class RegularGridNumbering extends AbstractConfigurable implements GridNumbering {
+  @SuppressWarnings("this-escape")
   protected PropertyChangeSupport propSupport = new PropertyChangeSupport(this);
   protected char first = 'H';
   protected String sep = "";
