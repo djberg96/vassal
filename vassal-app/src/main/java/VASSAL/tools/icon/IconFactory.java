@@ -295,8 +295,14 @@ public final class IconFactory {
       }
     }
     catch (IOException e) {
-      ReadErrorDialog.error(e, imageUrl.toString());
+      ReadErrorDialog.error(e, imageSourceDescription(imageUrl));
     }
+  }
+
+  static String imageSourceDescription(URL imageUrl) {
+    return imageUrl == null ?
+      DataArchive.IMAGE_DIR + ApplicationIcons.VASSAL_ICON_LARGE :
+      imageUrl.toString();
   }
 
   /**
