@@ -178,6 +178,7 @@ public class Interpreter
 		or other description of the source from which this interpreter is
 		reading... used for debugging.  May be null.
 	*/
+	@SuppressWarnings("this-escape")
 	public Interpreter(
 		Reader in, PrintStream out, PrintStream err, 
 		boolean interactive, NameSpace namespace,
@@ -245,6 +246,7 @@ public class Interpreter
 		Construct a new interactive interpreter attached to the specified 
 		console using the specified parent namespace.
 	*/
+	@SuppressWarnings("this-escape")
 	public Interpreter(ConsoleInterface console, NameSpace globalNameSpace) {
 
 		this( console.getIn(), console.getOut(), console.getErr(), 
@@ -264,6 +266,7 @@ public class Interpreter
 	/**
 		Create an interpreter for evaluation only.
 	*/
+	@SuppressWarnings("this-escape")
 	public Interpreter()
 	{
 		this( new StringReader(""), 

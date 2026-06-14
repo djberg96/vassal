@@ -89,6 +89,7 @@ public class BeanShellExpressionValidator {
    * Build a new Validator and validate the expression
    * @param expression Expression to validate
    */
+  @SuppressWarnings("this-escape")
   public BeanShellExpressionValidator(String expression) {
     this.expression = expression; 
     valid = validate();

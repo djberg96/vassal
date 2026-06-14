@@ -66,6 +66,7 @@ public class InstructionsPanelImpl extends JComponent implements WizardObserver,
     private final transient Wizard wizard;
     private static final int MARGIN = 5;
 
+    @SuppressWarnings("this-escape")
     public InstructionsPanelImpl (Wizard wiz) {
         this (null, wiz);
         Font f = UIManager.getFont ("Tree.font"); //NOI18N

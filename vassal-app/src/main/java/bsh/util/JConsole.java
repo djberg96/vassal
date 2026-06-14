@@ -84,6 +84,7 @@ public class JConsole extends JScrollPane implements GUIConsoleInterface, Runnab
 		this(null, null);
 	}
 
+	@SuppressWarnings("this-escape")
 	public JConsole( InputStream cin, OutputStream cout )  
 	{
 		super();

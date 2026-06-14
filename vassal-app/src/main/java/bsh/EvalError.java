@@ -49,6 +49,7 @@ public class EvalError extends Exception
 
 	private final CallStack callstack;
 
+	@SuppressWarnings("this-escape")
 	public EvalError( String s, SimpleNode node, CallStack callstack, Throwable cause ) {
 		this(s,node,callstack);
 		initCause(cause);

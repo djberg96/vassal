@@ -78,6 +78,7 @@ public class ExternalNameSpace extends NameSpace
 {
 	private static final long serialVersionUID = 1L;
 
+	@SuppressWarnings("serial")
 	private Map<String,Object> externalMap;
 
     public ExternalNameSpace() 

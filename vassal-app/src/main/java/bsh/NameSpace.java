@@ -113,6 +113,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 	*/
 	boolean isClass;
 	Class<?> classStatic;	
+	@SuppressWarnings("serial")
 	Object classInstance;
 	
 	void setClassStatic( Class<?> clas ) {
@@ -168,6 +169,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 		this( null, classManager, name );
 	}
 
+    @SuppressWarnings("this-escape")
     public NameSpace( 
 		NameSpace parent, BshClassManager classManager, String name ) 
 	{

@@ -131,6 +131,7 @@ public class ClassManagerImpl extends BshClassManager
 	/**
 		Used by BshClassManager singleton constructor
 	*/
+	@SuppressWarnings("this-escape")
 	public ClassManagerImpl() {
 		reset();
 	}

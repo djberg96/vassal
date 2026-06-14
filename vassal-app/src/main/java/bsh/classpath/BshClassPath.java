@@ -83,11 +83,13 @@ public class BshClassPath
 
 	// constructors
 
+	@SuppressWarnings("this-escape")
 	public BshClassPath( String name ) { 
 		this.name = name;
 		reset();
 	}
 
+	@SuppressWarnings("this-escape")
 	public BshClassPath(  String name, URL [] urls ) {
 		this( name );
 		add( urls );

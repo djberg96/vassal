@@ -97,6 +97,7 @@ public class AWTConsole extends TextArea
 	private Vector<String> history = new Vector<>();
 	private int histLine = 0;
 
+	@SuppressWarnings("this-escape")
 	public AWTConsole( int rows, int cols, InputStream cin, OutputStream cout ) {
 		super(rows, cols);
 		setFont( new Font("Monospaced",Font.PLAIN,14) );

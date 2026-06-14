@@ -36,6 +36,7 @@ public class Variable implements java.io.Serializable
 	String name;
 	Class<?> type = null;
 	String typeDescriptor;
+	@SuppressWarnings("serial")
 	Object value;
 	Modifiers modifiers;
 	LHS lhs;

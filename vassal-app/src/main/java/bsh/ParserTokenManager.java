@@ -2005,6 +2005,7 @@ public ParserTokenManager(JavaCharStream stream){
 }
 
 /** Constructor. */
+@SuppressWarnings("this-escape")
 public ParserTokenManager(JavaCharStream stream, int lexState){
    this(stream);
    SwitchTo(lexState);

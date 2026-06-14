@@ -76,6 +76,7 @@ public class ClassBrowser extends JSplitPane
 		this( BshClassManager.createClassManager( null/*interpreter*/ ) );
 	}
 
+	@SuppressWarnings("this-escape")
 	public ClassBrowser( BshClassManager classManager ) {
 		super( VERTICAL_SPLIT, true );
 		this.classManager = classManager;
