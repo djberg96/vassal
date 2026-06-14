@@ -2044,12 +2044,10 @@ public final class ModuleManagerWindow extends JFrame {
    */
   private class GameFolderInfo extends AbstractInfo {
     protected final ModuleInfo moduleInfo;
-    protected final long dtm;
 
     public GameFolderInfo(File f, ModuleInfo m) {
       super(f, openGameFolderIcon, closedGameFolderIcon);
       moduleInfo = m;
-      dtm = f.lastModified();
     }
 
     @Override
