@@ -18,6 +18,7 @@
 package VASSAL.tools.swing;
 
 import java.awt.Component;
+import java.awt.Dialog;
 import java.awt.Font;
 
 import javax.swing.GroupLayout;
@@ -175,9 +176,7 @@ public class Dialogs {
       content, messageType, optionType, icon, options, initialValue);
     final JDialog dialog = opt.createDialog(parent, title);
 
-// FIXME: setModal() is obsolete. Use setModalityType() in 1.6+.
-//    d.setModalityType(JDialog.ModalityType.APPLICATION_MODAL);
-    dialog.setModal(true);
+    dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
     dialog.setLocationRelativeTo(parent);
     dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     dialog.setResizable(true);

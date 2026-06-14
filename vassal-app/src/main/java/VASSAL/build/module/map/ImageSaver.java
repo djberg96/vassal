@@ -51,8 +51,6 @@ import VASSAL.tools.filechooser.FileChooser;
 import VASSAL.tools.filechooser.PNGFileFilter;
 import VASSAL.tools.swing.ProgressDialog;
 
-// FIXME: Replace this in 3.2 with tiling code.
-
 /**
  * This allows the user to capture a snapshot of the entire map into
  * a PNG file.

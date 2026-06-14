@@ -19,6 +19,7 @@
 package VASSAL.tools.swing;
 
 import java.awt.Component;
+import java.awt.Dialog;
 import java.awt.Font;
 
 import javax.swing.JCheckBox;
@@ -101,9 +102,7 @@ public class DetailsDialog {
       JOptionPane.DEFAULT_OPTION
     ).createDialog(parent, title);
 
-// FIXME: setModal() is obsolete. Use setModalityType() in 1.6+.
-//    d.setModalityType(JDialog.ModalityType.APPLICATION_MODAL);
-    dialog.setModal(true);
+    dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
     dialog.setResizable(true);
     dialog.setLocationRelativeTo(parent);
     dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
