@@ -675,8 +675,8 @@ public class WizardPage extends JPanel implements WizardPanel {
             }
         } else if (comp instanceof JFormattedTextField) {
             return ((JFormattedTextField) comp).getValue();
-        } else if (comp instanceof JList) {
-            Object[] o = ((JList<?>) comp).getSelectedValuesList().toArray();
+        } else if (comp instanceof JList<?> list) {
+            Object[] o = list.getSelectedValuesList().toArray();
             if (o != null) {
                 if (o.length > 1) {
                     return o;
@@ -686,8 +686,8 @@ public class WizardPage extends JPanel implements WizardPanel {
             }
         } else if (comp instanceof JTextComponent) {
             return ((JTextComponent) comp).getText();
-        } else if (comp instanceof JComboBox) {
-            return ((JComboBox) comp).getSelectedItem();
+        } else if (comp instanceof JComboBox<?> comboBox) {
+            return comboBox.getSelectedItem();
         } else if (comp instanceof JColorChooser) {
             return ((JColorChooser) comp).getSelectionModel().getSelectedColor();
         } else if (comp instanceof JSpinner) {
@@ -722,16 +722,16 @@ public class WizardPage extends JPanel implements WizardPanel {
 //            if (path != null) {
 //                return path.getLastPathComponent();
 //            }
-        } else if (comp instanceof JList) {
+        } else if (comp instanceof JList<?> list) {
             if (value instanceof Object[])
             {
                 throw new IllegalArgumentException ("can't handle multi-select lists");
             }
-            ((JList) comp).setSelectedValue(value, true);
+            list.setSelectedValue(value, true);
         } else if (comp instanceof JTextComponent) {
             ((JTextComponent) comp).setText((String) value);
-        } else if (comp instanceof JComboBox) {
-            ((JComboBox) comp).setSelectedItem(value);
+        } else if (comp instanceof JComboBox<?> comboBox) {
+            comboBox.setSelectedItem(value);
         } else if (comp instanceof JColorChooser) {
             ((JColorChooser) comp).getSelectionModel().setSelectedColor((Color)value);
         } else if (comp instanceof JSpinner) {
