@@ -81,26 +81,26 @@ public class UnitTest implements UserDialog {
     ActivePeerManager apm = new ActivePeerManager(myInfo,d,ppm);
     PeerInfo info = new PeerInfo("Server","localhost",5555);
 */
-    final Socket s = new Socket("localhost", 5555); //$NON-NLS-1$
-
-    final PeerReader reader = new PeerReader(s.getInputStream());
-    System.err.println("Created reader " + reader); //$NON-NLS-1$
-    try {
-      final PeerWriter writer = new PeerWriter(s.getOutputStream());
-      System.err.println("Created writer" + writer); //$NON-NLS-1$
+    try (Socket s = new Socket("localhost", 5555)) { //$NON-NLS-1$
+      final PeerReader reader = new PeerReader(s.getInputStream());
+      System.err.println("Created reader " + reader); //$NON-NLS-1$
+      try {
+        final PeerWriter writer = new PeerWriter(s.getOutputStream());
+        System.err.println("Created writer" + writer); //$NON-NLS-1$
 //      ActivePeer peer = new ActivePeer(myInfo,d, apm, ppm, info, reader, writer);
 //      peer.sendCHAT("A message");
 
-      try {
-        writer.writeLine("A message"); //$NON-NLS-1$
-        Thread.sleep(2000);
+        try {
+          writer.writeLine("A message"); //$NON-NLS-1$
+          Thread.sleep(2000);
+        }
+        finally {
+          writer.close();
+        }
       }
       finally {
-        writer.close();
+        reader.close();
       }
-    }
-    finally {
-      reader.close();
     }
   }
 
@@ -109,29 +109,27 @@ public class UnitTest implements UserDialog {
     final Object lock = new Object();
 
     final Runnable runnable = () -> {
-      try {
-        final ServerSocket server;
+      try (ServerSocket server = new ServerSocket(port)) {
         synchronized (lock) {
-          server = new ServerSocket(port);
           lock.notifyAll();
         }
 
-        final Socket s = server.accept();
-        PeerReader reader = null;
-        try {
-          reader = new PeerReader(s.getInputStream());
-          while (true) {
-            final String msg = reader.readLine();
-            System.err.println(msg == null ? "" : msg); //$NON-NLS-1$
-            if (msg == null) {
-              break;
+        try (Socket s = server.accept()) {
+          PeerReader reader = null;
+          try {
+            reader = new PeerReader(s.getInputStream());
+            while (true) {
+              final String msg = reader.readLine();
+              System.err.println(msg == null ? "" : msg); //$NON-NLS-1$
+              if (msg == null) {
+                break;
+              }
             }
+            System.err.println("Done"); //$NON-NLS-1$
           }
-          System.err.println("Done"); //$NON-NLS-1$
-          reader.close();
-        }
-        finally {
-          if (reader != null) reader.close();
+          finally {
+            if (reader != null) reader.close();
+          }
         }
       }
       catch (IOException e) {
