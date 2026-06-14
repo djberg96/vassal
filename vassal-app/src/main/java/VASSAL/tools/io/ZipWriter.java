@@ -41,8 +41,11 @@ import java.util.zip.ZipOutputStream;
  */
 public class ZipWriter implements Closeable {
   private final Path path;
+  private final FileChannel channel;
+  private final OutputStream channelOut;
+  private final BufferedOutputStream bufferedOut;
   private final ZipOutputStream zout;
-  private final FileLock lock; //NOPMD
+  private final FileLock lock;
 
   public ZipWriter(File f) throws IOException {
     this(Objects.requireNonNull(f).toPath());
@@ -58,8 +61,21 @@ public class ZipWriter implements Closeable {
       StandardOpenOption.TRUNCATE_EXISTING
     );
 
-    lock = fc.lock();
-    zout = new ZipOutputStream(new BufferedOutputStream(Channels.newOutputStream(fc)));
+    FileLock fileLock = null;
+    try {
+      fileLock = fc.lock();
+
+      channel = fc;
+      channelOut = Channels.newOutputStream(channel);
+      bufferedOut = new BufferedOutputStream(channelOut);
+      lock = fileLock;
+      zout = new ZipOutputStream(bufferedOut);
+    }
+    catch (IOException | RuntimeException e) {
+      closeLock(fileLock, e);
+      fc.close();
+      throw e;
+    }
   }
 
   public void write(File src, String dst) throws IOException {
@@ -114,7 +130,75 @@ public class ZipWriter implements Closeable {
 
   @Override
   public void close() throws IOException {
-    zout.close();
+    IOException thrown = null;
+    boolean zipClosed = false;
+
+    try {
+      zout.close();
+      zipClosed = true;
+    }
+    catch (IOException e) {
+      thrown = e;
+    }
+
+    thrown = releaseLock(thrown);
+    if (!zipClosed) {
+      thrown = close(bufferedOut, thrown);
+      thrown = close(channelOut, thrown);
+    }
+    thrown = close(channel, thrown);
+
+    if (thrown != null) {
+      throw thrown;
+    }
+  }
+
+  private IOException releaseLock(IOException thrown) {
+    if (!lock.isValid()) {
+      return thrown;
+    }
+
+    try {
+      lock.release();
+    }
+    catch (IOException e) {
+      thrown = addSuppressed(thrown, e);
+    }
+
+    return thrown;
+  }
+
+  private static void closeLock(FileLock lock, Exception cause) {
+    if (lock == null || !lock.isValid()) {
+      return;
+    }
+
+    try {
+      lock.release();
+    }
+    catch (IOException e) {
+      cause.addSuppressed(e);
+    }
+  }
+
+  private static IOException close(Closeable closeable, IOException thrown) {
+    try {
+      closeable.close();
+    }
+    catch (IOException e) {
+      thrown = addSuppressed(thrown, e);
+    }
+
+    return thrown;
+  }
+
+  private static IOException addSuppressed(IOException thrown, IOException e) {
+    if (thrown == null) {
+      return e;
+    }
+
+    thrown.addSuppressed(e);
+    return thrown;
   }
 
   private static ZipEntry makeEntry(String path) {
