@@ -55,6 +55,7 @@ public class PropertiesWindow extends JDialog {
 
   private static List<PropertiesWindow> propertiesWindowQueue = new ArrayList<>();
 
+  @SuppressWarnings("this-escape")
   public PropertiesWindow(Frame owner, boolean modal, final Configurable target, HelpWindow helpWindow) {
     super(owner, modal);
     initialize(target, helpWindow);

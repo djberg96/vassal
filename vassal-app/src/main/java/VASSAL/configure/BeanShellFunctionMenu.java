@@ -87,6 +87,7 @@ public class BeanShellFunctionMenu extends JPopupMenu {
 
   enum PropertyType { PIECE, GLOBAL, VASSAL, ALL };
 
+  @SuppressWarnings("this-escape")
   public BeanShellFunctionMenu(EditablePiece target, BeanShellExpressionConfigurer configurer) {
     super();
 

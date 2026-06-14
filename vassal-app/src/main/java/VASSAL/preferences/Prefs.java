@@ -78,6 +78,7 @@ public class Prefs implements Closeable {
     this(editor, new File(Info.getPrefsDir(), sanitize(name)));
   }
 
+  @SuppressWarnings("this-escape")
   protected Prefs(PrefsEditor editor, File file) {
     this.editor = editor;
     this.file = file;

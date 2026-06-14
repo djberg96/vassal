@@ -84,6 +84,7 @@ public class PieceWindow extends Widget implements UniqueIdManager.Identifyable 
 
   private static final String firstId = PieceWindow.class.getSimpleName() + '0';
 
+  @SuppressWarnings("this-escape")
   public PieceWindow() {
     root = new JPanel(new BorderLayout());
 

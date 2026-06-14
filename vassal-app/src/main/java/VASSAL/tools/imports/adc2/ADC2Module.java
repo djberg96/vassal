@@ -398,6 +398,7 @@ public class ADC2Module extends Importer {
       facing = 0;
     }
 
+    @SuppressWarnings("this-escape")
     public Piece(int position, String name, PieceClass cl, HideState hidden, int flags, int facing) {
       if (name == null || name.equals(""))
         this.name = null;
@@ -801,6 +802,7 @@ public class ADC2Module extends Importer {
     private final int order;
     private final SortedSet<Player> allies = new TreeSet<>(Comparator.comparingInt(p -> p.order));
 
+    @SuppressWarnings("this-escape")
     public Player(String name, SymbolSet.SymbolData hiddenSymbol, int hiddenPieceOptions) {
       this.name = name;
       this.hiddenSymbol = hiddenSymbol;

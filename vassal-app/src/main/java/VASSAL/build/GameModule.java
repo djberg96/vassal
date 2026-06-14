@@ -649,6 +649,7 @@ public class GameModule extends AbstractConfigurable
    * Constructor for a GameModule.
    * @param archive The .vmod (or .tmp) archive to associate
    */
+  @SuppressWarnings("this-escape")
   public GameModule(DataArchive archive) {
     this.archive = archive;
     final boolean isEditing = (archive instanceof ArchiveWriter);

@@ -111,6 +111,7 @@ public class Chatter extends JPanel implements CommandEncoder, Buildable, DropTa
     return Resources.getString("Chat.anonymous"); //$NON-NLS-1$
   }
 
+  @SuppressWarnings("this-escape")
   public Chatter() {
     setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
@@ -849,4 +850,3 @@ public class Chatter extends JPanel implements CommandEncoder, Buildable, DropTa
     return true;
   }
 }
-

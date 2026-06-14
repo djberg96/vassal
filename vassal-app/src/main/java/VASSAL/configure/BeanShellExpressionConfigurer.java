@@ -117,6 +117,7 @@ public class BeanShellExpressionConfigurer extends StringConfigurer {
     this.builder = builder;
   }
 
+  @SuppressWarnings("this-escape")
   public BeanShellExpressionConfigurer(String key, String name, String val, GamePiece piece, Option option, boolean displayOnly) {
     super(key, name, val);
     this.option = option;

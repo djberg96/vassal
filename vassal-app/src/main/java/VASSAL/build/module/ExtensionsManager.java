@@ -65,6 +65,7 @@ public class ExtensionsManager {
   /**
    * Manage global extensions
    */
+  @SuppressWarnings("this-escape")
   public ExtensionsManager(String dir) {
     extensionsDir = ensureExists(new File(Info.getConfDir(), dir));
   }

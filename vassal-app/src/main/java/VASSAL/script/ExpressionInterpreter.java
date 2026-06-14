@@ -139,6 +139,7 @@ public class ExpressionInterpreter extends AbstractInterpreter implements Loopab
    * @param expr Expression
    * @throws ExpressionException Invalid Expression details
    */
+  @SuppressWarnings("this-escape")
   public ExpressionInterpreter(String expr) throws ExpressionException {
     super();
 

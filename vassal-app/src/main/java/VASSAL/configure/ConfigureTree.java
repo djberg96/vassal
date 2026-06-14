@@ -238,6 +238,7 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
     this(root, helpWindow, editorWindow, false);
   }
 
+  @SuppressWarnings("this-escape")
   public ConfigureTree(Configurable root, HelpWindow helpWindow, EditorWindow editorWindow, boolean disableDragAndDrop) {
     toggleClickCount = 3;
     this.helpWindow = helpWindow;

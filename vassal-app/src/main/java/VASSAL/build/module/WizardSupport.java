@@ -858,6 +858,7 @@ public class WizardSupport {
   public static class SetupStepPage extends WizardPage {
     private static final long serialVersionUID = 1L;
 
+    @SuppressWarnings("this-escape")
     public SetupStepPage(GameSetupStep step) {
       super(step.getStepTitle());
       setLayout(new BorderLayout());

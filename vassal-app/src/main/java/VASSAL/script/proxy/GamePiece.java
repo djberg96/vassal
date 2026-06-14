@@ -35,6 +35,7 @@ public class GamePiece {
 
   private VASSAL.counters.GamePiece vassalGamePiece;
 
+  @SuppressWarnings("this-escape")
   public GamePiece(VASSAL.counters.GamePiece g) {
     setVassalGamePiece(g);
   }

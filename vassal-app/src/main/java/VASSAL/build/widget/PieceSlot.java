@@ -98,12 +98,14 @@ public class PieceSlot extends Widget implements MouseListener, KeyListener {
   protected GpIdSupport gpidSupport;
 
 
+  @SuppressWarnings("this-escape")
   public PieceSlot() {
     panel = new PieceSlot.Panel(this);
     panel.addMouseListener(this);
     panel.addKeyListener(this);
   }
 
+  @SuppressWarnings("this-escape")
   public PieceSlot(PieceSlot piece) {
     this();
     copyFrom(piece);
@@ -145,6 +147,7 @@ public class PieceSlot extends Widget implements MouseListener, KeyListener {
     private static final long serialVersionUID = 1L;
     protected final transient PieceSlot pieceSlot;
 
+    @SuppressWarnings("this-escape")
     public Panel(PieceSlot slot) {
       super();
       setFocusTraversalKeysEnabled(false);
@@ -174,6 +177,7 @@ public class PieceSlot extends Widget implements MouseListener, KeyListener {
     return panel.isValid() && panel.getGraphics() != null;
   }
 
+  @SuppressWarnings("this-escape")
   public PieceSlot(GamePiece p) {
     this();
     setPiece(p);

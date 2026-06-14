@@ -49,6 +49,7 @@ public class MovementReporter {
   protected List<MoveSummary> movesToReport = new ArrayList<>();
   protected List<MoveSummary> movesToMark = new ArrayList<>();
 
+  @SuppressWarnings("this-escape")
   public MovementReporter(Command moveCommand) {
     extractMoveCommands(moveCommand);
   }
