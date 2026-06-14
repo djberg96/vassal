@@ -32,6 +32,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 
 /**
 	Static routines supporing type comparison and conversion in BeanShell.
@@ -604,7 +605,8 @@ class Types
 				if ( checkOnly )
 					return VALID_CAST;
 
-				final Primitive primitiveFromValue = (Primitive)fromValue;
+				final Primitive primitiveFromValue =
+					(Primitive)Objects.requireNonNull(fromValue);
 				return Primitive.castWrapper(
 					Primitive.unboxType(toType),
 					primitiveFromValue.getValue() );
@@ -618,7 +620,8 @@ class Types
 				if ( checkOnly )
 					return VALID_CAST;
 
-				final Primitive primitiveFromValue = (Primitive)fromValue;
+				final Primitive primitiveFromValue =
+					(Primitive)Objects.requireNonNull(fromValue);
 				return primitiveFromValue.getValue();
 			}
 
@@ -645,7 +648,8 @@ class Types
 			if ( checkOnly )
 				return VALID_CAST;
 
-			final bsh.This scriptedObject = (bsh.This)fromValue;
+			final bsh.This scriptedObject =
+				(bsh.This)Objects.requireNonNull(fromValue);
 			return scriptedObject.getInterface( toType );
 		}
 
