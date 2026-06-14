@@ -301,7 +301,7 @@ public class AreaOfEffect extends Decorator implements TranslatablePiece, MapSha
     final MapGrid grid = board == null ? null : board.getGrid();
 
     Area a;
-    if (grid instanceof GeometricGrid) {
+    if (board != null && grid instanceof GeometricGrid) {
       final GeometricGrid gGrid = (GeometricGrid) grid;
 
       final Rectangle boardBounds = board.bounds();
