@@ -66,12 +66,16 @@ import java.util.Properties;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author rkinney
  */
 public class NodeClient implements LockableChatServerConnection,
     PlayerEncoder, ChatControlsInitializer, SocketWatcher {
+  private static final Logger logger = LoggerFactory.getLogger(NodeClient.class);
+
   public static final String ZIP_HEADER = "!ZIP!"; //$NON-NLS-1$
   @SuppressWarnings("this-escape")
   protected PropertyChangeSupport propSupport = new PropertyChangeSupport(this);
@@ -168,8 +172,8 @@ public class NodeClient implements LockableChatServerConnection,
           }
           registerNewConnection();
         }
-        // FIXME: review error message
         catch (final IOException e) {
+          logger.warn("Unable to establish chat connection", e); //$NON-NLS-1$
           propSupport.firePropertyChange(STATUS, null, Resources.getString(
               "Chat.unable_to_establish", e.getMessage())); //$NON-NLS-1$
         }
@@ -308,9 +312,8 @@ public class NodeClient implements LockableChatServerConnection,
             Compressor.compress(msg.getBytes(StandardCharsets.UTF_8))
           );
         }
-        // FIXME: review error message
         catch (final IOException e) {
-          e.printStackTrace();
+          logger.warn("Unable to compress outgoing chat message", e); //$NON-NLS-1$
         }
       }
       send(Protocol.encodeForwardCommand(recipientPath, msg));
@@ -549,9 +552,8 @@ public class NodeClient implements LockableChatServerConnection,
             final Properties info = new PropertiesEncoder(infoString).getProperties();
             aRoom.setInfo(info);
           }
-          // FIXME: review error message
           catch (final IOException e) {
-            e.printStackTrace();
+            logger.warn("Unable to parse room info for {}", aRoom.getName(), e); //$NON-NLS-1$
           }
         }
       }
@@ -573,9 +575,8 @@ public class NodeClient implements LockableChatServerConnection,
             StandardCharsets.UTF_8
           );
         }
-        // FIXME: review error message
         catch (final IOException e) {
-          e.printStackTrace();
+          logger.warn("Unable to decompress incoming chat message", e); //$NON-NLS-1$
         }
       }
       propSupport.firePropertyChange(INCOMING_MSG, null, msg);
@@ -608,9 +609,8 @@ public class NodeClient implements LockableChatServerConnection,
             me.setInfo(p);
           }
         }
-        // FIXME: review error message
         catch (final IOException e) {
-          e.printStackTrace();
+          logger.warn("Unable to parse player info for {}", playerNodes[j].getId(), e); //$NON-NLS-1$
         }
       }
 
@@ -629,9 +629,8 @@ public class NodeClient implements LockableChatServerConnection,
               .getProperties());
         }
       }
-      // FIXME: review error message
       catch (final IOException e) {
-        e.printStackTrace();
+        logger.warn("Unable to parse room metadata for {}", roomNodes[i].getId(), e); //$NON-NLS-1$
       }
       if (containsMe) {
         currentRoom = rooms[i];
@@ -664,9 +663,8 @@ public class NodeClient implements LockableChatServerConnection,
       p = new NodePlayer(null);
       p.setInfo(propEncoder.getProperties());
     }
-    // FIXME: review error message
     catch (final IOException e) {
-      e.printStackTrace();
+      logger.warn("Unable to parse player properties", e); //$NON-NLS-1$
     }
     return p;
   }
