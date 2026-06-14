@@ -155,8 +155,7 @@ public abstract class MenuManager {
 
   private boolean visibleItemBefore(ChildProxy<?> child) {
     final ParentProxy parent = child.getParent();
-    //FIXME - loop executes zero or billions of times!
-    for (int i = parent.getIndex(child) - 1; i >= 0; i++) {
+    for (int i = parent.getIndex(child) - 1; i >= 0; i--) {
       final ChildProxy<?> c = parent.getChild(i);
       if (!(c instanceof MenuMarker)) return true;
     }
