@@ -672,10 +672,6 @@ public final class ZipArchive implements FileArchive {
     try {
       openIfClosed();
 
-// FIXME: directories need not have entries in the ZipFile!
-//      if (!entries.containsKey(root))
-//        throw new FileNotFoundException(root + " not in archive");
-
       root += '/';
       final List<String> names = new ArrayList<>();
 

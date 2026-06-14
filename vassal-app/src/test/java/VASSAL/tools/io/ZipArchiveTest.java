@@ -258,6 +258,8 @@ public class ZipArchiveTest {
     final Path p = testArchivePath();
 
     final Set<String> files = Set.of("1", "a/b/c", "a/d");
+    final Set<String> aFiles = Set.of("a/b/c", "a/d");
+    final Set<String> abFiles = Set.of("a/b/c");
 
     try (ZipArchive z = new ZipArchive(p.toFile())) {
       // add some files
@@ -268,10 +270,21 @@ public class ZipArchiveTest {
       // check the file lists
       assertEquals(files, Set.copyOf(z.getFiles()));
       assertEquals(files, Set.copyOf(z.getFiles("")));
-      assertEquals(Set.of("a/b/c", "a/d"), Set.copyOf(z.getFiles("a")));
-      assertEquals(Set.of("a/b/c"), Set.copyOf(z.getFiles("a/b")));
+      assertEquals(aFiles, Set.copyOf(z.getFiles("a")));
+      assertEquals(abFiles, Set.copyOf(z.getFiles("a/b")));
 
       // directories, not files
+      assertFalse(z.contains("a"));
+      assertFalse(z.contains("a/b"));
+    }
+
+    try (ZipArchive z = new ZipArchive(p.toFile())) {
+      assertEquals(files, Set.copyOf(z.getFiles()));
+      assertEquals(files, Set.copyOf(z.getFiles("")));
+      assertEquals(aFiles, Set.copyOf(z.getFiles("a")));
+      assertEquals(abFiles, Set.copyOf(z.getFiles("a/b")));
+
+      // ZIP files are not required to have explicit directory entries.
       assertFalse(z.contains("a"));
       assertFalse(z.contains("a/b"));
     }
