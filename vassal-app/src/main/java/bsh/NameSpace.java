@@ -76,14 +76,14 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 	*/
 	private String nsName; 
     private NameSpace parent;
-    private Map<String,Variable> variables;
-    private Map<String,List<BshMethod>> methods;
+    private HashMap<String,Variable> variables;
+    private HashMap<String,List<BshMethod>> methods;
 
-    protected Map<String,String> importedClasses;
-    private List<String> importedPackages;
-    private List<String> importedCommands;
-	private List<Object> importedObjects;
-	private List<Class<?>> importedStatic;
+    protected HashMap<String,String> importedClasses;
+    private ArrayList<String> importedPackages;
+    private ArrayList<String> importedCommands;
+	private ArrayList<Object> importedObjects;
+	private ArrayList<Class<?>> importedStatic;
 	private String packageName;
 
 	transient private BshClassManager classManager;
@@ -92,7 +92,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
     private This thisReference;
 
 	/** Name resolver objects */
-    private Map<String,Name> names;
+    private HashMap<String,Name> names;
 
 	/** The node associated with the creation of this namespace.
 		This is used support getInvocationLine() and getInvocationText(). */
@@ -1230,7 +1230,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 			parent.getAllNamesAux( list );
 	}
 
-	List<NameSource.Listener> nameSourceListeners;
+	ArrayList<NameSource.Listener> nameSourceListeners;
 	/**
 		Implements NameSource
 		Add a listener who is notified upon changes to names in this space.
@@ -1523,7 +1523,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 	}
 
 
-	private <K,V> Map<K,V> clone(final Map<K,V> map) {
+	private <K,V> HashMap<K,V> clone(final Map<K,V> map) {
 		if (map == null) {
 			return null;
 		}
@@ -1531,7 +1531,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 	}
 
 
-	private <T> List<T> clone(final List<T> list) {
+	private <T> ArrayList<T> clone(final List<T> list) {
 		if (list == null) {
 			return null;
 		}
