@@ -52,6 +52,14 @@ public class QuadTreeTest extends junit.framework.TestCase {
     }
 
     @Test
+    public void testGetKeysAndValuesOnEmptyTree() {
+        QuadTree<String> qt = new QuadTree<String>(0, 0, 100, 100);
+
+        assertEquals("Empty tree should have no keys", 0, qt.getKeys().length);
+        assertTrue("Empty tree should have no values", qt.getValues().isEmpty());
+    }
+
+    @Test
     public void testContains() {
         QuadTree<String> qt = getTree();
         assertTrue("Should contain (5, 20)", qt.contains(5, 20));
@@ -86,6 +94,14 @@ public class QuadTreeTest extends junit.framework.TestCase {
         String keyString = Arrays.asList(points).toString();
         String expected = "[(5.0, 20.0), (12.0, 0.0), (47.0, 96.0), (50.0, 32.0), (50.0, 50.0)]";
         assertEquals("Sorted keys should be " + expected, expected, keyString);
+    }
+
+    @Test
+    public void testSearchEmptyTree() {
+        QuadTree<String> qt = new QuadTree<String>(0, 0, 100, 100);
+
+        assertEquals("Empty searchIntersect should return no points", 0, qt.searchIntersect(0, 0, 100, 100).length);
+        assertEquals("Empty searchWithin should return no points", 0, qt.searchWithin(0, 0, 100, 100).length);
     }
 
     @Test

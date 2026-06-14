@@ -250,6 +250,9 @@ public class QuadTree<T> implements Cloneable {
 
   public void navigate(QNode<T> node, QFunc<T> func, double xmin, double ymin, double xmax, double ymax) {
     switch (node.getNodeType()) {
+    case EMPTY:
+      break;
+
     case LEAF:
       func.call(this, node);
       break;
@@ -323,6 +326,9 @@ public class QuadTree<T> implements Cloneable {
    */
   public void traverse(QNode<T> node, QFunc<T> func) {
     switch (node.getNodeType()) {
+    case EMPTY:
+      break;
+
     case LEAF:
       func.call(this, node);
       break;
