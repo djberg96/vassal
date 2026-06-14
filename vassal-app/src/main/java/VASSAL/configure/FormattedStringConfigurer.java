@@ -50,6 +50,7 @@ public class FormattedStringConfigurer
     this(null, "", options);
   }
 
+  @SuppressWarnings("this-escape")
   public FormattedStringConfigurer(
       String key,
       String name,

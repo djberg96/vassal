@@ -88,6 +88,7 @@ public class ScrollPane extends JScrollPane {
     @param vsbPolicy an integer that specifies the vertical scrollbar policy
     @param hsbPolicy an integer that specifies the horizontal scrollbar policy
   */
+  @SuppressWarnings("this-escape")
   public ScrollPane(Component view, int vsbPolicy, int hsbPolicy) {
     super(view, vsbPolicy, hsbPolicy);
 

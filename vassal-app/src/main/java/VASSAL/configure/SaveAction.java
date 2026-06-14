@@ -32,6 +32,7 @@ public abstract class SaveAction extends AbstractAction {
 
   protected String parentType = "";
 
+  @SuppressWarnings("this-escape")
   public SaveAction() {
     final URL iconURL = SaveAction.class.getResource("/images/Save16.gif"); //NON-NLS
     if (iconURL != null) {

@@ -61,6 +61,7 @@ public class AutoConfigurer extends Configurer
   protected Map<String, VisibilityCondition> conditions;
   protected Map<String, JComponent> labels = new HashMap<>();
 
+  @SuppressWarnings("this-escape")
   public AutoConfigurer(AutoConfigurable c) {
     super(null, c.getConfigureName());
 

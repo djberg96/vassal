@@ -51,6 +51,7 @@ public abstract class BasicPreference extends AbstractConfigurable {
   protected String variableName = "";
   protected MutableProperty.Impl property;
 
+  @SuppressWarnings("this-escape")
   public BasicPreference() {
     tabName = GameModule.getGameModule().getConfigureName();
     setAttributeTranslatable(NAME, false);

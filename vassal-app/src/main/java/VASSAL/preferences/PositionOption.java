@@ -41,6 +41,7 @@ public class PositionOption extends VASSAL.configure.Configurer
   protected Rectangle defaultValue;
   protected Rectangle previousBounds;
 
+  @SuppressWarnings("this-escape")
   public PositionOption(String key, Window f, Rectangle defaultValue) {
     super(key, null, defaultValue);
     if (defaultValue != null) {
