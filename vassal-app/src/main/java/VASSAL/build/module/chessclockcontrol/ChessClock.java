@@ -824,10 +824,9 @@ public class ChessClock extends AbstractConfigurable implements CommandEncoder, 
   /**
    * @return Array of subcomponent types that can be added to this component
    */
-  @SuppressWarnings("rawtypes")
   @Override
-  public Class[] getAllowableConfigureComponents() {
-    return new Class[0];
+  public Class<?>[] getAllowableConfigureComponents() {
+    return new Class<?>[0];
   }
 
 
