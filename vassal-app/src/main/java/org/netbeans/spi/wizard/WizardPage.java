@@ -22,6 +22,8 @@ import javax.swing.text.JTextComponent;
 import javax.swing.tree.TreePath;
 import java.awt.Color;
 import java.awt.Component;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -114,11 +116,11 @@ public class WizardPage extends JPanel implements WizardPanel {
 
     //Have an initial dummy map so it's never null.  We'll dump its contents
     //into the real map the first time it's set
-    private Map<Object, Object> wizardData;
+    private transient Map<Object, Object> wizardData;
     //An initial wizardController that will dump its settings into the real
     //one the first time it's set
-    private WizardControllerImplementation wc = new WC();
-    private WizardController controller = new WizardController(wc);
+    private transient WizardControllerImplementation wc = new WC();
+    private transient WizardController controller = new WizardController(wc);
 
     //Flag to make sure we don't reenter userInputReceieved from maybeUpdateMap()
     private boolean inBeginUIChanged = false;
@@ -126,7 +128,7 @@ public class WizardPage extends JPanel implements WizardPanel {
     //implementation of validateContents changed a component's value, triggering
     //a new event on GenericListener
     private boolean inUiChanged = false;
-    private CustomComponentListener ccl;
+    private transient CustomComponentListener ccl;
     private boolean autoListen;
 
     /**
@@ -157,6 +159,12 @@ public class WizardPage extends JPanel implements WizardPanel {
         this.autoListen = autoListen;
         description = stepDescription;
         
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        wc = new WC();
+        controller = new WizardController(wc);
     }
 
     private boolean listening;
