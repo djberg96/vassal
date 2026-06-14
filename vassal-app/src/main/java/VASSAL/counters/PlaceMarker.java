@@ -309,29 +309,33 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
       c = m.placeAt(marker, p);
     }
 
+    if (c == null) {
+      return null;
+    }
+
     // Set Our ParentID into the markers parent UniqueID. May have been called by Replace, in which case we do not set a parent Id as the parent will be deleted
     if (!clearParentId) {
-      c = c.append(((PersistentPropertyContainer) marker).setPersistentProperty(PARENT_ID, getProperty(BasicPiece.UNIQUE_ID)));
+      c = appendCommand(c, ((PersistentPropertyContainer) marker).setPersistentProperty(PARENT_ID, getProperty(BasicPiece.UNIQUE_ID)));
     }
 
     // Mat support
-    if ((c != null) && GameModule.getGameModule().isMatSupport()) {
+    if (GameModule.getGameModule().isMatSupport()) {
       // If a cargo piece has been placed, find it a Mat if eligible, and select it if the Mat is selected
       if (Boolean.TRUE.equals(marker.getProperty(MatCargo.IS_CARGO))) { //NON-NLS
         final MatCargo cargo = (MatCargo) getDecorator(marker, MatCargo.class);
         if (cargo != null) {
-          c = c.append(cargo.findNewMat());
+          c = appendCommand(c, cargo.findNewMat());
           final GamePiece mat = cargo.getMat();
           if (mat != null) {
             // Since a piece is being created for the first time & placed on a mat, set its "Old Mat" properties in advance of any future move.
             // (Really we should probably set the *other* "OLD" properties too for any new PlaceMarker'ed piece, since as things stand they're going to have
             // e.g. OldLocationName=="" the first time they get moved after a PlaceMarker, but this at least fixes the mats to work right from the get-to)
-            c = c.append(((PersistentPropertyContainer) marker).setPersistentProperty(BasicPiece.OLD_MAT, mat.getProperty(MAT_NAME)));
-            c = c.append(((PersistentPropertyContainer) marker).setPersistentProperty(BasicPiece.OLD_MAT_ID, mat.getProperty(MAT_ID)));
-            c = c.append(((PersistentPropertyContainer) marker).setPersistentProperty(BasicPiece.OLD_MAT_PIECE_NAME, getOutermost(mat).getProperty(PIECE_NAME)));
-            c = c.append(((PersistentPropertyContainer) marker).setPersistentProperty(BasicPiece.OLD_MAT_BASIC_NAME, getOutermost(mat).getProperty(BASIC_NAME)));
-            c = c.append(((PersistentPropertyContainer) marker).setPersistentProperty(BasicPiece.OLD_MAT_OFFSET_X, String.valueOf(cargo.getProperty(CURRENT_MAT_OFFSET_X))));
-            c = c.append(((PersistentPropertyContainer) marker).setPersistentProperty(BasicPiece.OLD_MAT_OFFSET_Y, String.valueOf(cargo.getProperty(CURRENT_MAT_OFFSET_Y))));
+            c = appendCommand(c, ((PersistentPropertyContainer) marker).setPersistentProperty(BasicPiece.OLD_MAT, mat.getProperty(MAT_NAME)));
+            c = appendCommand(c, ((PersistentPropertyContainer) marker).setPersistentProperty(BasicPiece.OLD_MAT_ID, mat.getProperty(MAT_ID)));
+            c = appendCommand(c, ((PersistentPropertyContainer) marker).setPersistentProperty(BasicPiece.OLD_MAT_PIECE_NAME, getOutermost(mat).getProperty(PIECE_NAME)));
+            c = appendCommand(c, ((PersistentPropertyContainer) marker).setPersistentProperty(BasicPiece.OLD_MAT_BASIC_NAME, getOutermost(mat).getProperty(BASIC_NAME)));
+            c = appendCommand(c, ((PersistentPropertyContainer) marker).setPersistentProperty(BasicPiece.OLD_MAT_OFFSET_X, String.valueOf(cargo.getProperty(CURRENT_MAT_OFFSET_X))));
+            c = appendCommand(c, ((PersistentPropertyContainer) marker).setPersistentProperty(BasicPiece.OLD_MAT_OFFSET_Y, String.valueOf(cargo.getProperty(CURRENT_MAT_OFFSET_Y))));
 
             if (mat.getProperty(Properties.SELECTED) == Boolean.TRUE) {
               KeyBuffer.getBuffer().add(marker);
@@ -342,7 +346,7 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
     }
 
     // Set any Parameters in the new piece
-    c = c.append(setDynamicProperties(
+    c = appendCommand(c, setDynamicProperties(
             parameterList,
             marker,
             getOutermost(this),
@@ -352,7 +356,7 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
       marker.setProperty(Properties.SNAPSHOT, ((PropertyExporter) marker).getProperties());
       try {
         RecursionLimiter.startExecution(this);
-        c.append(marker.keyEvent(afterBurnerKey.getKeyStroke()));
+        c = appendCommand(c, marker.keyEvent(afterBurnerKey.getKeyStroke()));
       }
       catch (RecursionLimitException e) {
         RecursionLimiter.infiniteLoop(e);
@@ -375,12 +379,16 @@ public class PlaceMarker extends Decorator implements TranslatablePiece, Recursi
                   " * " + location + ":  " + outer.getName() +
                           " " + markerText + " * ");
           display.execute();
-          c = c == null ? display : c.append(display);
+          c = appendCommand(c, display);
         }
       }
     }
 
     return c;
+  }
+
+  private static Command appendCommand(Command command, Command subCommand) {
+    return Objects.requireNonNull(Objects.requireNonNull(command).append(subCommand));
   }
 
   protected void selectMarker(GamePiece marker) {
