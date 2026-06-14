@@ -391,7 +391,7 @@ public class PropertySheet extends Decorator implements TranslatablePiece {
 
       m_fields = new ArrayList<>();
       Frame parent = null;
-      if (map != null) {
+      if (view != null) {
         final Container topWin = view.getTopLevelAncestor();
         if (topWin instanceof JFrame) {
           parent = (Frame) topWin;
@@ -580,7 +580,7 @@ public class PropertySheet extends Decorator implements TranslatablePiece {
 
       // move window
       Point p = GameModule.getGameModule().getPlayerWindow().getLocation();
-      if (map != null && view.isShowing()) {
+      if (map != null && view != null && view.isShowing()) {
         p = view.getLocationOnScreen();
         final Point p2 = map.mapToComponent(getPosition());
         p.translate(p2.x, p2.y);
