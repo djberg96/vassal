@@ -40,7 +40,9 @@ public class Compressor {
 
   public static byte[] decompress(byte[] in) throws IOException {
     try (ZipInputStream zipIn = new ZipInputStream(new ByteArrayInputStream(in))) {
-      zipIn.getNextEntry(); // NOPMD
+      if (zipIn.getNextEntry() == null) {
+        throw new IOException("Compressed data contains no ZIP entry"); //$NON-NLS-1$
+      }
       return zipIn.readAllBytes();
     }
   }
