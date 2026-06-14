@@ -40,9 +40,10 @@ public class PropertyTest {
     final Property<Boolean> p1 = new Property<Boolean>("foo", Boolean.class);
     final Property<Integer> p2 = new Property<Integer>("foo", Integer.class);
     final Property<Boolean> p3 = new Property<Boolean>("bar", Boolean.class);
+    final Object booleanValue = Boolean.TRUE;
 
     assertFalse(p1.equals(null));
-    assertFalse(p1.equals(Boolean.TRUE));
+    assertFalse(p1.equals(booleanValue));
     assertFalse(p1.equals(p2));
     assertFalse(p1.equals(p3));
   }
