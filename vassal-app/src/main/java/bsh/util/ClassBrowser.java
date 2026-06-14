@@ -240,16 +240,14 @@ public class ClassBrowser extends JSplitPane
 			return;
 		}
 			
-		MutableTreeNode bottom = null, top = null;
-		DefaultMutableTreeNode up;
-		do {
-			up= new DefaultMutableTreeNode( clas.toString() );
-			if ( top != null )
-				up.add( top );
-			else
-				bottom = up;
+		final MutableTreeNode bottom = new DefaultMutableTreeNode(clas.toString());
+		MutableTreeNode top = bottom;
+		while ( (clas = clas.getSuperclass()) != null ) {
+			final DefaultMutableTreeNode up =
+				new DefaultMutableTreeNode( clas.toString() );
+			up.add( top );
 			top = up;
-		} while ( (clas = clas.getSuperclass()) != null );
+		}
 		tree.setModel( new DefaultTreeModel(top) );
 
 		TreeNode tn = bottom.getParent();
