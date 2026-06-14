@@ -12,7 +12,6 @@ package org.netbeans.api.wizard;
 
 import java.awt.Container;
 import java.awt.Rectangle;
-import java.awt.event.ActionListener;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
