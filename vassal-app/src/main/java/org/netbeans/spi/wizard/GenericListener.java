@@ -171,11 +171,11 @@ final class GenericListener
         //XXX do mapping model -> component?
         if (isProbablyAContainer(jc)) {
             attachToHierarchyOf((Container) jc);
-        } else if (jc instanceof JList) {
+        } else if (jc instanceof JList<?> list) {
             listenedTo.add(jc);
-            ((JList) jc).addListSelectionListener(this);
-        } else if (jc instanceof JComboBox) {
-            ((JComboBox) jc).addActionListener(this);
+            list.addListSelectionListener(this);
+        } else if (jc instanceof JComboBox<?> comboBox) {
+            comboBox.addActionListener(this);
         } else if (jc instanceof JTree) {
             listenedTo.add(jc);
             ((JTree) jc).getSelectionModel().addTreeSelectionListener(this);
@@ -221,10 +221,10 @@ final class GenericListener
         }
         if (isProbablyAContainer(jc)) {
             detachFromHierarchyOf((Container) jc);
-        } else if (jc instanceof JList) {
-            ((JList) jc).removeListSelectionListener(this);
-        } else if (jc instanceof JComboBox) {
-            ((JComboBox) jc).removeActionListener(this);
+        } else if (jc instanceof JList<?> list) {
+            list.removeListSelectionListener(this);
+        } else if (jc instanceof JComboBox<?> comboBox) {
+            comboBox.removeActionListener(this);
         } else if (jc instanceof JTree) {
             ((JTree) jc).getSelectionModel().removeTreeSelectionListener(this);
         } else if (jc instanceof JToggleButton) {
@@ -285,8 +285,8 @@ final class GenericListener
             return false;
         }
         return isProbablyAContainer (jc) || 
-                jc instanceof JList ||
-                jc instanceof JComboBox ||
+                jc instanceof JList<?> ||
+                jc instanceof JComboBox<?> ||
                 jc instanceof JTree ||
                 jc instanceof JToggleButton || //covers toggle, radio, checkbox
                 jc instanceof JTextComponent ||
@@ -337,7 +337,7 @@ final class GenericListener
                     logger.fine("Looking for a JList or JTable for a ListSelectionEvent"); // NOI18N
                     ListSelectionModel model = (ListSelectionModel) ((ListSelectionEvent) e).getSource();
                     for (Component o : listenedTo) {
-                        if (o instanceof JList && ((JList) o).getSelectionModel() == model) {
+                        if (o instanceof JList<?> list && list.getSelectionModel() == model) {
                             if (logger.isLoggable(Level.FINE)) {
                                 logger.fine("  found it: " + o); // NOI18N
                             }
