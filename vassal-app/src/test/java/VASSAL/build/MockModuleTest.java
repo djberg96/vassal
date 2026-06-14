@@ -12,7 +12,6 @@ import static org.mockito.Mockito.when;
 public class MockModuleTest {
   private static boolean initialized = false;
 
-  @SuppressWarnings("unchecked")
   @BeforeEach
   public void init() throws Exception {
     if (initialized) {
