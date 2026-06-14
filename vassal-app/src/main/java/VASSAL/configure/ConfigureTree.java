@@ -214,9 +214,6 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
 
   protected JDialog searchDialog;
   protected JTextField searchField;
-  protected JRadioButton searchFiltered;
-
-  protected JCheckBox searchAdvanced;
 
   private final transient SearchParameters searchParameters;
   protected static Chatter chatter;
@@ -347,19 +344,6 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
   protected void setSearchField(JTextField searchField) {
     this.searchField = searchField;
   }
-
-  protected void setSearchAdvanced(JRadioButton searchFiltered) {
-    this.searchFiltered = searchFiltered;
-  }
-
-  // FIXME: Attempting to remove these now unused items yields build errors.
-  protected void setSearchAdvanced(JCheckBox searchAdvanced) {
-  }
-
-  protected JCheckBox getSearchAdvanced() {
-    return searchAdvanced;
-  }
-
 
   public JFrame getFrame() {
     return editorWindow;
@@ -2264,8 +2248,6 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
         };
 
         visSetter.accept(filters.isSelected());
-
-        configureTree.setSearchAdvanced(filters);
 
         final JButton prev = new JButton(Resources.getString("Editor.search_prev"));
         prev.setToolTipText(Resources.getString("Editor.search_prevTip"));
