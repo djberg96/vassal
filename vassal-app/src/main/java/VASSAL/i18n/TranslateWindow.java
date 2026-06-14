@@ -153,7 +153,7 @@ public sealed class TranslateWindow extends JDialog implements ListSelectionList
     langPanel.add(langBox);
     boxListener = e -> {
       commitTableEdit();
-      final String selectedTranslation = (String) ((JComboBox) e.getSource()).getSelectedItem();
+      final String selectedTranslation = (String) langBox.getSelectedItem();
       changeLanguage(selectedTranslation);
     };
     langBox.addActionListener(boxListener);
