@@ -117,6 +117,28 @@ public class NamedKeyStroke {
     }
   }
 
+  /**
+   * Does this named key stroke match a raw key stroke event?
+   *
+   * <p>VASSAL historically treats Delete and Backspace as interchangeable
+   * commands when their modifiers match.</p>
+   */
+  public boolean matches(KeyStroke keyStroke) {
+    if (stroke == null || keyStroke == null) {
+      return false;
+    }
+
+    final int code = stroke.getKeyCode();
+
+    if (code == VK_DELETE || code == VK_BACK_SPACE) {
+      final int keyCode = keyStroke.getKeyCode();
+      return (keyCode == VK_DELETE || keyCode == VK_BACK_SPACE) &&
+        keyStroke.getModifiers() == stroke.getModifiers();
+    }
+
+    return keyStroke.equals(stroke);
+  }
+
   @SuppressFBWarnings(value = "EQ_CHECK_FOR_OPERAND_NOT_COMPATIBLE_WITH_THIS")
   @Override
   public boolean equals(Object o) {
@@ -133,17 +155,7 @@ public class NamedKeyStroke {
     // checking for parameter being a completely unrelated class to this class
     // deliberate misuse of equals()
     else if (o instanceof KeyStroke) {
-      final int code = stroke.getKeyCode();
-
-      if (code == VK_DELETE || code == VK_BACK_SPACE) {
-        final KeyStroke k = (KeyStroke) o;
-        final int k_code = k.getKeyCode();
-        // Either DEL or BACKSPACE matches to either
-        return (k_code == VK_DELETE || k_code == VK_BACK_SPACE) && k.getModifiers() == stroke.getModifiers();
-      }
-      else {
-        return o.equals(stroke);
-      }
+      return matches((KeyStroke) o);
     }
 
     return false;

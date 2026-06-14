@@ -671,20 +671,20 @@ public class Embellishment extends Decorator implements TranslatablePiece, Recur
 
     final ChangeTracker tracker = new ChangeTracker(this);
 
-    if (activateKeyStroke.equals(stroke) && nValues > 0 && !alwaysActive) {
+    if (activateKeyStroke.matches(stroke) && nValues > 0 && !alwaysActive) {
       value = -value;
     }
 
     if (!followProperty) {
 
-      if (increaseKeyStroke.equals(stroke)) {
+      if (increaseKeyStroke.matches(stroke)) {
         doIncrease();
       }
-      if (decreaseKeyStroke.equals(stroke)) {
+      if (decreaseKeyStroke.matches(stroke)) {
         doDecrease();
       }
 
-      if (resetKey != null && resetKey.equals(stroke)) {
+      if (resetKey != null && resetKey.matches(stroke)) {
         final GamePiece outer = getOutermost(this);
         final AuditTrail audit = AuditTrail.create(this, resetLevel, Resources.getString("Editor.Embellishment.reset_to_level"));
         final String levelText = resetLevel.getText(outer, this, audit);
@@ -698,7 +698,7 @@ public class Embellishment extends Decorator implements TranslatablePiece, Recur
         }
       }
       // random layers
-      if (rndKey != null && rndKey.equals(stroke)) {
+      if (rndKey != null && rndKey.matches(stroke)) {
         final int val = GameModule.getGameModule().getRNG().nextInt(nValues) + 1;
         value = value > 0 ? val : -val;
       }
