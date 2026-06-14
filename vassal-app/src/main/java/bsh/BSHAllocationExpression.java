@@ -160,11 +160,6 @@ class BSHAllocationExpression extends SimpleNode
 		return obj;
 	}
 
-	// TODO
-	/*
-		This is totally broken...
-		need to construct a real inner class block here...
-	*/
 	private Object constructWithClassBody( 
 		Class<?> type, Object[] args, BSHBlock block,
 		CallStack callstack, Interpreter interpreter ) 
