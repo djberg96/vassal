@@ -54,9 +54,15 @@ class BSHCastExpression extends SimpleNode {
         // evaluate the expression
         Object fromValue = expression.eval(callstack, interpreter);
 
-		// TODO: need to add isJavaCastable() test for strictJava
-		// (as opposed to isJavaAssignable())
 		try {
+			Class<?> fromType = Types.getType( fromValue );
+			if ( interpreter.getStrictJava()
+				&& !Types.isJavaCastable( toType, fromType ) )
+				throw Types.castError(
+					Reflect.normalizeClassName( toType ),
+					fromType == null ? "null" : Reflect.normalizeClassName( fromType ),
+					Types.CAST );
+
 			return Types.castObject( fromValue, toType, Types.CAST );
 		} catch ( UtilEvalError e ) {
 			throw e.toEvalError( this, callstack  );

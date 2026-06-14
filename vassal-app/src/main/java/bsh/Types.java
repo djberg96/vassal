@@ -27,6 +27,7 @@ package bsh;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.lang.reflect.Modifier;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -376,6 +377,66 @@ class Types
 			// This should not happen with checkOnly true
 			throw new InterpreterError("err in cast check: "+e);
 		}
+	}
+
+	/**
+		Test if an explicit cast is legal under Java cast conversion rules.
+		This is intentionally narrower than BeanShell's extended casts.
+	*/
+	static boolean isJavaCastable( Class<?> toType, Class<?> fromType )
+	{
+		if ( toType == null )
+			return false;
+
+		if ( fromType == null )
+			return !toType.isPrimitive();
+
+		if ( fromType == Void.TYPE )
+			return false;
+
+		if ( toType == fromType )
+			return true;
+
+		if ( toType.isPrimitive() || fromType.isPrimitive() )
+			return isJavaPrimitiveCastable( toType, fromType );
+
+		if ( toType.isAssignableFrom( fromType )
+			|| fromType.isAssignableFrom( toType ) )
+			return true;
+
+		if ( toType.isInterface() || fromType.isInterface() )
+			return isJavaInterfaceCastable( toType, fromType );
+
+		return false;
+	}
+
+	private static boolean isJavaPrimitiveCastable( Class<?> toType, Class<?> fromType )
+	{
+		if ( toType.isPrimitive() && fromType.isPrimitive() )
+			return toType == Boolean.TYPE
+				? fromType == Boolean.TYPE
+				: fromType != Boolean.TYPE;
+
+		if ( toType.isPrimitive() && Primitive.isWrapperType( fromType ) )
+			return isJavaPrimitiveCastable( toType, Primitive.unboxType( fromType ) );
+
+		if ( fromType.isPrimitive() && Primitive.isWrapperType( toType ) )
+			return Primitive.unboxType( toType ) == fromType;
+
+		return false;
+	}
+
+	private static boolean isJavaInterfaceCastable( Class<?> toType, Class<?> fromType )
+	{
+		if ( toType.isInterface() && fromType.isInterface() )
+			return true;
+
+		if ( toType.isInterface() )
+			return !Modifier.isFinal( fromType.getModifiers() )
+				|| toType.isAssignableFrom( fromType );
+
+		return !Modifier.isFinal( toType.getModifiers() )
+			|| fromType.isAssignableFrom( toType );
 	}
 
     /** Find array element type for class.
