@@ -98,6 +98,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -952,7 +953,12 @@ public class GameState implements CommandEncoder {
       if (flavor.isFlavorTextType()) {
         try {
           final String text = transferable.getTransferData(flavor).toString();
-          final URL url = URI.create(text).toURL();
+          final Optional<URL> droppedUrl = getDroppedTextUrl(text);
+          if (droppedUrl.isEmpty()) {
+            continue;
+          }
+
+          final URL url = droppedUrl.get();
           final URLConnection uc = url.openConnection();
 
           final int optionToSave = maybeSaveGame();
@@ -984,9 +990,6 @@ public class GameState implements CommandEncoder {
               finally {
                 GameModule.getGameModule().setLoadOverSemaphore(false); // Resume normal UI updates
               }
-            }
-            catch (MalformedURLException | IllegalArgumentException e) {
-              // Do nothing, this must not have been a URL
             }
           }
         }
@@ -1020,6 +1023,20 @@ public class GameState implements CommandEncoder {
     }
 
     dtde.dropComplete(true);
+  }
+
+  static Optional<URL> getDroppedTextUrl(String text) {
+    if (StringUtils.isBlank(text)) {
+      return Optional.empty();
+    }
+
+    try {
+      final URI uri = URI.create(text.strip());
+      return uri.isAbsolute() ? Optional.of(uri.toURL()) : Optional.empty();
+    }
+    catch (IllegalArgumentException | MalformedURLException e) {
+      return Optional.empty();
+    }
   }
 
   protected String saveString() {

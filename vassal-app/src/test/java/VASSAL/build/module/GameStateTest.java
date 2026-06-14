@@ -1,6 +1,7 @@
 package VASSAL.build.module;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -9,6 +10,8 @@ import VASSAL.command.AddPiece;
 import VASSAL.command.Command;
 import VASSAL.counters.GamePiece;
 
+import java.net.URL;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 public class GameStateTest {
@@ -28,6 +31,22 @@ public class GameStateTest {
     assertEquals(2, subCommands.length);
     assertSame(earlier, ((AddPiece) subCommands[0]).getTarget());
     assertSame(later, ((AddPiece) subCommands[1]).getTarget());
+  }
+
+  @Test
+  public void droppedTextUrlIgnoresBlankRelativeAndInvalidText() {
+    assertTrue(GameState.getDroppedTextUrl("").isEmpty());
+    assertTrue(GameState.getDroppedTextUrl("   ").isEmpty());
+    assertTrue(GameState.getDroppedTextUrl("piece-drag").isEmpty());
+    assertTrue(GameState.getDroppedTextUrl("not a url").isEmpty());
+  }
+
+  @Test
+  public void droppedTextUrlAcceptsAbsoluteUrls() {
+    final Optional<URL> url = GameState.getDroppedTextUrl(" https://example.com/save.vsav ");
+
+    assertTrue(url.isPresent());
+    assertEquals("https://example.com/save.vsav", url.get().toExternalForm());
   }
 
   private static GamePiece piece(String id) {
