@@ -100,7 +100,7 @@ public final class DieManager extends AbstractConfigurable {
     GameModule.getGameModule().getPrefs().addOption(DIE_MANAGER, useemail);
 
     GameModule.getGameModule().getPrefs().addOption(DIE_MANAGER, abook);
-    final String[] addressList = (String[]) GameModule.getGameModule().getPrefs().getValue(ADDRESS_BOOK);
+    final String[] addressList = addressBookValues(GameModule.getGameModule().getPrefs().getValue(ADDRESS_BOOK));
     semail = new StringEnumConfigurer(SECONDARY_EMAIL, "Secondary Email", addressList);
 
     GameModule.getGameModule().getPrefs().addOption(DIE_MANAGER, pemail);
@@ -117,9 +117,13 @@ public final class DieManager extends AbstractConfigurable {
 
   public void setSemailValues() {
     final String currentSemail = (String) GameModule.getGameModule().getPrefs().getValue(SECONDARY_EMAIL);
-    final String[] addressBook = (String[]) GameModule.getGameModule().getPrefs().getValue(ADDRESS_BOOK);
+    final String[] addressBook = addressBookValues(GameModule.getGameModule().getPrefs().getValue(ADDRESS_BOOK));
     semail.setValidValues(addressBook);
     semail.setValue(currentSemail);
+  }
+
+  static String[] addressBookValues(Object value) {
+    return value instanceof String[] ? (String[]) value : new String[0];
   }
 
   // Return names of all known Dice Servers

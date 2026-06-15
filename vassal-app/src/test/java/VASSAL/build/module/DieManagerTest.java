@@ -1,6 +1,7 @@
 package VASSAL.build.module;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -25,8 +26,31 @@ public class DieManagerTest {
 
       final DieManager manager = new DieManager();
 
-      assertArrayEquals(new String[] { "Bones" }, manager.getNames());
-      assertArrayEquals(new String[] { "Bones Dice Server" }, manager.getDescriptions());
+      assertArrayEquals(new String[] { "QRandom", "RandomOrg" }, manager.getNames());
+      assertArrayEquals(
+        new String[] { "qrandom.io Quantum Dice (d6 only)", "RANDOM.ORG Signed API" },
+        manager.getDescriptions()
+      );
+    }
+  }
+
+  @Test
+  public void missingAddressBookPreferenceIsTreatedAsEmpty() {
+    assertArrayEquals(new String[0], DieManager.addressBookValues(null));
+  }
+
+  @Test
+  public void nullAddressBookPreferenceDoesNotBreakConstruction() {
+    final GameModule gameModule = mock(GameModule.class);
+    final Prefs prefs = mock(Prefs.class);
+    when(gameModule.getPrefs()).thenReturn(prefs);
+    when(prefs.getValue(DieManager.ADDRESS_BOOK)).thenReturn(null);
+    when(prefs.getValue(DieManager.SECONDARY_EMAIL)).thenReturn("");
+
+    try (MockedStatic<GameModule> staticGameModule = Mockito.mockStatic(GameModule.class)) {
+      staticGameModule.when(GameModule::getGameModule).thenReturn(gameModule);
+
+      assertDoesNotThrow(DieManager::new);
     }
   }
 }
