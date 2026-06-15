@@ -208,13 +208,15 @@ public final class ExtensionTree extends ConfigureTree {
               insert(target, child, getTreeNode(target).getChildCount());
             }
           }
-          // FIXME: review error message
           catch (Exception ex) {
             JOptionPane.showMessageDialog(
               getTopLevelAncestor(),
-              "Error adding " + getConfigureName(child) + //NON-NLS
-                " to " + getConfigureName(target) + "\n" + ex.getMessage(), //NON-NLS
-              "Illegal configuration", //NON-NLS
+              Resources.getString(
+                "Editor.ConfigureTree.import_class_failed_message",
+                getConfigureName(child),
+                getConfigureName(target),
+                ex.getMessage()),
+              Resources.getString("Editor.ConfigureTree.import_class_failed_title"),
               JOptionPane.ERROR_MESSAGE);
           }
         }
