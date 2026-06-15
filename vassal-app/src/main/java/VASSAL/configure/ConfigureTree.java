@@ -1015,10 +1015,16 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
       try {
         doIt(child);
       }
-      // FIXME: review error message
       catch (Exception ex) {
-        JOptionPane.showMessageDialog(getTopLevelAncestor(), "Error adding " + getConfigureName(child) + " to " + getConfigureName(target) + "\n" //NON-NLS
-            + ex.getMessage(), "Illegal configuration", JOptionPane.ERROR_MESSAGE); //NON-NLS
+        JOptionPane.showMessageDialog(
+          getTopLevelAncestor(),
+          Resources.getString(
+            "Editor.ConfigureTree.import_class_failed_message",
+            getConfigureName(child),
+            getConfigureName(target),
+            ex.getMessage()),
+          Resources.getString("Editor.ConfigureTree.illegal_configuration_title"),
+          JOptionPane.ERROR_MESSAGE);
       }
     }
   }
@@ -1379,10 +1385,16 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
       notifyStateChanged(true);
       return true;
     }
-    // FIXME: review error message
     catch (IllegalBuildException err) {
-      JOptionPane.showMessageDialog(getTopLevelAncestor(), "Cannot delete " + getConfigureName(child) + " from " + getConfigureName(parent) + "\n" //NON-NLS
-        + err.getMessage(), "Illegal configuration", JOptionPane.ERROR_MESSAGE); //NON-NLS
+      JOptionPane.showMessageDialog(
+        getTopLevelAncestor(),
+        Resources.getString(
+          "Editor.ConfigureTree.delete_failed_message",
+          getConfigureName(child),
+          getConfigureName(parent),
+          err.getMessage()),
+        Resources.getString("Editor.ConfigureTree.illegal_configuration_title"),
+        JOptionPane.ERROR_MESSAGE);
       return false;
     }
   }
@@ -1399,10 +1411,15 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
       try {
         parent.remove(oldContents[i]);
       }
-      // FIXME: review error message
       catch (IllegalBuildException err) {
-        JOptionPane.showMessageDialog(getTopLevelAncestor(), "Can't insert " + getConfigureName(theChild) + " before " + getConfigureName(oldContents[i]), //NON-NLS
-          "Illegal configuration", JOptionPane.ERROR_MESSAGE); //NON-NLS
+        JOptionPane.showMessageDialog(
+          getTopLevelAncestor(),
+          Resources.getString(
+            "Editor.ConfigureTree.insert_failed_message",
+            getConfigureName(theChild),
+            getConfigureName(oldContents[i])),
+          Resources.getString("Editor.ConfigureTree.illegal_configuration_title"),
+          JOptionPane.ERROR_MESSAGE);
         for (int j = index; j < i; ++j) {
           parent.add(oldContents[j]);
         }
@@ -1426,9 +1443,14 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
       childI[0] = index;
       ((DefaultTreeModel) getModel()).nodesWereInserted(parentNode, childI);
     }
-    // FIXME: review error message
     catch (IllegalBuildException err) {
-      JOptionPane.showMessageDialog(getTopLevelAncestor(), "Can't add " + getConfigureName(child) + "\n" + err.getMessage(), "Illegal configuration", //NON-NLS
+      JOptionPane.showMessageDialog(
+        getTopLevelAncestor(),
+        Resources.getString(
+          "Editor.ConfigureTree.add_failed_message",
+          getConfigureName(child),
+          err.getMessage()),
+        Resources.getString("Editor.ConfigureTree.illegal_configuration_title"),
         JOptionPane.ERROR_MESSAGE);
       succeeded = false;
     }
