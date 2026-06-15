@@ -30,6 +30,8 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.commons.lang3.Range;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import VASSAL.i18n.Resources;
 import VASSAL.tools.SequenceEncoder;
@@ -40,6 +42,8 @@ import VASSAL.tools.SequenceEncoder;
  * @author rkinney
  */
 public class CgiServerStatus implements ServerStatus {
+  private static final Logger logger = LoggerFactory.getLogger(CgiServerStatus.class);
+
   private static final long DAY = 24L * 3600L * 1000L;
 
   public static final String LAST_DAY = "Server.last_24_hours"; //$NON-NLS-1$
@@ -57,7 +61,11 @@ public class CgiServerStatus implements ServerStatus {
   private final HttpRequestWrapper request;
 
   public CgiServerStatus() {
-    request = new HttpRequestWrapper("https://vassalengine.org/util/"); //$NON-NLS-1$
+    this(new HttpRequestWrapper("https://vassalengine.org/util/")); //$NON-NLS-1$
+  }
+
+  CgiServerStatus(HttpRequestWrapper request) {
+    this.request = request;
     timeRanges.put(Resources.getString(LAST_DAY), DAY);
     timeRanges.put(Resources.getString(LAST_WEEK), DAY * 7);
     timeRanges.put(Resources.getString(LAST_MONTH), DAY * 30);
@@ -82,14 +90,13 @@ public class CgiServerStatus implements ServerStatus {
             updateEntry(entry, roomName, playerName);
           }
         }
-        // FIXME: review error message
         catch (final NoSuchElementException e1) {
+          logger.debug("Ignoring malformed current connection status row: {}", s, e1); //NON-NLS
         }
       }
     }
-    // FIXME: review error message
     catch (final IOException e) {
-      e.printStackTrace();
+      logger.warn("Unable to retrieve current chat server status", e); //NON-NLS
     }
 
     return sortEntriesByModuleName(entries);
@@ -153,9 +160,8 @@ public class CgiServerStatus implements ServerStatus {
 
           l.add(new String[]{ moduleName, roomName, playerName });
         }
-        // FIXME: review error message
         catch (final NoSuchElementException | NumberFormatException e) {
-          e.printStackTrace();
+          logger.debug("Ignoring malformed connection history row: {}", s, e); //NON-NLS
         }
       }
 
@@ -223,12 +229,11 @@ public class CgiServerStatus implements ServerStatus {
     try {
       return request.doGet("getConnectionHistory", p); //$NON-NLS-1$
     }
-    // FIXME: review error message
     catch (final IOException e) {
-      e.printStackTrace();
+      logger.warn("Unable to retrieve chat server history for interval {}", i, e); //NON-NLS
     }
 
-    return null;
+    return List.of();
   }
 
   private ServerStatus.ModuleSummary updateEntry(
