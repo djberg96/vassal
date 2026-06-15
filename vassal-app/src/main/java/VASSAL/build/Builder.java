@@ -247,9 +247,8 @@ public class Builder {
       writeDocument(doc, w);
       return w.toString();
     }
-    // FIXME: review error message
     catch (IOException e) {
-//      IOErrorDialog.error(e);
+      ErrorDialog.bug(e);
       return ""; //$NON-NLS-1$
     }
   }
