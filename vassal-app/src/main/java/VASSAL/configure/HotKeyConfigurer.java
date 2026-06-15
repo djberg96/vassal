@@ -130,8 +130,9 @@ public class HotKeyConfigurer extends Configurer implements KeyListener {
         Integer.parseInt(s.substring(index + 1))
       );
     }
-    // FIXME: review error message
     catch (IllegalArgumentException e) {
+      // Module files may contain invalid legacy hotkey values. Treat them as
+      // unassigned instead of aborting module load.
       return null;
     }
   }
