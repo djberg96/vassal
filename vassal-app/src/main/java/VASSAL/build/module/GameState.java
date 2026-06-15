@@ -1515,20 +1515,14 @@ public class GameState implements CommandEncoder {
           catch (InterruptedException e) {
             ErrorDialog.bug(e);
           }
-          // FIXME: review error message
           catch (ExecutionException e) {
-// FIXME: This is a temporary hack to catch OutOfMemoryErrors; there should
-// be a better, more uniform and more permanent way of handling these, since
-// an OOME is neither a VASSAL bug, a module bug, nor due to bad data.
-            final OutOfMemoryError oom =
-              ThrowableUtils.getAncestor(OutOfMemoryError.class, e);
-            if (oom != null) {
+            if (isOutOfMemory(e)) {
               ErrorDialog.bug(e);
             }
             else {
               log.error("", e);
             }
-            msg = Resources.getString("GameState.error_loading", shortName);
+            msg = loadFailureMessage(shortName, e);
             GameModule.getGameModule().warn(msg);
           }
 
@@ -1668,8 +1662,21 @@ public class GameState implements CommandEncoder {
       }
     }
 
-// FIXME: give more specific error message
-    throw new IOException("Invalid saveFile format"); //NON-NLS
+    throw new IOException("Invalid save file format: missing '" + SAVEFILE_ZIP_ENTRY + "' entry"); //NON-NLS
+  }
+
+  static boolean isOutOfMemory(Throwable e) {
+    return ThrowableUtils.getAncestor(OutOfMemoryError.class, e) != null;
+  }
+
+  static String loadFailureMessage(String shortName, ExecutionException e) {
+    final Throwable cause = e.getCause();
+    final String detail = cause == null ? e.getMessage() : cause.getMessage();
+    String message = Resources.getString("GameState.error_loading", shortName);
+    if (detail != null && !detail.isBlank()) {
+      message += ": " + detail; //NON-NLS
+    }
+    return message;
   }
 
   public DirectoryConfigurer getSavedGameDirectoryPreference() {

@@ -2,6 +2,7 @@ package VASSAL.build.module;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -10,8 +11,16 @@ import VASSAL.command.AddPiece;
 import VASSAL.command.Command;
 import VASSAL.counters.GamePiece;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
+import java.util.concurrent.ExecutionException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+
 import org.junit.jupiter.api.Test;
 
 public class GameStateTest {
@@ -57,11 +66,54 @@ public class GameStateTest {
     assertEquals("file:/tmp/save.vsav", localSave.get().toExternalForm());
   }
 
+  @Test
+  public void loadFailureMessageIncludesCauseDetail() {
+    assertEquals(
+      "Error loading demo.vsav: missing savedGame entry",
+      GameState.loadFailureMessage(
+        "demo.vsav",
+        new ExecutionException(new IOException("missing savedGame entry"))
+      )
+    );
+  }
+
+  @Test
+  public void loadFailureMessageOmitsBlankDetail() {
+    assertEquals(
+      "Error loading demo.vsav",
+      GameState.loadFailureMessage(
+        "demo.vsav",
+        new ExecutionException(new IOException(" "))
+      )
+    );
+  }
+
+  @Test
+  public void decodeSavedGameReportsMissingSavedGameEntry() throws IOException {
+    final GameState state = new GameState();
+    final IOException e = assertThrows(
+      IOException.class,
+      () -> state.decodeSavedGame(new ByteArrayInputStream(zipWithoutSavedGameEntry()))
+    );
+
+    assertEquals("Invalid save file format: missing 'savedGame' entry", e.getMessage());
+  }
+
   private static GamePiece piece(String id) {
     final GamePiece piece = mock(GamePiece.class);
     when(piece.getId()).thenReturn(id);
     when(piece.getState()).thenReturn("state-" + id);
     when(piece.getMap()).thenReturn(null);
     return piece;
+  }
+
+  private static byte[] zipWithoutSavedGameEntry() throws IOException {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+    try (ZipOutputStream zip = new ZipOutputStream(out)) {
+      zip.putNextEntry(new ZipEntry("metadata"));
+      zip.write("metadata".getBytes(StandardCharsets.UTF_8));
+      zip.closeEntry();
+    }
+    return out.toByteArray();
   }
 }
