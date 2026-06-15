@@ -21,6 +21,17 @@ import VASSAL.build.module.metadata.MetaDataFactory;
 import VASSAL.build.module.metadata.SaveMetaData;
 
 public final class LaunchRequestHandler implements Runnable {
+  private static final String MODULE_OPEN_FOR_EDITING =
+    "The module is already open for editing."; //NON-NLS
+  private static final String MODULE_OPEN_FOR_PLAY =
+    "The module is already open for play."; //NON-NLS
+  private static final String MODULE_NOT_FOUND =
+    "Cannot find the module for this request."; //NON-NLS
+  private static final String EXTENSION_OPEN =
+    "The module or extension is already open."; //NON-NLS
+  private static final String UNRECOGNIZED_MODE =
+    "Unrecognized launch mode."; //NON-NLS
+
   private final LaunchRequest lr;
   private String result;
 
@@ -38,6 +49,10 @@ public final class LaunchRequestHandler implements Runnable {
   }
 
   private String handle() {
+    if (lr.mode == null) {
+      return UNRECOGNIZED_MODE;
+    }
+
     final ModuleManagerWindow window = ModuleManagerWindow.getInstance();
 
     switch (lr.mode) {
@@ -46,7 +61,7 @@ public final class LaunchRequestHandler implements Runnable {
       break;
     case LOAD:
       if (Player.LaunchAction.isEditing(lr.module)) {
-        return "module open for editing";   // FIXME
+        return MODULE_OPEN_FOR_EDITING;
       }
 
       if (lr.module == null && lr.game != null) {
@@ -61,15 +76,13 @@ public final class LaunchRequestHandler implements Runnable {
           }
           else {
             // this is a pre 3.1 save file, can't tell the module name
-// FIXME: show some error here
-            return "cannot find module";
+            return MODULE_NOT_FOUND;
           }
         }
       }
 
       if (lr.module == null) {
-        return "cannot find module";
-// FIXME: show some error here
+        return MODULE_NOT_FOUND;
       }
       else if (lr.game == null) {
         new Player.LaunchAction(window, lr.module).actionPerformed(null);
@@ -80,11 +93,11 @@ public final class LaunchRequestHandler implements Runnable {
       break;
     case EDIT:
       if (Editor.LaunchAction.isInUse(lr.module)) {
-        return "module open for play";      // FIXME
+        return MODULE_OPEN_FOR_PLAY;
       }
 
       if (Editor.LaunchAction.isEditing(lr.module)) {
-        return "module open for editing";   // FIXME
+        return MODULE_OPEN_FOR_EDITING;
       }
 
       new Editor.LaunchAction(window, lr.module).actionPerformed(null);
@@ -96,9 +109,20 @@ public final class LaunchRequestHandler implements Runnable {
       new Editor.NewModuleLaunchAction(window).actionPerformed(null);
       break;
     case EDIT_EXT:
-      return "not yet implemented";   // FIXME
+      if (AbstractLaunchAction.isInUse(lr.module) ||
+          AbstractLaunchAction.isInUse(lr.extension)) {
+        return EXTENSION_OPEN;
+      }
+
+      new EditExtensionRequestLaunchAction(window, lr).actionPerformed(null);
+      break;
     case NEW_EXT:
-      return "not yet implemented";   // FIXME
+      if (AbstractLaunchAction.isEditing(lr.module)) {
+        return MODULE_OPEN_FOR_EDITING;
+      }
+
+      new NewExtensionRequestLaunchAction(window, lr).actionPerformed(null);
+      break;
     case UPDATE_MOD:
       window.updateRequest(lr.module);
       break;
@@ -109,9 +133,69 @@ public final class LaunchRequestHandler implements Runnable {
       window.updateRequest(lr.game);
       break;
     default:
-      return "unrecognized mode";     // FIXME
+      return UNRECOGNIZED_MODE;
     }
 
     return null;
+  }
+
+  private abstract static class EditorRequestLaunchAction extends AbstractLaunchAction {
+    private static final long serialVersionUID = 1L;
+
+    protected EditorRequestLaunchAction(ModuleManagerWindow window, LaunchRequest lr) {
+      super(lr.mode.toString(), window, Editor.class.getName(), lr);
+    }
+  }
+
+  private static final class NewExtensionRequestLaunchAction extends EditorRequestLaunchAction {
+    private static final long serialVersionUID = 1L;
+
+    private NewExtensionRequestLaunchAction(ModuleManagerWindow window, LaunchRequest lr) {
+      super(window, lr);
+    }
+
+    @Override
+    public void actionPerformed(java.awt.event.ActionEvent e) {
+      incrementUsed(lr.module);
+      super.actionPerformed(e);
+    }
+
+    @Override
+    protected LaunchTask getLaunchTask() {
+      return new LaunchTask() {
+        @Override
+        protected void done() {
+          super.done();
+          decrementUsed(lr.module);
+        }
+      };
+    }
+  }
+
+  private static final class EditExtensionRequestLaunchAction extends EditorRequestLaunchAction {
+    private static final long serialVersionUID = 1L;
+
+    private EditExtensionRequestLaunchAction(ModuleManagerWindow window, LaunchRequest lr) {
+      super(window, lr);
+    }
+
+    @Override
+    public void actionPerformed(java.awt.event.ActionEvent e) {
+      incrementUsed(lr.module);
+      markEditing(lr.extension);
+      super.actionPerformed(e);
+    }
+
+    @Override
+    protected LaunchTask getLaunchTask() {
+      return new LaunchTask() {
+        @Override
+        protected void done() {
+          super.done();
+          decrementUsed(lr.module);
+          unmarkEditing(lr.extension);
+        }
+      };
+    }
   }
 }
