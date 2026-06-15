@@ -25,18 +25,22 @@ import java.nio.charset.Charset;
 import java.util.Properties;
 
 import VASSAL.tools.ArgsParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The server-side Main class
  */
 public final class Server extends Thread {
+  private static final Logger logger = LoggerFactory.getLogger(Server.class);
+
   private final AsynchronousServerNode rootNode;
   private final ServerSocket socket;
 
   public Server(AsynchronousServerNode rootNode, int port) throws IOException {
     this.rootNode = rootNode;
     socket = new ServerSocket(port);
-    System.err.println("Started server on port " + port); //$NON-NLS-1$
+    logger.info("Started server on port {}", port); //NON-NLS
     start();
   }
 
@@ -49,13 +53,15 @@ public final class Server extends Thread {
         new PlayerNode(s, rootNode);
         consecutiveFailures = 0;
       }
-      // FIXME: review error message
       catch (final Exception e) {
-        e.printStackTrace();
         consecutiveFailures++;
+        logger.warn(
+          "Failed to accept chat client connection, consecutive failure count is {}",
+          consecutiveFailures,
+          e); //NON-NLS
       }
     }
-    System.err.println("Exiting due to consecutiveFailures");
+    logger.error("Exiting due to consecutive chat server accept failures"); //NON-NLS
     System.exit(1);
   }
 
@@ -137,9 +143,8 @@ public final class Server extends Thread {
         try {
           reader.close();
         }
-        // FIXME: review error message
         catch (final IOException e) {
-          e.printStackTrace();
+          logger.debug("Failed to close chat server test input reader", e); //NON-NLS
         }
       }
     }
