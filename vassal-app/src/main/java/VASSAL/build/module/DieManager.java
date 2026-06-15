@@ -17,15 +17,16 @@
 package VASSAL.build.module;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import VASSAL.build.AbstractConfigurable;
 import VASSAL.build.Buildable;
 import VASSAL.build.GameModule;
-import VASSAL.build.module.dice.BonesDiceServer;
 import VASSAL.build.module.dice.DieServer;
+import VASSAL.build.module.dice.QRandomDiceServer;
+import VASSAL.build.module.dice.RandomOrgDiceServer;
 import VASSAL.build.module.dice.RollSet;
 import VASSAL.build.module.documentation.HelpFile;
 import VASSAL.command.Command;
@@ -73,29 +74,14 @@ public final class DieManager extends AbstractConfigurable {
 
   public DieManager() {
 
-    final DieServer d;
-    servers = new HashMap<>();
+    servers = new LinkedHashMap<>();
 
     /*
-     * Create the Internet Dice Servers we know about
+     * Create the Internet Dice Servers we know about.
      */
-//    d = new InbuiltDieServer();
-//    servers.put(d.getName(), d);
-//    server = d; // Set the default Internet Server
-
-//        d = new IronyDieServer();
-//        servers.put(d.getName(), d);
-//
-//        d = new InternetGamesDieServer();
-//        servers.put(d.getName(), d);
-
-//    d = new ShadowDiceDieServer();
-//    servers.put(d.getName(), d);
-
-    d = new BonesDiceServer();
-    servers.put(d.getName(), d);
-
-    server = d;
+    server = new QRandomDiceServer();
+    registerServer(server);
+    registerServer(new RandomOrgDiceServer());
 
     /*
      * The Dice Manager needs some preferences
@@ -103,7 +89,7 @@ public final class DieManager extends AbstractConfigurable {
 
     final StringEnumConfigurer dieserver = new StringEnumConfigurer(DICE_SERVER, "Internet Dice Server", getDescriptions());
     dieserver.setValue(server.getDescription());
-    final StringConfigurer serverpw = new StringConfigurer(SERVER_PW, "Dice Server Password");
+    final StringConfigurer serverpw = new StringConfigurer(SERVER_PW, "Dice Server API Key / Password");
     final BooleanConfigurer useemail = new BooleanConfigurer(USE_EMAIL, "Email results?");
     final StringConfigurer pemail = new StringConfigurer(PRIMARY_EMAIL, "Primary Email");
     final StringArrayConfigurer abook = new StringArrayConfigurer(ADDRESS_BOOK, "Address Book");
@@ -123,6 +109,10 @@ public final class DieManager extends AbstractConfigurable {
 
     setSemailValues();
     abook.addPropertyChangeListener(e -> setSemailValues());
+  }
+
+  private void registerServer(DieServer dieServer) {
+    servers.put(dieServer.getName(), dieServer);
   }
 
   public void setSemailValues() {
@@ -155,7 +145,7 @@ public final class DieManager extends AbstractConfigurable {
   // Return server matching Description
   public DieServer getServerFromDescription(String de) {
     for (final DieServer d : servers.values()) {
-      if (de.equals(d.getDescription())) {
+      if (d.getDescription().equals(de)) {
         return d;
       }
     }
@@ -260,7 +250,8 @@ public final class DieManager extends AbstractConfigurable {
 
     // Get the correct server
     final String serverName = ((String) prefs.getValue(DICE_SERVER));
-    server = getServerFromDescription(serverName);
+    final DieServer selectedServer = getServerFromDescription(serverName);
+    server = selectedServer == null ? servers.values().iterator().next() : selectedServer;
 
     // And tell it the prefs it will need
     server.setPasswd((String) prefs.getValue(SERVER_PW));
