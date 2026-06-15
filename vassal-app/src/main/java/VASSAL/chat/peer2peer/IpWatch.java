@@ -22,7 +22,12 @@ import java.beans.PropertyChangeSupport;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public final class IpWatch implements Runnable {
+  private static final Logger logger = LoggerFactory.getLogger(IpWatch.class);
+
   private final PropertyChangeSupport propSupport = new PropertyChangeSupport(this);
   private String currentIp;
   private final long wait;
@@ -51,6 +56,9 @@ public final class IpWatch implements Runnable {
         Thread.sleep(wait);
       }
       catch (InterruptedException ex) {
+        Thread.currentThread().interrupt();
+        logger.debug("IP watch interrupted", ex); //NON-NLS
+        return;
       }
     }
   }
@@ -71,8 +79,8 @@ public final class IpWatch implements Runnable {
       }
       return buff.toString();
     }
-    // FIXME: review error message
     catch (UnknownHostException e) {
+      logger.debug("Unable to determine local IP address", e); //NON-NLS
       return null;
     }
   }
