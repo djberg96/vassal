@@ -39,6 +39,8 @@ import VASSAL.chat.peer2peer.P2PClientFactory;
 import VASSAL.configure.Configurer;
 import VASSAL.i18n.Resources;
 import VASSAL.tools.menu.MacOSXMenuManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Specifies the server implementation in the Preferences
@@ -47,6 +49,8 @@ import VASSAL.tools.menu.MacOSXMenuManager;
  *
  */
 public final class ServerConfigurer extends Configurer {
+  private static final Logger logger = LoggerFactory.getLogger(ServerConfigurer.class);
+
   private static final String CONNECTED = Resources.getString("Server.please_disconnect"); //$NON-NLS-1$
   private static final String DISCONNECTED = Resources.getString("Server.select_server_type"); //$NON-NLS-1$
   private static final String P2P_BUTTON = Resources.getString("Server.direct"); //$NON-NLS-1$
@@ -131,9 +135,8 @@ public final class ServerConfigurer extends Configurer {
       }
       s = new String(out.toByteArray(), ENCODING);
     }
-    // FIXME: review error message
     catch (final IOException e) {
-      e.printStackTrace();
+      logger.warn("Unable to encode server configuration", e); //NON-NLS
     }
     return s;
   }
@@ -162,9 +165,8 @@ public final class ServerConfigurer extends Configurer {
     try {
       p.load(new ByteArrayInputStream(s.getBytes(ENCODING)));
     }
-    // FIXME: review error message
     catch (final IOException e) {
-      e.printStackTrace();
+      logger.warn("Unable to decode server configuration", e); //NON-NLS
     }
     setValue(p);
   }
