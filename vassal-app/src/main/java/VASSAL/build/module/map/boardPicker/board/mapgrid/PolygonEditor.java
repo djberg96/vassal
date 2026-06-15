@@ -219,20 +219,27 @@ public class PolygonEditor extends JPanel {
   private static void parseString(Polygon p, String pathStr) {
     final SequenceEncoder.Decoder sd = new SequenceEncoder.Decoder(pathStr, ';');
     while (sd.hasMoreTokens()) {
-      final String s = sd.nextToken();
-      final SequenceEncoder.Decoder pd = new SequenceEncoder.Decoder(s, ',');
+      addPoint(p, sd.nextToken());
+    }
+  }
+
+  private static void addPoint(Polygon p, String pointStr) {
+    final SequenceEncoder.Decoder pd = new SequenceEncoder.Decoder(pointStr, ',');
+    if (!pd.hasMoreTokens()) {
+      return;
+    }
+
+    try {
+      final int x = Integer.parseInt(pd.nextToken().trim());
       if (pd.hasMoreTokens()) {
-        try {
-          final int x = Integer.parseInt(pd.nextToken().trim());
-          if (pd.hasMoreTokens()) {
-            final int y = Integer.parseInt(pd.nextToken().trim());
-            p.addPoint(x, y);
-          }
-        }
-        // FIXME: review error message
-        catch (final NumberFormatException e) {
-        }
+        final int y = Integer.parseInt(pd.nextToken().trim());
+        p.addPoint(x, y);
       }
+    }
+    catch (final NumberFormatException e) {
+      // Keep parsing later points. Polygon strings come from editable module
+      // data and direct-entry dialogs, so a bad pair should not discard the
+      // rest of the shape.
     }
   }
 
