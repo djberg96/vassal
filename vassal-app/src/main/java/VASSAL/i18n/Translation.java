@@ -124,10 +124,8 @@ public class Translation extends AbstractConfigurable
       try {
         loadProperties();
       }
-// FIXME: review error message
-// FIXME: should we catch a FileNotFoundException here instead?
       catch (IOException e) {
-        // Fail quietly: This error will occur when adding a new translation.
+        ReadErrorDialog.error(e, getBundleFileName());
       }
     }
   }
