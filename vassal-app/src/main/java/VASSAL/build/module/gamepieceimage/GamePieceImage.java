@@ -29,7 +29,6 @@ import VASSAL.configure.StringConfigurer;
 import VASSAL.configure.VisibilityCondition;
 import VASSAL.i18n.Resources;
 import VASSAL.tools.ArchiveWriter;
-import VASSAL.tools.ErrorDialog;
 import VASSAL.tools.UniqueIdManager;
 import VASSAL.tools.imageop.Op;
 import VASSAL.tools.imageop.SourceOp;
@@ -38,6 +37,7 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -384,14 +384,18 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
   public byte[] getEncodedImage(BufferedImage bufferedImage) {
     final ByteArrayOutputStream out = new ByteArrayOutputStream();
     try {
-      ImageIO.write(bufferedImage, "png", out); //$NON-NLS-1$
+      writePng(bufferedImage, out);
     }
     catch (IOException e) {
-      ErrorDialog.bug(e);
-// FIXME: why byte[1] instead of byte[0]?
-      return new byte[1];
+      throw new IllegalStateException("Unable to encode game piece image as PNG", e); //NON-NLS
     }
     return out.toByteArray();
+  }
+
+  static void writePng(BufferedImage bufferedImage, OutputStream out) throws IOException {
+    if (!ImageIO.write(bufferedImage, "png", out)) { //$NON-NLS-1$
+      throw new IOException("No PNG image writer is available"); //NON-NLS
+    }
   }
 
   public ItemInstance getInstance(String name) { //NOPMD

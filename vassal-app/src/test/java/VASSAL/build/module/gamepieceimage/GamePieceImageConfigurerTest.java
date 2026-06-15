@@ -1,9 +1,17 @@
 package VASSAL.build.module.gamepieceimage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.awt.Font;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,5 +63,37 @@ public class GamePieceImageConfigurerTest {
     final GamePieceImage image = new GamePieceImage(encoded);
 
     assertEquals(encoded, image.getAttributeValueString(GamePieceImage.PROPS));
+  }
+
+  @Test
+  public void getEncodedImageWritesReadablePng() throws IOException {
+    final GamePieceImage image = new GamePieceImage();
+    final BufferedImage source = new BufferedImage(4, 4, BufferedImage.TYPE_INT_ARGB);
+
+    final byte[] encoded = image.getEncodedImage(source);
+
+    assertNotNull(ImageIO.read(new ByteArrayInputStream(encoded)));
+  }
+
+  @Test
+  public void writePngReportsOutputFailure() {
+    final BufferedImage source = new BufferedImage(4, 4, BufferedImage.TYPE_INT_ARGB);
+
+    assertThrows(
+      IOException.class,
+      () -> GamePieceImage.writePng(source, new FailingOutputStream())
+    );
+  }
+
+  private static class FailingOutputStream extends OutputStream {
+    @Override
+    public void write(int b) throws IOException {
+      throw new IOException("write failed");
+    }
+
+    @Override
+    public void write(byte[] b, int off, int len) throws IOException {
+      throw new IOException("write failed");
+    }
   }
 }
