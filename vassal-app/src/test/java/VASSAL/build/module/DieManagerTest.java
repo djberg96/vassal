@@ -26,9 +26,9 @@ public class DieManagerTest {
 
       final DieManager manager = new DieManager();
 
-      assertArrayEquals(new String[] { "QRandom", "RandomOrg" }, manager.getNames());
+      assertArrayEquals(new String[] { "RandomOrg", "QRandom" }, manager.getNames());
       assertArrayEquals(
-        new String[] { "qrandom.io Quantum Dice (d6 only)", "RANDOM.ORG Signed API" },
+        new String[] { "RANDOM.ORG Signed API", "qrandom.io Quantum Dice (d6 only)" },
         manager.getDescriptions()
       );
     }

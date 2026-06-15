@@ -71,6 +71,9 @@ public final class DieManager extends AbstractConfigurable {
   public static final String DESC = "description"; //NON-NLS
   public static final String DFLT_NSIDES = "dfltnsides"; //NON-NLS
   public static final String DFLT_NDICE = "dfltndice"; //NON-NLS
+  public static final String RANDOM_ORG_DESCRIPTION = "RANDOM.ORG Signed API"; //NON-NLS
+  public static final String Q_RANDOM_DESCRIPTION = "qrandom.io Quantum Dice (d6 only)"; //NON-NLS
+  public static final String DEFAULT_DICE_SERVER = RANDOM_ORG_DESCRIPTION; //NON-NLS
 
   public DieManager() {
 
@@ -79,9 +82,9 @@ public final class DieManager extends AbstractConfigurable {
     /*
      * Create the Internet Dice Servers we know about.
      */
-    server = new QRandomDiceServer();
+    server = new RandomOrgDiceServer();
     registerServer(server);
-    registerServer(new RandomOrgDiceServer());
+    registerServer(new QRandomDiceServer());
 
     /*
      * The Dice Manager needs some preferences
@@ -124,6 +127,10 @@ public final class DieManager extends AbstractConfigurable {
 
   static String[] addressBookValues(Object value) {
     return value instanceof String[] ? (String[]) value : new String[0];
+  }
+
+  public static String[] getAvailableServerDescriptions() {
+    return new String[] { RANDOM_ORG_DESCRIPTION, Q_RANDOM_DESCRIPTION };
   }
 
   // Return names of all known Dice Servers
@@ -178,7 +185,12 @@ public final class DieManager extends AbstractConfigurable {
   }
 
   public MultiRoll getMultiRoll(int nDice, int nSides) {
-    final String serverName = getServer().getName();
+    getPrefs();
+    return getMultiRollForSelectedServer(nDice, nSides);
+  }
+
+  private MultiRoll getMultiRollForSelectedServer(int nDice, int nSides) {
+    final String serverName = server.getName();
     if (myMultiRoll == null || !serverName.equals(lastServerName)) {
       myMultiRoll = new MultiRoll(this, nDice, nSides);
     }
@@ -188,9 +200,33 @@ public final class DieManager extends AbstractConfigurable {
   }
 
   public void roll(int nDice, int nSides, int plus, boolean reportTotal, String description, FormattedString format) {
-    final MultiRoll mroll = getMultiRoll(nDice, nSides);
-    getPrefs();
+    roll(nDice, nSides, plus, reportTotal, description, format, null, null);
+  }
 
+  public void roll(
+    int nDice,
+    int nSides,
+    int plus,
+    boolean reportTotal,
+    String description,
+    FormattedString format,
+    String serverDescription,
+    String apiKey
+  ) {
+    getPrefs(serverDescription, apiKey);
+    final MultiRoll mroll = getMultiRollForSelectedServer(nDice, nSides);
+    rollConfigured(nDice, nSides, plus, reportTotal, description, format, mroll);
+  }
+
+  private void rollConfigured(
+    int nDice,
+    int nSides,
+    int plus,
+    boolean reportTotal,
+    String description,
+    FormattedString format,
+    MultiRoll mroll
+  ) {
     final RollSet rollSet;
 
     String desc = GameModule.getGameModule().getChatter().getInputField().getText();
@@ -249,16 +285,22 @@ public final class DieManager extends AbstractConfigurable {
    * Preferences may change at ANY time!
    */
   private void getPrefs() {
+    getPrefs(null, null);
+  }
+
+  private void getPrefs(String serverDescription, String apiKey) {
 
     final Prefs prefs = GameModule.getGameModule().getPrefs();
 
     // Get the correct server
-    final String serverName = ((String) prefs.getValue(DICE_SERVER));
+    final String serverName = serverDescription == null || serverDescription.isBlank()
+      ? (String) prefs.getValue(DICE_SERVER)
+      : serverDescription;
     final DieServer selectedServer = getServerFromDescription(serverName);
     server = selectedServer == null ? servers.values().iterator().next() : selectedServer;
 
     // And tell it the prefs it will need
-    server.setPasswd((String) prefs.getValue(SERVER_PW));
+    server.setPasswd(apiKey == null ? (String) prefs.getValue(SERVER_PW) : apiKey);
     server.setUseEmail((Boolean) prefs.getValue(USE_EMAIL));
     server.setPrimaryEmail((String) prefs.getValue(PRIMARY_EMAIL));
     server.setSecondaryEmail((String) prefs.getValue(SECONDARY_EMAIL));

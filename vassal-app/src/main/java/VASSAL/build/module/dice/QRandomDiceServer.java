@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URI;
 
+import VASSAL.build.module.DieManager;
 import VASSAL.build.module.DieRoll;
 
 public class QRandomDiceServer extends DieServer {
@@ -12,7 +13,7 @@ public class QRandomDiceServer extends DieServer {
 
   public QRandomDiceServer() {
     name = "QRandom";
-    description = "qrandom.io Quantum Dice (d6 only)";
+    description = DieManager.Q_RANDOM_DESCRIPTION;
     serverURL = "https://qrandom.io/api/random/dice";
     canDoSeparateDice = true;
   }

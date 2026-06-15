@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 
+import VASSAL.build.module.DieManager;
 import VASSAL.build.module.DieRoll;
 
 public class RandomOrgDiceServer extends DieServer {
@@ -14,7 +15,7 @@ public class RandomOrgDiceServer extends DieServer {
 
   public RandomOrgDiceServer() {
     name = "RandomOrg";
-    description = "RANDOM.ORG Signed API";
+    description = DieManager.RANDOM_ORG_DESCRIPTION;
     serverURL = "https://api.random.org/json-rpc/4/invoke";
     passwdRequired = true;
     canDoSeparateDice = true;

@@ -32,7 +32,9 @@ import VASSAL.build.module.documentation.HelpFile;
 import VASSAL.command.Command;
 import VASSAL.command.CommandEncoder;
 import VASSAL.configure.Configurer;
+import VASSAL.configure.ConfigurerFactory;
 import VASSAL.configure.FormattedStringConfigurer;
+import VASSAL.configure.StringEnumConfigurer;
 import VASSAL.i18n.Resources;
 
 /**
@@ -44,6 +46,10 @@ public class InternetDiceButton extends DiceButton implements CommandEncoder {
   private static final String COMMAND_PREFIX = "SEMAIL\t"; //$NON-NLS-1$
   /** Report format variale */
   public static final String DETAILS = "rollDetails"; //$NON-NLS-1$
+  public static final String DICE_SERVER = "diceServer"; //$NON-NLS-1$
+  public static final String SERVER_API_KEY = "serverApiKey"; //$NON-NLS-1$
+  private String diceServer = DieManager.DEFAULT_DICE_SERVER;
+  private String serverApiKey = ""; //$NON-NLS-1$
 
   public static String getConfigureTypeName() {
     return Resources.getString("Editor.InternetDiceButton.component_type"); //$NON-NLS-1$
@@ -57,7 +63,51 @@ public class InternetDiceButton extends DiceButton implements CommandEncoder {
         c[i] = InternetReportFormatConfig.class;
       }
     }
-    return c;
+    return ArrayUtils.addAll(c, InternetDiceServerConfig.class, String.class);
+  }
+
+  @Override
+  public String[] getAttributeNames() {
+    return ArrayUtils.addAll(
+      super.getAttributeNames(),
+      DICE_SERVER,
+      SERVER_API_KEY
+    );
+  }
+
+  @Override
+  public String[] getAttributeDescriptions() {
+    return ArrayUtils.addAll(
+      super.getAttributeDescriptions(),
+      "Internet Dice Server", //NON-NLS
+      "Dice Server API Key / Password" //NON-NLS
+    );
+  }
+
+  @Override
+  public void setAttribute(String key, Object value) {
+    if (DICE_SERVER.equals(key)) {
+      diceServer = value == null ? DieManager.DEFAULT_DICE_SERVER : value.toString();
+    }
+    else if (SERVER_API_KEY.equals(key)) {
+      serverApiKey = value == null ? "" : value.toString(); //NON-NLS
+    }
+    else {
+      super.setAttribute(key, value);
+    }
+  }
+
+  @Override
+  public String getAttributeValueString(String key) {
+    if (DICE_SERVER.equals(key)) {
+      return diceServer;
+    }
+    else if (SERVER_API_KEY.equals(key)) {
+      return serverApiKey;
+    }
+    else {
+      return super.getAttributeValueString(key);
+    }
   }
 
   public static class InternetReportFormatConfig extends ReportFormatConfig {
@@ -70,13 +120,20 @@ public class InternetDiceButton extends DiceButton implements CommandEncoder {
     }
   }
 
+  public static class InternetDiceServerConfig implements ConfigurerFactory {
+    @Override
+    public Configurer getConfigurer(AutoConfigurable c, String key, String name) {
+      return new StringEnumConfigurer(key, name, DieManager.getAvailableServerDescriptions());
+    }
+  }
+
   /**
    * Ask the die manager to do our roll!
    */
   @Override
   protected void DR() {
     reportFormat.setProperty(NAME, getLocalizedConfigureName());
-    dieManager.roll(nDice, nSides, plus, reportTotal, getLocalizedConfigureName(), reportFormat);
+    dieManager.roll(nDice, nSides, plus, reportTotal, getLocalizedConfigureName(), reportFormat, diceServer, serverApiKey);
   }
 
   /**
