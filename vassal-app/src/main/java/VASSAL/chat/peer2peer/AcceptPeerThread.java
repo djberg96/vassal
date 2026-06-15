@@ -4,11 +4,15 @@ import java.io.IOException;
 import java.net.ServerSocket;
 
 import org.litesoft.p2pchat.PendingPeerManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Date: Mar 11, 2003
  */
 public class AcceptPeerThread extends Thread {
+  private static final Logger logger = LoggerFactory.getLogger(AcceptPeerThread.class);
+
   private boolean running = true;
   private ServerSocket socket;
   private final PendingPeerManager ppm;
@@ -23,10 +27,12 @@ public class AcceptPeerThread extends Thread {
         socket = new ServerSocket(port);
         break;
       }
-      // FIXME: review error message
-      catch (Exception ex) {
+      catch (IOException | SecurityException ex) {
+        logger.debug("Unable to listen for peers on port {}", port, ex); //NON-NLS
         if (i == MAX_ATTEMPTS - 1) {
-          throw new IOException(ex);
+          throw new IOException(
+            "Unable to listen for peers on ports " + initialPort + "-" + port, //NON-NLS
+            ex);
         }
       }
     }
@@ -53,8 +59,10 @@ public class AcceptPeerThread extends Thread {
       try {
         ppm.addNewPeer(socket.accept());
       }
-      // FIXME: review error message
-      catch (Exception ex) {
+      catch (IOException | RuntimeException ex) {
+        if (running) {
+          logger.warn("Peer listener stopped after accept failure", ex); //NON-NLS
+        }
         halt();
       }
     }
@@ -66,9 +74,8 @@ public class AcceptPeerThread extends Thread {
     try {
       socket.close();
     }
-    // FIXME: review error message
     catch (IOException e) {
-      e.printStackTrace();
+      logger.debug("Failed to close peer listener socket", e); //NON-NLS
     }
   }
 }
