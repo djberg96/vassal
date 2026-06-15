@@ -56,8 +56,7 @@ public abstract class AbstractInterpreter extends Interpreter {
       set(name, value);
     }
     catch (EvalError e) {
-      // FIXME: Error message
-      WarningDialog.show(e, "");
+      showSetVarWarning(name, value, e);
     }
   }
 
@@ -67,8 +66,7 @@ public abstract class AbstractInterpreter extends Interpreter {
       set(name, value);
     }
     catch (EvalError e) {
-      // FIXME: Error message
-      WarningDialog.show(e, "");
+      showSetVarWarning(name, value, e);
     }
   }
 
@@ -77,8 +75,7 @@ public abstract class AbstractInterpreter extends Interpreter {
       set(name, value);
     }
     catch (EvalError e) {
-      // FIXME: Error message
-      WarningDialog.show(e, "");
+      showSetVarWarning(name, value, e);
     }
   }
 
@@ -87,8 +84,7 @@ public abstract class AbstractInterpreter extends Interpreter {
       set(name, value);
     }
     catch (EvalError e) {
-      // FIXME: Error message
-      WarningDialog.show(e, "");
+      showSetVarWarning(name, value, e);
     }
   }
 
@@ -97,9 +93,27 @@ public abstract class AbstractInterpreter extends Interpreter {
       getNameSpace().setTypedVariable(name, cl, value, null);
     }
     catch (UtilEvalError e) {
-      // FIXME: Error message
-      WarningDialog.show(e, "");
+      showSetVarWarning(name, cl, value, e);
     }
+  }
+
+  private void showSetVarWarning(String name, Object value, Throwable e) {
+    WarningDialog.show(e, "Error.beanshell_variable_assignment", name, describeAssignmentValue(value)); //NON-NLS
+  }
+
+  private void showSetVarWarning(String name, Class<?> cl, Object value, Throwable e) {
+    WarningDialog.show(e, "Error.beanshell_variable_assignment", name, describeTypedAssignmentValue(cl, value)); //NON-NLS
+  }
+
+  static String describeAssignmentValue(Object value) {
+    if (value == null) {
+      return "null"; //NON-NLS
+    }
+    return "'" + value + "' (" + value.getClass().getName() + ")"; //NON-NLS
+  }
+
+  static String describeTypedAssignmentValue(Class<?> type, Object value) {
+    return "typed as " + type.getName() + " with " + describeAssignmentValue(value); //NON-NLS
   }
 
   /*
