@@ -246,7 +246,7 @@ public class Map extends AbstractToolbarItem implements MouseListener, MouseMoti
   protected String markUnmovedReport = "";
   protected MouseListener multicaster = null;
   protected ArrayList<MouseListener> mouseListenerStack = new ArrayList<>(); //NOPMD
-  protected List<Board> boards = new CopyOnWriteArrayList<>();
+  protected volatile List<Board> boards = new CopyOnWriteArrayList<>();
   protected int[][] boardWidths; // Cache of board widths by row/column
   protected int[][] boardHeights; // Cache of board heights by row/column
   protected PieceCollection pieces = new DefaultPieceCollection(); // All the pieces on the map, but sorted into visual layers. Will be replaced by a LayeredPieceCollection if Map has a "Game Piece Layers" Component.
@@ -1116,13 +1116,14 @@ public class Map extends AbstractToolbarItem implements MouseListener, MouseMoti
    * {@link Board}.
    * @param c Collection of Boards to be used.
    */
-  public synchronized void setBoards(Collection<Board> c) {
-    boards.clear();
+  public void setBoards(Collection<Board> c) {
+    final List<Board> selectedBoards = new CopyOnWriteArrayList<>();
     for (final Board b : c) {
       b.setMap(this);
-      boards.add(b);
+      selectedBoards.add(b);
     }
-    setBoardBoundaries();
+    setBoardBoundaries(selectedBoards);
+    boards = selectedBoards;
   }
 
   /**
@@ -1228,8 +1229,7 @@ public class Map extends AbstractToolbarItem implements MouseListener, MouseMoti
    * @return the size of the map in pixels at 100% zoom,
    * including the edge buffer
    */
-// FIXME: why synchronized?
-  public synchronized Dimension mapSize() {
+  public Dimension mapSize() {
     final Rectangle r = new Rectangle(0, 0);
     for (final Board b : boards) r.add(b.bounds());
     r.width += edgeBuffer.width;
@@ -2613,22 +2613,26 @@ public class Map extends AbstractToolbarItem implements MouseListener, MouseMoti
    * will be adjusted N pixels to the right.
    */
   protected void setBoardBoundaries() {
+    setBoardBoundaries(boards);
+  }
+
+  private void setBoardBoundaries(Collection<Board> selectedBoards) {
     int maxX = 0;
     int maxY = 0;
-    for (final Board b : boards) {
+    for (final Board b : selectedBoards) {
       final Point relPos = b.relativePosition();
       maxX = Math.max(maxX, relPos.x);
       maxY = Math.max(maxY, relPos.y);
     }
     boardWidths = new int[maxX + 1][maxY + 1];
     boardHeights = new int[maxX + 1][maxY + 1];
-    for (final Board b : boards) {
+    for (final Board b : selectedBoards) {
       final Point relPos = b.relativePosition();
       boardWidths[relPos.x][relPos.y] = b.bounds().width;
       boardHeights[relPos.x][relPos.y] = b.bounds().height;
     }
     final Point offset = new Point(edgeBuffer.width, edgeBuffer.height);
-    for (final Board b : boards) {
+    for (final Board b : selectedBoards) {
       final Point relPos = b.relativePosition();
       final Point location = getLocation(relPos.x, relPos.y, 1.0);
       b.setLocation(location.x, location.y);
