@@ -29,17 +29,23 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class SocketHandler {
+  private static final Logger logger = LoggerFactory.getLogger(SocketHandler.class);
+
   private final Socket sock;
   private final SocketWatcher handler;
   private final BufferedReader reader;
   private final BufferedWriter writer;
   private final BlockingQueue<String> writeQueue = new LinkedBlockingQueue<>();
-  private boolean isOpen = true;
+  private volatile boolean isOpen = true;
   private Thread readThread = null;
   private Thread writeThread = null;
 
   private static final String SIGN_OFF = "!BYE"; //$NON-NLS-1$
+  private static final long KEEP_ALIVE_INTERVAL_MINUTES = 2;
 
   public SocketHandler(Socket sock, SocketWatcher handler) throws IOException {
     this.sock = sock;
@@ -70,21 +76,15 @@ public class SocketHandler {
               handler.handleMessage(line);
             }
             catch (Exception e) {
-              // FIXME: review error message
-              // Handler threw an exception.  Keep reading.
-              System.err.println("Caught " + e.getClass().getName() + " handling " + line); //$NON-NLS-1$ //$NON-NLS-2$
-              e.printStackTrace();
+              logger.warn("Socket message handler failed; continuing to read from {}", sock.getInetAddress(), e); //$NON-NLS-1$
             }
           }
         }
       }
-      catch (IOException ignore) {
-        // FIXME: review error message
-/*
-        String msg = ignore.getClass().getName();
-        msg = msg.substring(msg.lastIndexOf('.') + 1);
-        System.err.println("Caught " + msg + "(" + ignore.getMessage() + ") reading socket.");
-*/
+      catch (IOException e) {
+        if (isOpen) {
+          logger.debug("Socket read failed from {}", sock.getInetAddress(), e); //$NON-NLS-1$
+        }
       }
       closeSocket();
     };
@@ -100,35 +100,42 @@ public class SocketHandler {
       try {
         while (true) {
           try {
-            line = writeQueue.poll(2, TimeUnit.MINUTES);
+            line = writeQueue.poll(KEEP_ALIVE_INTERVAL_MINUTES, TimeUnit.MINUTES);
           }
           catch (InterruptedException e) {
-            // FIXME: should we really ignore this?!
-            e.printStackTrace();
-            continue;
+            Thread.currentThread().interrupt();
+            break;
           }
 
           if (line != null) {
-            // send the message we took off the queue
-            writeNext(line);
             if (SIGN_OFF.equals(line)) {
+              if (isOpen) {
+                writeNext(line);
+              }
               break;
             }
+            else if (!isOpen) {
+              break;
+            }
+
+            // send the message we took off the queue
+            writeNext(line);
           }
           else {
+            if (!isOpen) {
+              break;
+            }
+
             // send a keep-alive, since we timed out
-            writeLine("");
-            System.err.println("Sent keep-alive"); //NON-NLS
+            writeNext(""); //$NON-NLS-1$
+            logger.trace("Sent socket keep-alive to {}", sock.getInetAddress()); //$NON-NLS-1$
           }
         }
       }
-      catch (IOException ignore) {
-        // FIXME: review error message
-/*
-        String msg = ignore.getClass().getName();
-        msg = msg.substring(msg.lastIndexOf('.') + 1);
-        System.err.println("Caught " + msg + "(" + ignore.getMessage() + ") writing to socket.");
-*/
+      catch (IOException e) {
+        if (isOpen) {
+          logger.debug("Socket write failed to {}", sock.getInetAddress(), e); //$NON-NLS-1$
+        }
       }
       closeSocket();
     };
@@ -144,45 +151,41 @@ public class SocketHandler {
   }
 
   public void writeLine(String pMessage) {
-    try {
-      writeQueue.put(pMessage);
-    }
-    catch (InterruptedException e) {
-      // The queue can have Integer.MAX_VALUE elements, so if put() ever
-      // blocks and gets interrupted, everything is hosed anyway so it
-      // doesn't matter what we do here.
-      e.printStackTrace();
+    if (isOpen) {
+      writeQueue.offer(pMessage);
     }
   }
 
   public void close() {
-    writeLine(SIGN_OFF);
-  }
-
-  // FIXME: stream closing is probably totally broken
-  // FIXME: nothing stops the threads
-  private void closeStreams() throws IOException {
-    writer.close();
-    reader.close();
+    writeQueue.offer(SIGN_OFF);
   }
 
   private synchronized void closeSocket() {
     if (isOpen) {
+      isOpen = false;
+      writeQueue.offer(SIGN_OFF);
+
       try {
-        closeStreams();
+        writer.close();
       }
-      catch (IOException ignore) {
-        // FIXME: review error message
+      catch (IOException e) {
+        logger.debug("Failed to close socket writer for {}", sock.getInetAddress(), e); //$NON-NLS-1$
       }
+
+      try {
+        reader.close();
+      }
+      catch (IOException e) {
+        logger.debug("Failed to close socket reader for {}", sock.getInetAddress(), e); //$NON-NLS-1$
+      }
+
       try {
         sock.close();
       }
-      catch (IOException ignore) {
-        // FIXME: review error message
+      catch (IOException e) {
+        logger.debug("Failed to close socket for {}", sock.getInetAddress(), e); //$NON-NLS-1$
       }
 
-      close();
-      isOpen = false;
       handler.socketClosed(this);
     }
   }
