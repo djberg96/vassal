@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
 
 import VASSAL.build.Configurable;
 import VASSAL.build.GameModule;
@@ -59,54 +60,75 @@ public class SavedGameUpdater {
     final GameState gs = GameModule.getGameModule().getGameState();
 
     gs.setup(false, true);
-    gs.loadGameInBackground(savedGame);
-
-    // FIXME: spin locks are bad, wait on a Future instead
-    while (!gs.isGameStarted()) {
-      try {
-        Thread.sleep(100);
+    try {
+      if (!gs.loadGameInBackground(savedGame).get()) {
+        throw new IOException(
+          Resources.getString("Editor.SavedGameUpdater.unable_to_load",
+            savedGame.getName())
+        );
       }
-      catch (InterruptedException e) {
-      }
-    }
 
-    final GamePiece[] gp_array = gs.getAllPieces().toArray(new GamePiece[0]);
-    for (final GamePiece p : gp_array) {
-      if (!(p instanceof Stack)) {
-        final String slotId = pieceSlot.getProperty(p.getType());
-        if (slotId != null) {
-          Configurable[] path = null;
-          try {
-            path = ComponentPathBuilder.getInstance().getPath(slotId);
-            if (path != null &&
-                path.length > 0 &&
-                path[path.length - 1] instanceof PieceSlot) {
-              final PieceSlot slot = (PieceSlot) path[path.length - 1];
-              if (!slot.getPiece().getType().equals(p.getType())) {
-                if (!(p instanceof Decorator)) {
-                  GameModule.getGameModule().getChatter().show(Resources.getString("Editor.SavedGameUpdater.basic_only", p.getName()));
-                }
-                else {
-                  final ReplaceTrait r = ReplaceTrait.create(p, slot.getPiece());
-                  r.replacePiece();
+      final GamePiece[] gp_array = gs.getAllPieces().toArray(new GamePiece[0]);
+      for (final GamePiece p : gp_array) {
+        if (!(p instanceof Stack)) {
+          final String slotId = pieceSlot.getProperty(p.getType());
+          if (slotId != null) {
+            Configurable[] path = null;
+            try {
+              path = ComponentPathBuilder.getInstance().getPath(slotId);
+              if (path != null &&
+                  path.length > 0 &&
+                  path[path.length - 1] instanceof PieceSlot) {
+                final PieceSlot slot = (PieceSlot) path[path.length - 1];
+                if (!slot.getPiece().getType().equals(p.getType())) {
+                  if (!(p instanceof Decorator)) {
+                    GameModule.getGameModule().getChatter().show(Resources.getString("Editor.SavedGameUpdater.basic_only", p.getName()));
+                  }
+                  else {
+                    final ReplaceTrait r = ReplaceTrait.create(p, slot.getPiece());
+                    r.replacePiece();
+                  }
                 }
               }
             }
+            catch (ComponentPathBuilder.PathFormatException ex) {
+              GameModule.getGameModule().getChatter().show(
+                Resources.getString(
+                  "Editor.SavedGameUpdater.invalid_slot_path",
+                  p.getName(),
+                  slotId,
+                  ex.getMessage()
+                )
+              );
+            }
           }
-          // FIXME: review error message
-          catch (ComponentPathBuilder.PathFormatException ex) {
-            GameModule.getGameModule().getChatter().show(Resources.getString("Editor.SavedGameUpdater.unable", p.getName(), ex.getMessage()));
+          else {
+            GameModule.getGameModule().getChatter().show(Resources.getString("Editor.SavedGameUpdater.no_slot", p.getName()));
+            GameModule.getGameModule().getChatter().show(p.getType());
           }
-        }
-        else {
-          GameModule.getGameModule().getChatter().show(Resources.getString("Editor.SavedGameUpdater.no_slot", p.getName()));
-          GameModule.getGameModule().getChatter().show(p.getType());
         }
       }
-    }
 
-    gs.saveGame(savedGame);
-    gs.updateDone();
+      gs.saveGame(savedGame);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IOException(
+        Resources.getString("Editor.SavedGameUpdater.load_interrupted",
+          savedGame.getName()),
+        e
+      );
+    }
+    catch (ExecutionException e) {
+      throw new IOException(
+        Resources.getString("Editor.SavedGameUpdater.unable_to_load",
+          savedGame.getName()),
+        e
+      );
+    }
+    finally {
+      gs.updateDone();
+    }
   }
 
   protected void findPieceSlots(List<Configurable> l, Properties p) {

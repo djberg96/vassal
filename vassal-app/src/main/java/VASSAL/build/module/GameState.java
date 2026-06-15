@@ -101,6 +101,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
@@ -1484,25 +1485,31 @@ public class GameState implements CommandEncoder {
     }
   }
 
-  public void loadGameInBackground(final File f) {
+  public CompletableFuture<Boolean> loadGameInBackground(final File f) {
     try {
-      loadGameInBackground(
+      return loadGameInBackground(
         f.getName(),
         new BufferedInputStream(Files.newInputStream(f.toPath()))
       );
     }
     catch (IOException e) {
       ReadErrorDialog.error(e, f);
+      return CompletableFuture.completedFuture(false);
     }
   }
 
-  public void loadGameInBackground(final String shortName, final InputStream in) {
-    loadGameInBackground(shortName, in, false);
+  public CompletableFuture<Boolean> loadGameInBackground(
+    final String shortName,
+    final InputStream in
+  ) {
+    return loadGameInBackground(shortName, in, false);
   }
 
-  public void loadGameInBackground(final String shortName,
-                                   final InputStream in,
-                                   final boolean fromPredefinedSetup)  {
+  public CompletableFuture<Boolean> loadGameInBackground(
+    final String shortName,
+    final InputStream in,
+    final boolean fromPredefinedSetup
+  )  {
     GameModule.getGameModule().warn(
       Resources.getString("GameState.loading", shortName));  //$NON-NLS-1$
 
@@ -1510,6 +1517,8 @@ public class GameState implements CommandEncoder {
     frame.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
     setLoadingInBackground(true);
+
+    final CompletableFuture<Boolean> loaded = new CompletableFuture<>();
 
     new SwingWorker<Command, Void>() {
       @Override
@@ -1521,6 +1530,7 @@ public class GameState implements CommandEncoder {
 
       @Override
       protected void done() {
+        boolean success = false;
         try {
           Command loadCommand = null;
           String msg = null;
@@ -1553,6 +1563,7 @@ public class GameState implements CommandEncoder {
 
           if (g.getGameState().isGameStarted()) {
             if (loadCommand != null) {
+              success = true;
               if (loadComments != null && loadComments.length() > 0) {
                 msg = "!" + Resources.getString("GameState.loaded", shortName) + ": <b>" + loadComments + "</b>"; //$NON-NLS-1$
               }
@@ -1580,9 +1591,12 @@ public class GameState implements CommandEncoder {
         finally {
           frame.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
           setLoadingInBackground(false);
+          loaded.complete(success);
         }
       }
     }.execute();
+
+    return loaded;
   }
 
   /**
