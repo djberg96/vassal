@@ -969,10 +969,9 @@ public class PieceMover extends AbstractBuildable
           if (map.getPieceCollection().canMerge(candidate, dragging)) {
             mergeWith = candidate; // We have found an eligible piece to form a stack with!
 
-            //FIXME I can't find a code path where this statement ever has any effect -- BR
-            //FIXME Conceivably mergeCandidates is supposed to get "put" back to mergeTargets?
-            //FIXME But since we're about to successfully merge with the piece already in there,
-            //FIXME I'm not sure how adding "dragging" would change future mergability at all.
+            // Keep the cache representative current for this layer at this
+            // destination. Later pieces in this drag can test against the
+            // latest merged piece without rebuilding the candidate list.
             mergeCandidates.set(i, dragging);
 
             break;
@@ -1575,7 +1574,9 @@ public class PieceMover extends AbstractBuildable
     protected void calcDrawOffset() {}
 
     protected BufferedImage makeDragImageCursorCommon(double mapzoom, double os_scale, boolean doOffset, Component target) {
-      // FIXME: Should be an ImageOp for caching?
+      // This composite is built from the live drag buffer, current zoom,
+      // device scale, cursor offset, and optional pseudo-cursor target, so it
+      // is intentionally generated per drag state rather than cached globally.
       final double zoom = mapzoom * os_scale;
 
       currentPieceOffsetX =
@@ -1771,8 +1772,9 @@ public class PieceMover extends AbstractBuildable
       try {
         beginDragging(dge);
       }
-      // FIXME: Fix by replacing AWT Drag 'n Drop with Swing DnD.
-      // Catch and ignore spurious DragGestures
+      // AWT Drag and Drop can emit spurious drag gestures while another drag
+      // is active. Ignore them; replacing this stack with Swing DnD is a
+      // broader drag/drop subsystem refactor.
       catch (InvalidDnDOperationException ignored) {
       }
     }
