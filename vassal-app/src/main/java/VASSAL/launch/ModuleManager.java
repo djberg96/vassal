@@ -17,6 +17,7 @@
  */
 package VASSAL.launch;
 
+import java.awt.GraphicsEnvironment;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +37,7 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.SystemUtils;
@@ -68,6 +70,12 @@ public final class ModuleManager {
 
   private static final String NEXT_VERSION_CHECK = "nextVersionCheck"; //NON-NLS
   private static final String AUTO_VERSION_CHECK = "autoVersionCheck"; //NON-NLS
+  private static final String INCORRECT_KEY =
+    "Incorrect launch request key."; //NON-NLS
+  private static final String INTERRUPTED =
+    "Launch request interrupted."; //NON-NLS
+  private static final String UNRECOGNIZED_COMMAND =
+    "Unrecognized launch request command."; //NON-NLS
 
   public static final String CONVERTER_MAXIMUM_HEAP = "converterMaximumHeap"; //$NON-NLS-1$
   public static final String TILER_MAXIMUM_HEAP = "tilerMaximumHeap"; //$NON-NLS-1$
@@ -95,20 +103,22 @@ public final class ModuleManager {
     System.setProperty("swing.boldMetal", "false");
 
     try {
+      runMain(args);
+    }
+    catch (RuntimeException e) {
+      reportFatalStartupError("Unexpected startup error.", e); //NON-NLS
+      System.exit(1);
+    }
+  }
+
+  private static void runMain(String[] args) {
+    try {
       Info.setConfig(new StandardConfig());
     }
     catch (IOException e) {
-// FIXME: should be a dialog...
-      System.err.println("VASSAL: " + e.getMessage()); //NON-NLS
-      e.printStackTrace();
+      reportFatalStartupError("Unable to initialize VASSAL configuration.", e); //NON-NLS
       System.exit(1);
     }
-
-// FIXME: We need to catch more exceptions in main() and then exit in
-// order to avoid situations where the main thread ends due to an uncaught
-// exception, but there are other threads still running, and so VASSAL
-// does not quit. For example, this can happen if an IllegalArgumentException
-// is thrown here...
 
     // parse command-line arguments
     LaunchRequest lr = null;
@@ -116,9 +126,7 @@ public final class ModuleManager {
       lr = LaunchRequest.parseArgs(args);
     }
     catch (LaunchRequestException e) {
-// FIXME: should be a dialog...
-      System.err.println("VASSAL: " + e.getMessage()); //NON-NLS
-      e.printStackTrace();
+      reportFatalStartupError("Invalid launch request.", e); //NON-NLS
       System.exit(1);
       return;
     }
@@ -126,7 +134,9 @@ public final class ModuleManager {
     if (lr.mode == LaunchRequest.Mode.TRANSLATE) {
       // show the translation window in translation mode
       SwingUtilities.invokeLater(() -> {
-        // FIXME: does this window exit on close?
+        // TranslateWindow closes via cancel(), which prompts to save and then
+        // disposes the dialog. With no Module Manager window, that lets AWT
+        // shut down the translation-only process.
         new TranslateVassalWindow(null).setVisible(true);
       });
       return;
@@ -211,9 +221,7 @@ public final class ModuleManager {
       }
     }
     catch (IOException e) {
-// FIXME: should be a dialog...
-      System.err.println("VASSAL: IO error"); //NON-NLS
-      e.printStackTrace();
+      reportFatalStartupError("Unable to start or contact the Module Manager.", e); //NON-NLS
       System.exit(1);
     }
     // lock on the key file is released
@@ -233,13 +241,32 @@ public final class ModuleManager {
       }
     }
     catch (UnknownHostException e) {
-      logger.error("VASSAL: Unable to open socket for loopback device", e); //NON-NLS
+      reportFatalStartupError("Unable to open socket for loopback device.", e); //NON-NLS
       System.exit(1);
     }
     catch (IOException e) {
-// FIXME: should be a dialog...
-      logger.error("VASSAL: Problem with socket on port {}", port, e); //NON-NLS
+      reportFatalStartupError("Problem with socket on port " + port + ".", e); //NON-NLS
       System.exit(1);
+    }
+  }
+
+  private static void reportFatalStartupError(String message, Throwable thrown) {
+    final String detail = thrown.getMessage();
+
+    logger.error("VASSAL: {}", message, thrown); //NON-NLS
+    System.err.println("VASSAL: " + message); //NON-NLS
+    if (detail != null) {
+      System.err.println(detail);
+    }
+    thrown.printStackTrace();
+
+    if (!GraphicsEnvironment.isHeadless()) {
+      JOptionPane.showMessageDialog(
+        null,
+        detail == null ? message : message + "\n\n" + detail, //NON-NLS
+        "VASSAL", //NON-NLS
+        JOptionPane.ERROR_MESSAGE
+      );
     }
   }
 
@@ -389,8 +416,7 @@ public final class ModuleManager {
       final LaunchRequest lr = (LaunchRequest) req;
 
       if (lr.key != key) {
-// FIXME: translate
-        return "incorrect key"; //NON-NLS
+        return INCORRECT_KEY;
       }
 
       final LaunchRequestHandler handler = new LaunchRequestHandler(lr);
@@ -398,7 +424,8 @@ public final class ModuleManager {
         SwingUtilities.invokeAndWait(handler);
       }
       catch (InterruptedException e) {
-        return "interrupted";   // FIXME //NON-NLS
+        Thread.currentThread().interrupt();
+        return INTERRUPTED;
       }
       catch (InvocationTargetException e) {
         ErrorDialog.bug(e);
@@ -408,7 +435,7 @@ public final class ModuleManager {
       return handler.getResult();
     }
     else {
-      return "unrecognized command";  // FIXME //NON-NLS
+      return UNRECOGNIZED_COMMAND;
     }
   }
 }
