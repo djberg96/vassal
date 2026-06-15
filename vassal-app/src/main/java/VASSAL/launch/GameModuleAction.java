@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import VASSAL.build.GameModule;
+import VASSAL.i18n.Resources;
 
 /**
  * Utility base class for {@link GameModule}-related actions, with auxiliary
@@ -68,7 +69,6 @@ public abstract class GameModuleAction extends AbstractAction {
         runActions();
       }
     }
-    // FIXME: review error message
     catch (Exception e1) {
       reportError(e1);
     }
@@ -78,7 +78,11 @@ public abstract class GameModuleAction extends AbstractAction {
 
   protected void reportError(Exception ex) {
     logger.error("", ex);
-    JOptionPane.showMessageDialog(comp, getMessage(ex));
+    JOptionPane.showMessageDialog(
+      comp,
+      getMessage(ex),
+      Resources.getString("GameModuleAction.action_failed"),
+      JOptionPane.ERROR_MESSAGE);
   }
 
   /**
