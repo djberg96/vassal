@@ -37,6 +37,7 @@ import VASSAL.configure.StringConfigurer;
 import VASSAL.i18n.Resources;
 import VASSAL.tools.ArchiveWriter;
 import VASSAL.tools.DataArchive;
+import VASSAL.tools.WriteErrorDialog;
 import VASSAL.tools.swing.SwingUtils;
 import VASSAL.tools.version.VersionUtils;
 import net.miginfocom.swing.MigLayout;
@@ -284,8 +285,8 @@ public class ModuleExtension extends AbstractBuildable implements GameComponent,
         try {
           save();
         }
-        // FIXME: review error message
         catch (IOException e) {
+          WriteErrorDialog.error(e, archive.getName());
           confirm = false;
         }
         break;
@@ -369,8 +370,9 @@ public class ModuleExtension extends AbstractBuildable implements GameComponent,
       try {
         nextGpId = Integer.parseInt((String) value);
       }
-      // FIXME: review error message
       catch (NumberFormatException e) {
+        // Malformed legacy extension metadata should not prevent the extension
+        // from loading. Keep the existing sequence value.
       }
     }
     else if (EXTENSION_ID.equals(key)) {
@@ -418,13 +420,7 @@ public class ModuleExtension extends AbstractBuildable implements GameComponent,
     if (archive instanceof ArchiveWriter) {
       final ArchiveWriter w = (ArchiveWriter) archive;
 
-      try {
-        (new ExtensionMetaData(this)).save(w);
-      }
-      // FIXME: review error message
-      catch (IOException e) {
-        logger.error("", e); //NON-NLS
-      }
+      (new ExtensionMetaData(this)).save(w);
 
       final String save = buildString();
       w.addFile(GameModule.BUILDFILE,
