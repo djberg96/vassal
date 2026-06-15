@@ -23,12 +23,16 @@ import java.util.Properties;
 import VASSAL.chat.HttpRequestWrapper;
 import VASSAL.chat.SimpleStatus;
 import VASSAL.tools.PropertiesEncoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Copyright (c) 2003 by Rodney Kinney.  All rights reserved.
  * Date: Jun 7, 2003
  */
 public final class StatusReporter implements Runnable {
+  private static final Logger logger = LoggerFactory.getLogger(StatusReporter.class);
+
   private final HttpRequestWrapper reportStatus;
   private String lastReportedContents;
   private String currentContents;
@@ -61,9 +65,8 @@ public final class StatusReporter implements Runnable {
                 .append('\n');
         }
       }
-      // FIXME: review error message
       catch (IOException e) {
-        e.printStackTrace();
+        logger.warn("Unable to encode status for player {}", pl.getId(), e); //NON-NLS
       }
     }
     synchronized (this) {
@@ -80,13 +83,12 @@ public final class StatusReporter implements Runnable {
         reportStatus.doPost("updateConnections", props); //$NON-NLS-1$
         sleepInterval = MIN_SLEEP;
       }
-      // FIXME: review error message
       catch (IOException e) {
         sleepInterval = Math.min(2 * sleepInterval, MAX_SLEEP);
+        logger.warn("Unable to report server status; next retry in {} ms", sleepInterval, e); //NON-NLS
       }
       lastReportedContents = currentContents;
-      System.err.println("----" + new Date()); //$NON-NLS-1$
-      System.err.println(currentContents);
+      logger.debug("Reported server status at {}:\n{}", new Date(), currentContents); //NON-NLS
     }
   }
 
@@ -97,9 +99,10 @@ public final class StatusReporter implements Runnable {
         Thread.sleep(sleepInterval);
         sendContents();
       }
-      // FIXME: review error message
       catch (InterruptedException e) {
-        e.printStackTrace();
+        Thread.currentThread().interrupt();
+        logger.debug("Status reporter interrupted", e); //NON-NLS
+        return;
       }
     }
   }
