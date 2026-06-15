@@ -132,16 +132,9 @@ final class SimpleWizardInfo implements WizardControllerImplementation {
      * gathered data.
      */
     protected Object finish (Map<Object, Object> settings) throws WizardException {
-        //XXX fixme
-//        assert canFinish();
-        
-        // SKNUTSON: the "canFinish" behavior is not working
-        // instead, panels must implement the WizardPanel interface
-        // and have allowFinish return false
-//        if ( ! canFinish())
-//        {
-//            throw new RuntimeException ("Can't finish right now");
-//        }
+        if (!canFinish()) {
+            throw new IllegalStateException("Can't finish right now");
+        }
         return provider.finish (settings);
     }
     
@@ -265,7 +258,9 @@ final class SimpleWizardInfo implements WizardControllerImplementation {
     }
 
     final boolean canFinish() {
-        return isValid() && (currNavMode != -1 && (currNavMode & 
+        SimpleWizard wizard = getWizard();
+        int navMode = wizard == null ? currNavMode : wizard.getForwardNavigationMode();
+        return isValid() && !isBusy() && (navMode != -1 && (navMode &
                 WizardController.MODE_CAN_FINISH) != 0);
     }
     
