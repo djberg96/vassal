@@ -20,6 +20,9 @@ package VASSAL.chat.node;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import VASSAL.tools.PropertiesEncoder;
 import VASSAL.tools.SequenceEncoder;
 
@@ -29,6 +32,8 @@ import VASSAL.tools.SequenceEncoder;
  * client to another are simply forwarded as strings without being decoded.
  */
 public class Protocol {
+  private static final Logger logger = LoggerFactory.getLogger(Protocol.class);
+
   public static final String REGISTER = "REG\t"; //$NON-NLS-1$
   public static final String REG_REQUEST = "REG_REQUEST\t"; //$NON-NLS-1$
   public static final String JOIN = "JOIN\t"; //$NON-NLS-1$
@@ -211,9 +216,8 @@ public class Protocol {
       try {
         p = new PropertiesEncoder(cmd.substring(ROOM_INFO.length())).getProperties();
       }
-      // FIXME: review error message
-      catch (IOException e) {
-        e.printStackTrace();
+      catch (IOException | IllegalArgumentException e) {
+        logger.warn("Unable to decode room info command", e); //NON-NLS
       }
     }
     return p;
