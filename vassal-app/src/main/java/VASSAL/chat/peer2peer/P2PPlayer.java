@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.litesoft.p2pchat.PeerInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import VASSAL.chat.Player;
 import VASSAL.chat.SimplePlayer;
@@ -28,6 +30,8 @@ import VASSAL.chat.SimpleStatus;
 import VASSAL.tools.PropertiesEncoder;
 
 public final class P2PPlayer extends SimplePlayer {
+  private static final Logger logger = LoggerFactory.getLogger(P2PPlayer.class);
+
   private static final String ID = "id"; //$NON-NLS-1$
   private static final String ROOM = "room"; //$NON-NLS-1$
 
@@ -41,8 +45,8 @@ public final class P2PPlayer extends SimplePlayer {
         props = new PropertiesEncoder(info.getChatName()).getProperties();
         setStats();
       }
-      // FIXME: review error message
       catch (IOException ex) {
+        logger.warn("Unable to decode peer chat properties; using defaults", ex); //NON-NLS
         props = new Properties();
         setProps();
       }
