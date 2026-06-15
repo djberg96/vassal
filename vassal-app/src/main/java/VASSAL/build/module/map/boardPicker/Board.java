@@ -331,13 +331,12 @@ public class Board extends AbstractConfigurable implements GridContainer {
     try {
       g.drawImage(fim.get(), tx, ty, obs);
     }
-    catch (final CancellationException e) {
-      // FIXME: bug until we permit cancellation
-      ErrorDialog.bug(e);
+    catch (final CancellationException ignored) {
+      // Tile requests may be cancelled when a map snapshot is cancelled or
+      // when a pending asynchronous repaint is no longer needed.
     }
-    catch (final InterruptedException e) {
-      // This happens if taking a snapshot of the map is cancelled.
-      // FIXME: Can we handle this in ImageSaver instead?
+    catch (final InterruptedException ignored) {
+      Thread.currentThread().interrupt();
     }
     catch (final ExecutionException e) {
       if (!Op.handleException(e)) ErrorDialog.bug(e);
@@ -447,10 +446,9 @@ public class Board extends AbstractConfigurable implements GridContainer {
         }
         else {
           if (fim.isDone()) {
-// FIXME: We check whether the observer here is a map view in order to
-// avoid mixing requests (and fade-in) between maps and their overview
-// maps. This is a kludge which should be fixed when model-view
-// separation happens.
+            // Keep the main map's fade-in state separate from overview maps.
+            // This remains view-specific until board rendering is separated
+            // from map/overview presentation state.
             if (map != null && obs == map.getView()) {
               if (requested.containsKey(tile)) {
                 requested.remove(tile);
@@ -504,11 +502,10 @@ public class Board extends AbstractConfigurable implements GridContainer {
           }
         }
       }
-// FIXME: should getTileFuture() throw these? Yes, probably, because it's
-// synchronous when obs is null.
-      catch (final CancellationException | ExecutionException e) {
-        // FIXME: bug until we permit cancellation
-        // FIXME: bug until we figure out why getTileFuture() throws ExecutionException
+      catch (final CancellationException ignored) {
+        // Tile requests may be cancelled before the image is available.
+      }
+      catch (final ExecutionException e) {
         ErrorDialog.bug(e);
       }
     }
