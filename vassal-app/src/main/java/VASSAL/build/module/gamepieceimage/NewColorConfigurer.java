@@ -18,6 +18,7 @@
 package VASSAL.build.module.gamepieceimage;
 
 import java.awt.Color;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 import javax.swing.Box;
@@ -28,9 +29,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import VASSAL.build.BadDataReport;
 import VASSAL.configure.BooleanConfigurer;
 import VASSAL.configure.Configurer;
 import VASSAL.i18n.Resources;
+import VASSAL.tools.ErrorDialog;
 
 /**
  * Configurer for {@link Color} values
@@ -151,9 +154,13 @@ public class NewColorConfigurer extends Configurer {
                        Integer.parseInt(st.nextToken()),
                        Integer.parseInt(st.nextToken()));
     }
-    // FIXME: review error message
-    catch (IllegalArgumentException e) {
-      return null;
+    catch (NumberFormatException e) {
+      ErrorDialog.dataWarning(new BadDataReport("not an integer", s, e)); //NON-NLS
     }
+    catch (IllegalArgumentException | NoSuchElementException e) {
+      ErrorDialog.dataWarning(new BadDataReport("bad color", s, e)); //NON-NLS
+    }
+
+    return Color.BLACK;
   }
 }
