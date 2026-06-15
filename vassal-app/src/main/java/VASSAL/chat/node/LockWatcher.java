@@ -20,11 +20,16 @@ package VASSAL.chat.node;
 import java.io.IOException;
 import java.net.Socket;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Watches for thread lock on a server.
  * Kills the runtime if unable to establish new connection
  */
 public class LockWatcher extends Thread {
+  private static final Logger logger = LoggerFactory.getLogger(LockWatcher.class);
+
   private final long delay;
   private final long timeout;
   private final int port;
@@ -48,6 +53,8 @@ public class LockWatcher extends Thread {
         pingServer();
       }
       catch (final InterruptedException e) {
+        Thread.currentThread().interrupt();
+        logger.debug("Lock watcher interrupted", e); //NON-NLS
         break;
       }
     }
@@ -65,7 +72,7 @@ public class LockWatcher extends Thread {
 
         @Override
         public void socketClosed(SocketHandler handler) {
-          System.err.println("Server closed socket"); //$NON-NLS-1$
+          logger.debug("Server closed socket during lock watcher ping"); //NON-NLS
         }
       };
       final SocketHandler sender = new SocketHandler(s, watcher);
@@ -76,13 +83,14 @@ public class LockWatcher extends Thread {
         t.join();
       }
       catch (final InterruptedException e) {
+        Thread.currentThread().interrupt();
+        logger.debug("Interrupted while waiting for lock watcher ping", e); //NON-NLS
       }
 
       sender.close();
     }
-    // FIXME: review error message
     catch (final IOException e) {
-      e.printStackTrace();
+      logger.warn("Unable to ping chat server lock watcher port {}", port, e); //NON-NLS
     }
   }
 
@@ -91,13 +99,12 @@ public class LockWatcher extends Thread {
     public void run() {
       try {
         sleep(timeout);
-        System.err.println("No response from server in " + (timeout / 1000.0) + " seconds.  Terminating process"); //$NON-NLS-1$ //$NON-NLS-2$
+        logger.error("No response from server in {} seconds; terminating process", timeout / 1000.0); //NON-NLS
         System.exit(0);
       }
-      // FIXME: review error message
       catch (final InterruptedException e) {
-        System.err.println("Ping"); //$NON-NLS-1$
         // Interrupt means response received from server
+        logger.debug("Lock watcher ping response received", e); //NON-NLS
       }
     }
   }
