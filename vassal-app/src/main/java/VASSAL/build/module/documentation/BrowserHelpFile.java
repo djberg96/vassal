@@ -172,14 +172,67 @@ public class BrowserHelpFile extends AbstractBuildable implements Configurable {
         Files.createDirectories(p.resolve(entry.getName()));
       }
       else {
-// FIXME: no way to distinguish between read and write errors here
-        try (OutputStream fos = Files.newOutputStream(p.resolve(entry.getName()))) {
-          in.transferTo(fos);
-        }
+        extractFileEntry(in, p.resolve(entry.getName()));
       }
     }
     externalTempFile = p.toFile();
     url = regenerateUrl();
+  }
+
+  private static void extractFileEntry(ZipInputStream in, Path target) throws IOException {
+    final OutputStream out;
+    try {
+      out = Files.newOutputStream(target);
+    }
+    catch (IOException e) {
+      throw new IOException("Error opening extracted help file for writing: " + target, e); //NON-NLS
+    }
+
+    IOException pending = null;
+    try {
+      copyHelpEntry(in, out, target);
+    }
+    catch (IOException e) {
+      pending = e;
+      throw e;
+    }
+    finally {
+      try {
+        out.close();
+      }
+      catch (IOException e) {
+        if (pending == null) {
+          throw new IOException("Error closing extracted help file: " + target, e); //NON-NLS
+        }
+        pending.addSuppressed(e);
+      }
+    }
+  }
+
+  static void copyHelpEntry(InputStream in, OutputStream out, Path target) throws IOException {
+    final byte[] buffer = new byte[8192];
+    int count;
+    while ((count = readHelpEntry(in, buffer, target)) >= 0) {
+      writeHelpEntry(out, buffer, count, target);
+    }
+  }
+
+  private static int readHelpEntry(InputStream in, byte[] buffer, Path target) throws IOException {
+    try {
+      return in.read(buffer);
+    }
+    catch (IOException e) {
+      throw new IOException("Error reading zipped help content for: " + target, e); //NON-NLS
+    }
+  }
+
+  private static void writeHelpEntry(OutputStream out, byte[] buffer, int count, Path target) throws IOException {
+    try {
+      out.write(buffer, 0, count);
+    }
+    catch (IOException e) {
+      throw new IOException("Error writing extracted help file: " + target, e); //NON-NLS
+    }
   }
 
   protected URL regenerateUrl() {
