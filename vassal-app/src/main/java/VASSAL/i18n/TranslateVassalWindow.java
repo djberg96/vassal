@@ -44,9 +44,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class TranslateVassalWindow extends TranslateWindow {
   private static final long serialVersionUID = 1L;
+  private static final Pattern PROPERTIES_FILE_NAME =
+    Pattern.compile("VASSAL_([a-zA-Z]{2})(?:_([a-zA-Z]{2}))?\\.properties"); //NON-NLS
+
   private transient LocaleConfigurer localeConfig;
 
   private transient FileChooser fileChooser;
@@ -135,11 +140,10 @@ public final class TranslateVassalWindow extends TranslateWindow {
     okButton = new JButton(Resources.getString(Resources.SAVE));
     okButton.addActionListener(e -> {
       try {
-// FIXME: can this ever throw?
         save();
       }
       catch (IOException e1) {
-// FIXME: error dialog
+        WriteErrorDialog.error(e1, Info.getConfDir());
       }
     });
     buttonBox.add(okButton);
@@ -180,20 +184,13 @@ public final class TranslateVassalWindow extends TranslateWindow {
     if (fc.showOpenDialog(this) != FileChooser.APPROVE_OPTION) return;
 
     final File file = fc.getSelectedFile();
-    if (!file.getName().endsWith(".properties")) {  //NON-NLS
-// FIXME: review error message
-      loadError(Resources.getString("Editor.TranslateVassalWindow.must_end_in"));
+    final Locale locale = localeFromPropertiesFileName(file.getName());
+    if (locale == null) {
+      loadError(Resources.getString("Editor.TranslateVassalWindow.invalid_name"));
       return;
     }
-    else {
-      final String language = file.getName().substring(7, 9);
-      String country = "";
-      if (file.getName().charAt(9) == '_') {
-        country = file.getName().substring(10, 12);
-      }
-      final Locale locale = Locale.of(language, country);
-      localeConfig.setValue(locale);
-    }
+
+    localeConfig.setValue(locale);
 
     try (InputStream fin = Files.newInputStream(file.toPath());
          BufferedInputStream in = new BufferedInputStream(fin)) {
@@ -234,6 +231,18 @@ public final class TranslateVassalWindow extends TranslateWindow {
     }
 
     return true;
+  }
+
+  static Locale localeFromPropertiesFileName(String filename) {
+    final Matcher matcher = PROPERTIES_FILE_NAME.matcher(filename);
+    if (!matcher.matches()) {
+      return null;
+    }
+
+    final String language = matcher.group(1).toLowerCase(Locale.ROOT);
+    final String country =
+      matcher.group(2) == null ? "" : matcher.group(2).toUpperCase(Locale.ROOT);
+    return Locale.of(language, country);
   }
 
   public static void main(String[] args) {
