@@ -51,8 +51,10 @@ public final class Tailer {
 
   private long position = 0L;
   private volatile boolean tailing = false;
+  private volatile Thread monitorThread;
 
   private final EventListenerSupport<String> lsup;
+  private final EventListenerSupport<Exception> errorSupport;
 
   /**
    * Creates a file tailer with the default polling interval.
@@ -76,6 +78,7 @@ public final class Tailer {
     this.file = file;
     this.pollInterval = pollInterval;
     this.lsup = new DefaultEventListenerSupport<>(this);
+    this.errorSupport = new DefaultEventListenerSupport<>(this);
   }
 
   /**
@@ -93,6 +96,31 @@ public final class Tailer {
     this.file = file;
     this.pollInterval = pollInterval;
     this.lsup = lsup;
+    this.errorSupport = new DefaultEventListenerSupport<>(this);
+  }
+
+  /**
+   * Creates a file tailer.
+   *
+   * @param file the file to tail
+   * @param pollInterval the polling interval, in milliseconds
+   * @param lsup the listener support
+   * @param errorSupport the error listener support
+   */
+  public Tailer(
+    File file,
+    long pollInterval,
+    EventListenerSupport<String> lsup,
+    EventListenerSupport<Exception> errorSupport
+  ) {
+    if (file == null) throw new IllegalArgumentException("file == null");
+    if (lsup == null) throw new IllegalArgumentException("lsup == null");
+    if (errorSupport == null) throw new IllegalArgumentException("errorSupport == null");
+
+    this.file = file;
+    this.pollInterval = pollInterval;
+    this.lsup = lsup;
+    this.errorSupport = errorSupport;
   }
 
   /**
@@ -111,7 +139,8 @@ public final class Tailer {
       }
 
       tailing = true;
-      new Thread(new Monitor(), "tailing " + file.getAbsolutePath()).start();
+      monitorThread = new Thread(new Monitor(), "tailing " + file.getAbsolutePath());
+      monitorThread.start();
     }
   }
 
@@ -120,6 +149,10 @@ public final class Tailer {
    */
   public void stop() {
     tailing = false;
+    final Thread thread = monitorThread;
+    if (thread != null) {
+      thread.interrupt();
+    }
   }
 
   /**
@@ -176,6 +209,47 @@ public final class Tailer {
     return lsup.getEventListeners();
   }
 
+  /**
+   * Adds an error listener.
+   *
+   * @param l the listener to add
+   */
+  public void addErrorListener(EventListener<? super Exception> l) {
+    errorSupport.addEventListener(l);
+  }
+
+  /**
+   * Removes an error listener.
+   *
+   * @param l the listener to remove
+   */
+  public void removeErrorListener(EventListener<? super Exception> l) {
+    errorSupport.removeEventListener(l);
+  }
+
+  /**
+   * Checks whether there are any error listeners.
+   *
+   * @return <code>true</code> if there are any error listeners
+   */
+  public boolean hasErrorListeners() {
+    return errorSupport.hasEventListeners();
+  }
+
+  /**
+   * Gets the list of error listeners.
+   *
+   * @return the list of error listeners
+   */
+  public List<EventListener<? super Exception>> getErrorListeners() {
+    return errorSupport.getEventListeners();
+  }
+
+  private void notifyError(Exception e) {
+    errorSupport.notify(e);
+    logger.error("", e);
+  }
+
   private class Monitor implements Runnable {
     @Override
     public void run() {
@@ -191,6 +265,7 @@ public final class Tailer {
 
           if (length < position) {
             // file has been truncated, reopen it
+            raf.close();
             raf = new RandomAccessFile(file, "r");
             position = 0L;
           }
@@ -198,8 +273,10 @@ public final class Tailer {
             // new bytes have been written, read them
             raf.seek(position);
             final int rlen = raf.read(buf);
-            lsup.notify(new String(buf, 0, rlen, StandardCharsets.UTF_8));
-            position = raf.getFilePointer();
+            if (rlen > 0) {
+              lsup.notify(new String(buf, 0, rlen, StandardCharsets.UTF_8));
+              position = raf.getFilePointer();
+            }
           }
 
           // we have reached EOF, sleep
@@ -207,8 +284,27 @@ public final class Tailer {
         }
       }
       catch (IOException | InterruptedException e) {
-// FIXME: there should be an error listener; we can't handle exceptions here
-        logger.error("", e);
+        if (e instanceof InterruptedException && tailing) {
+          Thread.currentThread().interrupt();
+          notifyError(e);
+        }
+        else if (e instanceof IOException) {
+          notifyError(e);
+        }
+      }
+      finally {
+        tailing = false;
+        if (Thread.currentThread() == monitorThread) {
+          monitorThread = null;
+        }
+        if (raf != null) {
+          try {
+            raf.close();
+          }
+          catch (IOException e) {
+            notifyError(e);
+          }
+        }
       }
     }
   }
