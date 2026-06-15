@@ -92,14 +92,9 @@ public class Tutorial extends AbstractConfigurable {
         catch (InterruptedException e) {
           ErrorDialog.bug(e);
         }
-        // FIXME: review error message
         catch (ExecutionException e) {
           logger.error("", e);
-          String msg = Resources.getString("Tutorial.unable_to_launch", name); //$NON-NLS-1$
-          if (e.getMessage() != null) {
-            msg += ":  " + e.getMessage(); //$NON-NLS-1$
-          }
-          error = msg;
+          error = unableToLaunchMessage(name, e);
         }
 
         if (saveCommand != null) {
@@ -246,6 +241,16 @@ public class Tutorial extends AbstractConfigurable {
       throw new FileNotFoundException("Tutorial has null filename"); //NON-NLS
     }
     return GameModule.getGameModule().getDataArchive().getInputStream(fileName);
+  }
+
+  static String unableToLaunchMessage(String tutorialName, ExecutionException e) {
+    final Throwable cause = e.getCause();
+    final String detail = cause == null ? e.getMessage() : cause.getMessage();
+    String message = Resources.getString("Tutorial.unable_to_launch", tutorialName); //$NON-NLS-1$
+    if (detail != null && !detail.isBlank()) {
+      message += ":  " + detail; //$NON-NLS-1$
+    }
+    return message;
   }
 
   public boolean isFirstRun() {
