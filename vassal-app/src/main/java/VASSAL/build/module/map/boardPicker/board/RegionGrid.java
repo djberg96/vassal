@@ -935,7 +935,8 @@ public class RegionGrid extends AbstractConfigurable implements MapGrid, Configu
       }
 
       private void makeDragCursor() {
-// FIXME: make this an ImageOp?
+        // This drag image is built from the current editor selection and view
+        // geometry, so it is transient UI state rather than a reusable ImageOp.
         // create the cursor if necessary
         if (dragCursor == null) {
           dragCursor = new JLabel();
@@ -1332,7 +1333,6 @@ public class RegionGrid extends AbstractConfigurable implements MapGrid, Configu
       }
 
       if (selectionRect != null) {
-        // FIXME: inefficient, could be done with only one new Rectangle
         final Rectangle repaintRect =
           new Rectangle(selectionRect.x - 1, selectionRect.y - 1,
                         selectionRect.width + 3, selectionRect.height + 3);
@@ -1342,9 +1342,9 @@ public class RegionGrid extends AbstractConfigurable implements MapGrid, Configu
         selectionRect.width = Math.abs(e.getX() - anchor.x);
         selectionRect.height = Math.abs(e.getY() - anchor.y);
 
-        repaintRect.add(
-          new Rectangle(selectionRect.x - 1, selectionRect.y - 1,
-                        selectionRect.width + 3, selectionRect.height + 3));
+        repaintRect.add(selectionRect.x - 1, selectionRect.y - 1);
+        repaintRect.add(selectionRect.x + selectionRect.width + 2,
+                        selectionRect.y + selectionRect.height + 2);
         view.repaint(repaintRect);
       }
     }
