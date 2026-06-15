@@ -43,8 +43,9 @@ import VASSAL.tools.ErrorDialog;
 
 public class Resources {
 
-  // Note that the String VASSAL should NEVER be translated.
-  // FIXME Replace raw "VASSAL" string with Resources.VASSAL in other code
+  // The product name should never be translated in user-visible text. Use this
+  // key for UI labels; keep raw "VASSAL" literals for file names, protocol
+  // tokens, system properties, command-line names, and binary signatures.
   public static final String VASSAL = "General.VASSAL"; //$NON-NLS-1$
 
   protected static final String VASSAL_BUNDLE = "VASSAL.i18n.VASSAL"; //$NON-NLS-1$
@@ -224,7 +225,8 @@ public class Resources {
    *
    * Resources.getString(Resources.VASSAL)
    */
-  // FIXME Locate all usages of the raw strings and replace with the constants.
+  // Prefer these constants for UI text. Raw resource keys remain appropriate
+  // when a string is specific to one component or carries additional context.
   public static final String ADD = "General.add"; //$NON-NLS-1$
   public static final String REMOVE = "General.remove"; //$NON-NLS-1$
   public static final String INSERT = "General.insert"; //$NON-NLS-1$
