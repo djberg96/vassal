@@ -130,7 +130,10 @@ public class ConditionalCommand extends Command {
       return value;
     }
 
-// FIXME: what versions are being compared here?
+    /**
+     * Tests whether the named {@link GameModule} attribute is a version older
+     * than the configured version.
+     */
     @Override
     public boolean isSatisfied() {
       final String propertyValue =
@@ -156,7 +159,10 @@ public class ConditionalCommand extends Command {
       return value;
     }
 
-// FIXME: what versions are being compared here?
+    /**
+     * Tests whether the named {@link GameModule} attribute is a version newer
+     * than the configured version.
+     */
     @Override
     public boolean isSatisfied() {
       final String propertyValue =
