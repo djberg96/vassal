@@ -77,6 +77,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.StringJoiner;
 
 /**
  * GameRefresher Replace all counters in the same game with the current version
@@ -125,6 +126,20 @@ public final class GameRefresher implements CommandEncoder, GameComponent {
   public static final String SEPARATOR = "----------";
   private final GameModule theModule;
   private final Set<String> options = new HashSet<>();
+
+  private static final List<OptionReport> OPTION_REPORTS = List.of(
+    new OptionReport(REFRESH_PIECES, "GameRefresher.option.refresh_pieces"),
+    new OptionReport(USE_NAME, "GameRefresher.option.use_basic_name"),
+    new OptionReport(FIX_GPID, "GameRefresher.option.fix_gpid"),
+    new OptionReport(USE_LABELER_NAME, "GameRefresher.option.use_labeler_descr"),
+    new OptionReport(USE_LAYER_NAME, "GameRefresher.option.use_layer_descr"),
+    new OptionReport(USE_ROTATE_NAME, "GameRefresher.option.use_rotate_descr"),
+    new OptionReport(DELETE_NO_MAP, "GameRefresher.option.delete_piece_no_map"),
+    new OptionReport(REFRESH_DECKS, "GameRefresher.option.refresh_decks"),
+    new OptionReport(DELETE_OLD_DECKS, "GameRefresher.option.delete_old_decks"),
+    new OptionReport(ADD_NEW_DECKS, "GameRefresher.option.add_new_decks"),
+    new OptionReport(USE_HOTKEY, "GameRefresher.option.fire_global_hotkey")
+  );
 
   public List<DrawPile> getModuleDrawPiles() {
     return theModule.getAllDescendantComponentsOf(DrawPile.class);
@@ -392,7 +407,8 @@ public final class GameRefresher implements CommandEncoder, GameComponent {
      */
     if (options.contains(REFRESH_DECKS)) { //NON-NLS
       if (isGameActive()) {
-        // FIXME: If somebody feels like packaging all these things into Commands, help yourself...
+        // Deck refresh mutates deck state directly, so it stays disabled while changes would need
+        // to be transmitted as commands to a logfile or connected clients.
         log(ERROR_MESSAGE_PREFIX + Resources.getString("GameRefresher.deck_refresh_during_multiplayer"));
       }
       else {
@@ -779,9 +795,8 @@ public final class GameRefresher implements CommandEncoder, GameComponent {
       header.setFocusable(false);
       panel.add(header);
 
-      // FIXME: The separator disappears if the window is resized.
       final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
-      panel.add(sep);
+      panel.add(sep, "growx"); //NON-NLS
 
       final JPanel buttonPanel = new JPanel(new MigLayout("ins 0", "push[]rel[]rel[]push")); // NON-NLS
 
@@ -930,8 +945,9 @@ public final class GameRefresher implements CommandEncoder, GameComponent {
         final Command msg = new Chatter.DisplayText(g.getChatter(), Resources.getString("GameRefresher.run_refresh_counters_v2", player, g.getGameVersion()));
         msg.execute();
         command = command.append(msg);
-//FIXME list options in chatter for opponents to see
-
+        final Command optionsMsg = new Chatter.DisplayText(g.getChatter(), selectedOptionsMessage(options));
+        optionsMsg.execute();
+        command = command.append(optionsMsg);
       }
       refresher.execute(options, command);
 
@@ -965,6 +981,30 @@ public final class GameRefresher implements CommandEncoder, GameComponent {
 
     public void addMessage(String mess) {
       results.setText(results.getText() + "\n" + mess); //NON-NLS
+    }
+  }
+
+  static String selectedOptionsMessage(Set<String> selectedOptions) {
+    return Resources.getString("GameRefresher.refresh_counters_options", selectedOptionLabels(selectedOptions));
+  }
+
+  static String selectedOptionLabels(Set<String> selectedOptions) {
+    final StringJoiner labels = new StringJoiner(", "); //NON-NLS
+    for (final OptionReport report : OPTION_REPORTS) {
+      if (selectedOptions.contains(report.option)) {
+        labels.add(Resources.getString(report.messageKey));
+      }
+    }
+    return labels.toString();
+  }
+
+  private static class OptionReport {
+    private final String option;
+    private final String messageKey;
+
+    private OptionReport(String option, String messageKey) {
+      this.option = option;
+      this.messageKey = messageKey;
     }
   }
 
