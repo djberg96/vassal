@@ -498,9 +498,8 @@ public class HexGrid extends AbstractConfigurable
     return snapTo(p, false, false);
   }
 
-  // FIXME: snapToHexVertex() does not always return the correct X co-ordinate
-  // if the point is close to the center of the Hex. Workaround by returning
-  // the real hex center if it is within 1 pixel x/y
+  // When snap scaling selects a center, prefer the exact hex center over an
+  // equivalent nearby point from an edge or vertex calculation.
   protected Point checkCenter(Point center, Point target) {
     if ((center.x - target.x) * (center.x - target.x)
           + (center.y - target.y) * (center.y - target.y) <= 2) {
@@ -553,8 +552,9 @@ public class HexGrid extends AbstractConfigurable
   public Point snapToHexVertex(Point p) {
     p = new Point(p);
     rotateIfSideways(p);
-    int x = vertexX(p.x, p.y);
-    int y = vertexY(p.x, p.y);
+    final Point vertex = nearestVertex(p.x, p.y);
+    int x = vertex.x;
+    int y = vertex.y;
     if (snapScale > 0) {
       final Point hexPoint = hexPoint(p.x, p.y);
       if (abs(p.x - hexPoint.x) + abs(p.y - hexPoint.y) <= abs(p.x - x) + abs(p.y - y)) {
@@ -898,23 +898,52 @@ public class HexGrid extends AbstractConfigurable
     }
   }
 
-  // FIXME: vertexX does not always return the same value as HexX for hex
-  // centres, it is sometimes 1 pixel off. The values returned for the
-  // vertices are fine, so snapTo() has been changed to work around this.
-  // There is a rounding error in here if someone else wants to track it down.
   protected int vertexX(int x, int y) {
-    final int ny = (int) floor((y - origin.y + dy / 4) * 2 / dy);
-    if (ny % 2 == 0) {
-      return ((int) (2 * dx / 3 * (int) (floor(x - origin.x + dx / 3) * 3 / (2 * dx)) + origin.x));
-    }
-    else {
-      return ((int) (2 * dx / 3 * (int) (floor(x - origin.x + dx / 3 + dx / 3) * 3 / (2 * dx))
-          - (int) (dx / 3) + origin.x));
-    }
+    return nearestVertex(x, y).x;
   }
 
   protected int vertexY(int x, int y) {
-    return ((int) (dy / 2 * (int) floor((y - origin.y + dy / 4) * 2 / dy) + origin.y));
+    return nearestVertex(x, y).y;
+  }
+
+  private Point nearestVertex(int x, int y) {
+    final Point center = hexPoint(x, y);
+    final Point[] candidates = getHexVertices(center.x, center.y);
+    Point nearest = candidates[0];
+    long nearestDistance = distanceSquared(x, y, nearest);
+
+    for (int i = 1; i < candidates.length; i++) {
+      final long distance = distanceSquared(x, y, candidates[i]);
+      if (distance < nearestDistance) {
+        nearest = candidates[i];
+        nearestDistance = distance;
+      }
+    }
+
+    return nearest;
+  }
+
+  private Point[] getHexVertices(int centerX, int centerY) {
+    final float x = centerX;
+    final float y = centerY;
+    final float deltaX = (float) dx;
+    final float deltaY = (float) dy;
+    final float r = 2.F * deltaX / 3.F;
+
+    return new Point[] {
+      new Point(round(x - r), round(y)),
+      new Point(round(x - 0.5F * r), round(y - 0.5F * deltaY)),
+      new Point(round(x + 0.5F * r) + 1, round(y - 0.5F * deltaY)),
+      new Point(round(x + r) + 1, round(y)),
+      new Point(round(x + 0.5F * r) + 1, round(y + 0.5F * deltaY) + 1),
+      new Point(round(x - 0.5F * r), round(y + 0.5F * deltaY) + 1)
+    };
+  }
+
+  private static long distanceSquared(int x, int y, Point p) {
+    final long dx = (long) x - p.x;
+    final long dy = (long) y - p.y;
+    return dx * dx + dy * dy;
   }
 
   /** Draw the grid, if visible, and the accompanying numbering */
