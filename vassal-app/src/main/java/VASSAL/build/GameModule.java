@@ -32,6 +32,7 @@ import VASSAL.build.module.GameState;
 import VASSAL.build.module.GlobalKeyCommand;
 import VASSAL.build.module.GlobalOptions;
 import VASSAL.build.module.Inventory;
+import VASSAL.build.module.InternetDiceButton;
 import VASSAL.build.module.KeyNamer;
 import VASSAL.build.module.Map;
 import VASSAL.build.module.ModuleExtension;
@@ -1211,7 +1212,7 @@ public class GameModule extends AbstractConfigurable
       GlobalKeyCommand.class,
       StartupGlobalKeyCommand.class,
       Inventory.class,
-//                  InternetDiceButton.class,   // Disable internet dice button until Bones server can prevent email spamming
+      InternetDiceButton.class,
       RandomTextButton.class,
       SpecialDiceButton.class,
       PredefinedSetup.class,
