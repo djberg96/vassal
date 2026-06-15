@@ -23,6 +23,7 @@ import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
+import java.io.Serializable;
 
 import javax.swing.Box;
 import javax.swing.Icon;
@@ -36,13 +37,14 @@ import VASSAL.build.module.map.BoardPicker;
 import VASSAL.i18n.Resources;
 import VASSAL.tools.swing.SwingUtils;
 
-public final class BoardSlot extends JPanel implements Icon, ActionListener {
+public final class BoardSlot extends JPanel implements ActionListener {
   private static final long serialVersionUID = 1L;
 
   private final String prompt;
 
   private final transient BoardPicker picker;
   private transient Board board = null;
+  private final SlotIcon slotIcon = new SlotIcon();
 
   private final JComboBox<String> boards;
   private final JCheckBox reverseCheckBox;
@@ -84,7 +86,7 @@ public final class BoardSlot extends JPanel implements Icon, ActionListener {
     p.add(b);
     p.setOpaque(false);
     p.setAlignmentX(0.5F);
-    final JLabel l = new JLabel(this);
+    final JLabel l = new JLabel(slotIcon);
     l.setAlignmentX(0.5F);
 
     add(p);
@@ -121,23 +123,14 @@ public final class BoardSlot extends JPanel implements Icon, ActionListener {
         b.getAttributeValueString(Board.REVERSIBLE))); //$NON-NLS-1$
       reverseCheckBox.setSelected(b.isReversed());
 
-      board = b;
-
-      setSize(getPreferredSize());
-      revalidate();
-      repaint();
+      updateLayout();
     }
     else {
       reverseCheckBox.setVisible(false);
-// FIXME: does the order of these three matter? They're not the same above?
-      revalidate();
-      setSize(getPreferredSize());
-      repaint();
+      updateLayout();
     }
   }
 
-// FIXME: This is confusing. The Icon should be an internal object.
-  @Override
   public int getIconHeight() {
     if (board != null) {
       return (int)(picker.getSlotScale() * board.bounds().height);
@@ -150,7 +143,6 @@ public final class BoardSlot extends JPanel implements Icon, ActionListener {
     }
   }
 
-  @Override
   public int getIconWidth() {
     if (board != null) {
       return (int)(picker.getSlotScale() * board.bounds().width);
@@ -163,8 +155,13 @@ public final class BoardSlot extends JPanel implements Icon, ActionListener {
     }
   }
 
-  @Override
-  public void paintIcon(Component c, Graphics g, int x, int y) {
+  private void updateLayout() {
+    setSize(getPreferredSize());
+    revalidate();
+    repaint();
+  }
+
+  private void paintSlotIcon(Component c, Graphics g, int x, int y) {
     final Graphics2D g2d = (Graphics2D) g;
 
     final AffineTransform orig_t = g2d.getTransform();
@@ -184,5 +181,24 @@ public final class BoardSlot extends JPanel implements Icon, ActionListener {
     }
 
     g2d.setTransform(orig_t);
+  }
+
+  private final class SlotIcon implements Icon, Serializable {
+    private static final long serialVersionUID = 1L;
+
+    @Override
+    public int getIconHeight() {
+      return BoardSlot.this.getIconHeight();
+    }
+
+    @Override
+    public int getIconWidth() {
+      return BoardSlot.this.getIconWidth();
+    }
+
+    @Override
+    public void paintIcon(Component c, Graphics g, int x, int y) {
+      paintSlotIcon(c, g, x, y);
+    }
   }
 }
