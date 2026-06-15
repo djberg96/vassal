@@ -40,6 +40,16 @@ public class LocaleConfigurerTest {
   }
 
   @Test
+  public void languageOnlyLocaleKeepsEmptyCountryAfterControlsBuild() {
+    final LocaleConfigurer configurer = new LocaleConfigurer("locale", "Locale", Locale.FRENCH);
+
+    configurer.getControls();
+
+    assertEquals("fr,", configurer.getValueString());
+    assertEquals(Locale.FRENCH, configurer.getValueLocale());
+  }
+
+  @Test
   public void localeEncodingRoundTripsLanguageAndCountry() {
     final Locale locale = Locale.of("de", "DE");
 

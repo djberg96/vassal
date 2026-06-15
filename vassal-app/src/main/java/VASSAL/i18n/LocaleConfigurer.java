@@ -39,8 +39,7 @@ import javax.swing.JPanel;
  *
  */
 public final class LocaleConfigurer extends Configurer {
-  //FIXME needs an i18n strategy
-  private static final String ANY_COUNTRY = "[Any Country]";
+  private static final String ANY_COUNTRY = Resources.getString("Editor.LocaleConfigurer.any_country");
   private static final Map<String, String> languages = new HashMap<>();
   private static String[] languageList;
   private static final Map<String, String> countries = new HashMap<>();
