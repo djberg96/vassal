@@ -1056,6 +1056,22 @@ public class GameState implements CommandEncoder {
     return GameModule.getGameModule().encode(getRestoreCommand());
   }
 
+  protected String saveString(Command saveCommand) {
+    return GameModule.getGameModule().encode(saveCommand);
+  }
+
+  private Command getSaveCommand() {
+    final Command saveCommand = getRestoreCommand();
+    if (saveCommand == null) {
+      GameModule.getGameModule().warn("~" + Resources.getString("GameState.save_disabled"));
+    }
+    return saveCommand;
+  }
+
+  private void writeSave(Command saveCommand, OutputStream out) throws IOException {
+    GameModule.getGameModule().writeEncoded(saveCommand, out);
+  }
+
   protected boolean checkForOldSaveFile(File f) {
     if (f.isFile()) {
       // warn user if overwriting a save from an old version
@@ -1356,8 +1372,6 @@ public class GameState implements CommandEncoder {
 
   public void saveGameRefresh(ZipArchive archive) throws IOException {
     final SaveMetaData metaData;
-    // FIXME: It is extremely inefficient to produce the save string. It would
-    // be faster to write directly to the output stream instead.
 
     // store the prompt pref
     final GameModule mod = GameModule.getGameModule();
@@ -1368,11 +1382,15 @@ public class GameState implements CommandEncoder {
     myPrefs.setValue(SaveMetaData.PROMPT_LOG_COMMENT, false);
     metaData = new SaveMetaData(); // this also potentially prompts for save file comments, so do *before* possibly long save file write
 
-    final String save = saveString();
+    final Command saveCommand = getSaveCommand();
+    if (saveCommand == null) {
+      return;
+    }
+
     try (OutputStream zout = archive.getOutputStream(SAVEFILE_ZIP_ENTRY);
          BufferedOutputStream bout = new BufferedOutputStream(zout);
          OutputStream out = new ObfuscatingOutputStream(bout)) {
-      out.write(save.getBytes(StandardCharsets.UTF_8));
+      writeSave(saveCommand, out);
     }
     archive.close();
 
@@ -1384,26 +1402,23 @@ public class GameState implements CommandEncoder {
   public void saveGame(File f) throws IOException {
     final SaveMetaData metaData;
     GameModule.getGameModule().warn(Resources.getString("GameState.saving_game") + ": " + f.getName());  //$NON-NLS-1$
-    // FIXME: It is extremely inefficient to produce the save string. It would
-    // be faster to write directly to the output stream instead.
-    metaData = new SaveMetaData(); // this also potentially prompts for save file comments, so do *before* possibly long save file write
 
-    final String save = saveString();
-
-    // Can be null if we get in here during odd asynchronous crud (save game is disabled, so getRestoreCommand will return null)
-    if (save == null) {
-      GameModule.getGameModule().warn("~" + Resources.getString("GameState.save_disabled"));
+    // Can be null if we get in here during odd asynchronous crud (save game is disabled)
+    final Command saveCommand = getSaveCommand();
+    if (saveCommand == null) {
       return;
     }
 
+    metaData = new SaveMetaData(); // this also potentially prompts for save file comments, so do *before* possibly long save file write
+
     try (ZipWriter zw = new ZipWriter(f)) {
       try (OutputStream out = new ObfuscatingOutputStream(new BufferedOutputStream(zw.write(SAVEFILE_ZIP_ENTRY)))) {
-        out.write(save.getBytes(StandardCharsets.UTF_8));
+        writeSave(saveCommand, out);
       }
       metaData.save(zw);
     }
 
-    lastSave = save;
+    lastSave = saveString(saveCommand);
     final String msg;
     final String saveComments = metaData.getLocalizedDescription();
     if (!StringUtils.isEmpty(saveComments)) {
