@@ -18,16 +18,14 @@
 
 package VASSAL.tools;
 
-import VASSAL.build.GameModule;
 import VASSAL.configure.PasswordConfigurer;
 import VASSAL.configure.StringConfigurer;
 import VASSAL.i18n.Resources;
-import VASSAL.preferences.Prefs;
 
 import java.awt.Color;
 import java.awt.Frame;
 import java.beans.PropertyChangeListener;
-import java.io.IOException;
+import java.util.Optional;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -36,8 +34,6 @@ import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 
-// FIXME: Would be better if this didn't set the username and password
-// directly, but instead had a static method for returning them.
 // FIXME: Could be made prettier if it didn't use Configurers, or if
 // we made Configurers prettier.
 
@@ -48,6 +44,15 @@ import net.miginfocom.swing.MigLayout;
  */
 public final class UsernameAndPasswordDialog extends JDialog {
   private static final long serialVersionUID = 1L;
+
+  private transient Credentials credentials;
+
+  public static Optional<Credentials> prompt(Frame parent) {
+    final UsernameAndPasswordDialog dialog =
+      new UsernameAndPasswordDialog(parent);
+    dialog.setVisible(true);
+    return dialog.getCredentials();
+  }
 
   public UsernameAndPasswordDialog(Frame parent) {
     super(parent, Resources.getString("Editor.UsernameAndPasswordDialog.choose_your_weapons"), true);
@@ -77,18 +82,10 @@ public final class UsernameAndPasswordDialog extends JDialog {
     final JButton ok = new JButton(Resources.getString(Resources.OK));
     ok.setEnabled(false);
     ok.addActionListener(e -> {
-      final Prefs p = GameModule.getGameModule().getPrefs();
-
-      p.getOption(GameModule.REAL_NAME).setValue(nameConfig.getValueString());
-      p.getOption(GameModule.SECRET_NAME).setValue(pwd.getValueString());
-
-      try {
-        p.save();
-      }
-      catch (IOException ex) {
-        WriteErrorDialog.error(ex, p.getFile());
-      }
-
+      credentials = new Credentials(
+        nameConfig.getValueString(),
+        pwd.getValueString()
+      );
       dispose();
     });
 
@@ -149,5 +146,27 @@ public final class UsernameAndPasswordDialog extends JDialog {
     nameConfig.addPropertyChangeListener(pl);
     pwd.addPropertyChangeListener(pl);
     pwd2.addPropertyChangeListener(pl);
+  }
+
+  public Optional<Credentials> getCredentials() {
+    return Optional.ofNullable(credentials);
+  }
+
+  public static final class Credentials {
+    private final String username;
+    private final String password;
+
+    private Credentials(String username, String password) {
+      this.username = username;
+      this.password = password;
+    }
+
+    public String getUsername() {
+      return username;
+    }
+
+    public String getPassword() {
+      return password;
+    }
   }
 }

@@ -31,6 +31,7 @@ import VASSAL.i18n.Resources;
 import VASSAL.preferences.Prefs;
 import VASSAL.tools.DataArchive;
 import VASSAL.tools.UsernameAndPasswordDialog;
+import VASSAL.tools.WriteErrorDialog;
 import VASSAL.tools.filechooser.FileChooser;
 
 /**
@@ -102,8 +103,27 @@ public class LoadModuleAction extends GameModuleAction {
       // prompt for username and password if wizard is off
       // but no username is set, or password is blank
       if (!module.isRealName() || !module.isNonBlankPassword()) {
-        new UsernameAndPasswordDialog(module.getPlayerWindow()).setVisible(true);
+        UsernameAndPasswordDialog.prompt(module.getPlayerWindow()).ifPresent(
+          credentials -> saveCredentials(module, credentials)
+        );
       }
+    }
+  }
+
+  private void saveCredentials(
+    GameModule module,
+    UsernameAndPasswordDialog.Credentials credentials
+  ) {
+    final Prefs prefs = module.getPrefs();
+
+    prefs.getOption(GameModule.REAL_NAME).setValue(credentials.getUsername());
+    prefs.getOption(GameModule.SECRET_NAME).setValue(credentials.getPassword());
+
+    try {
+      prefs.save();
+    }
+    catch (IOException e) {
+      WriteErrorDialog.error(e, prefs.getFile());
     }
   }
 }

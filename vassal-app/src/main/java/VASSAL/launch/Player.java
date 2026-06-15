@@ -42,6 +42,7 @@ import VASSAL.tools.DataArchive;
 import VASSAL.tools.ErrorDialog;
 import VASSAL.tools.JarArchive;
 import VASSAL.tools.UsernameAndPasswordDialog;
+import VASSAL.tools.WriteErrorDialog;
 import VASSAL.tools.menu.MacOSXMenuManager;
 import VASSAL.tools.menu.MenuBarProxy;
 import VASSAL.tools.menu.MenuManager;
@@ -128,8 +129,27 @@ public final class Player extends Launcher {
       // prompt for username and password if wizard is off
       // but no username is set
       if (!module.isRealName()) {
-        new UsernameAndPasswordDialog(module.getPlayerWindow()).setVisible(true);
+        UsernameAndPasswordDialog.prompt(module.getPlayerWindow()).ifPresent(
+          credentials -> saveCredentials(module, credentials)
+        );
       }
+    }
+  }
+
+  private void saveCredentials(
+    GameModule module,
+    UsernameAndPasswordDialog.Credentials credentials
+  ) {
+    final Prefs prefs = module.getPrefs();
+
+    prefs.getOption(GameModule.REAL_NAME).setValue(credentials.getUsername());
+    prefs.getOption(GameModule.SECRET_NAME).setValue(credentials.getPassword());
+
+    try {
+      prefs.save();
+    }
+    catch (IOException e) {
+      WriteErrorDialog.error(e, prefs.getFile());
     }
   }
 
