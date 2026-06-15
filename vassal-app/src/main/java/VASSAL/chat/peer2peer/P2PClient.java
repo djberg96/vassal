@@ -29,6 +29,8 @@ import org.litesoft.p2pchat.MyInfo;
 import org.litesoft.p2pchat.PeerInfo;
 import org.litesoft.p2pchat.PendingPeerManager;
 import org.litesoft.p2pchat.UserDialog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import VASSAL.build.GameModule;
 import VASSAL.build.module.Chatter;
@@ -55,6 +57,8 @@ import VASSAL.i18n.Resources;
 import VASSAL.tools.PropertiesEncoder;
 
 public class P2PClient implements ChatServerConnection, ChatControlsInitializer, UserDialog, PlayerEncoder {
+  private static final Logger logger = LoggerFactory.getLogger(P2PClient.class);
+
   private SimplePlayer me;
   private PendingPeerManager ppm;
   protected ActivePeerManager peerMgr;
@@ -221,8 +225,8 @@ public class P2PClient implements ChatServerConnection, ChatControlsInitializer,
         connected = true;
         propSupport.firePropertyChange(CONNECTED, null, Boolean.TRUE);
       }
-      // FIXME: review error message
       catch (IOException e) {
+        logger.warn("Unable to establish peer-to-peer connection", e); //NON-NLS
         fireStatus(Resources.getString("Peer2Peer.connection_error", e.getMessage())); //$NON-NLS-1$
         fireStatus(Resources.getString("Peer2Peer.disconnected")); //$NON-NLS-1$ //$NON-NLS-2$
         connected = false;
