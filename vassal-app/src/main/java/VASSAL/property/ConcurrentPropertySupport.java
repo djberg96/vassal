@@ -32,7 +32,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
  */
 public class ConcurrentPropertySupport implements PropertySupport {
 
-// FIXME: consider using WeakReferences for listeners to prevent memory leaks
+  /*
+   * Listeners are held strongly to match java.beans.PropertyChangeSupport
+   * semantics. Weak listener support would need opt-in APIs, because callers
+   * often register lambdas or short-lived listener objects and rely on explicit
+   * removePropertyListener() calls to control listener lifetime.
+   */
   @SuppressWarnings("PMD.LooseCoupling")
   protected final CopyOnWriteArrayList<PropertyListener<Object>> listeners =
     new CopyOnWriteArrayList<>();
