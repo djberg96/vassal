@@ -321,7 +321,6 @@ public class DeckSendKeyCommand extends AbstractDeckKeyCommand {
   }
 
   private void doSend(Deck deck) {
-    // FIXME FInd the target Deck name correctly.
     GameModule.getGameModule().sendAndLog(deck.extendedSend(this));
     deck.repaintMap();
   }

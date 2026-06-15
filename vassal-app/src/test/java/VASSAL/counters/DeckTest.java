@@ -3,6 +3,8 @@ package VASSAL.counters;
 import VASSAL.build.GameModule;
 import VASSAL.build.MockModuleTest;
 import VASSAL.build.module.Map;
+import VASSAL.build.module.map.deck.AbstractDeckKeyCommand;
+import VASSAL.build.module.map.deck.DeckSendKeyCommand;
 import org.junit.jupiter.api.Test;
 
 import java.awt.Point;
@@ -10,6 +12,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -17,6 +20,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class DeckTest extends MockModuleTest {
+
+  @Test
+  public void deckSendCommandReportsResolvedTargetDeckAndSentCount() {
+    final DeckSendKeyCommand command = new DeckSendKeyCommand();
+
+    assertArrayEquals(
+      new String[] {
+        AbstractDeckKeyCommand.DECK_NAME,
+        AbstractDeckKeyCommand.COMMAND_NAME,
+        DeckSendKeyCommand.TARGET_DECK,
+        DeckSendKeyCommand.SENT_COUNT
+      },
+      command.getAdditionalReportProperties()
+    );
+  }
 
   @Test
   public void defaultConstructorShouldCreateEmptyDeck() {
