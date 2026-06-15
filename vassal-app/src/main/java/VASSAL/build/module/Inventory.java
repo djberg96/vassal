@@ -109,6 +109,8 @@ import java.util.regex.Pattern;
 public class Inventory extends AbstractToolbarItem
                        implements PlayerRoster.SideChangeListener {
 
+  private static final Pattern FIRST_INTEGER = Pattern.compile("\\d+"); //$NON-NLS-1$
+
   public static final String REFRESH_HOTKEY = "refreshHotkey"; //NON-NLS
   protected NamedKeyStrokeListener refreshListener;
 
@@ -197,6 +199,39 @@ public class Inventory extends AbstractToolbarItem
   protected String launchFunction = FUNCTION_HIDE; //BR// This default is "more like how most toolbar buttons work"
 
   protected String sortStrategy = ALPHA;
+
+  static int firstSignedInteger(String key) {
+    long found = Integer.MIN_VALUE;
+    final Matcher match = FIRST_INTEGER.matcher(key);
+
+    if (!match.find()) {
+      return (int) found;
+    }
+
+    final int start = match.start();
+    final boolean negative = start > 0 && key.charAt(start - 1) == '-';
+    try {
+      found = Long.parseLong(key.substring(start, match.end()));
+    }
+    catch (NumberFormatException e) {
+      return negative ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+    }
+
+    if (negative) {
+      found *= -1;
+    }
+    return clampToInt(found);
+  }
+
+  private static int clampToInt(long value) {
+    if (value < Integer.MIN_VALUE) {
+      return Integer.MIN_VALUE;
+    }
+    if (value > Integer.MAX_VALUE) {
+      return Integer.MAX_VALUE;
+    }
+    return (int) value;
+  }
 
   public static final String SORTING = "sorting"; //$NON-NLS-1$
 
@@ -1576,9 +1611,6 @@ public class Inventory extends AbstractToolbarItem
      */
     protected class Numerical extends CompareCounterNodes
                               implements Comparator<CounterNode> {
-      protected final String regex =  "\\d+"; //$NON-NLS-1$ //NOPMD
-      protected final Pattern p = Pattern.compile(regex);
-
       /**
        * Get first integer in key, if any. Otherwise return lowest possible
        * integer.
@@ -1588,24 +1620,7 @@ public class Inventory extends AbstractToolbarItem
        *
        */
       protected int getInt(String key) {
-        int found = Integer.MIN_VALUE;
-        final Matcher match = p.matcher(key);
-
-        if (!match.find()) {
-          // return minimum value
-          return found;
-        }
-        final int start = match.start();
-        found = Integer.parseInt(key.substring(start, match.end()));
-
-        // Check for sign
-        if ((start > 0) && (key.charAt(start - 1) == '-')) {
-          // negative integer found
-          // FIXME: Is this a safe operation? What happens when
-          // MAX_VALUE * -1 < MIN_VALUE?
-          found *= -1;
-        }
-        return found;
+        return firstSignedInteger(key);
       }
 
       /**
