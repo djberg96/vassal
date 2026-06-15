@@ -30,6 +30,8 @@ import javax.swing.JPanel;
 import net.miginfocom.swing.MigLayout;
 import VASSAL.configure.Configurer;
 import VASSAL.i18n.Resources;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Improved version of ServerConfigurer that includes an Address Book of
@@ -37,6 +39,8 @@ import VASSAL.i18n.Resources;
  *
  */
 public final class AddressBookServerConfigurer extends Configurer {
+  private static final Logger logger = LoggerFactory.getLogger(AddressBookServerConfigurer.class);
+
   private static final String CONNECTED = Resources.getString("Server.please_disconnect"); //$NON-NLS-1$
   private static final String DISCONNECTED = Resources.getString("ServerAddressBook.select_server"); //$NON-NLS-1$
   private static final String ENCODING = "UTF-8"; //$NON-NLS-1$
@@ -112,9 +116,8 @@ public final class AddressBookServerConfigurer extends Configurer {
       }
       s = new String(out.toByteArray(), ENCODING);
     }
-    // FIXME: review error message
     catch (final IOException e) {
-      e.printStackTrace();
+      logger.warn("Unable to encode server address book configuration", e); //NON-NLS
     }
     return s;
   }
@@ -125,9 +128,8 @@ public final class AddressBookServerConfigurer extends Configurer {
     try {
       p.load(new ByteArrayInputStream(s.getBytes(ENCODING)));
     }
-    // FIXME: review error message
     catch (final IOException e) {
-      e.printStackTrace();
+      logger.warn("Unable to decode server address book configuration", e); //NON-NLS
     }
     setValue(p);
   }
