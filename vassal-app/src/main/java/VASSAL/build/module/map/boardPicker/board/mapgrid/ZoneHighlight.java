@@ -139,7 +139,9 @@ public final class ZoneHighlight extends AbstractConfigurable  {
         }
       }
       else {
-// FIXME: Make this an ImageOp?
+        // Generated stripe and crosshatch tiles are tiny, color-dependent,
+        // and cached as TexturePaint for this highlight. ImageOp is reserved
+        // for image-backed highlights loaded from module assets.
         final BufferedImage img =
           ImageUtils.createCompatibleTranslucentImage(6, 6);
         final Graphics2D g = img.createGraphics();
@@ -316,6 +318,7 @@ public final class ZoneHighlight extends AbstractConfigurable  {
       }
       if (val != null) {
         color = (Color) val;
+        paint = null;
       }
     }
     else if (COVERAGE.equals(key)) {
@@ -340,6 +343,7 @@ public final class ZoneHighlight extends AbstractConfigurable  {
     else if (IMAGE.equals(key)) {
       imageName = (String) val;
       srcOp = imageName.isBlank() ? null : Op.load(imageName);
+      paint = null;
     }
   }
 
