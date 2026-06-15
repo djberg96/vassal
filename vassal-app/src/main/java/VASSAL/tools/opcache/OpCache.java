@@ -104,7 +104,7 @@ public class OpCache {
    */
   private static final class Result<V> implements Future<V> {
     private V value = null;
-    private boolean failed = false;
+    private Throwable failureCause;
     private final CountDownLatch done = new CountDownLatch(1);
 
     public void set(V value) {
@@ -112,8 +112,9 @@ public class OpCache {
       done.countDown();
     }
 
-    public void fail() {
-      failed = true;
+    public void fail(Throwable failureCause) {
+      this.failureCause = failureCause;
+      done.countDown();
     }
 
     @Override
@@ -134,7 +135,7 @@ public class OpCache {
     @Override
     public V get() throws InterruptedException, ExecutionException {
       done.await();
-      if (failed) throw new ExecutionException(new OpFailedException());
+      if (failureCause != null) throw new ExecutionException(failureCause);
       return value;
     }
 
@@ -144,7 +145,7 @@ public class OpCache {
                                                      TimeoutException {
 
       if (done.await(timeout, unit)) {
-        if (failed) throw new ExecutionException(new OpFailedException());
+        if (failureCause != null) throw new ExecutionException(failureCause);
         return value;
       }
       throw new TimeoutException();
@@ -232,8 +233,11 @@ public class OpCache {
     try {
       return get(key, null);
     }
-    catch (CancellationException | ExecutionException | InterruptedException e) {
-      // FIXME: bug until we permit cancellation
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      ErrorDialog.bug(e);
+    }
+    catch (CancellationException | ExecutionException e) {
       ErrorDialog.bug(e);
     }
 
@@ -314,14 +318,12 @@ public class OpCache {
           V val = null;
           try {
             val = key.op.eval();
+            res.set(val);
           }
           catch (Throwable t) {
-            res.fail();
+            res.fail(t);
             cache.put(key, failure);
             throw new ExecutionException(t);
-          }
-          finally {
-            res.set(val);
           }
 
           fut = res;
@@ -331,7 +333,7 @@ public class OpCache {
         final Request<V> req = new Request<>(key, obs);
         fut = (Future<V>) cache.putIfAbsent(key, req);
         if (fut == null) {
-          threadPool.submit(req);
+          submit(req);
           fut = req;
         }
       }
@@ -349,25 +351,16 @@ public class OpCache {
     return fut;
   }
 
-/////
-// FIXME: finalize this...
   private final BlockingQueue<Runnable> requestQueue =
     new LinkedBlockingQueue<>();
 
-  private static class Ex extends ThreadPoolExecutor {
-    public Ex(int corePoolSize, int maximumPoolSize, long keepAliveTime,
-              TimeUnit unit, BlockingQueue<Runnable> workQueue) {
-      super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);
-    }
+  private final ThreadPoolExecutor threadPool =
+    new ThreadPoolExecutor(2, 2, 60, TimeUnit.SECONDS, requestQueue);
 
-    public <V> Future<V> submit(SwingWorker<V, ?> req) {
-      execute(req);
-      return req;
-    }
+  private <V> Future<V> submit(Request<V> request) {
+    threadPool.execute(request);
+    return request;
   }
-
-  private final Ex threadPool =
-    new Ex(2, 2, 60, TimeUnit.SECONDS, requestQueue);
 
   /**
    * Gets a value from the cache, if it is already calculated.
@@ -389,7 +382,10 @@ public class OpCache {
   }
 
   public void clear() {
-// FIXME: should cancel all pending requests?
+    for (final Future<?> fut : cache.values()) {
+      fut.cancel(true);
+    }
+    requestQueue.clear();
     cache.clear();
   }
 }
