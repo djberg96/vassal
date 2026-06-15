@@ -69,7 +69,7 @@ import VASSAL.build.module.map.Zoomer;
 import VASSAL.build.module.map.boardPicker.Board;
 import VASSAL.build.module.map.boardPicker.board.HexGrid;
 import VASSAL.build.module.map.boardPicker.board.MapGrid;
-import VASSAL.build.module.map.boardPicker.board.MapGrid.BadCoords;
+import VASSAL.build.module.map.boardPicker.board.MapGrid.BadCoordsException;
 import VASSAL.build.module.map.boardPicker.board.SquareGrid;
 import VASSAL.build.module.map.boardPicker.board.ZonedGrid;
 import VASSAL.build.module.map.boardPicker.board.mapgrid.HexGridNumbering;
@@ -3025,7 +3025,7 @@ public class MapBoard extends Importer {
             stack.setAttribute(SetupStack.LOCATION, location);
           }
         }
-        catch (BadCoords e) {
+        catch (BadCoordsException e) {
 
         }
       }

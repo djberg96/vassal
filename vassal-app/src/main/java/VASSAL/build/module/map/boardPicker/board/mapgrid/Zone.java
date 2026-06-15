@@ -27,7 +27,7 @@ import VASSAL.build.module.documentation.HelpFile;
 import VASSAL.build.module.map.boardPicker.Board;
 import VASSAL.build.module.map.boardPicker.board.HexGrid;
 import VASSAL.build.module.map.boardPicker.board.MapGrid;
-import VASSAL.build.module.map.boardPicker.board.MapGrid.BadCoords;
+import VASSAL.build.module.map.boardPicker.board.MapGrid.BadCoordsException;
 import VASSAL.build.module.map.boardPicker.board.Region;
 import VASSAL.build.module.map.boardPicker.board.RegionGrid;
 import VASSAL.build.module.map.boardPicker.board.SquareGrid;
@@ -311,7 +311,7 @@ public class Zone extends AbstractConfigurable implements GridContainer, Mutable
     return existing;
   }
 
-  public Point getLocation(String location) throws BadCoords {
+  public Point getLocation(String location) throws BadCoordsException {
     final SequenceEncoder.Decoder se =
       new SequenceEncoder.Decoder(locationFormat, '$');
     boolean isProperty = true;
@@ -337,13 +337,13 @@ public class Zone extends AbstractConfigurable implements GridContainer, Mutable
     }
 
     if (regex.length() == 0) {
-      throw new BadCoords(); // nothing to match!
+      throw new BadCoordsException(); // nothing to match!
     }
 
     final Pattern pattern = Pattern.compile(regex.toString());
     final Matcher matcher = pattern.matcher(location);
     if (!matcher.matches()) {
-      throw new BadCoords();
+      throw new BadCoordsException();
     }
     assert (matcher.groupCount() == groupCount);
 
@@ -352,7 +352,7 @@ public class Zone extends AbstractConfigurable implements GridContainer, Mutable
       final String locationName = location.substring(matcher.start(groupCount), matcher.end(groupCount));
       p = getGrid().getLocation(locationName);
       if (p == null || !contains(p)) {
-        throw new BadCoords();
+        throw new BadCoordsException();
       }
       else {
         return p;

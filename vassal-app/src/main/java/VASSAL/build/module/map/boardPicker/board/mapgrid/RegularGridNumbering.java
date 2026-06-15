@@ -20,7 +20,7 @@ package VASSAL.build.module.map.boardPicker.board.mapgrid;
 import VASSAL.build.AbstractConfigurable;
 import VASSAL.build.AutoConfigurable;
 import VASSAL.build.module.documentation.HelpFile;
-import VASSAL.build.module.map.boardPicker.board.MapGrid.BadCoords;
+import VASSAL.build.module.map.boardPicker.board.MapGrid.BadCoordsException;
 import VASSAL.configure.AutoConfigurer;
 import VASSAL.configure.ColorConfigurer;
 import VASSAL.configure.Configurer;
@@ -438,7 +438,7 @@ public abstract class RegularGridNumbering extends AbstractConfigurable implemen
   }
 
   @Override
-  public Point getLocation(String location) throws BadCoords {
+  public Point getLocation(String location) throws BadCoordsException {
 
     final SequenceEncoder.Decoder se = new SequenceEncoder.Decoder(locationFormat, '$');
     boolean isProperty = true;
@@ -484,13 +484,12 @@ public abstract class RegularGridNumbering extends AbstractConfigurable implemen
     }
 
     if (regex.length() == 0 || colGroup == 0 || rowGroup == 0)
-      throw new BadCoords();
+      throw new BadCoordsException();
 
     final Pattern pattern = Pattern.compile(regex.toString());
     final Matcher matcher = pattern.matcher(location);
     if (!matcher.matches()) {
-// FIXME: rename to BadCoordsException
-      throw new BadCoords();
+      throw new BadCoordsException();
     }
     assert (matcher.groupCount() == groupCount && groupCount >= 2);
 

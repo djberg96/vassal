@@ -21,7 +21,7 @@ import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
 
-import VASSAL.build.module.map.boardPicker.board.MapGrid.BadCoords;
+import VASSAL.build.module.map.boardPicker.board.MapGrid.BadCoordsException;
 
 /**
  * Provides methods for assigning names to locations on a MapGrid, and drawing those locations when drawing a grid
@@ -33,5 +33,5 @@ public interface GridNumbering {
   void draw(Graphics g, Rectangle bounds, Rectangle visibleRect, double scale, boolean reversed);
 
   boolean isVisible();
-  Point getLocation(String location) throws BadCoords;
+  Point getLocation(String location) throws BadCoordsException;
 }

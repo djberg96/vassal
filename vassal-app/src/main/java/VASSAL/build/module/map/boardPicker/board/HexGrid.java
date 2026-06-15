@@ -446,9 +446,9 @@ public class HexGrid extends AbstractConfigurable
   }
 
   @Override
-  public Point getLocation(String location) throws BadCoords {
+  public Point getLocation(String location) throws BadCoordsException {
     if (numbering == null)
-      throw new BadCoords();
+      throw new BadCoordsException();
     else
       return numbering.getLocation(location);
   }

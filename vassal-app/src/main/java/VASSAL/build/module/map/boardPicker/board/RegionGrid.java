@@ -317,10 +317,10 @@ public class RegionGrid extends AbstractConfigurable implements MapGrid, Configu
   }
 
   @Override
-  public Point getLocation(String name) throws BadCoords {
+  public Point getLocation(String name) throws BadCoordsException {
     final Region reg = findRegion(name);
     if (reg == null)
-      throw new BadCoords();
+      throw new BadCoordsException();
     else
       return new Point(reg.getOrigin());
   }

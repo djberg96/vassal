@@ -90,7 +90,7 @@ import VASSAL.build.module.map.MassKeyCommand;
 import VASSAL.build.module.map.SetupStack;
 import VASSAL.build.module.map.boardPicker.Board;
 import VASSAL.build.module.map.boardPicker.board.MapGrid;
-import VASSAL.build.module.map.boardPicker.board.MapGrid.BadCoords;
+import VASSAL.build.module.map.boardPicker.board.MapGrid.BadCoordsException;
 import VASSAL.build.module.map.boardPicker.board.ZonedGrid;
 import VASSAL.build.module.map.boardPicker.board.mapgrid.Zone;
 import VASSAL.build.module.turn.ListTurnLevel;
@@ -2839,7 +2839,7 @@ public class ADC2Module extends Importer {
             stack.setAttribute(SetupStack.LOCATION, location);
           }
         }
-        catch (BadCoords e) {
+        catch (BadCoordsException e) {
           log.error("Error while writing setup stacks", e);
         }
       }

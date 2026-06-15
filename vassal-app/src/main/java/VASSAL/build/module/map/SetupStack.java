@@ -31,7 +31,7 @@ import VASSAL.build.module.NewGameIndicator;
 import VASSAL.build.module.documentation.HelpFile;
 import VASSAL.build.module.map.boardPicker.Board;
 import VASSAL.build.module.map.boardPicker.board.MapGrid;
-import VASSAL.build.module.map.boardPicker.board.MapGrid.BadCoords;
+import VASSAL.build.module.map.boardPicker.board.MapGrid.BadCoordsException;
 import VASSAL.build.module.map.boardPicker.board.ZonedGrid;
 import VASSAL.build.widget.PieceSlot;
 import VASSAL.command.Command;
@@ -205,7 +205,7 @@ public class SetupStack extends AbstractConfigurable implements GameComponent, U
       try {
         pos = grid.getLocation(location);
       }
-      catch (final BadCoords e) {
+      catch (final BadCoordsException e) {
         // Allow SetupStacks to match literal grid location names in Irregular/Region grids even if Zone configured to only use/report Zone's name
         if (grid instanceof ZonedGrid) {
           final Point p = ((ZonedGrid) grid).getRegionLocation(location);
@@ -231,7 +231,7 @@ public class SetupStack extends AbstractConfigurable implements GameComponent, U
         try {
           grid.getLocation(location);
         }
-        catch (final BadCoords e) {
+        catch (final BadCoordsException e) {
           // Allow SetupStacks to match literal grid location names in Irregular/Region grids even if Zone configured to only use/report Zone's name
           if (grid instanceof ZonedGrid) {
             final Point p = ((ZonedGrid) grid).getRegionLocation(location);

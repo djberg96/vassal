@@ -222,7 +222,7 @@ public class ZonedGrid extends AbstractConfigurable implements GeometricGrid, Gr
   }
 
   @Override
-  public Point getLocation(String location) throws BadCoords {
+  public Point getLocation(String location) throws BadCoordsException {
     for (final Zone zone : zones) {
       try {
         final Point p = zone.getLocation(location);
@@ -230,13 +230,13 @@ public class ZonedGrid extends AbstractConfigurable implements GeometricGrid, Gr
           return p;
         }
       }
-      catch (final BadCoords bc) {
+      catch (final BadCoordsException bc) {
       }
     }
     if (background != null)
       return background.getLocation(location);
     else
-      throw new BadCoords();
+      throw new BadCoordsException();
   }
 
   public Point getRegionLocation(String location) {

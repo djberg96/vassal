@@ -26,7 +26,7 @@ import VASSAL.build.module.Map;
 import VASSAL.build.module.documentation.HelpFile;
 import VASSAL.build.module.map.boardPicker.Board;
 import VASSAL.build.module.map.boardPicker.board.MapGrid;
-import VASSAL.build.module.map.boardPicker.board.MapGrid.BadCoords;
+import VASSAL.build.module.map.boardPicker.board.MapGrid.BadCoordsException;
 import VASSAL.build.module.map.boardPicker.board.Region;
 import VASSAL.build.module.map.boardPicker.board.mapgrid.Zone;
 import VASSAL.build.module.properties.PropertySource;
@@ -392,7 +392,7 @@ public class SendToLocation extends Decorator implements TranslatablePiece {
                 }
               }
             }
-            catch (BadCoords e) {
+            catch (BadCoordsException e) {
               if (auditSource instanceof EditablePiece) {
                 reportDataError((EditablePiece)auditSource, Resources.getString(
                   "Error.not_found", Resources.getString("Editor.SendToLocation.grid_location")), map.getMapName(), new AuditableException(auditSource, gridAudit));

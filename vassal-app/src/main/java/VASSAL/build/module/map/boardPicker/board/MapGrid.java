@@ -62,9 +62,9 @@ public interface MapGrid {
 
   /**
    * @return A point p such that locationName(p).equals(location).
-   * @throws BadCoords if the location is not valid or formatted incorrectly.
+   * @throws BadCoordsException if the location is not valid or formatted incorrectly.
    */
-  Point getLocation(String location) throws BadCoords;
+  Point getLocation(String location) throws BadCoordsException;
 
   /**
    * @return the range between two points, in some unit appropriate
@@ -95,7 +95,23 @@ public interface MapGrid {
 
   GridNumbering getGridNumbering();
 
-  final class BadCoords extends Exception {
+  class BadCoordsException extends Exception {
+    private static final long serialVersionUID = 1L;
+
+    public BadCoordsException() {
+      super();
+    }
+
+    public BadCoordsException(String s) {
+      super(s);
+    }
+  }
+
+  /**
+   * @deprecated Use {@link BadCoordsException}.
+   */
+  @Deprecated(since = "3.8", forRemoval = true)
+  final class BadCoords extends BadCoordsException {
     private static final long serialVersionUID = 1L;
 
     public BadCoords() {

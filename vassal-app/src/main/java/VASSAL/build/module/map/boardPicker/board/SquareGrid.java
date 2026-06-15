@@ -362,9 +362,9 @@ public class SquareGrid extends AbstractConfigurable implements GeometricGrid, G
   }
 
   @Override
-  public Point getLocation(String location) throws BadCoords {
+  public Point getLocation(String location) throws BadCoordsException {
     if (gridNumbering == null) {
-      throw new BadCoords();
+      throw new BadCoordsException();
     }
     return gridNumbering.getLocation(location);
   }
