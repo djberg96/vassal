@@ -20,6 +20,7 @@ import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Vector;
 import java.util.concurrent.ExecutionException;
 
@@ -73,7 +74,8 @@ public abstract class DieServer implements Auditable {
   public abstract void roll(RollSet mr, FormattedString format);
 
   public DieServer() {
-    ran = GameModule.getGameModule().getRNG();
+    final GameModule module = GameModule.getGameModule();
+    ran = module == null ? new Random() : module.getRNG();
   }
 
   /*
@@ -147,33 +149,42 @@ public abstract class DieServer implements Auditable {
    * Internet Servers will call this routine to do their dirty work.
    */
   public void doInternetRoll(final RollSet mroll, final FormattedString format) {
-    // FIXME: refactor so that doInBackground can return something useful
-    new SwingWorker<Void, Void>() {
+    new SwingWorker<RollSet, Void>() {
       @Override
-      public Void doInBackground() throws Exception {
-        doIRoll(mroll);
-        return null;
+      public RollSet doInBackground() throws Exception {
+        return rollInBackground(mroll);
       }
 
       @Override
       protected void done() {
         try {
-          get();
-          reportResult(mroll, format);
+          reportResult(get(), format);
         }
         catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
           ErrorDialog.bug(e);
         }
-        // FIXME: review error message
         catch (ExecutionException e) {
           logger.error("", e);
-
-          final String s = "- Internet dice roll attempt " + //NON-NLS
-                           mroll.getDescription() + " failed."; //NON-NLS
-          GameModule.getGameModule().getChatter().send(s);
+          GameModule.getGameModule().getChatter().send(internetRollFailureMessage(mroll, e.getCause()));
         }
       }
     }.execute();
+  }
+
+  protected RollSet rollInBackground(RollSet rollSet) throws IOException {
+    return doIRoll(rollSet);
+  }
+
+  static String internetRollFailureMessage(RollSet rollSet, Throwable cause) {
+    final StringBuilder message = new StringBuilder("- Internet dice roll attempt "); //NON-NLS
+    message.append(rollSet.getDescription()).append(" failed"); //NON-NLS
+
+    if (cause != null && cause.getMessage() != null && !cause.getMessage().isBlank()) {
+      message.append(": ").append(cause.getMessage()); //NON-NLS
+    }
+
+    return message.append('.').toString();
   }
 
   /**
@@ -219,7 +230,7 @@ public abstract class DieServer implements Auditable {
     }
   }
 
-  public void doIRoll(RollSet toss) throws IOException {
+  public RollSet doIRoll(RollSet toss) throws IOException {
     final String[] rollString = buildInternetRollString(toss);
     final List<String> returnString = new ArrayList<>();
     //            rollString[0] =
@@ -249,6 +260,7 @@ public abstract class DieServer implements Auditable {
     }
 
     parseInternetRollString(toss, new Vector<>(returnString));
+    return toss;
   }
 
   /*

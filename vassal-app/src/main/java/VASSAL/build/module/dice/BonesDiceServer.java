@@ -103,7 +103,7 @@ public class BonesDiceServer extends DieServer {
   }
 
   @Override
-  public void doIRoll(RollSet toss) throws IOException {
+  public RollSet doIRoll(RollSet toss) throws IOException {
     final String[] rollString = buildInternetRollString(toss);
     final Vector<String> returnString = new Vector<>(); // NOPMD
 
@@ -122,5 +122,6 @@ public class BonesDiceServer extends DieServer {
     }
 
     parseInternetRollString(toss, returnString);
+    return toss;
   }
 }
