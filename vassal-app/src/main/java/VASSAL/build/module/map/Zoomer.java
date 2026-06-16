@@ -831,12 +831,14 @@ public class Zoomer extends AbstractConfigurable implements GameComponent {
       }
     }
     else {
-      // FIXME: does having this as an extremal case cause weird behavior for
-      // unrecognized keys?
-      zoomInButton.setAttribute(key, val);
-      zoomPickButton.setAttribute(key, val);
-      zoomOutButton.setAttribute(key, val);
+      setToolbarButtonAttribute(key, val);
     }
+  }
+
+  private void setToolbarButtonAttribute(String key, Object val) {
+    zoomInButton.setAttribute(key, val);
+    zoomPickButton.setAttribute(key, val);
+    zoomOutButton.setAttribute(key, val);
   }
 
   // begin deprecated keys
@@ -899,6 +901,38 @@ public class Zoomer extends AbstractConfigurable implements GameComponent {
 
     map.centerAt(center);
     map.repaint(true);
+  }
+
+  private Dimension getVisibleMapAreaSize() {
+    return map.getView().getVisibleRect().getSize();
+  }
+
+  private Dimension getUnscaledMapSize() {
+    return map.mapSize();
+  }
+
+  private double getFitWidthZoomFactor() {
+    return getVisibleMapAreaSize().getWidth() / getUnscaledMapSize().getWidth();
+  }
+
+  private double getFitHeightZoomFactor() {
+    return getVisibleMapAreaSize().getHeight() / getUnscaledMapSize().getHeight();
+  }
+
+  private double getFitVisibleZoomFactor() {
+    final Dimension visibleSize = getVisibleMapAreaSize();
+    final Dimension mapSize = getUnscaledMapSize();
+    return Math.min(visibleSize.getWidth() / mapSize.getWidth(),
+                    visibleSize.getHeight() / mapSize.getHeight());
+  }
+
+  private void fitMapToHeight() {
+    setZoomFactor(getFitHeightZoomFactor());
+
+    // Changing the zoom can change scrollbar visibility, which in turn changes
+    // the visible height. A second bounded pass preserves the long-standing
+    // correction for issue #13635 without hiding it in the menu action.
+    setZoomFactor(getFitHeightZoomFactor());
   }
 
   public void setZoomLevel(int l) {
@@ -1038,27 +1072,14 @@ public class Zoomer extends AbstractConfigurable implements GameComponent {
           setZoomFactor(z);
         }
       }
-      // FIXME: should be map.getSize() for consistency?
       else if (FIT_WIDTH.equals(cmd)) {
-        final Dimension vd = map.getView().getVisibleRect().getSize();
-        final Dimension md = map.mapSize();
-        setZoomFactor(vd.getWidth() / md.getWidth());
+        setZoomFactor(getFitWidthZoomFactor());
       }
       else if (FIT_HEIGHT.equals(cmd)) {
-        // A single pass (see WIDTH above) results in a poor fit for HEIGHT (issue #13635)
-        // Repeating the sequence corrects the issue. FIXME: This is a workaround
-        Dimension vd = map.getView().getVisibleRect().getSize();
-        Dimension md = map.mapSize();
-        setZoomFactor(vd.getHeight() / md.getHeight());
-        vd = map.getView().getVisibleRect().getSize();
-        md = map.mapSize();
-        setZoomFactor(vd.getHeight() / md.getHeight());
+        fitMapToHeight();
       }
       else if (FIT_VISIBLE.equals(cmd)) {
-        final Dimension vd = map.getView().getVisibleRect().getSize();
-        final Dimension md = map.mapSize();
-        setZoomFactor(Math.min(vd.getWidth() / md.getWidth(),
-                               vd.getHeight() / md.getHeight()));
+        setZoomFactor(getFitVisibleZoomFactor());
       }
       else {
         // this should not happen!
