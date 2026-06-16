@@ -3,7 +3,7 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: tools/regenerate-beanshell-parser.sh [--output DIR] [--full-diff]
+Usage: tools/regenerate-beanshell-parser.sh [--output DIR] [--full-diff] [--include-support]
 
 Regenerates the vendored BeanShell JJTree/JavaCC parser into a temporary
 directory and compares it with the checked-in source tree. This command does
@@ -13,6 +13,10 @@ Options:
   --output DIR  Regeneration directory. Defaults to
                 /private/tmp/vassal-beanshell-parser-gen
   --full-diff   Also write a full git-style diff next to the summary.
+  --include-support
+                Keep JavaCC-regenerated support classes in the output. By
+                default, BeanShell-customized support classes are restored
+                after generation so the audit focuses on parser artifacts.
 EOF
 }
 
@@ -20,6 +24,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SOURCE_DIR="$ROOT_DIR/vassal-app/src/main/java/bsh"
 OUTPUT_DIR="/private/tmp/vassal-beanshell-parser-gen"
 FULL_DIFF=false
+INCLUDE_SUPPORT=false
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -33,6 +38,10 @@ while [[ $# -gt 0 ]]; do
       ;;
     --full-diff)
       FULL_DIFF=true
+      shift
+      ;;
+    --include-support)
+      INCLUDE_SUPPORT=true
       shift
       ;;
     -h|--help)
@@ -51,18 +60,23 @@ JAVACC_VERSION="${JAVACC_VERSION:-7.0.13}"
 MAVEN="${MAVEN:-$ROOT_DIR/mvnw}"
 JAVACC_JAR="${JAVACC_JAR:-$HOME/.m2/repository/net/java/dev/javacc/javacc/$JAVACC_VERSION/javacc-$JAVACC_VERSION.jar}"
 
-GENERATED_FILES=(
+PARSER_FILES=(
   bsh.jj
-  JavaCharStream.java
-  JJTParserState.java
-  ParseException.java
   Parser.java
   ParserConstants.java
   ParserTokenManager.java
   ParserTreeConstants.java
+)
+
+BEANSHELL_SUPPORT_FILES=(
+  JavaCharStream.java
+  JJTParserState.java
+  ParseException.java
   Token.java
   TokenMgrError.java
 )
+
+GENERATED_FILES=("${PARSER_FILES[@]}" "${BEANSHELL_SUPPORT_FILES[@]}")
 
 if [[ ! -d "$SOURCE_DIR" ]]; then
   echo "BeanShell source directory not found: $SOURCE_DIR" >&2
@@ -107,6 +121,21 @@ java -cp "$JAVACC_JAR" org.javacc.jjtree.Main \
 java -cp "$JAVACC_JAR" org.javacc.parser.Main \
   -OUTPUT_DIRECTORY="$OUTPUT_DIR" \
   "$OUTPUT_DIR/bsh.jj"
+
+if [[ "$INCLUDE_SUPPORT" == false ]]; then
+  for file in "${BEANSHELL_SUPPORT_FILES[@]}"; do
+    cp "$SOURCE_DIR/$file" "$OUTPUT_DIR/$file"
+  done
+fi
+
+perl -0pi -e 's@(/\*\* Constructor\. \*/\n\s*)public ParserTokenManager \(JavaCharStream stream, int lexState\)\{@${1}\x40SuppressWarnings("this-escape")\n  public ParserTokenManager (JavaCharStream stream, int lexState){@' \
+  "$OUTPUT_DIR/ParserTokenManager.java"
+
+perl -pi -e 'while (s/^(\t*) +\t/$1\t/) {}' "$OUTPUT_DIR/bsh.jj"
+
+for file in "${PARSER_FILES[@]}"; do
+  perl -pi -e 's/[ \t]+$//' "$OUTPUT_DIR/$file"
+done
 
 SUMMARY="$OUTPUT_DIR.diff-summary.txt"
 FULL="$OUTPUT_DIR.diff"

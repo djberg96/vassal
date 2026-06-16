@@ -115,6 +115,14 @@ public class ParseException extends EvalError {
     specialConstructor = false;
   }
 
+  public ParseException(String message, Throwable cause) {
+	// Begin BeanShell Modification - super constructor args with cause
+	// null node, null callstack, ParseException knows where the error is.
+	super( message, null, null, cause );
+	// End BeanShell Modification - super constructor args with cause
+    specialConstructor = false;
+  }
+
   /**
    * This variable determines which constructor was used to create
    * this object and thereby affects the semantics of the

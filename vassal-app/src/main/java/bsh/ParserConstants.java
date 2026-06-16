@@ -191,11 +191,11 @@ public interface ParserConstants {
   /** RegularExpression Id. */
   int GEX = 95;
   /** RegularExpression Id. */
-  int NE = 96;
+  int MATCH = 96;
   /** RegularExpression Id. */
-  int MATCH = 97;
+  int NMATCH = 97;
   /** RegularExpression Id. */
-  int NMATCH = 98;
+  int NE = 98;
   /** RegularExpression Id. */
   int BOOL_OR = 99;
   /** RegularExpression Id. */
@@ -374,9 +374,9 @@ public interface ParserConstants {
     "\"@lteq\"",
     "\">=\"",
     "\"@gteq\"",
-    "\"!=\"",
     "\"=~\"",
     "\"!~\"",
+    "\"!=\"",
     "\"||\"",
     "\"@or\"",
     "\"&&\"",
