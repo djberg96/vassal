@@ -105,6 +105,13 @@ version-set:
 test:
 	$(MVN) test
 
+.PHONY: beanshell-parser-audit beanshell-parser-audit-full
+beanshell-parser-audit:
+	tools/regenerate-beanshell-parser.sh
+
+beanshell-parser-audit-full:
+	tools/regenerate-beanshell-parser.sh --full-diff
+
 $(TMPDIR) $(JDOCDIR):
 	mkdir -p $@
 
