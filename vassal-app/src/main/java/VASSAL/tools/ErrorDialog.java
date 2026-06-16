@@ -59,8 +59,6 @@ public class ErrorDialog {
     BUG_HANDLERS.add(bh);
   }
 
-// FIXME: make method which takes Throwable but doesn't use it for details
-
   public static void bug(final Throwable thrown) {
     // determine whether an OutOfMemoryError is in our causal chain
     final OutOfMemoryError oom =
