@@ -120,17 +120,12 @@ public final class ImageSaver extends AbstractToolbarItem {
 
     final File file = fc.getSelectedFile();
 
-    dialog = new ProgressDialog(frame, Resources.getString("Editor.ImageSaver.saving_map_image_title"),
-                                       Resources.getString("Editor.ImageSaver.saving_map_image_text"));
-
-    // force the dialog to be a reasonable width
-    // FIXME: this is not really a good way to do this---should do
-    // something with the minimum size or font metrics
-    final int l = Resources.getString("Editor.ImageSaver.saving_map_image_as").length() + file.getName().length() + 7;
-    dialog.setLabel("N".repeat(Math.max(0, l))); //NON-NLS
-
+    dialog = new ProgressDialog(
+      frame,
+      Resources.getString("Editor.ImageSaver.saving_map_image_title"),
+      savingMapImageAs(file)
+    );
     SwingUtils.repack(dialog);
-    dialog.setLabel(Resources.getString("Editor.ImageSaver.saving_map_image_as") + " ");
 
     dialog.setIndeterminate(true);
     dialog.setLocationRelativeTo(frame);
@@ -193,14 +188,17 @@ public final class ImageSaver extends AbstractToolbarItem {
     task.execute();
   }
 
+  private static String savingMapImageAs(File file) {
+    return Resources.getString("Editor.ImageSaver.saving_map_image_as") +
+      " " + file.getName() + ":"; //NON-NLS
+  }
+
   private class SnapshotTask extends SwingWorker<Void, Void> {
     private int tiles;
     private int tilesDone = 0;
 
     private final File file;
-    @SuppressWarnings("unused")
     private final int x;
-    @SuppressWarnings("unused")
     private final int y;
     private final int w;
     private final int h;
@@ -210,7 +208,6 @@ public final class ImageSaver extends AbstractToolbarItem {
 
     private final List<File> files = new ArrayList<>();
 
-// FIXME: SnapshotTask ignores x,y!
     public SnapshotTask(File file, int x, int y, int w, int h) {
       this.file = file;
       this.x = x;
@@ -240,11 +237,12 @@ public final class ImageSaver extends AbstractToolbarItem {
 
       // update the dialog on the EDT
       SwingUtilities.invokeLater(() -> {
-        dialog.setLabel(Resources.getString("Editor.ImageSaver.saving_map_image_as") + " " + f.getName() + ":");
+        dialog.setLabel(savingMapImageAs(f));
         dialog.setIndeterminate(true);
       });
 
-      // FIXME: do something to estimate how long painting will take
+      // Map painting does not report incremental progress, so show an
+      // indeterminate progress bar until ImageIO begins writing the PNG.
       final Graphics2D g = img.createGraphics();
 
       final Color oc = g.getColor();
@@ -338,7 +336,7 @@ public final class ImageSaver extends AbstractToolbarItem {
       if (tw == w && th == h) {
         // write the whole map as one image
         tiles = 1;
-        writeImage(file, img, new Rectangle(0, 0, w, h));
+        writeImage(file, img, new Rectangle(x, y, w, h));
       }
       else {
         // get the base name of the files to write
@@ -367,8 +365,8 @@ public final class ImageSaver extends AbstractToolbarItem {
               base + "." + tx + "." + ty + suffix);
 
             final Rectangle r = new Rectangle(
-              tw * tx,
-              th * ty,
+              x + tw * tx,
+              y + th * ty,
               Math.min(tw, w - tw * tx),
               Math.min(th, h - th * ty)
             );

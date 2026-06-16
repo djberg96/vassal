@@ -45,9 +45,7 @@ public class ImageUtils {
   private ImageUtils() {
   }
 
-  // FIXME: We should fix this, eventually.
-  // negative, because historically we've done it this way
-  private static final double DEGTORAD = -Math.PI / 180.0;
+  private static final double HISTORICAL_DEGREES_TO_RADIANS = -Math.PI / 180.0;
 
   private static final GeneralFilter.Filter upscale =
     new GeneralFilter.MitchellFilter();
@@ -56,7 +54,7 @@ public class ImageUtils {
 
   private static final Map<RenderingHints.Key, Object> defaultHints = Map.of(
     RenderingHints.KEY_INTERPOLATION,
-    RenderingHints.VALUE_INTERPOLATION_BILINEAR,
+    RenderingHints.VALUE_INTERPOLATION_BICUBIC,
     RenderingHints.KEY_ANTIALIASING,
     RenderingHints.VALUE_ANTIALIAS_ON
   );
@@ -69,7 +67,11 @@ public class ImageUtils {
   public static Rectangle transform(Rectangle srect,
                                     double scale,
                                     double angle) {
-    final AffineTransform t = AffineTransform.getRotateInstance(DEGTORAD * angle, srect.getCenterX(), srect.getCenterY());
+    final AffineTransform t = AffineTransform.getRotateInstance(
+      HISTORICAL_DEGREES_TO_RADIANS * angle,
+      srect.getCenterX(),
+      srect.getCenterY()
+    );
     t.scale(scale, scale);
     return t.createTransformedShape(srect).getBounds();
   }
@@ -102,76 +104,15 @@ public class ImageUtils {
     if (hints == null) hints = getDefaultHints();
 
     if (scale == 1.0 && angle % 90.0 == 0.0) {
-      // this is an unscaled quadrant rotation, we can do this simply
-      hints.put(RenderingHints.KEY_INTERPOLATION,
-                RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-      hints.put(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_OFF);
-
-      final Rectangle ubox = getBounds(src);
-      final Rectangle tbox = transform(ubox, scale, angle);
-
-      // keep opaque destination for orthogonal rotation of an opaque source
-      final BufferedImage trans = createCompatibleImage(
-        tbox.width,
-        tbox.height,
-        src.getTransparency() != BufferedImage.OPAQUE
-      );
-
-      final AffineTransform t = new AffineTransform();
-      t.translate(-tbox.x, -tbox.y);
-      t.rotate(DEGTORAD * angle, ubox.getCenterX(), ubox.getCenterY());
-      t.scale(scale, scale);
-      t.translate(ubox.x, ubox.y);
-
-      final Graphics2D g = trans.createGraphics();
-      g.setRenderingHints(hints);
-      g.drawImage(src, t, null);
-      g.dispose();
-      return trans;
+      return rotateOrthogonally(src, angle, hints);
     }
     else {
       if (angle != 0.0) {
-        final Rectangle ubox = getBounds(src);
-// FIXME: this duplicates the standard scaling case
-// FIXME: check whether AffineTransformOp is faster
-
-        final Rectangle rbox = transform(ubox, 1.0, angle);
-
-        // keep opaque destination for orthogonal rotation of an opaque source
-        final BufferedImage rot = createCompatibleImage(
-          rbox.width,
-          rbox.height,
-          src.getTransparency() != BufferedImage.OPAQUE || angle % 90.0 != 0.0
-        );
-
-// FIXME: rotation via bilinear interpolation probably decreases quality
-        final AffineTransform tx = new AffineTransform();
-        tx.translate(-rbox.x, -rbox.y);
-        tx.rotate(DEGTORAD * angle, ubox.getCenterX(), ubox.getCenterY());
-        tx.translate(ubox.x, ubox.y);
-
-        final Graphics2D g = rot.createGraphics();
-        g.setRenderingHints(hints);
-        g.drawImage(src, tx, null);
-        g.dispose();
-        src = rot;
+        src = rotate(src, angle, hints);
       }
 
       if (scale != 1.0) {
-        src = coerceToIntType(src);
-
-        final Rectangle sbox = transform(getBounds(src), scale, 0.0);
-
-        // return null image if scaling makes source vanish
-        if (sbox.width == 0 || sbox.height == 0) {
-          return NULL_IMAGE;
-        }
-
-        final BufferedImage dst =
-          GeneralFilter.zoom(sbox, src, scale > 1.0 ? upscale : downscale);
-
-        return toCompatibleImage(dst);
+        return scale(src, scale);
       }
       else {
         return src;
@@ -202,6 +143,87 @@ public class ImageUtils {
     final Rectangle sbox = new Rectangle(0, 0, sw, sh);
 
     final BufferedImage dst = GeneralFilter.zoom(sbox, src, sw > src.getWidth() ? upscale : downscale);
+
+    return toCompatibleImage(dst);
+  }
+
+  private static BufferedImage rotateOrthogonally(BufferedImage src,
+                                                  double angle,
+                                                  RenderingHints hints) {
+    final Rectangle ubox = getBounds(src);
+    final Rectangle tbox = transform(ubox, 1.0, angle);
+
+    final BufferedImage trans = createCompatibleImage(
+      tbox.width,
+      tbox.height,
+      src.getTransparency() != BufferedImage.OPAQUE
+    );
+
+    final AffineTransform t = new AffineTransform();
+    t.translate(-tbox.x, -tbox.y);
+    t.rotate(
+      HISTORICAL_DEGREES_TO_RADIANS * angle,
+      ubox.getCenterX(),
+      ubox.getCenterY()
+    );
+    t.translate(ubox.x, ubox.y);
+
+    final RenderingHints rotationHints = (RenderingHints) hints.clone();
+    rotationHints.put(
+      RenderingHints.KEY_INTERPOLATION,
+      RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR
+    );
+    rotationHints.put(
+      RenderingHints.KEY_ANTIALIASING,
+      RenderingHints.VALUE_ANTIALIAS_OFF
+    );
+
+    final Graphics2D g = trans.createGraphics();
+    g.setRenderingHints(rotationHints);
+    g.drawImage(src, t, null);
+    g.dispose();
+    return trans;
+  }
+
+  private static BufferedImage rotate(BufferedImage src,
+                                      double angle,
+                                      RenderingHints hints) {
+    final Rectangle ubox = getBounds(src);
+    final Rectangle rbox = transform(ubox, 1.0, angle);
+
+    final BufferedImage rot = createCompatibleImage(
+      rbox.width,
+      rbox.height,
+      src.getTransparency() != BufferedImage.OPAQUE || angle % 90.0 != 0.0
+    );
+
+    final AffineTransform tx = new AffineTransform();
+    tx.translate(-rbox.x, -rbox.y);
+    tx.rotate(
+      HISTORICAL_DEGREES_TO_RADIANS * angle,
+      ubox.getCenterX(),
+      ubox.getCenterY()
+    );
+    tx.translate(ubox.x, ubox.y);
+
+    final Graphics2D g = rot.createGraphics();
+    g.setRenderingHints(hints);
+    g.drawImage(src, tx, null);
+    g.dispose();
+    return rot;
+  }
+
+  private static BufferedImage scale(BufferedImage src, double scale) {
+    src = coerceToIntType(src);
+
+    final Rectangle sbox = transform(getBounds(src), scale, 0.0);
+
+    if (sbox.width == 0 || sbox.height == 0) {
+      return NULL_IMAGE;
+    }
+
+    final BufferedImage dst =
+      GeneralFilter.zoom(sbox, src, scale > 1.0 ? upscale : downscale);
 
     return toCompatibleImage(dst);
   }
