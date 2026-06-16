@@ -190,7 +190,6 @@ public class Parser
 	{
 		Token errortok = token;
 		int line = errortok.beginLine, column = errortok.beginColumn;
-		String mess = (errortok.kind == 0) ? tokenImage[0] : errortok.image;
 		return new ParseException( "Parse error at line " + line 
 			+ ", column " + column + " : " + message, e );
 	}
@@ -833,7 +832,7 @@ void AndExpression() :
 void EqualityExpression() :
 { Token t = null; }
 {
-  InstanceOfExpression() ( ( t= "==" | t= "!=" ) InstanceOfExpression()
+  InstanceOfExpression() ( ( t= "==" | t= "!=" | t= "=~" | t= "!~" ) InstanceOfExpression()
     { jjtThis.kind = t.kind; } #BinaryExpression(2)
   )*
 }
@@ -1341,7 +1340,7 @@ void DoStatement() #WhileStatement :
 }
 
 void ForStatement() #ForStatement :
-{ Token t = null; }
+{}
 {
   "for" "(" [ ForInit() { jjtThis.hasForInit=true; } ]
     ";" [ Expression() { jjtThis.hasExpression=true; } ]
@@ -1367,7 +1366,7 @@ void EnhancedForStatement() #EnhancedForStatement :
 }
 
 void ForInit() :
-{ Token t = null; }
+{}
 {
 // SYNTACTIC_LOOKAHEAD
   LOOKAHEAD( Modifiers( Modifiers.FIELD, true ) Type() <IDENTIFIER> )
@@ -1383,7 +1382,6 @@ void ForInit() :
 */
 void TypedVariableDeclaration() #TypedVariableDeclaration :
 { 
-	Token t = null; 
 	Modifiers mods;
 }
 {
