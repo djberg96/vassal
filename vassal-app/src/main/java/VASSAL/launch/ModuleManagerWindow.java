@@ -104,8 +104,6 @@ import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -148,6 +146,23 @@ public final class ModuleManagerWindow extends JFrame {
   private static final int SAVED_COLUMN = 4;
   private static final String[] columnHeadings = new String[COLUMNS];
   private static final TableColumn[] columns = new TableColumn[COLUMNS];
+
+  private static Color lafColor(String key, Color fallback) {
+    final Color color = UIManager.getColor(key);
+    return color == null ? fallback : color;
+  }
+
+  private static Color treeForeground() {
+    return lafColor("Tree.foreground", Color.BLACK); //NON-NLS
+  }
+
+  private static Color disabledTreeForeground() {
+    return lafColor("Label.disabledForeground", Color.GRAY); //NON-NLS
+  }
+
+  private static Color errorTreeForeground() {
+    return lafColor("TextField.errorForeground", Color.RED); //NON-NLS
+  }
 
   private final ImageIcon moduleIcon;
   private final ImageIcon activeExtensionIcon;
@@ -412,13 +427,9 @@ public final class ModuleManagerWindow extends JFrame {
 
     l.addHyperlinkListener(BrowserSupport.getListener());
 
-// FIXME: use MigLayout for this!
     // this is necessary to get proper vertical alignment
-    final JPanel p = new JPanel(new GridBagLayout());
-    final GridBagConstraints c = new GridBagConstraints();
-    c.fill = GridBagConstraints.HORIZONTAL;
-    c.anchor = GridBagConstraints.CENTER;
-    p.add(l, c);
+    final JPanel p = new JPanel(new MigLayout("fill, insets 0", "[grow]", "[grow]")); //NON-NLS
+    p.add(l, "growx, aligny center"); //NON-NLS
 
     moduleView.add(p, "quickStart"); //NON-NLS
     modulePanelLayout.show(
@@ -1137,10 +1148,9 @@ public final class ModuleManagerWindow extends JFrame {
       });
     }
 
-// FIXME: Where's the rest of the comment???
     /**
-     * There appears to be a bug/strange interaction between JXTreetable and the ComponentSplitter
-     * when the Component
+     * Avoid tooltip lookup when JXTreeTable reports the mouse over empty
+     * space rather than one of its rendered child components.
      */
     @Override
     public String getToolTipText(MouseEvent event) {
@@ -1443,7 +1453,7 @@ public final class ModuleManagerWindow extends JFrame {
      *  @return cell text color
      */
     public Color getTreeCellFgColor() {
-      return Color.black;
+      return treeForeground();
     }
 
     /**
@@ -1877,7 +1887,7 @@ public final class ModuleManagerWindow extends JFrame {
 
     @Override
     public Color getTreeCellFgColor() {
-      return !isLaunchable() ? Color.GRAY : Color.BLACK;
+      return !isLaunchable() ? disabledTreeForeground() : treeForeground();
     }
   }
 
@@ -1989,13 +1999,11 @@ public final class ModuleManagerWindow extends JFrame {
 
     @Override
     public Color getTreeCellFgColor() {
-      // FIXME: should get colors from LAF
-      if (isActive()) {
-        return metadata == null || !moduleInfo.isValid() ? Color.red : Color.black;
+      if (metadata == null || !moduleInfo.isValid()) {
+        return errorTreeForeground();
       }
-      else {
-        return metadata == null || !moduleInfo.isValid() ? Color.pink : Color.gray;
-      }
+
+      return isActive() ? treeForeground() : disabledTreeForeground();
     }
 
     @Override
@@ -2230,8 +2238,8 @@ public final class ModuleManagerWindow extends JFrame {
 
     @Override
     public Color getTreeCellFgColor() {
-      // FIXME: should get colors from LAF
-      return belongsToModule() && folderInfo.getModuleInfo().isValid() ? Color.black : Color.gray;
+      return belongsToModule() && folderInfo.getModuleInfo().isValid() ?
+        treeForeground() : disabledTreeForeground();
     }
 
     @Override
@@ -2351,15 +2359,13 @@ public final class ModuleManagerWindow extends JFrame {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-// FIXME: don't create a new one each time!
+      // Each dialog owns its LogPane and Tailer. Disposing the dialog removes
+      // the pane from the component hierarchy, which stops tailing the log.
       final File logfile = Info.getErrorLogPath();
       final LogPane lp = new LogPane(logfile);
 
-// FIXME: this should have its own key. Probably keys should be renamed
-// to reflect what they are labeling, e.g., Help.show_error_log_menu_item,
-// Help.error_log_dialog_title.
       final JDialog d =
-        new JDialog(frame, Resources.getString("Help.error_log"));
+        new JDialog(frame, Resources.getString("Errorlog.dialog_title"));
       d.setLayout(new MigLayout("insets 0")); //NON-NLS
       d.add(new JScrollPane(lp), "grow, push, w 500, h 600"); //NON-NLS
 
