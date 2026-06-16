@@ -82,15 +82,35 @@ public abstract class AbstractOpImpl
     try {
       return getImage(null);
     }
-    catch (CancellationException | InterruptedException e) {
-      // FIXME: bug until we permit cancellation
-      ErrorDialog.bug(e);
+    catch (CancellationException e) {
+      return null;
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
     }
     catch (ExecutionException e) {
-      if (!Op.handleException(e)) ErrorDialog.bug(e);
+      if (hasCause(e, CancellationException.class)) {
+        return null;
+      }
+      else if (hasCause(e, InterruptedException.class)) {
+        Thread.currentThread().interrupt();
+      }
+      else if (!Op.handleException(e)) {
+        ErrorDialog.bug(e);
+      }
     }
 
     return null;
+  }
+
+  private static boolean hasCause(Throwable t, Class<? extends Throwable> type) {
+    for (Throwable cause = t; cause != null; cause = cause.getCause()) {
+      if (type.isInstance(cause)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   /** {@inheritDoc} */
