@@ -123,6 +123,12 @@ public class WizardSupport {
   protected List<PredefinedSetup> setups = new ArrayList<>();
   protected Tutorial tutorial;
 
+  private static String problemWithReason(String baseKey, IOException e) {
+    final String detail = e.getLocalizedMessage();
+    final String message = Resources.getString(baseKey);
+    return detail == null || detail.isBlank() ? message : message + ": " + detail;
+  }
+
   /**
    * Add a {@link PredefinedSetup} to the wizard page for starting a new game offline.
    *
@@ -452,13 +458,9 @@ public class WizardSupport {
               p.save();
               controller.setProblem(null);
             }
-            // FIXME: review error message
             catch (IOException e) {
-              String msg = e.getMessage();
-              if (msg == null) {
-                msg = Resources.getString("Prefs.unable_to_save");
-              }
-              controller.setProblem(msg);
+              logger.error("Unable to save wizard player preferences", e);
+              controller.setProblem(problemWithReason("Prefs.unable_to_save", e));
             }
           }
         };
@@ -676,7 +678,6 @@ public class WizardSupport {
   public static class SavedGameLoader extends Thread {
     private final WizardController controller;
     private final Map<String, Object> settings;
-    // FIXME: this is a bad design---when can we safely close this stream?!
     private final InputStream in;
     private final String wizardKey;
     private final File file;
@@ -728,42 +729,44 @@ public class WizardSupport {
         settings.put(wizardKey, panels);
         controller.setForwardNavigationMode(panels == null ? WizardController.MODE_CAN_FINISH : WizardController.MODE_CAN_CONTINUE);
       }
-      // FIXME: review error message
       catch (IOException e) {
-        controller.setProblem(Resources.getString("WizardSupport.UnableToLoad")); //$NON-NLS-1$
+        logger.error("Unable to load saved game from wizard", e);
+        controller.setProblem(problemWithReason("WizardSupport.UnableToLoad", e)); //$NON-NLS-1$
       }
     }
 
     protected Command loadSavedGame() throws IOException {
-      final Command decodedCommand =
-        GameModule.getGameModule().getGameState().decodeSavedGame(in);
-      if (decodedCommand == null) {
-        throw new IOException(Resources.getString("WizardSupport.InvalidSavefile")); //$NON-NLS-1$
-      }
+      try (InputStream savedGameStream = in) {
+        final Command decodedCommand =
+          GameModule.getGameModule().getGameState().decodeSavedGame(savedGameStream);
+        if (decodedCommand == null) {
+          throw new IOException(Resources.getString("WizardSupport.InvalidSavefile")); //$NON-NLS-1$
+        }
 
-      Command setupCommand = decodedCommand;
-      try {
-        // Strip out the setup(true) command. This will be applied when the "Finish" button is pressed
-        final Command filteredCommand = Objects.requireNonNull(new CommandFilter() {
-          @Override
-          protected boolean accept(Command c) {
-            return !(c instanceof GameState.SetupCommand) ||
-              !((GameState.SetupCommand) c).isGameStarting();
+        Command setupCommand = decodedCommand;
+        try {
+          // Strip out the setup(true) command. This will be applied when the "Finish" button is pressed
+          final Command filteredCommand = Objects.requireNonNull(new CommandFilter() {
+            @Override
+            protected boolean accept(Command c) {
+              return !(c instanceof GameState.SetupCommand) ||
+                !((GameState.SetupCommand) c).isGameStarting();
+            }
+          }.apply(setupCommand));
+          setupCommand = filteredCommand;
+        }
+        catch (IllegalStateException e) {
+          final String msg = e.getMessage();
+          if (msg != null && msg.startsWith(Resources.getString("Decorator.no_state_for_trait"))) { //BR//
+            WarningDialog.show("GameState.probably_wrong_version"); //NON-NLS
           }
-        }.apply(setupCommand));
-        setupCommand = filteredCommand;
-      }
-      catch (IllegalStateException e) {
-        final String msg = e.getMessage();
-        if (msg != null && msg.startsWith(Resources.getString("Decorator.no_state_for_trait"))) { //BR//
-          WarningDialog.show("GameState.probably_wrong_version"); //NON-NLS
+          else {
+            throw e;
+          }
         }
-        else {
-          throw e;
-        }
-      }
 
-      return setupCommand;
+        return setupCommand;
+      }
     }
   }
 
@@ -823,9 +826,9 @@ public class WizardSupport {
                   @Override
                   public void run() {
                     final GameModule g = GameModule.getGameModule();
-                    // FIXME: The following default save/load attempt does not work (on MacOS at least the default is left "unknown"; please confirm for other platforms before fixing).
-                    g.getFileChooser().setSelectedFile(f); //BR// When loading a saved game from Wizard, put it appropriately into the "default" for the next save/load/etc.
-                    g.setGameFile(f.getName(), GameModule.GameFileMode.LOADED_GAME); //BR// ... aaaand put it in the app window description.
+                    // Keep later save/load dialogs and the app window title in sync with the wizard selection.
+                    g.getFileChooser().setSelectedFile(f);
+                    g.setGameFile(f.getName(), GameModule.GameFileMode.LOADED_GAME);
                     super.run(); // NOPMD
 
                     g.getGameState().setLastSaveFile(
@@ -836,9 +839,9 @@ public class WizardSupport {
                   }
                 }.start();
               }
-              // FIXME: review error message
               catch (IOException e) {
-                controller.setProblem(Resources.getString("WizardSupport.UnableToLoad")); //$NON-NLS-1$
+                logger.error("Unable to open saved game selected in wizard: {}", f, e);
+                controller.setProblem(problemWithReason("WizardSupport.UnableToLoad", e)); //$NON-NLS-1$
               }
             }
           }
