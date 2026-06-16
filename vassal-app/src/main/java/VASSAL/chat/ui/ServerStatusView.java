@@ -21,7 +21,9 @@ import VASSAL.chat.Player;
 import VASSAL.chat.ServerStatus;
 import VASSAL.chat.SimpleRoom;
 import VASSAL.i18n.Resources;
-import VASSAL.tools.ErrorDialog;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -55,6 +57,8 @@ import java.util.concurrent.ExecutionException;
  */
 public final class ServerStatusView extends JTabbedPane implements ChangeListener, TreeSelectionListener {
   private static final long serialVersionUID = 1L;
+  private static final Logger logger =
+    LoggerFactory.getLogger(ServerStatusView.class);
 
   public static final String SELECTION_PROPERTY = "ServerStatusView.selection"; //$NON-NLS-1$
   private transient ServerStatus status;
@@ -189,11 +193,10 @@ public final class ServerStatusView extends JTabbedPane implements ChangeListene
             }
           }
           catch (InterruptedException ex) {
-            ErrorDialog.bug(ex);
+            Thread.currentThread().interrupt();
           }
-          // FIXME: review error message
           catch (ExecutionException ex) {
-            ex.printStackTrace();
+            logger.warn("Failed to refresh current server status", ex);
           }
 
           if (hist_request == null || hist_request.isDone())
@@ -224,9 +227,13 @@ public final class ServerStatusView extends JTabbedPane implements ChangeListene
             try {
               refresh(historicalModels[sel - 1], get());
             }
-            // FIXME: review error message
             catch (InterruptedException | ExecutionException ex) {
-              ex.printStackTrace();
+              if (ex instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+              }
+              else {
+                logger.warn("Failed to refresh server status history for {}", getTitleAt(page), ex);
+              }
             }
 
             fireSelectionChanged();
