@@ -51,6 +51,9 @@ import org.apache.batik.util.XMLResourceDescriptor;
 
 import org.apache.commons.lang3.tuple.Pair;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Element;
@@ -69,6 +72,9 @@ import VASSAL.tools.image.ImageNotFoundException;
  * @since 3.1.0
  */
 public class SVGImageUtils {
+  private static final Logger logger =
+    LoggerFactory.getLogger(SVGImageUtils.class);
+
   private SVGImageUtils() { }
 
   // NB: SAXSVGDocumentFactory isn't thread-safe, we have to synchronize on it.
@@ -389,17 +395,17 @@ public class SVGImageUtils {
 
     // relativize the xlink:href attribute if there is one
     if (e.hasAttributeNS(XLinkSupport.XLINK_NAMESPACE_URI, "href")) { //NON-NLS
+      final String href = XLinkSupport.getXLinkHref(e);
       try {
         final URL url = URI.create(e.getBaseURI())
-          .resolve(XLinkSupport.getXLinkHref(e))
+          .resolve(href)
           .toURL();
         final String anchor = url.getRef();
         final String name = new File(url.getPath()).getName();
         XLinkSupport.setXLinkHref(e, name + '#' + anchor);
       }
-      // FIXME: review error message
       catch (IllegalArgumentException | MalformedURLException ex) {
-//        ErrorLog.warn(ex);
+        logger.warn("Could not relativize SVG reference '{}' against '{}'", href, e.getBaseURI(), ex);
       }
     }
 
