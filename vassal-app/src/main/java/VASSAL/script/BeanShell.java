@@ -69,8 +69,7 @@ public final class BeanShell {
       }
     }
     catch (IOException e) {
-      //FIXME: Error message
-      WarningDialog.show(e, "");
+      WarningDialog.show(e, "Error.beanshell_init_script", INIT_SCRIPT); //NON-NLS
     }
   }
 
