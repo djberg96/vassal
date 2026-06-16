@@ -86,8 +86,7 @@ public class Node implements MsgSender {
   }
 
   public void add(Node child) {
-    // FIXME: added this to find out what is calling add(null)
-    Objects.requireNonNull(child);
+    Objects.requireNonNull(child, "child");
 
     if (child.parent != null) {
       child.parent.remove(child);
