@@ -62,6 +62,7 @@ import java.awt.Graphics;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
+import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -640,12 +641,12 @@ public class SpecialDiceButton extends DoActionButton implements CommandEncoder,
   }
 
   /** Icon class for graphical display of a dice roll */
-  private class ResultsIcon implements Icon {
-// FIXME: because Sun checks what class Icon implementations are,
-// this won't display as disabled properly
+  private class ResultsIcon extends ImageIcon {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private int width, height;
-    private Icon[] icons;
+    private transient Icon[] icons;
 
     public ResultsIcon() {
     }
