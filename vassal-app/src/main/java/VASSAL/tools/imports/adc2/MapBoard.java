@@ -50,6 +50,8 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import VASSAL.Info;
 import VASSAL.build.AbstractConfigurable;
@@ -96,6 +98,7 @@ import VASSAL.tools.imports.Importer;
  *
  */
 public class MapBoard extends Importer {
+  private static final Logger logger = LoggerFactory.getLogger(MapBoard.class);
 
   private static final String PLACE_NAME = "Location Names";
 
@@ -336,9 +339,8 @@ public class MapBoard extends Importer {
         try {
           readScannedMapLayoutFile(sml, g);
         }
-        // FIXME: review error message
         catch (IOException e) {
-
+          logger.warn("Unable to read ADC2 scanned map layout {}", sml, e); //NON-NLS
         }
       }
       else if (getSet().underlay != null) {
