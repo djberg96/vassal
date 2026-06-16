@@ -343,7 +343,7 @@ public class MultiLocationCommand extends Decorator implements TranslatablePiece
    */
   @Override
   public Command myKeyEvent(KeyStroke stroke) {
-    if (key.equals(stroke)) { //N.B. the usual KeyStroke / NamedKeyStroke shenanigans
+    if (key.matches(stroke)) {
       KeyCommand kc = GameModule.getGameModule().getLocationKeyCommand();
       if (!(kc instanceof MultiLocationKeyCommand)) {
         if (!everBuilt) {

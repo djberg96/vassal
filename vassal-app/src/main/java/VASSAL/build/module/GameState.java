@@ -172,7 +172,7 @@ public class GameState implements CommandEncoder {
    * <code>Load</code>, <code>Close</code>, and <code>Save</code>
    * entries to the <code>File</code> menu of the controls window
    */
-  public void addTo(@SuppressWarnings("unused") GameModule mod) {
+  public void addTo(GameModule mod) {
     loadGame = new AbstractAction(Resources.getString("GameState.load_game_new")) {
       private static final long serialVersionUID = 1L;
 

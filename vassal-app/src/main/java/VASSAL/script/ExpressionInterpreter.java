@@ -105,10 +105,8 @@ public class ExpressionInterpreter extends AbstractInterpreter implements Loopab
   //protected NameSpace localNameSpace;
 
   protected String expression;
-  @SuppressWarnings("serial")
-  protected List<String> variables;
-  @SuppressWarnings("serial")
-  protected List<String> stringVariables;
+  protected ArrayList<String> variables;
+  protected ArrayList<String> stringVariables;
 
   // source is not persistent; it should be set during evaluate() only
   protected transient PropertySource source;

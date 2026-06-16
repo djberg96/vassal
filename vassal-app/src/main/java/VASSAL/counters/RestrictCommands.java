@@ -108,7 +108,7 @@ public class RestrictCommands extends Decorator {
   @Override
   public Command keyEvent(KeyStroke stroke) {
     for (final NamedKeyStroke watchKey : watchKeys) {
-      if (watchKey.equals(stroke)) {
+      if (watchKey.matches(stroke)) {
         if (matchesFilter()) {
           return null;
         }
@@ -127,7 +127,7 @@ public class RestrictCommands extends Decorator {
       for (final KeyCommand command : commands) {
         boolean matches = false;
         for (int j = 0; j < watchKeys.length && !matches; j++) {
-          matches = (watchKeys[j].equals(command.getKeyStroke()));
+          matches = watchKeys[j].matches(command.getKeyStroke());
         }
         if (matches) {
           if (action.equals(DISABLE)) {

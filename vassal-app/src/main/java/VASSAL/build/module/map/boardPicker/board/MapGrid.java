@@ -114,10 +114,12 @@ public interface MapGrid {
   final class BadCoords extends BadCoordsException {
     private static final long serialVersionUID = 1L;
 
+    @Deprecated(since = "3.8", forRemoval = true)
     public BadCoords() {
       super();
     }
 
+    @Deprecated(since = "3.8", forRemoval = true)
     public BadCoords(String s) {
       super(s);
     }

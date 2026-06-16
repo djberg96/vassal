@@ -300,7 +300,7 @@ public class GlobalMap implements AutoConfigurable,
     );
   }
 
-  public String getToolTipText(@SuppressWarnings("unused") MouseEvent e) {
+  public String getToolTipText(MouseEvent e) {
     return null;
   }
 

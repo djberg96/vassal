@@ -2053,7 +2053,6 @@ public class ADC2Module extends Importer {
     } while (name.length() > 0);
   }
 
-  @SuppressWarnings("fallthrough")
   protected void readPieceBlock(DataInputStream in) throws IOException {
     ADC2Utils.readBlockHeader(in, PIECE);
 
@@ -2088,8 +2087,11 @@ public class ADC2Module extends Importer {
         case 10:
           if (j == 0) {
             types[j] = ValueType.CARD;
-            break;
-          } // else fall through
+          }
+          else {
+            types[j] = ValueType.NOT_USED;
+          }
+          break;
         default:
           types[j] = ValueType.NOT_USED;
           break;

@@ -1572,7 +1572,6 @@ public class Map extends AbstractToolbarItem implements MouseListener, MouseMoti
    *    *     .{@link java.awt.geom.AffineTransform#getScaleX() getScaleX()})
    * @return scaled value in Map coordinates
    */
-  @SuppressWarnings("unused")
   public int drawingToMap(int c, double os_scale) {
     return scale(c, 1.0 / (getZoom() * os_scale));
   }
@@ -1701,7 +1700,6 @@ public class Map extends AbstractToolbarItem implements MouseListener, MouseMoti
    * Is this map visible to all players?
    * @return true if this map either (a) isn't a {@link PrivateMap} or (b) does have its visible-to-all flag set
    */
-  @SuppressWarnings("unused")
   public boolean isVisibleToAll() {
     return !(this instanceof PrivateMap) || getAttributeValueString(PrivateMap.VISIBLE).equals("true"); //$NON-NLS-1$
   }
@@ -1709,7 +1707,6 @@ public class Map extends AbstractToolbarItem implements MouseListener, MouseMoti
   /**
    * @return the name of the {@link Deck} whose bounding box contains point p
    */
-  @SuppressWarnings("unused")
   public String getDeckNameContaining(Point p) {
     String deck = null;
     if (p != null) {

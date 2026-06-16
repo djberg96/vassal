@@ -212,7 +212,7 @@ public class DragBuffer {
     getBuffer().addDropTarget(f2, l);
   }
 
-  public Cursor createDragCursor(@SuppressWarnings("unused") Component comp) {
+  public Cursor createDragCursor(Component comp) {
     Cursor c = null;
     if (!pieces.isEmpty()) {
       c = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);

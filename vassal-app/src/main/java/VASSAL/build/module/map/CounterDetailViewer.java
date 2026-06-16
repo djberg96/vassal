@@ -364,7 +364,7 @@ public class CounterDetailViewer extends AbstractConfigurable implements Drawabl
     map.setDrawingMouseOver(false);
   }
 
-  protected void drawGraphics(Graphics g, @SuppressWarnings("unused") Point pt, JComponent comp, List<GamePiece> pieces) {
+  protected void drawGraphics(Graphics g, Point pt, JComponent comp, List<GamePiece> pieces) {
     fixBounds(pieces, g);
 
     if (bounds.width <= 0) {
@@ -823,7 +823,7 @@ public class CounterDetailViewer extends AbstractConfigurable implements Drawabl
    * @param comp - UNUSED IN THESE LATTER DAYS
    * @param pieces - UNUSED IN THESE LATTER DAYS
    */
-  protected void drawText(Graphics g, @SuppressWarnings("unused") Point pt, @SuppressWarnings("unused") JComponent comp, @SuppressWarnings("unused")List<GamePiece> pieces) {
+  protected void drawText(Graphics g, Point pt, JComponent comp, List<GamePiece> pieces) {
     final Graphics2D g2d = (Graphics2D) g;
     final double os_scale = g2d.getDeviceConfiguration().getDefaultTransform().getScaleX();
 

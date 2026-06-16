@@ -25,10 +25,12 @@ import VASSAL.build.GameModule;
  * @deprecated use FormattedString constructor with defaultProperties
  */
 @Deprecated public class PlayerIdFormattedString extends FormattedString {
+  @Deprecated
   public PlayerIdFormattedString() {
     this("");
   }
 
+  @Deprecated
   public PlayerIdFormattedString(String s) {
     super(s, GameModule.getGameModule());
   }

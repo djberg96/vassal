@@ -20,6 +20,7 @@ package VASSAL.property;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -68,10 +69,11 @@ public class SinglePropertyContainer<V> implements PropertyContainer {
     if (!this.prop.equals(prop)) throw new IllegalArgumentException();
     if (value == null) throw new IllegalArgumentException();
 
-    if (this.value.equals(value)) return;
+    final V newValue = (V) value;
+    if (Objects.equals(this.value, newValue)) return;
 
     final V oldVal = this.value;
-    this.value = (V) value;
+    this.value = newValue;
 
     for (final PropertyListener<Object> l : listeners) {
       l.propertyChanged(this, this.prop, oldVal, this.value);

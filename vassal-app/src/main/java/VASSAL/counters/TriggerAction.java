@@ -168,12 +168,12 @@ public class TriggerAction extends Decorator implements TranslatablePiece,
      * match one of our watching keystrokes?
      */
     boolean seen = false;
-    if (key.equals(stroke)) {
+    if (key.matches(stroke)) {
       seen = true;
     }
 
     for (int i = 0; i < watchKeys.length && !seen; i++) {
-      if (watchKeys[i].equals(stroke)) {
+      if (watchKeys[i].matches(stroke)) {
         seen = true;
         break;
       }

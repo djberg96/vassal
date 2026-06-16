@@ -168,19 +168,19 @@ public class MovementMarkable extends Decorator implements TranslatablePiece {
   public Command myKeyEvent(javax.swing.KeyStroke stroke) {
     if (stroke == null) return null;
 
-    if (key.equals(stroke)) {
+    if (key.matches(stroke)) {
       final ChangeTracker c = new ChangeTracker(this);
       // Set the property on the entire piece so all traits can respond
       getOutermost(this).setProperty(Properties.MOVED, !hasMoved);
       return c.getChangeCommand();
     }
-    else if (keyTrue.equals(stroke)) {
+    else if (keyTrue.matches(stroke)) {
       final ChangeTracker c = new ChangeTracker(this);
       // Set the property on the entire piece so all traits can respond
       getOutermost(this).setProperty(Properties.MOVED, true);
       return c.getChangeCommand();
     }
-    else if (keyFalse.equals(stroke)) {
+    else if (keyFalse.matches(stroke)) {
       final ChangeTracker c = new ChangeTracker(this);
       // Set the property on the entire piece so all traits can respond
       getOutermost(this).setProperty(Properties.MOVED, false);

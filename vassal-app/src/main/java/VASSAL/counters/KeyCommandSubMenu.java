@@ -30,8 +30,7 @@ import VASSAL.tools.NamedKeyStroke;
 public class KeyCommandSubMenu extends KeyCommand {
   private static final long serialVersionUID = 1L;
 
-  @SuppressWarnings("serial")
-  private final List<String> commands = new ArrayList<>();
+  private final ArrayList<String> commands = new ArrayList<>();
 
   public KeyCommandSubMenu(String name, GamePiece target,
                            TranslatablePiece i18nPiece) {

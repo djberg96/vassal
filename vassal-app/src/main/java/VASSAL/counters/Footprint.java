@@ -559,7 +559,7 @@ public class Footprint extends MovementMarkable {
    * Draw a Circle at the given point.
    * Override this method to do something different (eg. display an Icon)
    */
-  protected void drawPoint(Graphics g, Point p, double zoom, @SuppressWarnings("unused") int elementCount) {
+  protected void drawPoint(Graphics g, Point p, double zoom, int elementCount) {
     final int x = (int)((p.x - circleRadius) * zoom);
     final int y = (int)((p.y - circleRadius) * zoom);
     final int radius = (int)(2 * circleRadius * zoom);
@@ -593,7 +593,7 @@ public class Footprint extends MovementMarkable {
   /**
    * Override this method to return an Image to display within each trail circle
    */
-  protected Image getTrailImage(@SuppressWarnings("unused")int elementCount) {
+  protected Image getTrailImage(int elementCount) {
     return null;
   }
 
@@ -601,7 +601,7 @@ public class Footprint extends MovementMarkable {
    * Override this method to return text to display within each trail circle.
    * Note, there will normally be only room for 1 character.
    */
-  protected String getTrailText(@SuppressWarnings("unused")int elementCount) {
+  protected String getTrailText(int elementCount) {
     return null;
   }
 
