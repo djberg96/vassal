@@ -25,6 +25,8 @@ package VASSAL.build.module;
  */
 import org.apache.commons.lang3.ArrayUtils;
 
+import java.util.Arrays;
+
 import VASSAL.build.AutoConfigurable;
 import VASSAL.build.Buildable;
 import VASSAL.build.GameModule;
@@ -63,7 +65,10 @@ public class InternetDiceButton extends DiceButton implements CommandEncoder {
         c[i] = InternetReportFormatConfig.class;
       }
     }
-    return ArrayUtils.addAll(c, InternetDiceServerConfig.class, String.class);
+    final Class<?>[] types = Arrays.copyOf(c, c.length + 2);
+    types[c.length] = InternetDiceServerConfig.class;
+    types[c.length + 1] = String.class;
+    return types;
   }
 
   @Override
