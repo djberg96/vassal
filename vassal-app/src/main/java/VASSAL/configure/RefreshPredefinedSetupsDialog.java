@@ -113,9 +113,7 @@ public final class RefreshPredefinedSetupsDialog extends JDialog {
     header.setFocusable(false);
     panel.add(header);
 
-    // FIXME: The separator disappears if the window is resized.
-    final JSeparator sep = new JSeparator(JSeparator.HORIZONTAL);
-    panel.add(sep);
+    panel.add(new JSeparator(JSeparator.HORIZONTAL), "growx"); // NON-NLS
 
     final JPanel buttonsBox = new JPanel(new MigLayout("ins 0", "push[]rel[]rel[]push")); // NON-NLS
 
@@ -203,7 +201,7 @@ public final class RefreshPredefinedSetupsDialog extends JDialog {
     panel.add(reportOff, "gapx 10");
 
     // Separate functions that govern the overall refresh
-    panel.add(sep);
+    panel.add(new JSeparator(JSeparator.HORIZONTAL), "growx"); // NON-NLS
 
     testModeOn = new JCheckBox(Resources.getString("GameRefresher.test_mode"), false);
     // Disabling user selection - due to issue https://github.com/vassalengine/vassal/issues/12695
@@ -420,7 +418,10 @@ public final class RefreshPredefinedSetupsDialog extends JDialog {
           mod.setRefreshingSemaphore(true); //BR// Raise the semaphore that suppresses GameState.setup()
 
           try {
-            // FIXME: At this point the Refresh Options window is not responsive to Cancel, which means that runs can only be interrupted by killing the Vassal editor process
+            // Refreshing a predefined setup is intentionally non-interruptible:
+            // stopping mid-load or mid-save could leave the module archive in
+            // an inconsistent state. Cancellation remains available before the
+            // confirmation dialog starts the refresh run.
             final int warnings = pds.refreshWithStatus(options);
             if (warnings > 0) {
               lastErrorFile = fixedLength(pdsFile, FILE_NAME_REPORT_LENGTH);
