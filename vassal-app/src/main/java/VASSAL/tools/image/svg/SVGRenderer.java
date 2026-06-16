@@ -130,9 +130,8 @@ public class SVGRenderer {
       r.transcode(new TranscoderInput(doc), null);
       return r.getBufferedImage();
     }
-    // FIXME: review error message
     catch (BridgeException | TranscoderException e) {
-      logger.error("", e);
+      logger.error("Failed to render SVG at angle {} and scale {}", angle, scale, e);
     }
 
     return null;
@@ -156,9 +155,8 @@ public class SVGRenderer {
       r.transcode(new TranscoderInput(doc), null);
       return r.getBufferedImage();
     }
-    // FIXME: review error message
     catch (BridgeException | TranscoderException e) {
-      logger.error("", e);
+      logger.error("Failed to render SVG area {} at angle {} and scale {}", aoi, angle, scale, e);
     }
 
     return null;
