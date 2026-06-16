@@ -92,8 +92,9 @@ import java.io.*;
 		}
 	</pre></code>
 */
-public class Parser 
-{ 
+@SuppressWarnings("all")
+public class Parser
+{
 	boolean retainComments = false;
 	
 	public void setRetainComments( boolean b ) {

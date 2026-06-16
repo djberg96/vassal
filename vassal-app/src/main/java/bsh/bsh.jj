@@ -93,6 +93,7 @@ import java.io.*;
 		}
 	</pre></code>
 */
+@SuppressWarnings("all")
 public class Parser/*@bgen(jjtree)*/implements ParserTreeConstants/*@egen*/
 {/*@bgen(jjtree)*/
   protected JJTParserState jjtree = new JJTParserState();
