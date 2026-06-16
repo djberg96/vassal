@@ -39,6 +39,8 @@ import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.TreeTableNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
@@ -86,6 +88,8 @@ import java.util.regex.Pattern;
  *
  */
 public class MassPieceLoader {
+  private static final Logger logger = LoggerFactory.getLogger(MassPieceLoader.class);
+
   protected static final int SKIP_COL = 0;
   protected static final int DESC_COL = 1;
   protected static final int IMAGE_COL = 2;
@@ -740,8 +744,7 @@ public class MassPieceLoader {
             new File(dirConfig.getFileValue(), name).getCanonicalPath(), name);
       }
       catch (IOException e) {
-        // FIXME: Log error properly
-        // ErrorLog.log()
+        logger.warn("Unable to add image {} to module", name, e); //NON-NLS
       }
     }
   }
