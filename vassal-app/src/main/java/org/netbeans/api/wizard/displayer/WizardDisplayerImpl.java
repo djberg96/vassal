@@ -18,6 +18,7 @@ import VASSAL.build.GameModule;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.ComponentOrientation;
 import java.awt.Container;
 import java.awt.Cursor;
@@ -352,10 +353,13 @@ public class WizardDisplayerImpl extends WizardDisplayer
             }
         });
 
-        Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
-        // XXX get screen insets?
-        int x = (d.width - dlg.getWidth()) / 2;
-        int y = (d.height - dlg.getHeight()) / 2;
+        GraphicsConfiguration gc = dlg.getGraphicsConfiguration();
+        Rectangle screenBounds = gc.getBounds();
+        Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(gc);
+        int usableWidth = screenBounds.width - insets.left - insets.right;
+        int usableHeight = screenBounds.height - insets.top - insets.bottom;
+        int x = screenBounds.x + insets.left + (usableWidth - dlg.getWidth()) / 2;
+        int y = screenBounds.y + insets.top + (usableHeight - dlg.getHeight()) / 2;
         dlg.setLocation(x, y);
 
         dlg.setModal(true);
@@ -438,20 +442,32 @@ public class WizardDisplayerImpl extends WizardDisplayer
     void handleSummary(Summary summary)
     {
         inSummary = true;
-        JComponent summaryComp = (JComponent) summary.getSummaryComponent(); // XXX
+        JComponent summaryComp = asWizardPanel(summary.getSummaryComponent());
         if (summaryComp.getBorder() != null)
         {
             CompoundBorder b = new CompoundBorder(new EmptyBorder(5, 5, 5, 5), summaryComp
                 .getBorder());
             summaryComp.setBorder(b);
         }
-        setCurrentWizardPanel(summaryComp); // XXX
+        setCurrentWizardPanel(summaryComp);
         instructions.setInSummaryPage(true);
         ttlLabel.setText(NbBridge.getString("org/netbeans/api/wizard/Bundle", // NOI18N
                                             WizardDisplayerImpl.class, "Summary")); // NOI18N
         getButtonManager().setSummaryShowingMode();
         summaryComp.requestFocus();
         
+    }
+
+    private JComponent asWizardPanel(Component component)
+    {
+        if (component instanceof JComponent)
+        {
+            return (JComponent) component;
+        }
+
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(component, BorderLayout.CENTER);
+        return panel;
     }
 
     ResultProgressHandle createProgressDisplay (boolean isUseBusy)

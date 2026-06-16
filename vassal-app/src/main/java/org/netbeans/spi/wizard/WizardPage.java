@@ -186,7 +186,7 @@ public class WizardPage extends JPanel implements WizardPanel {
 //                description == null) {
 //            throw new NullPointerException ("Step or ID is null"); //NOI18N
 //        }
-        setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5)); //XXX
+        setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     }
     
     /**

@@ -45,8 +45,8 @@ public class Summary {
     //Summary
     
     Summary(String text, Object result) {
-        //XXX this is creating components off the AWT thread - needs to change
-        //to use invokeAndWait where appropriate
+        // TODO: Create Swing components on the EDT, using invokeAndWait where
+        // appropriate.
         if (text == null) {
             throw new NullPointerException ("Text is null"); //NOI18N
         }

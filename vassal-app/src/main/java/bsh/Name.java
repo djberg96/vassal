@@ -482,7 +482,7 @@ class Name implements java.io.Serializable
 
 			// Allow getThis() to work through BlockNameSpace to the method
 			// namespace
-	// XXX re-eval this... do we need it?
+			// TODO: Re-evaluate whether this namespace adjustment is still needed.
 			This ths = thisNameSpace.getThis( interpreter );
 			thisNameSpace= ths.getNameSpace();
 			Object result = ths;
@@ -514,8 +514,7 @@ class Name implements java.io.Serializable
 			thisNameSpace = ths.getNameSpace();
 			// super is now the closure's super or class instance
 
-	// XXXX re-evaluate this
-	// can getSuper work by itself now?
+			// TODO: Re-evaluate whether getSuper() can handle this by itself now.
 			// If we're a class instance and the parent is also a class instance
 			// then super means our parent.
 			if ( 

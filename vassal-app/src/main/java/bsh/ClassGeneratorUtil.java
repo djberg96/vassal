@@ -912,7 +912,7 @@ public class ClassGeneratorUtil implements Constants {
 		// todo PeJoBo70 write test for this
 		This instanceThis = getClassInstanceThis(instance, className);
 
-		// XXX clean up this conditional
+		// REFACTOR: Clean up this conditional.
 		if (instanceThis == null) {
 			// Create the instance 'This' namespace, set it on the object
 			// instance and invoke the instance initializer

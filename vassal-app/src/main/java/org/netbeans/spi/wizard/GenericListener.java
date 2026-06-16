@@ -168,7 +168,7 @@ final class GenericListener
             }
             return;
         }
-        //XXX do mapping model -> component?
+        // REFACTOR: Consider mapping model changes back to the component.
         if (isProbablyAContainer(jc)) {
             attachToHierarchyOf((Container) jc);
         } else if (jc instanceof JList<?> list) {
@@ -195,7 +195,7 @@ final class GenericListener
             listenedTo.add(jc);
             ((JTable) jc).getSelectionModel().addListSelectionListener(this);
         } else {
-            //XXX
+            // NOTE: Unknown component types are intentionally ignored.
             if (logger.isLoggable(Level.FINE)) {
                 logger.fine("Don't know how to listen to a " + // NOI18N
                         jc.getClass().getName());
@@ -303,7 +303,7 @@ final class GenericListener
         if (!ignoreEvents) {
             setIgnoreEvents(true);
             try {
-                //XXX this could be prettier...
+                // REFACTOR: Split event dispatch by event type.
                 if (logger.isLoggable(Level.FINE)) {
                     logger.fine("Event received: " + e); // NOI18N
                 }
