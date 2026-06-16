@@ -114,10 +114,9 @@ public class ComponentPathBuilder {
           for (final Configurable candidate : partialMatches) {
             final List<Configurable> l = new ArrayList<>();
             try {
+              l.add(candidate);
               addToPath(candidate, st.copy(), l);
               subPath = l;
-// FIXME: adding to front of an ArrayList! Should we use LinkedList instead?
-              subPath.add(0, candidate);
               break;
             }
             catch (PathFormatException e) {
