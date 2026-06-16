@@ -62,7 +62,6 @@ import java.awt.Graphics;
 import java.awt.event.ActionListener;
 import java.awt.event.HierarchyEvent;
 import java.awt.event.HierarchyListener;
-import java.io.Serial;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -640,13 +639,16 @@ public class SpecialDiceButton extends DoActionButton implements CommandEncoder,
     }
   }
 
-  /** Icon class for graphical display of a dice roll */
-  private class ResultsIcon extends ImageIcon {
-    @Serial
-    private static final long serialVersionUID = 1L;
-
+  /**
+   * Icon class for graphical display of a dice roll.
+   *
+   * <p>This deliberately avoids extending {@link ImageIcon}: macOS Aqua asks
+   * ImageIcon for a non-null backing image when painting selected buttons, but
+   * this icon is a composite that paints its children directly.</p>
+   */
+  private class ResultsIcon implements Icon {
     private int width, height;
-    private transient Icon[] icons;
+    private Icon[] icons;
 
     public ResultsIcon() {
     }

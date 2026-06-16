@@ -1,6 +1,6 @@
 package VASSAL.build.module;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import javax.swing.ImageIcon;
 
@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 class SpecialDiceButtonTest {
   @Test
-  void graphicalResultsIconCanBeDisabledBySwing() throws Exception {
+  void graphicalResultsIconDoesNotAdvertiseANullBackedImageIcon() throws Exception {
     final Class<?> resultsIconClass =
       Class.forName("VASSAL.build.module.SpecialDiceButton$ResultsIcon");
 
-    assertTrue(ImageIcon.class.isAssignableFrom(resultsIconClass));
+    assertFalse(ImageIcon.class.isAssignableFrom(resultsIconClass));
   }
 }
