@@ -51,10 +51,10 @@ public class ConcurrentPropertySupportTest {
         }
       };
 
-    final PropertyListener<String> propertyListener =
+    final PropertyListener<CharSequence> propertyListener =
       new PropertyListener<>() {
         @Override
-        public <U extends String> void propertyChanged(
+        public <U extends CharSequence> void propertyChanged(
           Object src, Property<U> prop, U oldVal, U newVal
         ) {
           propertyChange.set(src == source
@@ -116,9 +116,9 @@ public class ConcurrentPropertySupportTest {
   public void removePropertyListenerStopsPropertyNotifications() {
     final ConcurrentPropertySupport support = new ConcurrentPropertySupport();
     final AtomicInteger calls = new AtomicInteger();
-    final PropertyListener<String> listener = new PropertyListener<>() {
+    final PropertyListener<CharSequence> listener = new PropertyListener<>() {
       @Override
-      public <U extends String> void propertyChanged(
+      public <U extends CharSequence> void propertyChanged(
         Object src, Property<U> prop, U oldVal, U newVal
       ) {
         calls.incrementAndGet();
