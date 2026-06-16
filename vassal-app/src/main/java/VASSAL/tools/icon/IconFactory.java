@@ -32,6 +32,10 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -62,8 +66,7 @@ public final class IconFactory {
 
   private static IconFactory instance = new IconFactory();
   private final Map<String, IconFamily> iconFamilies = new ConcurrentHashMap<>();
-  private static final Object preloadLock = new Object();
-  private final Thread preloadThread;
+  private final Future<Void> preloadTask;
 
   /**
    * Set the Singleton instance
@@ -88,21 +91,23 @@ public final class IconFactory {
    */
   public IconFactory() {
 
-// FIXME: Maybe send this off to an executor?
-// FIXME: preloadThread is never set to null, cannot be gc'd
     // Find all available Icon Families within Vassal.
     // May take a little while, so run it on a background thread
-    preloadThread = new Thread(() -> {
-      synchronized (preloadLock) {
-        try {
-          initVassalIconFamilys();
-        }
-        catch (IllegalBuildException e) {
-          ErrorDialog.bug(e);
-        }
+    final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
+      final Thread t = new Thread(r, "IconFactory-preload"); //NON-NLS
+      t.setDaemon(true);
+      return t;
+    });
+
+    preloadTask = executor.submit(() -> {
+      try {
+        initVassalIconFamilys();
+        return null;
       }
-    }, "IconFactory-preload"); //$NON-NLS-1$
-    preloadThread.start();
+      finally {
+        executor.shutdown();
+      }
+    });
   }
 
   /**
@@ -223,23 +228,21 @@ public final class IconFactory {
    */
   IconFamily getFamily(String iconFamilyName) {
     try {
-
-// FIXME: This is bad---we should wait on a Future instead.
-      // Ensure preload is complete
-      if (preloadThread.isAlive()) {
-        try {
-          preloadThread.join();
-        }
-        catch (InterruptedException e) {
-        }
-      }
-
+      awaitPreload();
       return iconFamilies.get(iconFamilyName);
     }
-    catch (IllegalStateException e) {
+    catch (IllegalStateException | ExecutionException e) {
+      ErrorDialog.bug(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
       ErrorDialog.bug(e);
     }
     return null;
+  }
+
+  private void awaitPreload() throws InterruptedException, ExecutionException {
+    preloadTask.get();
   }
 
   /**
@@ -248,10 +251,18 @@ public final class IconFactory {
    * @return Icon Family name list
    */
   private List<String> getIconFamilyList() {
-    final List<String> names;
-    synchronized (preloadLock) {
-      names = new ArrayList<>(iconFamilies.keySet());
+    try {
+      awaitPreload();
     }
+    catch (ExecutionException e) {
+      ErrorDialog.bug(e);
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      ErrorDialog.bug(e);
+    }
+
+    final List<String> names = new ArrayList<>(iconFamilies.keySet());
     Collections.sort(names);
     return names;
   }
