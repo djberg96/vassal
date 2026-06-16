@@ -17,8 +17,12 @@
 package VASSAL.build.widget;
 
 import VASSAL.build.BadDataReport;
+import VASSAL.build.AutoConfigurable;
 import VASSAL.build.Buildable;
 import VASSAL.build.Widget;
+import VASSAL.configure.Configurer;
+import VASSAL.configure.ConfigurerFactory;
+import VASSAL.configure.IntConfigurer;
 import VASSAL.configure.VisibilityCondition;
 import VASSAL.i18n.Resources;
 import VASSAL.tools.ErrorDialog;
@@ -173,10 +177,44 @@ public class PanelWidget extends Widget {
       String.class,
       String.class,
       Boolean.class,
-      Integer.class,
+      ColumnCountConfig.class,
       Boolean.class,
       Double.class
     };
+  }
+
+  public static class ColumnCountConfig implements ConfigurerFactory {
+    @Override
+    public Configurer getConfigurer(AutoConfigurable c, String key, String name) {
+      return new IntConfigurer(key, name) {
+        @Override
+        public void setValue(String s) {
+          super.setValue(String.valueOf(Math.max(1, parseColumnCount(s))));
+        }
+
+        @Override
+        public void setValue(Object o) {
+          if (o instanceof Number) {
+            super.setValue(Math.max(1, ((Number) o).intValue()));
+          }
+          else if (o instanceof String) {
+            setValue((String) o);
+          }
+          else {
+            super.setValue(o);
+          }
+        }
+      };
+    }
+
+    private static int parseColumnCount(String value) {
+      try {
+        return Integer.parseInt(value);
+      }
+      catch (NumberFormatException e) {
+        return 1;
+      }
+    }
   }
 
   @Override
@@ -214,7 +252,6 @@ public class PanelWidget extends Widget {
       nColumns = (Integer) value;
 
       if (nColumns < 1) {
-        // FIXME: also dialog should not permit values < 1 to be entered
         ErrorDialog.dataWarning(
           new BadDataReport("Panel has &lt; 1 column:", getConfigureName()));  //NON-NLS
 
@@ -272,4 +309,3 @@ public class PanelWidget extends Widget {
     return null;
   }
 }
-
