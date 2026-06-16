@@ -21,6 +21,7 @@ import java.awt.Color;
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
+import java.io.Serial;
 
 import VASSAL.tools.imports.FileFormatException;
 
@@ -34,10 +35,11 @@ import VASSAL.tools.imports.FileFormatException;
 public class ADC2Utils {
 
   public static class NoMoreBlocksException extends EOFException {
+    @Serial
     private static final long serialVersionUID = 1L;
 
     NoMoreBlocksException(String name) {
-      super(name);
+      super("No more ADC2 blocks while reading " + name + '.');
     }
   }
 
@@ -169,7 +171,6 @@ public class ADC2Utils {
       if (header != BLOCK_SEPARATOR)
         throw new FileFormatException("Invalid " + string + " block header.");
     }
-    // FIXME: review error message
     catch (EOFException e) {
       throw new NoMoreBlocksException(string);
     }
