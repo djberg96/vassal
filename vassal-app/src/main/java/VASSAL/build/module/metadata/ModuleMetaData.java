@@ -136,13 +136,7 @@ public class ModuleMetaData extends AbstractMetaData {
 
       try (InputStream zin = zip.getInputStream(data);
            BufferedInputStream in = new BufferedInputStream(zin)) {
-        synchronized (parser) {
-          parser.setContentHandler(handler);
-          parser.setDTDHandler(handler);
-          parser.setEntityResolver(handler);
-          parser.setErrorHandler(handler);
-          parser.parse(new InputSource(in));
-        }
+        parse(handler, new InputSource(in));
       }
     }
     catch (final SAXEndException e) {

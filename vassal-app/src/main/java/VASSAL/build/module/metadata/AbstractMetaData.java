@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
@@ -438,18 +439,20 @@ public abstract class AbstractMetaData {
     }
   }
 
-  /**
-   * This is the shared parser for all subclasses of AbstractMetaData.
-   * We use a shared parser.
-   * All uses of this parser <i>must</i> be wrapped in a block synchronized
-   * on the parser itself.
-   */
-  protected static final XMLReader parser = createParser();
+  private static final ThreadLocal<XMLReader> PARSER =
+    ThreadLocal.withInitial(AbstractMetaData::createParser);
 
-// FIXME: Synchronizing on the parser will cause very bad performance if
-// multiple threads are trying to read metadata simultaneously. We should
-// build a mechanism by which we keep a pool of parsers, and allocate a
-// new one only when there is not an unused one available in the pool.
+  protected static void parse(DefaultHandler handler, InputSource source)
+    throws IOException, SAXException {
+
+    final XMLReader parser = PARSER.get();
+    parser.setContentHandler(handler);
+    parser.setDTDHandler(handler);
+    parser.setEntityResolver(handler);
+    parser.setErrorHandler(handler);
+    parser.parse(source);
+  }
+
   private static XMLReader createParser() {
     try {
       return SAXParserFactory.newDefaultInstance().newSAXParser().getXMLReader();
@@ -457,8 +460,8 @@ public abstract class AbstractMetaData {
     catch (final SAXException | ParserConfigurationException e) {
       // This should never happen.
       ErrorDialog.bug(e);
+      throw new IllegalStateException(e);
     }
-    return null;
   }
 
   /*************************************************************************
