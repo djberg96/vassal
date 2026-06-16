@@ -27,7 +27,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.util.Properties;
@@ -61,8 +60,8 @@ public final class SavedGameUpdaterDialog extends JDialog {
   private Properties oldPieceInfo;
   private final JFileChooser fc;
 
-  //FIXME Is it really supposed to be moduleVerion[sic] below? Is it okay to "fix" it?
-  private static final String VERSION_KEY = "moduleVerion"; //NON-NLS
+  private static final String VERSION_KEY = "moduleVersion"; //NON-NLS
+  private static final String LEGACY_VERSION_KEY = "moduleVerion"; //NON-NLS
 
   private static final String MODULE_NAME_KEY = "moduleName"; //NON-NLS
   private JButton updateButton;
@@ -165,18 +164,17 @@ public final class SavedGameUpdaterDialog extends JDialog {
           updater.updateSavedGame(oldPieceInfo, savedGame);
           GameModule.getGameModule().warn(Resources.getString("Editor.SavedGameUpdaterDialog.updated_message", savedGame.getName(), versionField.getText(), GameModule.getGameModule().getGameVersion()));
         }
-        // FIXME: review error message
         catch (final IOException e) {
-          final Runnable showError = () -> showErrorMessage(e, Resources.getString("Editor.SavedGameUpdaterDialog.fail"), Resources.getString("Editor.SavedGameUpdaterDialog.unable"));
-          try {
-            SwingUtilities.invokeAndWait(showError);
-          }
-          // FIXME: review error message
-          catch (InterruptedException | InvocationTargetException e1) {
-          }
+          SwingUtilities.invokeLater(() ->
+            showErrorMessage(
+              e,
+              Resources.getString("Editor.SavedGameUpdaterDialog.fail"),
+              Resources.getString("Editor.SavedGameUpdaterDialog.unable")
+            )
+          );
         }
       }
-      updateButton.setEnabled(true);
+      SwingUtilities.invokeLater(() -> updateButton.setEnabled(true));
     };
     new Thread(runnable).start();
   }
@@ -200,6 +198,7 @@ public final class SavedGameUpdaterDialog extends JDialog {
       final Properties p = updater.getPieceSlotsMap();
       p.put(MODULE_NAME_KEY, GameModule.getGameModule().getGameName());
       p.put(VERSION_KEY, GameModule.getGameModule().getGameVersion());
+      p.put(LEGACY_VERSION_KEY, GameModule.getGameModule().getGameVersion());
 
       try (OutputStream fout = Files.newOutputStream(fc.getSelectedFile().toPath());
            BufferedOutputStream out = new BufferedOutputStream(fout)) {
@@ -220,7 +219,7 @@ public final class SavedGameUpdaterDialog extends JDialog {
            BufferedInputStream in = new BufferedInputStream(fin)) {
         oldPieceInfo.load(in);
 
-        final String moduleVersion = oldPieceInfo.getProperty(VERSION_KEY);
+        final String moduleVersion = getModuleVersion(oldPieceInfo);
         final String moduleName = oldPieceInfo.getProperty(MODULE_NAME_KEY);
         if (!GameModule.getGameModule().getGameName().equals(moduleName)) {
           showErrorMessage(null, Resources.getString("Editor.SavedGameUpdaterDialog.im_fail"), Resources.getString("Editor.SavedGameUpdaterDialog.im_wrong", moduleName));
@@ -236,7 +235,6 @@ public final class SavedGameUpdaterDialog extends JDialog {
           versionField.setText(moduleVersion);
         }
       }
-      // FIXME: review error message
       catch (IOException e) {
         showErrorMessage(e, Resources.getString("Editor.SavedGameUpdaterDialog.im_fail"), Resources.getString("Editor.SavedGameUpdaterDialog.im_unable"));
         oldPieceInfo = null;
@@ -247,6 +245,11 @@ public final class SavedGameUpdaterDialog extends JDialog {
       }
     }
     updateButton.setEnabled(oldPieceInfo != null);
+  }
+
+  static String getModuleVersion(Properties pieceInfo) {
+    final String version = pieceInfo.getProperty(VERSION_KEY);
+    return version == null ? pieceInfo.getProperty(LEGACY_VERSION_KEY) : version;
   }
 
   private void showErrorMessage(Exception e, String title, String defaultMessage) {
