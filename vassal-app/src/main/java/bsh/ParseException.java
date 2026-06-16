@@ -173,49 +173,52 @@ public class ParseException extends EvalError {
     if (!specialConstructor) {
       return super.getMessage();
     }
-    String expected = "";
+    StringBuilder expected = new StringBuilder();
     int maxSize = 0;
     for (int i = 0; i < expectedTokenSequences.length; i++) {
       if (maxSize < expectedTokenSequences[i].length) {
         maxSize = expectedTokenSequences[i].length;
       }
       for (int j = 0; j < expectedTokenSequences[i].length; j++) {
-        expected += tokenImage[expectedTokenSequences[i][j]] + " ";
+        expected.append(tokenImage[expectedTokenSequences[i][j]]).append(' ');
       }
       if (expectedTokenSequences[i][expectedTokenSequences[i].length - 1] != 0) {
-        expected += "...";
+        expected.append("...");
       }
-      expected += eol + "    ";
+      expected.append(eol).append("    ");
     }
 	// Begin BeanShell Modification - added sourceFile info
-    String retval = "In file: "+ sourceFile +" Encountered \"";
+    StringBuilder retval = new StringBuilder("In file: ");
+    retval.append(sourceFile).append(" Encountered \"");
 	// End BeanShell Modification - added sourceFile info
     Token tok = currentToken.next;
     for (int i = 0; i < maxSize; i++) {
-      if (i != 0) retval += " ";
+      if (i != 0) retval.append(' ');
       if (tok.kind == 0) {
-        retval += tokenImage[0];
+        retval.append(tokenImage[0]);
         break;
       }
-      retval += add_escapes(tok.image);
-      tok = tok.next; 
+      retval.append(add_escapes(tok.image));
+      tok = tok.next;
     }
-    retval += "\" at line " + currentToken.next.beginLine + ", column " + currentToken.next.beginColumn + "." + eol;
+    retval.append("\" at line ").append(currentToken.next.beginLine)
+      .append(", column ").append(currentToken.next.beginColumn)
+      .append('.').append(eol);
 
 	// Begin BeanShell Modification - made conditional on debug
 	if ( debug )
 	{
 		if (expectedTokenSequences.length == 1) {
-		  retval += "Was expecting:" + eol + "    ";
+		  retval.append("Was expecting:").append(eol).append("    ");
 		} else {
-		  retval += "Was expecting one of:" + eol + "    ";
+		  retval.append("Was expecting one of:").append(eol).append("    ");
 		}
 
-		retval += expected;
+		retval.append(expected);
 	}
 	// End BeanShell Modification - made conditional on debug
 
-    return retval;
+    return retval.toString();
   }
 
   /**
@@ -288,20 +291,20 @@ public class ParseException extends EvalError {
 			maxSize	= expectedTokenSequences[i].length;
 		}
 
-		String retval = "";
+		StringBuilder retval = new StringBuilder();
 		Token tok =	currentToken.next;
-		for	(int i = 0; i <	maxSize; i++) 
+		for	(int i = 0; i <	maxSize; i++)
 		{
-		  if (i != 0) retval += " ";
+		  if (i != 0) retval.append(' ');
 		  if (tok.kind == 0) {
-			retval += tokenImage[0];
+			retval.append(tokenImage[0]);
 			break;
 		  }
-		  retval +=	add_escapes(tok.image);
+		  retval.append(add_escapes(tok.image));
 		  tok = tok.next;
 		}
-		
-		return retval;
+
+		return retval.toString();
 	}
 
 	public String toString() {
