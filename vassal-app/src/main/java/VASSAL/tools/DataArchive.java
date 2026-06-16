@@ -43,17 +43,21 @@ import javax.swing.JOptionPane;
 import VASSAL.i18n.Resources;
 import VASSAL.tools.io.FileArchive;
 import VASSAL.tools.io.ZipArchive;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Wrapper around a Zip archive with methods to cache images
  */
 public class DataArchive extends SecureClassLoader implements Closeable {
+  private static final Logger logger =
+    LoggerFactory.getLogger(DataArchive.class);
 
   protected FileArchive archive;
 
   protected List<DataArchive> extensions = new ArrayList<>();
 
-// FIXME: these should go into a cache, like images have
+  // Cache audio clips by archive path to avoid rereading sound files.
   private final Map<String, AudioClip> soundCache =
     new HashMap<>();
 
@@ -329,8 +333,7 @@ public class DataArchive extends SecureClassLoader implements Closeable {
       files = archive.getFiles("");
     }
     catch (IOException e) {
-      // FIXME: don't swallow this exception!
-      e.printStackTrace();
+      logger.warn("Unable to list localized image directories in {}", getName(), e);
       return;
     }
 
@@ -368,8 +371,12 @@ public class DataArchive extends SecureClassLoader implements Closeable {
       }
     }
     catch (IOException e) {
-      // FIXME: don't swallow this exception!
-      e.printStackTrace();
+      logger.warn(
+        "Unable to list image names in directory {} of {}",
+        directory,
+        getName(),
+        e
+      );
     }
   }
 
@@ -424,13 +431,16 @@ public class DataArchive extends SecureClassLoader implements Closeable {
   @Override
   public synchronized Class<?> loadClass(String name, boolean resolve)
                                          throws ClassNotFoundException {
-// FIXME: why is this method this way?
-    Class<?> c;
+    Class<?> c = null;
     try {
-//      c = findSystemClass(name);
-      c = Class.forName(name);
+      final ClassLoader parent = getParent();
+      c = parent == null ? findSystemClass(name) : parent.loadClass(name);
     }
     catch (ClassNotFoundException e) {
+      // Not on VASSAL's classpath; fall through to this archive.
+    }
+
+    if (c == null) {
       c = findLoadedClass(name);
     }
 
