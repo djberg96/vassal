@@ -28,8 +28,10 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 /**
  * The KeyBuffer is the list of "currently selected pieces" in the VASSAL UI (map windows). Its somewhat confusing name
@@ -39,6 +41,7 @@ import java.util.List;
 public class KeyBuffer {
   private static KeyBuffer theBuffer;    // Our singleton buffer instance
   private final List<GamePiece> pieces;  // Our list of currently selected pieces
+  private final Set<GamePiece> selectedPieces;
   private final Comparator<GamePiece> pieceSorter = new PieceSorter(); // Used to sort pieces in visual order
   private final Point clickPoint;        // Most recent click point on the map (used to make this information
                                          // available to traits of pieces)
@@ -51,6 +54,7 @@ public class KeyBuffer {
 
   private KeyBuffer() {
     pieces = new ArrayList<>();
+    selectedPieces = new HashSet<>();
     clickPoint = new Point();
 
     slots  = new ArrayList<>();
@@ -111,12 +115,10 @@ public class KeyBuffer {
    * @param p Piece to select
    */
   public void add(GamePiece p) {
-// FIXME: should we use a HashSet or LinkedHashSet instead to make contains()
-// checks faster? Is insertion order important?
     if (fromPalette) {
       clear();
     }
-    if (p != null && !pieces.contains(p)) {
+    if (p != null && selectedPieces.add(p)) {
       pieces.add(p);
       p.setProperty(Properties.SELECTED, Boolean.TRUE);
     }
@@ -131,7 +133,7 @@ public class KeyBuffer {
     if (!fromPalette) {
       clear();
     }
-    if (p != null && !pieces.contains(p)) {
+    if (p != null && selectedPieces.add(p)) {
       pieces.add(p);
       p.setProperty(Properties.SELECTED, Boolean.TRUE);
 
@@ -161,6 +163,7 @@ public class KeyBuffer {
       p.setProperty(Properties.SELECTED, null);
     }
     pieces.clear();
+    selectedPieces.clear();
     cleansePalette();
   }
 
@@ -171,7 +174,9 @@ public class KeyBuffer {
   public void remove(GamePiece p) {
     if (p != null) {
       p.setProperty(Properties.SELECTED, null);
-      pieces.remove(p);
+      if (selectedPieces.remove(p)) {
+        pieces.remove(p);
+      }
     }
   }
 
@@ -198,10 +203,10 @@ public class KeyBuffer {
    */
   public boolean contains(GamePiece p) {
     if (p instanceof Stack) {
-      return pieces.containsAll(((Stack) p).asList());
+      return ((Stack) p).asList().stream().allMatch(selectedPieces::contains);
     }
     else {
-      return pieces.contains(p);
+      return selectedPieces.contains(p);
     }
   }
 
