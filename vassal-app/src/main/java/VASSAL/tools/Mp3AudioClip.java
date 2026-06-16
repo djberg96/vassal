@@ -75,12 +75,11 @@ public class Mp3AudioClip implements AudioClip {
       player = new Player(stream);
     }
     catch (JavaLayerException e) {
-      // FIXME: This might be a local issue, better suiting a new ErrorDialog class
       ErrorDialog.dataWarning(new BadDataReport(
-              Resources.getString(
-                      "Error.player_setup_failed", name != null ? name : url.toString()
-              ),
-              "", e
+        Resources.getString(
+          "Error.player_setup_failed", soundSource()
+        ),
+        "", e
       )); //NON-NLS
     }
     finally {
@@ -122,9 +121,13 @@ public class Mp3AudioClip implements AudioClip {
       }
       catch (JavaLayerException | IOException e) {
         ErrorDialog.dataWarning(new BadDataReport(
-          "Error reading sound file", name, e //NON-NLS
+          Resources.getString("Error.sound_read_error", soundSource()), name, e //NON-NLS
         ));
       }
     }).start();
+  }
+
+  private String soundSource() {
+    return name != null ? name : url.toString();
   }
 }
