@@ -23,6 +23,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import VASSAL.build.Buildable;
 import VASSAL.build.GameModule;
 import VASSAL.build.module.Map;
@@ -37,6 +40,7 @@ import VASSAL.tools.ArchiveWriter;
  * @since 3.1.0
  */
 public abstract class Importer {
+  private static final Logger logger = LoggerFactory.getLogger(Importer.class);
 
   /*
    * We need this for the getCaseInsensitiveFile method.
@@ -190,7 +194,7 @@ public abstract class Importer {
         t = s + '(' + (++index) + ')';
     }
     catch (IOException e) {
-// FIXME: ????
+      logger.warn("Unable to check for an existing imported image named {}", writer.getImagePrefix() + t + ext, e); //NON-NLS
     }
 
     return t + ext;
