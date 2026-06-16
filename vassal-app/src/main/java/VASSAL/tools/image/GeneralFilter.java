@@ -265,7 +265,7 @@ public final class GeneralFilter {
       src.getColorModel().createCompatibleWritableRaster(dst.width, dst.height);
     zoom(dstR, dstR.getBounds(), src, filter);
 
-    // FIXME: check whether this affects hardware acceleration
+    // TODO: Check whether returning this compatible image affects hardware acceleration.
     return new BufferedImage(
       src.getColorModel(),
       dstR,

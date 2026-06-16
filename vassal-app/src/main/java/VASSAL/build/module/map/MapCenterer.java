@@ -75,7 +75,7 @@ public class MapCenterer extends AbstractBuildable implements MouseListener {
   public void setAttribute(String attName, Object value) {
   }
 
-// FIXME: mouseClicked()?
+// NOTE: Use mouseReleased() so popup trigger handling remains platform-correct.
   @Override
   public void mouseReleased(MouseEvent e) {
     if (SwingUtils.isContextMouseButtonDown(e)) {

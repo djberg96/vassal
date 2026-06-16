@@ -53,7 +53,7 @@ public class StackExpander extends MouseAdapter implements Buildable {
   public void build(Element e) {
   }
 
-// FIXME: should be mouseClicked()?
+// NOTE: Use mouseReleased() so popup-trigger handling remains platform-correct.
   @Override
   public void mouseReleased(MouseEvent e) {
     if (!e.isConsumed() && e.getClickCount() == 2

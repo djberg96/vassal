@@ -264,7 +264,7 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
 
     // Workaround to https://github.com/vassalengine/vassal/issues/11559
     // - make the Edit Delete shortcut a modified key on Mac.
-    // FIXME: A neater solution would be if the Delete key could be directed to what should be the active, foreground window - i.e. the File Dialog (if open)
+    // TODO: A neater solution would be if the Delete key could be directed to what should be the active, foreground window - i.e. the File Dialog (if open)
     // That is the expected behaviour, as seen on Windows but not on MacOS, where the Editor intercepts deleteKey (and others) regardless
     deleteKey = KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, SystemUtils.IS_OS_MAC ? InputEvent.META_DOWN_MASK : 0);
 
@@ -1598,7 +1598,7 @@ public class ConfigureTree extends JTree implements PropertyChangeListener, Mous
     }
   }
 
-  // FIXME: should clicked handling be in mouseClicked()?
+  // NOTE: Use mouseReleased() so popup-trigger handling remains platform-correct.
   @Override
   public void mouseReleased(MouseEvent e) {
     if (e.isPopupTrigger()) {

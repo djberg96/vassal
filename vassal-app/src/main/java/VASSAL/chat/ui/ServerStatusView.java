@@ -115,7 +115,7 @@ public final class ServerStatusView extends JTabbedPane implements ChangeListene
     tree.setCellRenderer(new Render());
     tree.expandRow(0);
     tree.setLargeModel(true);
-    tree.setRowHeight(18);  // FIXME: check whether this is necessary
+    tree.setRowHeight(18);  // TODO: Check whether this fixed row height is still necessary.
     tree.addTreeSelectionListener(this);
     tree.addTreeExpansionListener(new TreeExpansionListener() {
       @Override

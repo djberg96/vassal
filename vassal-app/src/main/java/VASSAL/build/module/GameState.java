@@ -360,9 +360,7 @@ public class GameState implements CommandEncoder {
   private boolean gameStarting = false;
   private boolean gameStarted = false;
 
-  //
-  // FIXME: This will become unnecessary when we do model-view separation.
-  //
+  // REFACTOR: This will become unnecessary when we do model-view separation.
   private volatile boolean gameUpdating = false;
   private boolean refreshInProgress = false;
 
@@ -401,11 +399,6 @@ public class GameState implements CommandEncoder {
   public boolean isUpdating() {
     return this.gameUpdating;
   }
-  //
-  // END FIXME
-  //
-
-
   /**
    * When we're known to be starting a fresh game from a Predefined Setup, freshen the starting-a-new-game flag for all SGKCs
    * @param target the Game Module
@@ -1682,7 +1675,7 @@ public class GameState implements CommandEncoder {
            entry = zipInput.getNextEntry()) {
         if (SAVEFILE_ZIP_ENTRY.equals(entry.getName())) {
           try (InputStream din = new DeobfuscatingInputStream(zipInput)) {
-            // FIXME: toString() is very inefficient, make decode() use the stream directly
+            // REFACTOR: toString() is very inefficient, make decode() use the stream directly.
             return GameModule.getGameModule().decode(
               IOUtils.toString(din, StandardCharsets.UTF_8)
             );

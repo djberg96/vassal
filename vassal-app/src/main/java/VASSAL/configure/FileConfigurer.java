@@ -96,7 +96,7 @@ public class FileConfigurer extends Configurer {
 
   @Override
   public void setValue(Object o) {
-// FIXME: this creates a problem when the referenced file is in the JAR
+// TODO: Handle archive-contained files without requiring a local filesystem path.
     final File f = (File) o;
     if (f != null && !f.getPath().isEmpty() && f.exists()) {
       if (archive != null) {

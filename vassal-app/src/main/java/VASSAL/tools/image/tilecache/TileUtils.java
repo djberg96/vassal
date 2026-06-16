@@ -127,7 +127,7 @@ public class TileUtils {
     // build the image
     final BufferedImage img = new BufferedImage(w, h, type);
 
-    // FIXME: This might decelerate the image? If so, then we should
+    // TODO: Check whether direct raster access decelerates the image. If so, then we should
     // make a copy.
     final DataBufferInt db = (DataBufferInt) img.getRaster().getDataBuffer();
     final int[] data = db.getData();

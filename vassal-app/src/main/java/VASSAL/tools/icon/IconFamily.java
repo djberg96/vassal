@@ -159,7 +159,7 @@ public class IconFamily extends AbstractConfigurable {
    * These constructors are used by IconFactory to create IconFamilys for the
    * Vassal inbuilt Icons
    *
-   * FIXME: Write this bit...Will be needed once Toolbar Icon support is added
+   * TODO: Expand this documentation once Toolbar Icon support is added.
    * Backward Compatibility: If the name supplied does have a file type suffix,
    * then it is a specific Icon name from a pre-IconFamily module. By throwing
    * away the suffix, IconFamily will use the supplied icon as a base icon to

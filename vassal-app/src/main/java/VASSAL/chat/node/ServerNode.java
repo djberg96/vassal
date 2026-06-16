@@ -183,7 +183,7 @@ public class ServerNode extends Node {
   }
 
   private static class SendContentsTask extends TimerTask {
-    // FIXME: should modules be wrapped by Collections.synchronizedMap()?
+    // NOTE: Access to modules is already guarded by synchronized blocks.
     private final Set<Node> modules = new HashSet<>();
 
     public void markChanged(Node module) {

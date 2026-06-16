@@ -16,7 +16,7 @@
  * at http://www.opensource.org.
  */
 
-// FIXME: Why is this in configure instead of build.module.documentation?
+// REFACTOR: Move this to build.module.documentation with the other help-window classes.
 package VASSAL.configure;
 
 import java.awt.event.ActionEvent;

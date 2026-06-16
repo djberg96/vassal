@@ -1161,7 +1161,7 @@ public class SetupStack extends AbstractConfigurable implements GameComponent, U
     return myI18nData;
   }
 
-// FIXME: check for duplication with PieceMover
+// REFACTOR: Check for duplication with PieceMover.
 
   public static class View extends JPanel implements DropTargetListener, DragGestureListener, DragSourceListener, DragSourceMotionListener {
 

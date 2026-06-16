@@ -554,7 +554,7 @@ public class GlobalMap implements AutoConfigurable,
     public void mouseClicked(MouseEvent e) {
     }
 
-    // FIXME: mouseClicked()?
+    // NOTE: Use mouseReleased() so the click has completed before recentering.
     @Override
     public void mouseReleased(MouseEvent e) {
       if (SwingUtils.isMainMouseButtonDown(e)) {

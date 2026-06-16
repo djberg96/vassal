@@ -262,7 +262,7 @@ public class MenuDisplayer extends MouseAdapter implements Buildable {
         return;
       }
 
-      // FIXME: workaround for https://github.com/vassalengine/vassal/issues/12033
+      // TODO: Remove this workaround once undo reliably preserves piece maps.
       // Undo sometimes corrupts a pieces Map.
       if (!map.equals(p.getMap())) {
         p.setMap(map);

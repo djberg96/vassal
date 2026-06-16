@@ -45,7 +45,7 @@ public class ScaleOpBitmapImpl extends AbstractTiledOpImpl
   protected final RenderingHints hints;
   protected final int hash;
 
-  // FIXME: We try to always use the same hints object because hints is
+  // NOTE: We try to always use the same hints object because hints is
   // used in our equals() and RenderingHints.equals() is ridiculously slow
   // if a full comparison is made. This way hints == defaultHints, usually,
   // and so a quick equality comparison succeeds.

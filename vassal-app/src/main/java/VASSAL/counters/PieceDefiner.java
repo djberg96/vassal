@@ -635,7 +635,8 @@ public class PieceDefiner extends JPanel {
 
     inUseList.addMouseListener(new MouseAdapter() {
       @Override
-// FIXME: mouseClicked()?
+      // NOTE: Use mouseReleased() so the double-click action fires after the
+      // list selection has settled.
       public void mouseReleased(MouseEvent e) {
         if (e.getClickCount() == 2 && SwingUtils.isMainMouseButtonDown(e)) {
           final int index = inUseList.locationToIndex(e.getPoint());

@@ -98,7 +98,7 @@ public class SourceOpSVGImpl extends AbstractTiledOpImpl
     }
   }
 
-  // FIXME: we need a way to invalidate ImageOps when an exception is thrown?
+  // TODO: Add a way to invalidate ImageOps when an exception is thrown.
   // Maybe size should go to -1,-1 when invalid?
 
   /** {@inheritDoc} */

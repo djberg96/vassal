@@ -133,8 +133,8 @@ public class SourceOpBitmapImpl extends AbstractTiledOpImpl
     }
   }
 
-// FIXME: we need a way to invalidate ImageOps when an exception is thrown?
-// Maybe size should go to -1,-1 when invalid?
+// TODO: Add a way to invalidate ImageOps when an exception is thrown.
+// Maybe size should go to -1,-1 when invalid.
 
   protected Dimension getImageSize() {
     try {

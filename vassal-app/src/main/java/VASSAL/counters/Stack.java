@@ -259,7 +259,8 @@ public class Stack extends AbstractImageFinder implements GamePiece, StateMergea
         }
       }
     }
-    //FIXME - really, if at this point "layer" is set and the new piece wants to be in a different layer, that's BAD and will produce buggy behavior. But we are presently quietly ignoring that because of all the buggy stacks created in the past.
+    // TODO: Enforce layer consistency once legacy stacks with mixed-layer pieces
+    // have a migration path.
     insert(c, pieceCount);
   }
 

@@ -260,7 +260,7 @@ public class PrefsEditor {
           dialog.setVisible(true);
         }
       };
-      // FIXME: setting mnemonic from first letter could cause collisions in some languages
+      // TODO: Use explicit localized mnemonics instead of deriving one from the first letter.
       editAction.putValue(Action.MNEMONIC_KEY, (int) Resources.getString("Prefs.edit_preferences").charAt(0));
     }
     return editAction;

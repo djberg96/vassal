@@ -31,8 +31,7 @@ import org.apache.commons.lang3.SystemUtils;
 import VASSAL.tools.image.ImageIOException;
 import VASSAL.tools.image.ImageUtils;
 
-// FIXME: wizard doesn't get the right icons
-// FIXME: check that parentless dialogs get the right icons
+// TODO: Ensure wizard and parentless dialogs receive the correct application icons.
 
 public class ApplicationIcons {
 

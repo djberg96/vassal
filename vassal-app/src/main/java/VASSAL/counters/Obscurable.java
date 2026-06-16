@@ -318,7 +318,7 @@ public class Obscurable extends Decorator implements TranslatablePiece {
     else if (Properties.VISIBLE_STATE.equals(key)) {
       return myGetState() + isPeeking() + isAutoPeeking() + getProperty(Properties.SELECTED) + obscuredToMe() + piece.getProperty(key);
     }
-    // FIXME: Access to Obscured properties
+    // REFACTOR: Define explicit access rules for obscured properties.
     // If piece is obscured to me, then mask any properties returned by
     // traits between this one and the innermost BasicPiece. Return directly
     // any properties normally handled by Decorator.getproperty()
@@ -628,7 +628,8 @@ public class Obscurable extends Decorator implements TranslatablePiece {
     // Therefore, un-select the piece if turning it face down
     if (retVal != null && PEEK == displayStyle &&
         peekKey == null && obscuredToOthers()) {
-      // FIXME: This probably causes a race condition. Can we do this directly?
+      // TODO: Avoid deferring this removal once KeyBuffer updates are safe from
+      // this call path.
       final Runnable runnable = () -> KeyBuffer.getBuffer().remove(getOutermost(this));
       SwingUtilities.invokeLater(runnable);
     }

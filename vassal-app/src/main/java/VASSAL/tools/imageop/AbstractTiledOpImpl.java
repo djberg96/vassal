@@ -165,7 +165,7 @@ public abstract class AbstractTiledOpImpl extends AbstractOpImpl {
 
     if (size == null || tileSize == null) fixTileSize();
 
-// FIXME: maybe do this without creating new Rectangles
+    // REFACTOR: Avoid creating a new Rectangle here if profiling shows it matters.
     rect = rect.intersection(new Rectangle(size));
     if (rect.isEmpty()) {
       return new Point[0];
@@ -179,8 +179,7 @@ public abstract class AbstractTiledOpImpl extends AbstractOpImpl {
     final Point[] tilesInRect =
       new Point[(maxTileX - minTileX + 1) * (maxTileY - minTileY + 1)];
 
-// FIXME: Maybe do this by keeping a MRU cache of Points.
-// Maybe not, profiling shows that this isn't causing the gc to run much.
+    // NOTE: Profiling shows that allocating these Points does not drive much GC.
     int offset = 0;
     for (int ty = minTileY; ty <= maxTileY; ++ty) {
       for (int tx = minTileX; tx <= maxTileX; ++tx) {

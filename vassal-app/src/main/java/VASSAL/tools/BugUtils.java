@@ -93,7 +93,7 @@ public class BugUtils {
     return summary;
   }
 
-// FIXME: move this somewhere else?
+// REFACTOR: Move this to the error-log utility code.
   public static String getErrorLog() {
     final File f = Info.getErrorLogPath();
     try {

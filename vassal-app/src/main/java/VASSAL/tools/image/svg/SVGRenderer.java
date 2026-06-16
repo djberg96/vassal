@@ -248,7 +248,8 @@ public class SVGRenderer {
         throw new TranscoderException(e);
       }
 
-// FIXME: is this the image we want to use?
+      // TODO: Confirm that renderer.getOffScreen() is the correct image source
+      // for all Batik renderer states.
       BufferedImage rend = renderer.getOffScreen();
       renderer = null; // We're done with it...
 

@@ -41,8 +41,8 @@ import java.beans.PropertyChangeSupport;
  * interactively.
  * */
 public abstract class Configurer {
-// FIXME: maybe parameterize this so that value can have the right type
-// in subclasses?
+// REFACTOR: Consider parameterizing this so that value can have the right type
+// in subclasses.
   public static final String NAME_PROPERTY = "Configurer.name";  //NON-NLS
   //    public static final String VALUE_PROPERTY = "value";
 

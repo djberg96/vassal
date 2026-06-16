@@ -161,8 +161,8 @@ public interface PieceFinder {
 
         // Pieces can be moved by background threads causing the size of
         // the Stack to change after the Iterator is generated.
-        // FIXME: This is a workaround. We should fix the threading bug
-        // which causes.
+        // TODO: Fix the threading bug which can move pieces while a stack is
+        // being inspected.
         final int index = s.indexOf(child);
         if (index >= 0 && index < shapes.length) {
           if (shapes[index].contains(pt)) {

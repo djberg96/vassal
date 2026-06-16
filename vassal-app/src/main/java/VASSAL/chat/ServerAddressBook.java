@@ -65,8 +65,12 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
 import net.miginfocom.swing.MigLayout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class ServerAddressBook {
+  private static final Logger logger = LoggerFactory.getLogger(ServerAddressBook.class);
+
   public static final String CURRENT_SERVER = "currentServer"; //$NON-NLS-1$
   private static final String ADDRESS_PREF = "ServerAddressBook"; //$NON-NLS-1$
 
@@ -569,7 +573,7 @@ public final class ServerAddressBook {
       newProperties = new PropertiesEncoder(s).getProperties();
     }
     catch (final IOException e) {
-      // FIXME: Error Message?
+      logger.warn("Ignoring malformed server address book entry: {}", s, e); //NON-NLS
     }
     return buildEntry(newProperties);
   }

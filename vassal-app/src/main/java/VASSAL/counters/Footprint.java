@@ -370,7 +370,7 @@ public class Footprint extends MovementMarkable {
     return description;
   }
 
-  // FIXME: This method is inefficient.
+  // REFACTOR: Cache or precompute footprint geometry to avoid repeated drawing work.
   @Override
   public void draw(Graphics g, int x, int y, Component obs, double zoom) {
     piece.draw(g, x, y, obs, zoom);

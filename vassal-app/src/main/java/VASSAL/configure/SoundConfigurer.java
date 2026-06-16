@@ -49,7 +49,8 @@ public final class SoundConfigurer extends Configurer {
   private JTextField textField;
   private final AudioClipFactory clipFactory;
 
-  //FIXME this needs some i18n scheme and preferably the display version should be [disabled] while leaving file version alone.
+  // TODO: Add an i18n scheme where the display version can be localized while
+  // the serialized file value remains stable.
   private static final String NO_VALUE = "<disabled>";
 
   public SoundConfigurer(String key, String name, String defaultResource) {

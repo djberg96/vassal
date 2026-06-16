@@ -34,7 +34,7 @@ import javax.swing.JPanel;
 
 import net.miginfocom.swing.MigLayout;
 
-// FIXME: Could be made prettier if it didn't use Configurers, or if
+// REFACTOR: Could be made prettier if it didn't use Configurers, or if
 // we made Configurers prettier.
 
 /**

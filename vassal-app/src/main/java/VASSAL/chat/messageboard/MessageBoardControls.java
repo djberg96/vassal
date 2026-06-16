@@ -223,7 +223,7 @@ public final class MessageBoardControls {
         }.execute();
       });
 
-// FIXME: Cancel does not cancel sending a message!
+      // TODO: Make Cancel interrupt the send worker instead of only hiding the dialog.
       final JButton cancelButton = new JButton(Resources.getString(Resources.CANCEL));
       cancelButton.addActionListener(evt -> {
         setVisible(false);
