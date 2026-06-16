@@ -84,6 +84,14 @@ public abstract class AbstractLaunchAction extends AbstractAction {
   protected static final int PHYS_MEMORY;
   public static final int DEFAULT_MAXIMUM_HEAP = 1024;
   protected static final int FAILSAFE_MAXIMUM_HEAP = 128;
+  private static final String MODULE_HEAP_TOO_LARGE_WARNING =
+    "Warning.maximum_heap_too_large"; //NON-NLS
+  private static final String MODULE_HEAP_TOO_SMALL_WARNING =
+    "Warning.maximum_heap_too_small"; //NON-NLS
+  private static final String IMPORT_HEAP_TOO_LARGE_WARNING =
+    "Warning.import_maximum_heap_too_large"; //NON-NLS
+  private static final String IMPORT_HEAP_TOO_SMALL_WARNING =
+    "Warning.import_maximum_heap_too_small"; //NON-NLS
 
   static {
     // Determine how much physical RAM this machine has
@@ -158,6 +166,13 @@ public abstract class AbstractLaunchAction extends AbstractAction {
   }
 
   protected abstract LaunchTask getLaunchTask();
+
+  private record LaunchHeapSettings(
+    String moduleName,
+    int maximumHeap,
+    String maximumHeapTooLargeWarning,
+    String maximumHeapTooSmallWarning
+  ) {}
 
   protected File promptForFile() {
     // prompt the user to pick a file
@@ -262,161 +277,20 @@ public abstract class AbstractLaunchAction extends AbstractAction {
     @Override
     public Void doInBackground() throws InterruptedException,
                                         IOException {
-// FIXME: this should be in an abstract method and farmed out to subclasses
-      // send some basic information to the log
-      if (lr.module != null) {
-        logger.info("Loading module file {}", lr.module.getAbsolutePath()); //NON-NLS
-
-        // check for removed and deprecated elements
-        if (!checkRemovedAndDeprecated(lr.module)) {
-          return null;
-        }
-
-        final ExtensionsManager mgr = new ExtensionsManager(lr.module);
-        for (final File ext : mgr.getActiveExtensions()) {
-          if (!checkRemovedAndDeprecated(ext)) {
-            return null;
-          }
-        }
-
-        // read maximum heap size from global prefs
-        final int max_tiler_heap = getHeapSize(
-          Prefs.getGlobalPrefs(),
-          ModuleManager.TILER_MAXIMUM_HEAP,
-          3*PHYS_MEMORY/4
-        );
-
-        // slice tiles for module
-        final String aname = lr.module.getAbsolutePath();
-        final ModuleMetaData meta = new ModuleMetaData(new ZipFile(aname));
-        final String hstr =
-          DigestUtils.sha1Hex(meta.getName() + "_" + meta.getVersion());
-
-        final File cdir = new File(Info.getCacheDir(), "tiles/" + hstr);
-
-        final TilingHandler th = new TilingHandler(
-          aname,
-          cdir,
-          new Dimension(256, 256),
-          max_tiler_heap
-        );
-
-        try {
-          th.sliceTiles();
-        }
-        catch (CancellationException e) {
-          cancel(true);
-          return null;
-        }
-
-        // slice tiles for extensions
-        for (final File ext : mgr.getActiveExtensions()) {
-          final TilingHandler eth = new TilingHandler(
-            ext.getAbsolutePath(),
-            cdir,
-            new Dimension(256, 256),
-            max_tiler_heap
-          );
-
-          try {
-            eth.sliceTiles();
-          }
-          catch (CancellationException e) {
-            cancel(true);
-            return null;
-          }
-        }
+      if (!prepareLaunchFiles()) {
+        return null;
       }
 
-      if (lr.game != null) {
-        logger.info("Loading game file {}", lr.game.getAbsolutePath()); //NON-NLS
+      final LaunchHeapSettings heapSettings = getLaunchHeapSettings();
+      if (heapSettings == null) {
+        return null;
       }
 
-      if (lr.importFile != null) {
-        logger.info(
-          "Importing module file {}", //NON-NLS
-          lr.importFile.getAbsolutePath()
-        );
-      }
-// end FIXME
-
-      // set default heap size
-      int maximumHeap = DEFAULT_MAXIMUM_HEAP;
-
-      String moduleName = null;
-
-// FIXME: this should be in an abstract method and farmed out to subclasses,
-// rather than a case structure for each kind of thing which may be loaded.
-      // find module-specific heap settings, if any
-      if (lr.module != null) {
-        final AbstractMetaData data = MetaDataFactory.buildMetaData(lr.module);
-
-        if (data == null) {
-          ErrorDialog.show(
-            "Error.invalid_vassal_file", lr.module.getAbsolutePath()); //NON-NLS
-          return null;
-        }
-
-        if (data instanceof ModuleMetaData) {
-          moduleName = ((ModuleMetaData) data).getName();
-
-          // log the module name
-          logger.info("Loading module {}", moduleName); //NON-NLS
-
-          // read module prefs
-          final ReadOnlyPrefs p = new ReadOnlyPrefs(moduleName);
-
-          // read maximum heap size from module prefs
-          maximumHeap = getHeapSize(
-            p, GlobalOptions.MAXIMUM_HEAP, DEFAULT_MAXIMUM_HEAP
-          );
-
-          // log the JVM maximum heap
-          logger.info("JVM maximum heap size: {} MB", maximumHeap); //NON-NLS
-
-        }
-      }
-      else if (lr.importFile != null) {
-        final Prefs p = Prefs.getGlobalPrefs();
-
-        // read maximum heap size from global prefs
-        maximumHeap = getHeapSize(
-          p, ModuleManager.CONVERTER_MAXIMUM_HEAP, DEFAULT_MAXIMUM_HEAP
-        );
-      }
-// end FIXME
-
-      //
-      // Heap size sanity checks: fall back to failsafe heap sizes in
-      // case the given initial or maximum heap is not usable.
-      //
-
-// FIXME: The heap size messages are too nonspecific. They should
-// differentiate between loading a module and importing a module,
-// since the heap sizes are set in different places for those two
-// actions.
-      // maximum heap must fit in physical RAM
-      if (maximumHeap > PHYS_MEMORY) {
-        maximumHeap = FAILSAFE_MAXIMUM_HEAP;
-
-        FutureUtils.wait(WarningDialog.show(
-          "Warning.maximum_heap_too_large", //NON-NLS
-          FAILSAFE_MAXIMUM_HEAP
-        ));
-      }
-      // maximum heap must be at least the failsafe size
-      else if (maximumHeap < FAILSAFE_MAXIMUM_HEAP) {
-        maximumHeap = FAILSAFE_MAXIMUM_HEAP;
-
-        FutureUtils.wait(WarningDialog.show(
-          "Warning.maximum_heap_too_small", //NON-NLS
-          FAILSAFE_MAXIMUM_HEAP
-        ));
-      }
+      final int maximumHeap = validateMaximumHeap(heapSettings);
 
       final int initialHeap = maximumHeap;
 
-      final List<String> argumentList = buildArgumentList(moduleName);
+      final List<String> argumentList = buildArgumentList(heapSettings.moduleName());
       final String[] args = argumentList.toArray(new String[0]);
 
       // try to start a child process with the given heap sizes
@@ -459,7 +333,7 @@ public abstract class AbstractLaunchAction extends AbstractAction {
         }
         else {
           FutureUtils.wait(WarningDialog.show(
-            "Warning.maximum_heap_too_large", //NON-NLS
+            heapSettings.maximumHeapTooLargeWarning(),
             FAILSAFE_MAXIMUM_HEAP
           ));
         }
@@ -479,6 +353,177 @@ public abstract class AbstractLaunchAction extends AbstractAction {
       }
 
       return null;
+    }
+
+    private boolean prepareLaunchFiles() throws IOException {
+      if (lr.module != null && !prepareModuleLaunch()) {
+        return false;
+      }
+
+      if (lr.game != null) {
+        logger.info("Loading game file {}", lr.game.getAbsolutePath()); //NON-NLS
+      }
+
+      if (lr.importFile != null) {
+        logger.info(
+          "Importing module file {}", //NON-NLS
+          lr.importFile.getAbsolutePath()
+        );
+      }
+
+      return true;
+    }
+
+    private boolean prepareModuleLaunch() throws IOException {
+      logger.info("Loading module file {}", lr.module.getAbsolutePath()); //NON-NLS
+
+      if (!checkRemovedAndDeprecated(lr.module)) {
+        return false;
+      }
+
+      final ExtensionsManager mgr = new ExtensionsManager(lr.module);
+      for (final File ext : mgr.getActiveExtensions()) {
+        if (!checkRemovedAndDeprecated(ext)) {
+          return false;
+        }
+      }
+
+      final int maxTilerHeap = getHeapSize(
+        Prefs.getGlobalPrefs(),
+        ModuleManager.TILER_MAXIMUM_HEAP,
+        3 * PHYS_MEMORY / 4
+      );
+
+      final String archiveName = lr.module.getAbsolutePath();
+      final ModuleMetaData meta = new ModuleMetaData(new ZipFile(archiveName));
+      final String cacheKey =
+        DigestUtils.sha1Hex(meta.getName() + "_" + meta.getVersion());
+
+      final File cacheDir = new File(Info.getCacheDir(), "tiles/" + cacheKey);
+
+      if (!sliceTiles(archiveName, cacheDir, maxTilerHeap)) {
+        return false;
+      }
+
+      for (final File ext : mgr.getActiveExtensions()) {
+        if (!sliceTiles(ext.getAbsolutePath(), cacheDir, maxTilerHeap)) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    private boolean sliceTiles(String archiveName, File cacheDir, int maxTilerHeap)
+        throws IOException {
+      final TilingHandler th = new TilingHandler(
+        archiveName,
+        cacheDir,
+        new Dimension(256, 256),
+        maxTilerHeap
+      );
+
+      try {
+        th.sliceTiles();
+        return true;
+      }
+      catch (CancellationException e) {
+        cancel(true);
+        return false;
+      }
+    }
+
+    private LaunchHeapSettings getLaunchHeapSettings() {
+      if (lr.module != null) {
+        return getModuleLaunchHeapSettings();
+      }
+
+      if (lr.importFile != null) {
+        return getImportLaunchHeapSettings();
+      }
+
+      return new LaunchHeapSettings(
+        null,
+        DEFAULT_MAXIMUM_HEAP,
+        MODULE_HEAP_TOO_LARGE_WARNING,
+        MODULE_HEAP_TOO_SMALL_WARNING
+      );
+    }
+
+    private LaunchHeapSettings getModuleLaunchHeapSettings() {
+      final AbstractMetaData data = MetaDataFactory.buildMetaData(lr.module);
+
+      if (data == null) {
+        ErrorDialog.show(
+          "Error.invalid_vassal_file", lr.module.getAbsolutePath()); //NON-NLS
+        return null;
+      }
+
+      if (data instanceof ModuleMetaData meta) {
+        final String moduleName = meta.getName();
+
+        logger.info("Loading module {}", moduleName); //NON-NLS
+
+        final ReadOnlyPrefs p = new ReadOnlyPrefs(moduleName);
+        final int maximumHeap = getHeapSize(
+          p, GlobalOptions.MAXIMUM_HEAP, DEFAULT_MAXIMUM_HEAP
+        );
+
+        logger.info("JVM maximum heap size: {} MB", maximumHeap); //NON-NLS
+
+        return new LaunchHeapSettings(
+          moduleName,
+          maximumHeap,
+          MODULE_HEAP_TOO_LARGE_WARNING,
+          MODULE_HEAP_TOO_SMALL_WARNING
+        );
+      }
+
+      return new LaunchHeapSettings(
+        null,
+        DEFAULT_MAXIMUM_HEAP,
+        MODULE_HEAP_TOO_LARGE_WARNING,
+        MODULE_HEAP_TOO_SMALL_WARNING
+      );
+    }
+
+    private LaunchHeapSettings getImportLaunchHeapSettings() {
+      final int maximumHeap = getHeapSize(
+        Prefs.getGlobalPrefs(),
+        ModuleManager.CONVERTER_MAXIMUM_HEAP,
+        DEFAULT_MAXIMUM_HEAP
+      );
+
+      logger.info("Converter JVM maximum heap size: {} MB", maximumHeap); //NON-NLS
+
+      return new LaunchHeapSettings(
+        null,
+        maximumHeap,
+        IMPORT_HEAP_TOO_LARGE_WARNING,
+        IMPORT_HEAP_TOO_SMALL_WARNING
+      );
+    }
+
+    private int validateMaximumHeap(LaunchHeapSettings heapSettings) {
+      final int maximumHeap = heapSettings.maximumHeap();
+
+      if (maximumHeap > PHYS_MEMORY) {
+        FutureUtils.wait(WarningDialog.show(
+          heapSettings.maximumHeapTooLargeWarning(),
+          FAILSAFE_MAXIMUM_HEAP
+        ));
+        return FAILSAFE_MAXIMUM_HEAP;
+      }
+
+      if (maximumHeap < FAILSAFE_MAXIMUM_HEAP) {
+        FutureUtils.wait(WarningDialog.show(
+          heapSettings.maximumHeapTooSmallWarning(),
+          FAILSAFE_MAXIMUM_HEAP
+        ));
+        return FAILSAFE_MAXIMUM_HEAP;
+      }
+
+      return maximumHeap;
     }
 
     private int strToInt(Object val, int defaultVal) {
@@ -565,7 +610,6 @@ public abstract class AbstractLaunchAction extends AbstractAction {
         // set the MacOS dock parameters
 
         // use the module name for the dock if we found a module name
-// FIXME: should "Unnamed module" be localized?
         final String d_name = moduleName != null && moduleName.length() > 0
           ? moduleName : Resources.getString("Editor.AbstractLaunchAction.unnamed_module"); //NON-NLS
 
