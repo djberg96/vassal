@@ -47,16 +47,16 @@ public class DataArchiveTest {
       "images/cards/card.gif"
     ));
 
-    final DataArchive archive = new TestDataArchive(fileArchive);
-
-    assertEquals(
-      sorted("cards/card.gif", "counter.png"),
-      archive.getImageNameSet()
-    );
-    assertEquals(
-      sorted("images/cards/card.gif", "images/counter.png"),
-      archive.getImageNameSet(false, true)
-    );
+    try (DataArchive archive = new TestDataArchive(fileArchive)) {
+      assertEquals(
+        sorted("cards/card.gif", "counter.png"),
+        archive.getImageNameSet()
+      );
+      assertEquals(
+        sorted("images/cards/card.gif", "images/counter.png"),
+        archive.getImageNameSet(false, true)
+      );
+    }
   }
 
   @Test
@@ -67,30 +67,32 @@ public class DataArchiveTest {
     final FileArchive extensionArchive = mock(FileArchive.class);
     when(extensionArchive.getFiles("images")).thenReturn(List.of("images/extension.png"));
 
-    final DataArchive archive = new TestDataArchive(baseArchive);
-    archive.addExtension(new TestDataArchive(extensionArchive));
+    try (DataArchive archive = new TestDataArchive(baseArchive);
+         DataArchive extension = new TestDataArchive(extensionArchive)) {
+      archive.addExtension(extension);
 
-    assertEquals(
-      sorted("base.png", "extension.png"),
-      archive.getImageNameSet()
-    );
+      assertEquals(
+        sorted("base.png", "extension.png"),
+        archive.getImageNameSet()
+      );
+    }
   }
 
   @Test
-  public void loadClassUsesParentClassLoaderFirst() throws ClassNotFoundException {
-    final DataArchive archive = new TestDataArchive(mock(FileArchive.class));
-
-    assertSame(String.class, archive.loadClass("java.lang.String"));
+  public void loadClassUsesParentClassLoaderFirst() throws IOException, ClassNotFoundException {
+    try (DataArchive archive = new TestDataArchive(mock(FileArchive.class))) {
+      assertSame(String.class, archive.loadClass("java.lang.String"));
+    }
   }
 
   @Test
-  public void loadClassThrowsForMissingClasses() {
-    final DataArchive archive = new TestDataArchive(mock(FileArchive.class));
-
-    assertThrows(
-      ClassNotFoundException.class,
-      () -> archive.loadClass("example.DoesNotExist")
-    );
+  public void loadClassThrowsForMissingClasses() throws IOException {
+    try (DataArchive archive = new TestDataArchive(mock(FileArchive.class))) {
+      assertThrows(
+        ClassNotFoundException.class,
+        () -> archive.loadClass("example.DoesNotExist")
+      );
+    }
   }
 
   private static SortedSet<String> sorted(String... values) {
