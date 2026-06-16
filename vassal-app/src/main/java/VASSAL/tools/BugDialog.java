@@ -147,6 +147,7 @@ public final class BugDialog extends JDialog {
     contents.add(buildVersionCheckPanel(),     "versionCheckPanel");  //NON-NLS
     contents.add(buildCurrentVersionPanel(),   "currentVersionPanel"); //NON-NLS
     contents.add(buildSendingBugReportPanel(), "sendingBugReportPanel"); //NON-NLS
+    contents.add(buildReportSentPanel(),       "reportSentPanel"); //NON-NLS
     contents.add(buildNonReportingVersionPanel(key + ".old_version_instructions"), "oldVersionPanel"); //NON-NLS
     contents.add(buildNonReportingVersionPanel(key + ".test_version_instructions"), "testVersionPanel"); //NON-NLS
     contents.add(buildConnectionFailedPanel(), "connectionFailedPanel"); //NON-NLS
@@ -162,6 +163,7 @@ public final class BugDialog extends JDialog {
     buttons.add(buildVersionCheckButtons(),     "versionCheckButtons"); //NON-NLS
     buttons.add(buildCurrentVersionButtons(),   "currentVersionButtons"); //NON-NLS
     buttons.add(buildSendingBugReportButtons(), "sendingBugReportButtons"); //NON-NLS
+    buttons.add(buildOkButtons(),               "reportSentButtons"); //NON-NLS
     buttons.add(buildNonReportingVersionButtons(), "oldVersionButtons"); //NON-NLS
     buttons.add(buildNonReportingVersionButtons(), "testVersionButtons"); //NON-NLS
     buttons.add(buildConnectionFailedButtons(), "connectionFailedButtons"); //NON-NLS
@@ -197,11 +199,7 @@ public final class BugDialog extends JDialog {
       }
     );
 
-// FIXME: tags don't push buttons to ends?
-    final JPanel panel = new JPanel(new MigLayout("align right")); //NON-NLS
-    panel.add(cancelButton, "tag cancel"); //NON-NLS
-
-    return panel;
+    return buildButtonRow(cancelButton, "tag cancel"); //NON-NLS
   }
 
   private Component buildCurrentVersionPanel() {
@@ -271,11 +269,7 @@ public final class BugDialog extends JDialog {
       }
     );
 
-    final JPanel panel = new JPanel(new MigLayout("align right")); //NON-NLS
-    panel.add(sendButton, "tag ok"); //NON-NLS
-    panel.add(dontSendButton, "tag cancel"); //NON-NLS
-
-    return panel;
+    return buildButtonRow(sendButton, "tag ok", dontSendButton, "tag cancel"); //NON-NLS
   }
 
   private JScrollPane buildDetailsScroll() {
@@ -319,10 +313,7 @@ public final class BugDialog extends JDialog {
       }
     );
 
-    final JPanel panel = new JPanel(new MigLayout("align right")); //NON-NLS
-    panel.add(okButton, "tag ok"); //NON-NLS
-
-    return panel;
+    return buildButtonRow(okButton, "tag ok"); //NON-NLS
   }
 
   private String makeErrorLogURLString(File f) {
@@ -376,10 +367,7 @@ public final class BugDialog extends JDialog {
       }
     );
 
-    final JPanel panel = new JPanel(new MigLayout("align right")); //NON-NLS
-    panel.add(okButton, "tag ok"); //NON-NLS
-
-    return panel;
+    return buildButtonRow(okButton, "tag ok"); //NON-NLS
   }
 
   private Component buildEmergencySavePanel() {
@@ -392,30 +380,24 @@ public final class BugDialog extends JDialog {
     return panel;
   }
 
+  private Component buildReportSentPanel() {
+    final FlowLabel thanks =
+      new FlowLabel(Resources.getString("BugDialog.report_sent")); //NON-NLS
+    final FlowLabel instructions =
+      new FlowLabel(Resources.getString(key + ".how_to_proceed")); //NON-NLS
+
+    final JPanel panel = new JPanel(new MigLayout("", "", "[]unrel[]push")); //NON-NLS
+    panel.add(thanks, "cell 0 0, growx, pushx"); //NON-NLS
+    panel.add(instructions, "cell 0 1, growx, pushx"); //NON-NLS
+
+    return panel;
+  }
+
   private Component buildEmergencySaveButtons() {
-/*
-    final JButton saveButton = new JButton(
-      new AbstractAction("Save") {
-        private static final long serialVersionUID = 1L;
+    return buildOkButtons();
+  }
 
-        public void actionPerformed(ActionEvent e) {
-          emergencySave();
-          dispose();
-        }
-      }
-    );
-
-    final JButton dontSaveButton = new JButton(
-      new AbstractAction("Don't Save") {
-        private static final long serialVersionUID = 1L;
-
-        public void actionPerformed(ActionEvent e) {
-          dispose();
-        }
-      }
-    );
-*/
-
+  private Component buildOkButtons() {
     final JButton okButton = new JButton(
       new AbstractAction(Resources.getString(Resources.OK)) {
         private static final long serialVersionUID = 1L;
@@ -427,9 +409,20 @@ public final class BugDialog extends JDialog {
       }
     );
 
-    final JPanel panel = new JPanel(new MigLayout("align right")); //NON-NLS
-    panel.add(okButton, "tag ok"); //NON-NLS
+    return buildButtonRow(okButton, "tag ok"); //NON-NLS
+  }
 
+  private Component buildButtonRow(JButton button, String constraints) {
+    final JPanel panel = new JPanel(new MigLayout("ins 0, align right")); //NON-NLS
+    panel.add(button, constraints);
+    return panel;
+  }
+
+  private Component buildButtonRow(JButton firstButton, String firstConstraints,
+                                   JButton secondButton, String secondConstraints) {
+    final JPanel panel = new JPanel(new MigLayout("ins 0, align right")); //NON-NLS
+    panel.add(firstButton, firstConstraints);
+    panel.add(secondButton, secondConstraints);
     return panel;
   }
 
@@ -449,6 +442,11 @@ public final class BugDialog extends JDialog {
 
     sendRequest = new SendRequest();
     sendRequest.execute();
+  }
+
+  private void showReportSentPanel() {
+    deck.show(contents, "reportSentPanel");
+    button_deck.show(buttons, "reportSentButtons");
   }
 
   private void showOldVersionPanel() {
@@ -611,7 +609,7 @@ public final class BugDialog extends JDialog {
     protected void done() {
       try {
         get(10, TimeUnit.SECONDS);
-        showEmergencySavePanel();
+        showReportSentPanel();
       }
       catch (CancellationException e) {
         // cancelled by user, do nothing
@@ -624,22 +622,6 @@ public final class BugDialog extends JDialog {
       }
     }
   }
-
-// FIXME: add a page thanking the user for his bug report and providing
-// a link to it at SF.
-
-/*
-  private void emergencySave() {
-// FIXME: GameModule and GameState need save methods which take a filename
-    final GameModule mod = GameModule.getGameModule();
-    if (mod != null) mod.save(false);
-
-    final GameState state = mod.getGameState();
-    if (state != null && state.isModified()) {
-      state.saveGame();
-    }
-  }
-*/
 
   public static void main(String[] args) {
     SwingUtilities.invokeLater(() -> {
