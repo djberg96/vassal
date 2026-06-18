@@ -21,6 +21,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import java.awt.Component;
+import java.io.IOException;
+import javax.swing.JButton;
+import javax.swing.JOptionPane;
+import javax.swing.SwingWorker;
+
 import VASSAL.build.AbstractConfigurable;
 import VASSAL.build.Buildable;
 import VASSAL.build.GameModule;
@@ -30,6 +36,8 @@ import VASSAL.build.module.dice.RandomOrgDiceServer;
 import VASSAL.build.module.dice.RollSet;
 import VASSAL.build.module.documentation.HelpFile;
 import VASSAL.command.Command;
+import VASSAL.configure.Configurer;
+import VASSAL.configure.ConfigurerPanel;
 import VASSAL.configure.PasswordConfigurer;
 import VASSAL.configure.StringEnumConfigurer;
 import VASSAL.i18n.Resources;
@@ -55,12 +63,13 @@ public final class DieManager extends AbstractConfigurable {
   public static final String USE_INTERNET_DICE = "useinternetdice"; //NON-NLS
   public static final String DICE_SERVER = "diceserver"; //NON-NLS
   public static final String SERVER_PW = "serverpw"; //NON-NLS
+  public static final String VERIFY_DICE_SERVER = "verifydiceserver"; //NON-NLS
 
   public static final String DESC = "description"; //NON-NLS
   public static final String DFLT_NSIDES = "dfltnsides"; //NON-NLS
   public static final String DFLT_NDICE = "dfltndice"; //NON-NLS
-  public static final String RANDOM_ORG_DESCRIPTION = "RANDOM.ORG Signed API"; //NON-NLS
-  public static final String Q_RANDOM_DESCRIPTION = "qrandom.io Quantum Dice (d6 only)"; //NON-NLS
+  public static final String RANDOM_ORG_DESCRIPTION = "random.org"; //NON-NLS
+  public static final String Q_RANDOM_DESCRIPTION = "qrandom.io"; //NON-NLS
   public static final String DEFAULT_DICE_SERVER = RANDOM_ORG_DESCRIPTION; //NON-NLS
 
   public DieManager() {
@@ -91,15 +100,36 @@ public final class DieManager extends AbstractConfigurable {
     );
     diceServer.setValue(DEFAULT_DICE_SERVER);
 
-    final PasswordConfigurer serverKey = new PasswordConfigurer(
+    final TrimmingPasswordConfigurer serverKey = new TrimmingPasswordConfigurer(
       SERVER_PW,
       Resources.getString("Prefs.internet_dice_api_key"),
       ""
     );
+    final VerifyInternetDiceConfigurer verify = new VerifyInternetDiceConfigurer(prefs);
 
     final String tab = Resources.getString("Prefs.internet_dice_tab");
     prefs.addOption(tab, diceServer);
     prefs.addOption(tab, serverKey);
+    prefs.addOption(tab, verify);
+  }
+
+  static void verifyInternetDice(Prefs prefs) throws IOException {
+    final DieServer testServer = createServerFromDescription(stringPref(prefs, DICE_SERVER, DEFAULT_DICE_SERVER));
+    testServer.setPasswd(stringPref(prefs, SERVER_PW, ""));
+
+    if (testServer.isPasswdRequired() && testServer.getPasswd().isBlank()) {
+      throw new IOException(Resources.getString("Prefs.internet_dice_verify_missing_key"));
+    }
+
+    final RollSet rollSet = new RollSet("verification", new DieRoll[] { new DieRoll("d6", 1, 6) });
+    testServer.doIRoll(rollSet);
+  }
+
+  private static DieServer createServerFromDescription(String description) {
+    if (Q_RANDOM_DESCRIPTION.equals(description)) {
+      return new QRandomDiceServer();
+    }
+    return new RandomOrgDiceServer();
   }
 
   // Return names of all known Dice Servers
@@ -204,7 +234,7 @@ public final class DieManager extends AbstractConfigurable {
   private static String stringPref(Prefs prefs, String key, String defaultValue) {
     final Object value = prefs.getValue(key);
     if (value instanceof String s && !s.isBlank()) {
-      return s;
+      return s.strip();
     }
     return defaultValue;
   }
@@ -313,5 +343,96 @@ public final class DieManager extends AbstractConfigurable {
 
   public static String getConfigureTypeName() {
     return Resources.getString("Editor.DieManager.component_type"); //$NON-NLS-1$
+  }
+
+  static final class TrimmingPasswordConfigurer extends PasswordConfigurer {
+    TrimmingPasswordConfigurer(String key, String name, String val) {
+      super(key, name, strip(val));
+    }
+
+    @Override
+    public String getValueString() {
+      return strip(super.getValueString());
+    }
+
+    @Override
+    public void setValue(String s) {
+      super.setValue(strip(s));
+    }
+
+    private static String strip(String value) {
+      return value == null ? "" : value.strip();
+    }
+  }
+
+  static final class VerifyInternetDiceConfigurer extends Configurer {
+    private final Prefs prefs;
+    private Component controls;
+    private JButton verifyButton;
+
+    VerifyInternetDiceConfigurer(Prefs prefs) {
+      super(VERIFY_DICE_SERVER, Resources.getString("Prefs.internet_dice_verify"));
+      this.prefs = prefs;
+    }
+
+    @Override
+    public String getValueString() {
+      return null;
+    }
+
+    @Override
+    public void setValue(String s) {
+    }
+
+    @Override
+    public Component getControls() {
+      if (controls != null) {
+        return controls;
+      }
+
+      final ConfigurerPanel panel = new ConfigurerPanel(getName(), "[]", "[][]"); //NON-NLS
+      verifyButton = new JButton(Resources.getString("Prefs.internet_dice_verify_button"));
+      verifyButton.addActionListener(e -> verify());
+      panel.add(verifyButton);
+      controls = panel;
+      return controls;
+    }
+
+    private void verify() {
+      verifyButton.setEnabled(false);
+      new SwingWorker<Void, Void>() {
+        @Override
+        protected Void doInBackground() throws Exception {
+          verifyInternetDice(prefs);
+          return null;
+        }
+
+        @Override
+        protected void done() {
+          verifyButton.setEnabled(true);
+          try {
+            get();
+            JOptionPane.showMessageDialog(
+              verifyButton,
+              Resources.getString("Prefs.internet_dice_verify_success"),
+              Resources.getString("Prefs.internet_dice_verify"),
+              JOptionPane.INFORMATION_MESSAGE
+            );
+          }
+          catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
+          catch (Exception e) {
+            final Throwable cause = e.getCause() == null ? e : e.getCause();
+            JOptionPane.showMessageDialog(
+              verifyButton,
+              Resources.getString("Prefs.internet_dice_verify_failure", cause.getMessage()),
+              Resources.getString("Prefs.internet_dice_verify"),
+              JOptionPane.ERROR_MESSAGE
+            );
+          }
+        }
+      }.execute();
+    }
   }
 }

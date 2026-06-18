@@ -3,6 +3,7 @@ package VASSAL.build.module;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -31,7 +32,7 @@ public class DieManagerTest {
 
       assertArrayEquals(new String[] { "RandomOrg", "QRandom" }, manager.getNames());
       assertArrayEquals(
-        new String[] { "RANDOM.ORG Signed API", "qrandom.io Quantum Dice (d6 only)" },
+        new String[] { "random.org", "qrandom.io" },
         manager.getDescriptions()
       );
     }
@@ -57,8 +58,30 @@ public class DieManagerTest {
 
     DieManager.addGlobalPreferences(prefs);
 
-    verify(prefs, times(2)).addOption(Mockito.eq("Internet Dice"), configurer.capture());
+    verify(prefs, times(3)).addOption(Mockito.eq("Internet Dice"), configurer.capture());
     assertEquals(DieManager.DICE_SERVER, configurer.getAllValues().get(0).getKey());
     assertEquals(DieManager.SERVER_PW, configurer.getAllValues().get(1).getKey());
+    assertEquals(DieManager.VERIFY_DICE_SERVER, configurer.getAllValues().get(2).getKey());
+  }
+
+  @Test
+  public void internetDiceApiKeyIsTrimmed() {
+    final DieManager.TrimmingPasswordConfigurer configurer =
+      new DieManager.TrimmingPasswordConfigurer(DieManager.SERVER_PW, "API key / password", "");
+
+    configurer.setValue("  secret  ");
+
+    assertEquals("secret", configurer.getValueString());
+  }
+
+  @Test
+  public void randomOrgVerificationRequiresApiKey() {
+    final Prefs prefs = mock(Prefs.class);
+    when(prefs.getValue(DieManager.DICE_SERVER)).thenReturn(DieManager.RANDOM_ORG_DESCRIPTION);
+    when(prefs.getValue(DieManager.SERVER_PW)).thenReturn(" ");
+
+    final Exception e = assertThrows(Exception.class, () -> DieManager.verifyInternetDice(prefs));
+
+    assertEquals("An API key is required for the selected service.", e.getMessage());
   }
 }
