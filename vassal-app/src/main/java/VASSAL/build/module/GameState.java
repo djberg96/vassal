@@ -1101,11 +1101,15 @@ public class GameState implements CommandEncoder {
     }
   }
 
-  /** Saves the game to an existing file, or prompts for a new one. */
-  public void saveGame() {
+  /**
+   * Saves the game to an existing file, or prompts for a new one.
+   *
+   * @return {@code true} if the game was saved, {@code false} if the save was canceled or failed.
+   */
+  public boolean saveGame() {
     if (lastSaveFile != null) {
       if (!checkForOldSaveFile(lastSaveFile)) {
-        return;
+        return false;
       }
 
       try {
@@ -1113,27 +1117,34 @@ public class GameState implements CommandEncoder {
         if (!GameModule.getGameModule().isReplayingOrLogging()) {
           GameModule.getGameModule().setGameFile(lastSaveFile.getName(), GameModule.GameFileMode.SAVED_GAME);
         }
+        return true;
       }
       catch (IOException e) {
         WriteErrorDialog.error(e, lastSaveFile);
+        return false;
       }
     }
     else {
-      saveGameAs();
+      return saveGameAs();
     }
   }
 
-  /** Prompts the user for a file into which to save the game */
-  public void saveGameAs() {
+  /**
+   * Prompts the user for a file into which to save the game.
+   *
+   * @return {@code true} if the game was saved, {@code false} if the save was canceled or failed.
+   */
+  public boolean saveGameAs() {
     final GameModule g = GameModule.getGameModule();
 
     final File saveFile = getSaveFile();
     if (saveFile == null) {
       g.warn(Resources.getString("GameState.save_canceled"));  //$NON-NLS-1$
+      return false;
     }
     else {
       if (!checkForOldSaveFile(saveFile)) {
-        return;
+        return false;
       }
 
       try {
@@ -1142,9 +1153,11 @@ public class GameState implements CommandEncoder {
         if (!GameModule.getGameModule().isReplayingOrLogging()) {
           g.setGameFile(saveFile.getName(), GameModule.GameFileMode.SAVED_GAME);
         }
+        return true;
       }
       catch (IOException e) {
         WriteErrorDialog.error(e, saveFile);
+        return false;
       }
     }
   }

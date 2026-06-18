@@ -23,6 +23,9 @@ import java.beans.PropertyChangeSupport;
 import java.io.IOException;
 import java.util.Properties;
 
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+
 import org.litesoft.p2pchat.ActivePeer;
 import org.litesoft.p2pchat.ActivePeerManager;
 import org.litesoft.p2pchat.MyInfo;
@@ -34,6 +37,7 @@ import org.slf4j.LoggerFactory;
 
 import VASSAL.build.GameModule;
 import VASSAL.build.module.Chatter;
+import VASSAL.build.module.GameState;
 import VASSAL.chat.ChatServerConnection;
 import VASSAL.chat.Player;
 import VASSAL.chat.PlayerEncoder;
@@ -365,6 +369,46 @@ public class P2PClient implements ChatServerConnection, ChatControlsInitializer,
 
     propSupport.firePropertyChange(AVAILABLE_ROOMS, null, roomMgr.update(pPeerInfo));
     propSupport.firePropertyChange(ROOM, null, getRoom());
+    requestSyncAfterPeerConnect(pPeerInfo);
+  }
+
+  private void requestSyncAfterPeerConnect(PeerInfo pPeerInfo) {
+    SwingUtilities.invokeLater(() -> {
+      final GameModule gameModule = GameModule.getGameModule();
+      if (gameModule == null) {
+        return;
+      }
+
+      final GameState gameState = gameModule.getGameState();
+      if (gameState.isGameStarted()) {
+        final Object[] options = {
+          Resources.getString("General.save"), //$NON-NLS-1$
+          Resources.getString("Peer2Peer.sync_without_saving"), //$NON-NLS-1$
+          Resources.getString("General.cancel") //$NON-NLS-1$
+        };
+        final int syncChoice = JOptionPane.showOptionDialog(
+          gameModule.getPlayerWindow(),
+          Resources.getString("Peer2Peer.save_before_sync_message"), //$NON-NLS-1$
+          Resources.getString("Peer2Peer.save_before_sync_title"), //$NON-NLS-1$
+          JOptionPane.YES_NO_CANCEL_OPTION,
+          JOptionPane.QUESTION_MESSAGE,
+          null,
+          options,
+          options[0]
+        );
+
+        if (syncChoice == JOptionPane.YES_OPTION) {
+          if (!gameState.saveGame()) {
+            return;
+          }
+        }
+        else if (syncChoice != JOptionPane.NO_OPTION) {
+          return;
+        }
+      }
+
+      new SynchAction(new P2PPlayer(pPeerInfo), this).actionPerformed(null);
+    });
   }
 
   @Override
