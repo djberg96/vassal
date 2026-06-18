@@ -82,7 +82,6 @@ public class SpecialDiceButton extends DoActionButton implements CommandEncoder,
   protected boolean reportResultInWindow = false;
   protected boolean reportResultInButton = false;
   protected String id;
-  protected String sMapName;
   protected JDialog dialog; // Dialog to show results graphical
   protected JLabel dialogLabel;
   protected Color bgColor;
@@ -238,8 +237,7 @@ public class SpecialDiceButton extends DoActionButton implements CommandEncoder,
    * Otherwise, report the individual results <code>SORT</code> if true sort results per die by numeric value
    * <code>RESULT_CHATTER</code> if true report results in chatter <code>RESULT_WINDOW</code> if true show result
    * graphical in extra window <code>WINDOW_X</code> width of window or button <code>WINDOW_Y</code> height of
-   * window or button <code>RESULT_MAP</code> :TODO: if true show result in special area in map <code>MAP_NAME</code>
-   * :TODO: name of map <code>RESULT_BUTTON</code> if true show result graphical in button
+   * window or button <code>RESULT_BUTTON</code> if true show result graphical in button
    */
   @Override
   public String[] getAttributeNames() {
