@@ -191,6 +191,8 @@ public final class MessageBoardControls {
   private class Comp extends JFrame {
     private static final long serialVersionUID = 1L;
 
+    private SwingWorker<Void, Void> sendWorker;
+
     private Comp() {
       super(Resources.getString("Chat.message_composer"));  //$NON-NLS-1$
       setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
@@ -203,31 +205,49 @@ public final class MessageBoardControls {
       final JButton okButton =
         new JButton(Resources.getString("Chat.send"));  //$NON-NLS-1$
       okButton.addActionListener(evt -> {
+        if (sendWorker != null && !sendWorker.isDone()) {
+          return;
+        }
+
         okButton.setEnabled(false);
         msgArea.setEnabled(false);
+        final String message = msgArea.getText();
 
-        new SwingWorker<Void, Void>() {
+        sendWorker = new SwingWorker<>() {
           @Override
           protected Void doInBackground() {
-            server.postMessage(msgArea.getText());
+            if (!isCancelled()) {
+              server.postMessage(message);
+            }
             return null;
           }
 
           @Override
           protected void done() {
-            setVisible(false);
+            final boolean cancelled = isCancelled();
+            sendWorker = null;
+
+            if (!cancelled) {
+              setVisible(false);
+              msgArea.setText("");  //$NON-NLS-1$
+            }
+
             okButton.setEnabled(true);
-            msgArea.setText("");  //$NON-NLS-1$
             msgArea.setEnabled(true);
           }
-        }.execute();
+        };
+        sendWorker.execute();
       });
 
-      // TODO: Make Cancel interrupt the send worker instead of only hiding the dialog.
       final JButton cancelButton = new JButton(Resources.getString(Resources.CANCEL));
       cancelButton.addActionListener(evt -> {
+        if (sendWorker != null && !sendWorker.isDone()) {
+          sendWorker.cancel(true);
+        }
         setVisible(false);
         msgArea.setText("");  //$NON-NLS-1$
+        msgArea.setEnabled(true);
+        okButton.setEnabled(true);
       });
 
       b.add(okButton);
