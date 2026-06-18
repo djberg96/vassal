@@ -1,6 +1,14 @@
 package org.litesoft.p2pchat;
 
-import java.net.*;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.List;
 
 // Copyright Status:
 //
@@ -86,13 +94,75 @@ public class ThisMachine {
     if (OurInetAddresses != null)
       return true;
 
-    try {
-      OurInetAddresses = InetAddress.getAllByName(InetAddress.getLocalHost().getHostName());
+    List<InetAddress> addresses = getInterfaceAddresses();
+    if (addresses.isEmpty()) {
+      addresses = getLocalHostAddresses();
     }
-    catch (UnknownHostException e) {
-      OurInetAddresses = null;
-    }
+    OurInetAddresses = addresses.isEmpty() ? null : addresses.toArray(new InetAddress[0]);
 
     return (OurInetAddresses != null);
+  }
+
+  private static List<InetAddress> getInterfaceAddresses() {
+    final List<InetAddress> siteLocal = new ArrayList<>();
+    final List<InetAddress> nonLoopback = new ArrayList<>();
+    final List<InetAddress> loopback = new ArrayList<>();
+
+    try {
+      final Enumeration<NetworkInterface> ifaces = NetworkInterface.getNetworkInterfaces();
+      if (ifaces == null) {
+        return Collections.emptyList();
+      }
+
+      while (ifaces.hasMoreElements()) {
+        final NetworkInterface iface = ifaces.nextElement();
+        final Enumeration<InetAddress> inetAddrs = iface.getInetAddresses();
+        while (inetAddrs.hasMoreElements()) {
+          final InetAddress inetAddr = inetAddrs.nextElement();
+          if (!(inetAddr instanceof Inet4Address)) {
+            continue;
+          }
+
+          if (inetAddr.isLoopbackAddress()) {
+            addUnique(loopback, inetAddr);
+          }
+          else if (inetAddr.isSiteLocalAddress()) {
+            addUnique(siteLocal, inetAddr);
+          }
+          else {
+            addUnique(nonLoopback, inetAddr);
+          }
+        }
+      }
+    }
+    catch (SocketException e) {
+      return Collections.emptyList();
+    }
+
+    siteLocal.addAll(nonLoopback);
+    siteLocal.addAll(loopback);
+    return siteLocal;
+  }
+
+  private static List<InetAddress> getLocalHostAddresses() {
+    try {
+      final InetAddress[] localAddresses = InetAddress.getAllByName(InetAddress.getLocalHost().getHostName());
+      final List<InetAddress> addresses = new ArrayList<>();
+      for (final InetAddress address : localAddresses) {
+        if (address instanceof Inet4Address) {
+          addUnique(addresses, address);
+        }
+      }
+      return addresses;
+    }
+    catch (UnknownHostException e) {
+      return Collections.emptyList();
+    }
+  }
+
+  private static void addUnique(List<InetAddress> addresses, InetAddress address) {
+    if (!addresses.contains(address)) {
+      addresses.add(address);
+    }
   }
 }
