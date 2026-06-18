@@ -24,14 +24,19 @@ import VASSAL.counters.TraitConfigPanel;
 import VASSAL.i18n.Resources;
 import VASSAL.tools.SequenceEncoder;
 
+import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
 import java.awt.Window;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeListener;
 
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import net.miginfocom.swing.MigLayout;
 
@@ -39,6 +44,11 @@ import net.miginfocom.swing.MigLayout;
  * A Configurer for {@link Font}values
  */
 public class FontConfigurer extends Configurer {
+  static final String PREVIEW_COMPONENT_NAME = "FontConfigurer.preview"; // NON-NLS
+
+  private static final int PREVIEW_COLUMNS = 20;
+  private static final int PREVIEW_PADDING = 8;
+  private static final Color PREVIEW_OUTLINE_COLOR = Color.RED;
 
   private TraitConfigPanel p;
   private IntConfigurer size;
@@ -46,7 +56,7 @@ public class FontConfigurer extends Configurer {
   private BooleanConfigurer italic;
   private BooleanConfigurer outline;
   private JComboBox<String> family;
-  private JTextField demo;
+  private FontPreview demo;
 
   public FontConfigurer(String key, String name) {
     super(key, name);
@@ -97,13 +107,11 @@ public class FontConfigurer extends Configurer {
       italic = new BooleanConfigurer(isItalic());
       p.add("Editor.FontConfigurer.italic_checkbox", italic);
 
-      // Not Implemented
       outline = new BooleanConfigurer(isOutline());
-      // p.add("Editor.FontConfigurer.outline_checkbox", outline);
+      p.add("Editor.FontConfigurer.outline_checkbox", outline);
 
       final JPanel demoPanel = new JPanel(new MigLayout("ins 0", "grow,fill")); // NON-NLS
-      demo = new JTextField(Resources.getString("Editor.FontConfigurer.sample_text"), 20);
-      demo.setEditable(false);
+      demo = new FontPreview(Resources.getString("Editor.FontConfigurer.sample_text"));
       demoPanel.add(demo, "grow"); // NON-NLS
       p.add("Editor.FontConfigurer.sample_label", demoPanel, "grow"); // NON-NLS
 
@@ -134,7 +142,7 @@ public class FontConfigurer extends Configurer {
     );
 
     setValue(font);
-    demo.setFont(font);
+    demo.setPreviewFont(font);
 
     final Window w = SwingUtilities.getWindowAncestor(getControls());
     if (w != null) {
@@ -173,5 +181,62 @@ public class FontConfigurer extends Configurer {
 
   public boolean isOutline() {
     return getFontValue().isOutline();
+  }
+
+  private static class FontPreview extends JComponent {
+    private static final long serialVersionUID = 1L;
+
+    private final String text;
+    private OutlineFont previewFont;
+
+    FontPreview(String text) {
+      this.text = text;
+      setName(PREVIEW_COMPONENT_NAME);
+      setOpaque(true);
+      setBackground(Color.WHITE);
+      setForeground(Color.BLACK);
+      setBorder(BorderFactory.createEtchedBorder());
+    }
+
+    void setPreviewFont(OutlineFont font) {
+      previewFont = font;
+      setFont(font);
+      revalidate();
+      repaint();
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+      final Font font = getFont();
+      final FontMetrics metrics = getFontMetrics(font);
+      return new Dimension(
+        metrics.charWidth('m') * PREVIEW_COLUMNS + PREVIEW_PADDING * 2,
+        metrics.getHeight() + PREVIEW_PADDING * 2
+      );
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+      super.paintComponent(g);
+
+      if (previewFont == null) {
+        return;
+      }
+
+      TextItem.drawLabel(
+        g,
+        text,
+        getWidth() / 2,
+        getHeight() / 2,
+        previewFont,
+        TextItem.AL_CENTER,
+        TextItem.AL_CENTER,
+        getForeground(),
+        null,
+        null,
+        previewFont.isOutline(),
+        PREVIEW_OUTLINE_COLOR
+      );
+    }
   }
 }

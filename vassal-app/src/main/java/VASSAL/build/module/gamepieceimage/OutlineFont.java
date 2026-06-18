@@ -16,12 +16,14 @@
  * at http://www.opensource.org.
  */
 
-// TODO - This was never implemented
-
 package VASSAL.build.module.gamepieceimage;
 
 import java.awt.Font;
 
+/**
+ * A font plus the Game Piece Image text-outline flag. Rendering is handled by
+ * {@link TextItem}; this class carries the user-configured font state.
+ */
 public class OutlineFont extends Font {
   private static final long serialVersionUID = 1L;
 

@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -12,6 +14,10 @@ import java.io.OutputStream;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.JCheckBox;
+import javax.swing.JLabel;
+
+import VASSAL.i18n.Resources;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +36,29 @@ public class GamePieceImageConfigurerTest {
 
     assertEquals(font, configurer.getValue());
     assertEquals(FontConfigurer.encode(font), configurer.getValueString());
+  }
+
+  @Test
+  public void fontConfigurerExposesOutlineControl() {
+    final OutlineFont font = new OutlineFont(FontManager.SANS_SERIF, Font.PLAIN, 18, false);
+    final FontConfigurer configurer = new FontConfigurer("font", "Font", font);
+    final Component controls = configurer.getControls();
+
+    final JCheckBox outlineBox = findLabeledCheckBox(
+      controls,
+      Resources.getString("Editor.FontConfigurer.outline_checkbox")
+    );
+
+    outlineBox.doClick();
+
+    assertEquals(true, FontConfigurer.decode(configurer.getValueString()).isOutline());
+    assertEquals(
+      true,
+      ((OutlineFont) findNamedComponent(
+        controls,
+        FontConfigurer.PREVIEW_COMPONENT_NAME
+      ).getFont()).isOutline()
+    );
   }
 
   @Test
@@ -95,5 +124,70 @@ public class GamePieceImageConfigurerTest {
     public void write(byte[] b, int off, int len) throws IOException {
       throw new IOException("write failed");
     }
+  }
+
+  private static JCheckBox findLabeledCheckBox(Component root, String labelText) {
+    if (!(root instanceof Container)) {
+      throw new AssertionError("No container to search for " + labelText);
+    }
+
+    final Component[] components = ((Container) root).getComponents();
+    for (int i = 0; i < components.length - 1; ++i) {
+      if (components[i] instanceof JLabel
+        && labelText.equals(((JLabel) components[i]).getText())) {
+        return findCheckBox(components[i + 1]);
+      }
+    }
+
+    for (final Component component : components) {
+      if (component instanceof Container) {
+        try {
+          return findLabeledCheckBox(component, labelText);
+        }
+        catch (AssertionError e) {
+          // Try the next nested container.
+        }
+      }
+    }
+
+    throw new AssertionError("No checkbox labeled " + labelText);
+  }
+
+  private static JCheckBox findCheckBox(Component root) {
+    if (root instanceof JCheckBox) {
+      return (JCheckBox) root;
+    }
+
+    if (root instanceof Container) {
+      for (final Component component : ((Container) root).getComponents()) {
+        try {
+          return findCheckBox(component);
+        }
+        catch (AssertionError e) {
+          // Try the next nested component.
+        }
+      }
+    }
+
+    throw new AssertionError("No checkbox found");
+  }
+
+  private static Component findNamedComponent(Component root, String name) {
+    if (name.equals(root.getName())) {
+      return root;
+    }
+
+    if (root instanceof Container) {
+      for (final Component component : ((Container) root).getComponents()) {
+        try {
+          return findNamedComponent(component, name);
+        }
+        catch (AssertionError e) {
+          // Try the next nested component.
+        }
+      }
+    }
+
+    throw new AssertionError("No component named " + name);
   }
 }
