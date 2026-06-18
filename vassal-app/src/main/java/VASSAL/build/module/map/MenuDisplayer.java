@@ -262,8 +262,9 @@ public class MenuDisplayer extends MouseAdapter implements Buildable {
         return;
       }
 
-      // TODO: Remove this workaround once undo reliably preserves piece maps.
-      // Undo sometimes corrupts a pieces Map.
+      // REFACTOR: Remove this repair once undo commands preserve map membership.
+      // A piece can remain in this map's collection after undo leaves getMap()
+      // stale or null; menu/action-button commands expect the two to agree.
       if (!map.equals(p.getMap())) {
         p.setMap(map);
       }
