@@ -63,12 +63,9 @@ import java.io.File;
  *
  * Icons are created as lazily as possible.
  *
- * IconFamilys are created in two ways: - For Vassal inbuilt Icons by
- * IconFactory when it scans the Vengine for inbuilt Icons - For Modules,
- * IconFamilys can be added to IconFamilyContainer by the module designer.
- *
- * Each IconFamily consists of at least a Scalable Icon, plus zero or more
- * specifically sized icons. If an
+ * IconFamilies are created in two ways: For VASSAL inbuilt Icons by
+ * IconFactory when it scans the engine for inbuilt Icons, and for Modules by
+ * module designers adding IconFamilies to IconFamilyContainer.
  */
 public class IconFamily extends AbstractConfigurable {
 
@@ -156,10 +153,14 @@ public class IconFamily extends AbstractConfigurable {
    * Create a new IconFamily with the given name. The name supplied will
    * normally be the name of an IconFamily, with no suffix.
    *
-   * These constructors are used by IconFactory to create IconFamilys for the
-   * Vassal inbuilt Icons
+   * These constructors are used by IconFactory to create IconFamilies for the
+   * VASSAL inbuilt Icons.
    *
-   * TODO: Expand this documentation once Toolbar Icon support is added.
+   * Toolbar items and other configurable components normally store the selected
+   * icon as an image path through {@link VASSAL.configure.IconConfigurer}. When
+   * VASSAL scans module or built-in icon directories, this constructor builds
+   * the named family those components can resolve through {@link IconFactory}.
+   *
    * Backward Compatibility: If the name supplied does have a file type suffix,
    * then it is a specific Icon name from a pre-IconFamily module. By throwing
    * away the suffix, IconFamily will use the supplied icon as a base icon to
