@@ -501,7 +501,7 @@ class Name implements java.io.Serializable
 
 		/*
 			Some duplication for "super".  See notes for "this" above
-			If we're in an enclsing class instance and have a superclass
+			If we're in an enclosing class instance and have a superclass
 			instance our super is the superclass instance.
 		*/
 		if ( varName.equals("super") ) 
@@ -509,21 +509,9 @@ class Name implements java.io.Serializable
 			//if ( specialFieldsVisible )
 			//throw new UtilEvalError("Redundant to call .this on This type");
 
-			// Allow getSuper() to through BlockNameSpace to the method's super
-			This ths = thisNameSpace.getSuper( interpreter );
-			thisNameSpace = ths.getNameSpace();
-			// super is now the closure's super or class instance
-
-			// TODO: Re-evaluate whether getSuper() can handle this by itself now.
-			// If we're a class instance and the parent is also a class instance
-			// then super means our parent.
-			if ( 
-				thisNameSpace.getParent() != null 
-				&& thisNameSpace.getParent().isClass
-			)
-				ths = thisNameSpace.getParent().getThis( interpreter );
-
-			return ths;
+			// Allow getSuper() to work through BlockNameSpace to the method's
+			// super.
+			return thisNameSpace.getSuper( interpreter );
 		}
 
 		Object obj = null;
