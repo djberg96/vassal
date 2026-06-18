@@ -27,17 +27,24 @@
  */
 package bsh;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
 public class Variable implements java.io.Serializable 
 {
 	private static final long serialVersionUID = 0L;
+	private static final int SERIALIZED_VALUE = 0;
+	private static final int SERIALIZED_NULL = 1;
+	private static final int SERIALIZED_VOID = 2;
 
 	static final int DECLARATION=0, ASSIGNMENT=1;
 	/** A null type means an untyped variable */
 	String name;
 	Class<?> type = null;
 	String typeDescriptor;
-	@SuppressWarnings("serial")
-	Object value;
+	transient Object value;
 	Modifiers modifiers;
 	LHS lhs;
 
@@ -148,5 +155,40 @@ public class Variable implements java.io.Serializable
 	public String toString() { 
 		return "Variable: "+super.toString()+" "+name+", type:"+type
 			+", value:"+value +", lhs = "+lhs;
+	}
+
+	private void writeObject(ObjectOutputStream out)
+		throws IOException
+	{
+		out.defaultWriteObject();
+		if (value == Primitive.NULL) {
+			out.writeInt(SERIALIZED_NULL);
+		}
+		else if (value == Primitive.VOID || !(value instanceof Serializable)) {
+			out.writeInt(SERIALIZED_VOID);
+		}
+		else {
+			out.writeInt(SERIALIZED_VALUE);
+			out.writeObject(value);
+		}
+	}
+
+	private void readObject(ObjectInputStream in)
+		throws IOException, ClassNotFoundException
+	{
+		in.defaultReadObject();
+		switch (in.readInt()) {
+			case SERIALIZED_NULL:
+				value = Primitive.NULL;
+				break;
+			case SERIALIZED_VOID:
+				value = Primitive.VOID;
+				break;
+			case SERIALIZED_VALUE:
+				value = in.readObject();
+				break;
+			default:
+				throw new IOException("Invalid serialized variable value marker");
+		}
 	}
 }

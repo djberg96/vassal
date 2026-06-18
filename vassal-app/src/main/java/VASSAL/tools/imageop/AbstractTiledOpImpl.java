@@ -55,6 +55,7 @@ public abstract class AbstractTiledOpImpl extends AbstractOpImpl {
   protected void fixTileSize() {
     synchronized (this) {
       if (size == null) fixSize();
+      if (size == null) return;
 
       if (tileSize == null) {
         // We do not touch tileSize until last here, as the check for
@@ -71,21 +72,21 @@ public abstract class AbstractTiledOpImpl extends AbstractOpImpl {
   @Override
   public Dimension getTileSize() {
     if (tileSize == null) fixTileSize();
-    return new Dimension(tileSize);
+    return new Dimension(tileSize == null ? DEFAULT_TILE_SIZE : tileSize);
   }
 
   /** {@inheritDoc} */
   @Override
   public int getTileHeight() {
     if (tileSize == null) fixTileSize();
-    return tileSize.height;
+    return tileSize == null ? DEFAULT_TILE_SIZE.height : tileSize.height;
   }
 
   /** {@inheritDoc} */
   @Override
   public int getTileWidth() {
     if (tileSize == null) fixTileSize();
-    return tileSize.width;
+    return tileSize == null ? DEFAULT_TILE_SIZE.width : tileSize.width;
   }
 
   /** {@inheritDoc} */
@@ -110,6 +111,8 @@ public abstract class AbstractTiledOpImpl extends AbstractOpImpl {
    */
   @Override
   public ImageOp getTileOp(int tileX, int tileY) {
+    if (tileSize == null) fixTileSize();
+    if (tiles == null) throw new IndexOutOfBoundsException();
     ImageOp top = tiles[tileY * numXTiles + tileX];
     if (top == null) {
       top = tiles[tileY * numXTiles + tileX] = createTileOp(tileX, tileY);
@@ -164,6 +167,7 @@ public abstract class AbstractTiledOpImpl extends AbstractOpImpl {
     if (rect == null) throw new IllegalArgumentException();
 
     if (size == null || tileSize == null) fixTileSize();
+    if (size == null || tileSize == null) return new Point[0];
 
     // REFACTOR: Avoid creating a new Rectangle here if profiling shows it matters.
     rect = rect.intersection(new Rectangle(size));

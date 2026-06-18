@@ -502,30 +502,20 @@ public class Inventory extends AbstractToolbarItem
    * Writes the inventory text data to a user selected file.
    * This allows a module designer to use Inventory to create customized text
    * reports from the game.
-   * Changed FileChooser to use the new Vassal.tool.FileChooser
-   * Changed Separator before getResultString call
-   * TODO add check for existing file
-   * TODO rework text display of Inventory
+   *
+   * REFACTOR: The text report format is still coupled to the tree model and
+   * should eventually move to a dedicated report formatter.
    */
   protected void inventoryToText() {
     final FileChooser fc = GameModule.getGameModule().getFileChooser();
     if (fc.showSaveDialog() == FileChooser.CANCEL_OPTION) return;
 
-    final StringBuilder output = new StringBuilder();
     final File file = fc.getSelectedFile();
-
-    // TODO replace this hack
-    mapSeparator = System.getProperty("line.separator"); //$NON-NLS-1$
-    // groupSeparator = mapSeparator + "  ";
-    // groupSeparator = " ";
-    output.append(results.getResultString());
-    // .substring(1).replaceAll(
-  //      mapSeparator, System.getProperty("line.separator"));
 
     // Writing out a text file for the user to do whatever with.
     try (Writer bw = Files.newBufferedWriter(file.toPath(), StandardCharsets.UTF_8);
          PrintWriter p = new PrintWriter(bw)) {
-      p.print(output);
+      p.print(results.getResultString(System.lineSeparator()));
 
       final Command c = new Chatter.DisplayText(
         GameModule.getGameModule().getChatter(),
@@ -1402,23 +1392,31 @@ public class Inventory extends AbstractToolbarItem
      * @return
      */
     protected String separator() {
+      return separator(mapSeparator);
+    }
+
+    protected String separator(String lineSeparator) {
       final StringBuilder sep = new StringBuilder();
 
       if (getLevel() > 0)
-        sep.append(mapSeparator);
+        sep.append(lineSeparator);
       for (int i = 0; i < getLevel(); i++)
         sep.append(groupSeparator);
       return sep.toString();
     }
 
     public String toResultString() {
+      return toResultString(mapSeparator);
+    }
+
+    public String toResultString(String lineSeparator) {
       final StringBuilder name = new StringBuilder();
 
-      name.append(separator())
+      name.append(separator(lineSeparator))
           .append(counter != null ? counter : getEntry());
 
       for (final CounterNode child : children) {
-        name.append(child.toResultString());
+        name.append(child.toResultString(lineSeparator));
       }
       return name.toString();
     }
@@ -1731,10 +1729,14 @@ public class Inventory extends AbstractToolbarItem
      * @return String
      */
     public String getResultString() {
+      return getResultString(mapSeparator);
+    }
+
+    public String getResultString(String lineSeparator) {
       if (changed)
         updateTree();
       changed = false;
-      return root.toResultString();
+      return root.toResultString(lineSeparator);
     }
 
     /**

@@ -82,7 +82,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
     protected HashMap<String,String> importedClasses;
     private ArrayList<String> importedPackages;
     private ArrayList<String> importedCommands;
-	private ArrayList<Object> importedObjects;
+	private transient ArrayList<Object> importedObjects;
 	private ArrayList<Class<?>> importedStatic;
 	private String packageName;
 
@@ -113,8 +113,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 	*/
 	boolean isClass;
 	Class<?> classStatic;	
-	@SuppressWarnings("serial")
-	Object classInstance;
+	transient Object classInstance;
 	
 	void setClassStatic( Class<?> clas ) {
 		this.classStatic = clas;

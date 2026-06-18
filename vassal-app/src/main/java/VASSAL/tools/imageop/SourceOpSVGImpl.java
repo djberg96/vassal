@@ -98,9 +98,6 @@ public class SourceOpSVGImpl extends AbstractTiledOpImpl
     }
   }
 
-  // TODO: Add a way to invalidate ImageOps when an exception is thrown.
-  // Maybe size should go to -1,-1 when invalid?
-
   /** {@inheritDoc} */
   @Override
   protected void fixSize() {
@@ -129,7 +126,7 @@ public class SourceOpSVGImpl extends AbstractTiledOpImpl
       if (!Op.handleException(e)) ErrorDialog.bug(e);
     }
 
-    return new Dimension();
+    return null;
   }
 
   @Override

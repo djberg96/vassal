@@ -151,21 +151,21 @@ public abstract class AbstractOpImpl
   @Override
   public Dimension getSize() {
     if (size == null) fixSize();
-    return new Dimension(size);
+    return size == null ? new Dimension() : new Dimension(size);
   }
 
   /** {@inheritDoc} */
   @Override
   public int getWidth() {
     if (size == null) fixSize();
-    return size.width;
+    return size == null ? 0 : size.width;
   }
 
   /** {@inheritDoc} */
   @Override
   public int getHeight() {
     if (size == null) fixSize();
-    return size.height;
+    return size == null ? 0 : size.height;
   }
 
   /** {@inheritDoc} */

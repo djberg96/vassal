@@ -27,12 +27,16 @@
  // TODO
 package	bsh;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.List;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Arrays;
+import java.util.Collections;
 
 
 /**
@@ -78,8 +82,7 @@ public class ExternalNameSpace extends NameSpace
 {
 	private static final long serialVersionUID = 1L;
 
-	@SuppressWarnings("serial")
-	private Map<String,Object> externalMap;
+	private transient Map<String,Object> externalMap;
 
     public ExternalNameSpace() 
 	{
@@ -116,7 +119,7 @@ public class ExternalNameSpace extends NameSpace
 		// namespace and set the new one
 		this.externalMap = null; 
 		clear();
-		this.externalMap = map ; 
+		this.externalMap = map != null ? map : new HashMap<String,Object>();
 	}
 
 	/**
@@ -262,7 +265,8 @@ public class ExternalNameSpace extends NameSpace
 	public void clear() 
 	{
 		super.clear();
-		externalMap.clear();
+		if ( externalMap != null )
+			externalMap.clear();
 	}
 
 	/**
@@ -287,5 +291,22 @@ public class ExternalNameSpace extends NameSpace
 			value = Primitive.unwrap( (Primitive)value );
 
 		externalMap.put( name, value );
+	}
+
+	private void writeObject(ObjectOutputStream out)
+		throws IOException
+	{
+		out.defaultWriteObject();
+		out.writeObject(new HashMap<String,Object>(
+			externalMap != null ? externalMap : Collections.<String,Object>emptyMap()
+		));
+	}
+
+	@SuppressWarnings("unchecked")
+	private void readObject(ObjectInputStream in)
+		throws IOException, ClassNotFoundException
+	{
+		in.defaultReadObject();
+		externalMap = (Map<String,Object>) in.readObject();
 	}
 }

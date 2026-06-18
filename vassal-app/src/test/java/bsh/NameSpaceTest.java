@@ -2,8 +2,18 @@ package bsh;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
+import java.util.AbstractMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -51,10 +61,89 @@ public class NameSpaceTest {
     assertSame(classManager, namespace.getClassManager());
   }
 
+  @Test
+  public void serializationSkipsImportedClassInstanceObjects() {
+    final NameSpace namespace = new NameSpace(
+      (BshClassManager) null,
+      "class instance namespace"
+    );
+    namespace.setClassInstance(new NonSerializableClassInstance());
+
+    assertDoesNotThrow(() -> {
+      try (
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        ObjectOutputStream out = new ObjectOutputStream(bytes)
+      ) {
+        out.writeObject(namespace);
+      }
+    });
+  }
+
+  @Test
+  public void externalNamespaceSerializesMapSnapshot()
+    throws Exception {
+    final Map<String,Object> map = new NonSerializableMap();
+    final ExternalNameSpace namespace =
+      new ExternalNameSpace(null, "external", map);
+    namespace.setVariable("score", 7, false, false);
+
+    final ExternalNameSpace copy = serializeAndDeserialize(namespace);
+
+    assertEquals(7, copy.getMap().get("score"));
+  }
+
+  @Test
+  public void externalNamespaceSetMapAcceptsNull() {
+    final ExternalNameSpace namespace = new ExternalNameSpace();
+
+    namespace.setMap(null);
+
+    assertNotNull(namespace.getMap());
+  }
+
+  private static <T> T serializeAndDeserialize(T value)
+    throws Exception {
+    final byte[] bytes;
+    try (
+      ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
+      ObjectOutputStream objectOutput = new ObjectOutputStream(byteOutput)
+    ) {
+      objectOutput.writeObject(value);
+      bytes = byteOutput.toByteArray();
+    }
+
+    try (
+      ByteArrayInputStream byteInput = new ByteArrayInputStream(bytes);
+      ObjectInputStream objectInput = new ObjectInputStream(byteInput)
+    ) {
+      @SuppressWarnings("unchecked")
+      final T copy = (T) objectInput.readObject();
+      return copy;
+    }
+  }
+
   private static BshClassManager storedClassManager(NameSpace namespace)
     throws ReflectiveOperationException {
     final Field field = NameSpace.class.getDeclaredField("classManager");
     field.setAccessible(true);
     return (BshClassManager) field.get(namespace);
+  }
+
+  private static final class NonSerializableClassInstance {
+  }
+
+  private static final class NonSerializableMap
+    extends AbstractMap<String,Object> {
+    private final Map<String,Object> backing = new HashMap<>();
+
+    @Override
+    public Object put(String key, Object value) {
+      return backing.put(key, value);
+    }
+
+    @Override
+    public Set<Entry<String,Object>> entrySet() {
+      return backing.entrySet();
+    }
   }
 }

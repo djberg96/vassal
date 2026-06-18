@@ -124,7 +124,7 @@ public class SourceOpDiskCacheBitmapImpl extends AbstractTileOpImpl
       if (!Op.handleException(e)) ErrorDialog.bug(e);
     }
 
-    return new Dimension();
+    return null;
   }
 
   /**
