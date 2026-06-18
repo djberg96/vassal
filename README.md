@@ -20,6 +20,28 @@ systems. Mac users on Catalina (macOS 10.13) or earlier, see
 [here](https://forum.vassalengine.org/t/84048).
 On Linux, use your package manager to install Java 26 or later.
 
+### Build and Run from Source
+
+From the repository root, build and launch VASSAL with:
+
+```sh
+tools/run-vassal.sh
+```
+
+The script uses 8 Maven build threads by default. To use a different Maven
+thread count:
+
+```sh
+MAVEN_THREADS=4 tools/run-vassal.sh
+```
+
+To run the same steps manually:
+
+```sh
+mvn -T 8 -U -pl vassal-app -am package -DskipTests
+mvn -T 8 -pl vassal-app dependency:build-classpath -Dmdep.outputFile=/tmp/vassal-app.classpath
+java -cp "vassal-app/target/classes:vassal-deprecation/target/classes:$(cat /tmp/vassal-app.classpath)" VASSAL.launch.ModuleManager
+```
 
 ### Releases
 
