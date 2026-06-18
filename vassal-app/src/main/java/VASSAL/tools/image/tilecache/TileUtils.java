@@ -127,8 +127,9 @@ public class TileUtils {
     // build the image
     final BufferedImage img = new BufferedImage(w, h, type);
 
-    // TODO: Check whether direct raster access decelerates the image. If so, then we should
-    // make a copy.
+    // PERF: Direct raster access may leave this image unmanaged by the Java2D
+    // pipeline. Keep the direct load path until profiling shows a benefit from
+    // copying tile images into an accelerated image type after deserialization.
     final DataBufferInt db = (DataBufferInt) img.getRaster().getDataBuffer();
     final int[] data = db.getData();
 
@@ -331,7 +332,9 @@ public class TileUtils {
    * @throws IllegalArgumentException if any argument is nonpositive
    */
   public static int tileCount(int iw, int ih, int tw, int th) {
-    // TODO: Find a closed-form expression for this, if there is one.
+    // Sum the tile pyramid one power-of-two scale at a time. The number of
+    // scales is bounded by log2(min(iw, ih)) + 1, so keeping this explicit is
+    // clearer than encoding the floor/ceiling interactions in a closed form.
     int tcount = 0;
     for (int div = 1; iw / div > 0 && ih / div > 0; div <<= 1) {
       tcount += tileCountAtScale(iw, ih, tw, th, div);
