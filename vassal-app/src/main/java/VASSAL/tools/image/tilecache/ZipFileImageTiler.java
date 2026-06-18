@@ -92,7 +92,8 @@ public class ZipFileImageTiler {
       final int tw = Integer.parseInt(args[2]);
       final int th = Integer.parseInt(args[3]);
 
-      // TODO: Remove after next VASL & VSQL releases?
+      // Keep the socket transport for downstream custom tilers which still
+      // launch this class with -DVASSAL.port.
       final String portProp = System.getProperty("VASSAL.port");
 
       if (portProp != null) {
@@ -107,7 +108,7 @@ public class ZipFileImageTiler {
     }
   }
 
-  // TODO: Remove after next VASL & VSQL releases?
+  // Compatibility path for older/custom VASL and VSQL tiling integrations.
   private static void writeToSocket(String portProp, String zpath, String tpath, int tw, int th) {
     final InetAddress lo;
     try {
