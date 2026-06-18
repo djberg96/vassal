@@ -222,9 +222,11 @@ public class SquareGridNumbering extends RegularGridNumbering {
     if (hDescending)
       col = getMaxColumns() - col;
 
-    // TODO: invoke grid.snapTo
-    return new Point((int) (col * grid.getDx() + grid.getOrigin().x),
-        (int) (row * grid.getDy() + grid.getOrigin().y));
+    final Point center = new Point(
+      (int) Math.round(col * grid.getDx() + grid.getOrigin().x),
+      (int) Math.round(row * grid.getDy() + grid.getOrigin().y)
+    );
+    return grid.snapTo(center, true, true);
   }
 
   @Override
