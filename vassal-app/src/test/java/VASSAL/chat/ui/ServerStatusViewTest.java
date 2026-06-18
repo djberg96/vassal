@@ -19,10 +19,15 @@ package VASSAL.chat.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import VASSAL.chat.ServerStatus;
 import org.junit.jupiter.api.Test;
+
+import javax.swing.JTree;
+import java.awt.Component;
+import java.awt.Container;
 
 public class ServerStatusViewTest {
   @Test
@@ -41,6 +46,16 @@ public class ServerStatusViewTest {
     assertEquals(3, view.getTabCount());
   }
 
+  @Test
+  public void serverStatusTreesUseRendererBasedFixedRowHeight() {
+    final ServerStatusView view = new ServerStatusView(new EmptyServerStatus());
+    final JTree tree = findTree(view);
+
+    assertNotNull(tree);
+    assertTrue(tree.isLargeModel());
+    assertEquals(ServerStatusView.fixedTreeRowHeight(tree), tree.getRowHeight());
+  }
+
   private static final class EmptyServerStatus implements ServerStatus {
     @Override
     public ModuleSummary[] getStatus() {
@@ -56,5 +71,20 @@ public class ServerStatusViewTest {
     public ModuleSummary[] getHistory(String timeRange) {
       return new ModuleSummary[0];
     }
+  }
+
+  private static JTree findTree(Component component) {
+    if (component instanceof JTree) {
+      return (JTree) component;
+    }
+    if (component instanceof Container) {
+      for (final Component child : ((Container) component).getComponents()) {
+        final JTree tree = findTree(child);
+        if (tree != null) {
+          return tree;
+        }
+      }
+    }
+    return null;
   }
 }

@@ -115,7 +115,7 @@ public final class ServerStatusView extends JTabbedPane implements ChangeListene
     tree.setCellRenderer(new Render());
     tree.expandRow(0);
     tree.setLargeModel(true);
-    tree.setRowHeight(18);  // TODO: Check whether this fixed row height is still necessary.
+    tree.setRowHeight(fixedTreeRowHeight(tree));
     tree.addTreeSelectionListener(this);
     tree.addTreeExpansionListener(new TreeExpansionListener() {
       @Override
@@ -130,6 +130,16 @@ public final class ServerStatusView extends JTabbedPane implements ChangeListene
       }
     });
     return tree;
+  }
+
+  static int fixedTreeRowHeight(JTree tree) {
+    final Component renderer = tree.getCellRenderer().getTreeCellRendererComponent(
+      tree, tree.getModel().getRoot(), false, true, false, 0, false
+    );
+    return Math.max(
+      tree.getFontMetrics(tree.getFont()).getHeight(),
+      renderer.getPreferredSize().height
+    );
   }
 
   @Override
