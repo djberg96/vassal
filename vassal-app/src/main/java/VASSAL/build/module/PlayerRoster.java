@@ -639,11 +639,6 @@ public class PlayerRoster extends AbstractToolbarItem implements CommandEncoder,
       return true;
     }
 
-    // Step is always finished if all sides are allocated
-    if (allSidesAllocated()) {
-      return true;
-    }
-
     claimOccupiedSide();
 
     // If we are already recorded as a player (i.e. in Saved Game), then
@@ -655,7 +650,12 @@ public class PlayerRoster extends AbstractToolbarItem implements CommandEncoder,
 
     final int i = players.indexOf(newPlayerInfo);
     // true if step is finished
-    return i != -1 && !OBSERVER.equals(players.get(i).getSide());
+    if (i != -1 && !OBSERVER.equals(players.get(i).getSide())) {
+      return true;
+    }
+
+    // A roster with no configured sides has nothing for the player to choose.
+    return sides.isEmpty();
   }
 
   /**
