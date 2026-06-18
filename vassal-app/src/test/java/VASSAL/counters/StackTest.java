@@ -3,10 +3,12 @@ package VASSAL.counters;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 import VASSAL.build.module.Map;
+import VASSAL.build.module.map.LayeredPieceCollection;
 import java.awt.Point;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -108,6 +110,62 @@ public class StackTest {
 
     // assert
     assertEquals(gamePiece2, s.getPieceAt(1));
+  }
+
+  @Test
+  public void addFirstPieceShouldBindStackToPieceLayer() {
+    final GamePiece gamePiece = mock(GamePiece.class);
+    final Map map = mock(Map.class);
+    final LayeredPieceCollection.Collection collection =
+      new LayeredPieceCollection.Collection("Layer", new String[] {"Low", "High"});
+    when(map.getPieceCollection()).thenReturn(collection);
+    when(gamePiece.getProperty("Layer")).thenReturn("Low");
+
+    final Stack s = new Stack();
+    s.setMap(map);
+    s.add(gamePiece);
+
+    assertEquals(0, s.getLayer());
+  }
+
+  @Test
+  public void addMatchingLayerPieceShouldSucceed() {
+    final GamePiece gamePiece1 = mock(GamePiece.class);
+    final GamePiece gamePiece2 = mock(GamePiece.class);
+    final Map map = mock(Map.class);
+    final LayeredPieceCollection.Collection collection =
+      new LayeredPieceCollection.Collection("Layer", new String[] {"Low", "High"});
+    when(map.getPieceCollection()).thenReturn(collection);
+    when(gamePiece1.getProperty("Layer")).thenReturn("Low");
+    when(gamePiece2.getProperty("Layer")).thenReturn("Low");
+
+    final Stack s = new Stack();
+    s.setMap(map);
+    s.add(gamePiece1);
+    s.add(gamePiece2);
+
+    assertEquals(2, s.getPieceCount());
+    assertEquals(gamePiece2, s.getPieceAt(1));
+  }
+
+  @Test
+  public void addDifferentLayerPieceShouldFail() {
+    final GamePiece gamePiece1 = mock(GamePiece.class);
+    final GamePiece gamePiece2 = mock(GamePiece.class);
+    final Map map = mock(Map.class);
+    final LayeredPieceCollection.Collection collection =
+      new LayeredPieceCollection.Collection("Layer", new String[] {"Low", "High"});
+    when(map.getPieceCollection()).thenReturn(collection);
+    when(gamePiece1.getProperty("Layer")).thenReturn("Low");
+    when(gamePiece2.getProperty("Layer")).thenReturn("High");
+
+    final Stack s = new Stack();
+    s.setMap(map);
+    s.add(gamePiece1);
+
+    assertThrows(IllegalArgumentException.class, () -> s.add(gamePiece2));
+    assertEquals(1, s.getPieceCount());
+    assertEquals(gamePiece1, s.getPieceAt(0));
   }
 
   @Test

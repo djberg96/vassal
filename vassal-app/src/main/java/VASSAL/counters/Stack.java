@@ -250,18 +250,29 @@ public class Stack extends AbstractImageFinder implements GamePiece, StateMergea
    * @param c Stack to add piece to
    */
   public void add(GamePiece c) {
+    if (c == null) {
+      return;
+    }
+
+    final int pieceLayer = getMapLayerForPiece(c);
     if ((pieceCount == 0) && (layer == LAYER_NOT_SET)) {
-      final Map m = getMap();
-      if (m != null) {
-        final PieceCollection p = m.getPieceCollection();
-        if (p instanceof CompoundPieceCollection) {
-          layer = ((CompoundPieceCollection) p).getLayerForPiece(c); //BR// Bind our stack to the layer of the first piece added
-        }
+      layer = pieceLayer;
+    }
+    else if ((layer != LAYER_NOT_SET) && (pieceLayer != LAYER_NOT_SET) && (pieceLayer != layer)) {
+      throw new IllegalArgumentException("Cannot add a piece from layer " + pieceLayer + " to a stack bound to layer " + layer);
+    }
+    insert(c, pieceCount);
+  }
+
+  private int getMapLayerForPiece(GamePiece p) {
+    final Map m = getMap();
+    if (m != null) {
+      final PieceCollection collection = m.getPieceCollection();
+      if (collection instanceof CompoundPieceCollection) {
+        return ((CompoundPieceCollection) collection).getLayerForPiece(p);
       }
     }
-    // TODO: Enforce layer consistency once legacy stacks with mixed-layer pieces
-    // have a migration path.
-    insert(c, pieceCount);
+    return LAYER_NOT_SET;
   }
 
   /**
