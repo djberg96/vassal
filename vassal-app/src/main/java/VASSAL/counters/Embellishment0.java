@@ -767,8 +767,8 @@ public class Embellishment0 extends Decorator implements TranslatablePiece {
     // random layers
     private final JTextField rndCommand = new JTextField(12);
     // random layers
-    private final JTextField xOffInput = new JTextField(2);
-    private final JTextField yOffInput = new JTextField(2);
+    private final IntConfigurer xOffInput = new IntConfigurer(0);
+    private final IntConfigurer yOffInput = new IntConfigurer(0);
     private final JTextField levelNameInput = new JTextField(8);
     private final JRadioButton prefix = new JRadioButton("is prefix");
     private final JRadioButton suffix = new JRadioButton("is suffix");
@@ -872,14 +872,10 @@ public class Embellishment0 extends Decorator implements TranslatablePiece {
       box.add(p);
 
       final Box offsetControls = Box.createHorizontalBox();
-      xOffInput.setMaximumSize(xOffInput.getPreferredSize());
-      xOffInput.setText("0");
-      yOffInput.setMaximumSize(xOffInput.getPreferredSize());
-      yOffInput.setText("0");
       offsetControls.add(new JLabel("Offset: "));
-      offsetControls.add(xOffInput);
+      offsetControls.add(xOffInput.getControls());
       offsetControls.add(new JLabel(","));
-      offsetControls.add(yOffInput);
+      offsetControls.add(yOffInput.getControls());
       checkBoxes.add(offsetControls);
 
       followConfig = new BooleanConfigurer(null, "Levels follow Property Value?");
@@ -1037,22 +1033,6 @@ public class Embellishment0 extends Decorator implements TranslatablePiece {
         i++;
       }
 
-      try {
-        Integer.parseInt(xOffInput.getText());
-      }
-      catch (NumberFormatException xNAN) {
-        // TODO use IntConfigurer
-        xOffInput.setText("0");
-      }
-
-      try {
-        Integer.parseInt(yOffInput.getText());
-      }
-      catch (NumberFormatException yNAN) {
-        // TODO use IntConfigurer
-        yOffInput.setText("0");
-      }
-
       se.append(activateCommand.getText())
         .append(activateModifiers.getValueString())
         .append(activateKeyInput.getText())
@@ -1066,8 +1046,8 @@ public class Embellishment0 extends Decorator implements TranslatablePiece {
         .append((KeyStroke) resetKey.getValue())
         .append(resetLevel.getText())
         .append(drawUnderneath.isSelected())
-        .append(xOffInput.getText())
-        .append(yOffInput.getText())
+        .append(xOffInput.getValueString())
+        .append(yOffInput.getValueString())
         .append(imageNames.toArray(new String[0]))
         .append(commonNames.toArray(new String[0]))
         .append(loop.isSelected())
@@ -1135,8 +1115,8 @@ public class Embellishment0 extends Decorator implements TranslatablePiece {
       resetKey.setValue(e.resetKey);
       resetCommand.setText(e.resetCommand);
       resetLevel.setText(e.resetLevel.getFormat());
-      xOffInput.setText(String.valueOf(e.xOff));
-      yOffInput.setText(String.valueOf(e.yOff));
+      xOffInput.setValue(e.xOff);
+      yOffInput.setValue(e.yOff);
       images.setImageList(e.imageName);
 
       followConfig.setValue(e.followProperty);
