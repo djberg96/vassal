@@ -49,8 +49,6 @@ public final class SoundConfigurer extends Configurer {
   private JTextField textField;
   private final AudioClipFactory clipFactory;
 
-  // TODO: Add an i18n scheme where the display version can be localized while
-  // the serialized file value remains stable.
   private static final String NO_VALUE = "<disabled>";
 
   public SoundConfigurer(String key, String name, String defaultResource) {
@@ -76,7 +74,7 @@ public final class SoundConfigurer extends Configurer {
       controls.add(b);
       textField = new JTextField(20);
       textField.setEditable(false);
-      textField.setText(DEFAULT.equals(clipName) ? defaultResource : clipName);
+      updateTextField();
       controls.add(textField, "growx"); // NON-NLS
     }
     return controls;
@@ -115,7 +113,7 @@ public final class SoundConfigurer extends Configurer {
       }
     }
     if (textField != null) {
-      textField.setText(DEFAULT.equals(clipName) ? defaultResource : clipName);
+      updateTextField();
     }
     if (url != null) {
       try {
@@ -126,11 +124,22 @@ public final class SoundConfigurer extends Configurer {
       }
     }
     else {
-      if (textField != null) {
-        textField.setText(null);
-      }
       setValue((Object) null);
     }
+  }
+
+  private void updateTextField() {
+    textField.setText(displayName());
+  }
+
+  private String displayName() {
+    if (DEFAULT.equals(clipName)) {
+      return defaultResource;
+    }
+    if (NO_VALUE.equals(clipName)) {
+      return Resources.getString("Editor.SoundConfigurer.disabled");
+    }
+    return clipName;
   }
 
   @FunctionalInterface
