@@ -30,4 +30,7 @@ public interface PeerPool {
   void initialize(P2PPlayer myInfo, PendingPeerManager ppm) throws IOException;
   void disconnect();
   void connectFailed(PeerInfo peerInfo);
+
+  default void connectSucceeded(PeerInfo peerInfo) {
+  }
 }

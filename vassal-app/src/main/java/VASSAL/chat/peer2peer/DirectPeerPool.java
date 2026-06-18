@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
@@ -116,6 +117,21 @@ public class DirectPeerPool implements PeerPool, ChatControlsInitializer {
   public void connectFailed(PeerInfo peerInfo) {
     JOptionPane.showMessageDialog(frame, Resources.getString("Peer2Peer.could_not_reach", peerInfo.getAddresses(), String.valueOf(peerInfo.getPort())), //$NON-NLS-1$
                                   Resources.getString("Peer2Peer.invite_failed"), JOptionPane.INFORMATION_MESSAGE); //$NON-NLS-1$
+  }
+
+  @Override
+  public void connectSucceeded(PeerInfo peerInfo) {
+    SwingUtilities.invokeLater(() -> {
+      JOptionPane.showMessageDialog(
+        frame,
+        Resources.getString("Peer2Peer.connection_successful"), //$NON-NLS-1$
+        Resources.getString("Peer2Peer.direct_connection"), //$NON-NLS-1$
+        JOptionPane.INFORMATION_MESSAGE
+      );
+      if (frame != null) {
+        frame.setVisible(false);
+      }
+    });
   }
 
   public void initComponents(final P2PPlayer me, final PendingPeerManager ppm) {
