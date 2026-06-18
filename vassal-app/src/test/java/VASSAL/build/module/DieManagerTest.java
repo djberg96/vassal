@@ -58,16 +58,15 @@ public class DieManagerTest {
 
     DieManager.addGlobalPreferences(prefs);
 
-    verify(prefs, times(3)).addOption(Mockito.eq("Internet Dice"), configurer.capture());
+    verify(prefs, times(2)).addOption(Mockito.eq("Internet Dice"), configurer.capture());
     assertEquals(DieManager.DICE_SERVER, configurer.getAllValues().get(0).getKey());
     assertEquals(DieManager.SERVER_PW, configurer.getAllValues().get(1).getKey());
-    assertEquals(DieManager.VERIFY_DICE_SERVER, configurer.getAllValues().get(2).getKey());
   }
 
   @Test
   public void internetDiceApiKeyIsTrimmed() {
     final DieManager.TrimmingPasswordConfigurer configurer =
-      new DieManager.TrimmingPasswordConfigurer(DieManager.SERVER_PW, "API key / password", "");
+      new DieManager.TrimmingPasswordConfigurer(mock(Prefs.class), DieManager.SERVER_PW, "API key / password", "");
 
     configurer.setValue("  secret  ");
 

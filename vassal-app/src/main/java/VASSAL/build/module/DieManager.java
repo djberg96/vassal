@@ -36,8 +36,6 @@ import VASSAL.build.module.dice.RandomOrgDiceServer;
 import VASSAL.build.module.dice.RollSet;
 import VASSAL.build.module.documentation.HelpFile;
 import VASSAL.command.Command;
-import VASSAL.configure.Configurer;
-import VASSAL.configure.ConfigurerPanel;
 import VASSAL.configure.PasswordConfigurer;
 import VASSAL.configure.StringEnumConfigurer;
 import VASSAL.i18n.Resources;
@@ -63,7 +61,6 @@ public final class DieManager extends AbstractConfigurable {
   public static final String USE_INTERNET_DICE = "useinternetdice"; //NON-NLS
   public static final String DICE_SERVER = "diceserver"; //NON-NLS
   public static final String SERVER_PW = "serverpw"; //NON-NLS
-  public static final String VERIFY_DICE_SERVER = "verifydiceserver"; //NON-NLS
 
   public static final String DESC = "description"; //NON-NLS
   public static final String DFLT_NSIDES = "dfltnsides"; //NON-NLS
@@ -101,16 +98,15 @@ public final class DieManager extends AbstractConfigurable {
     diceServer.setValue(DEFAULT_DICE_SERVER);
 
     final TrimmingPasswordConfigurer serverKey = new TrimmingPasswordConfigurer(
+      prefs,
       SERVER_PW,
       Resources.getString("Prefs.internet_dice_api_key"),
       ""
     );
-    final VerifyInternetDiceConfigurer verify = new VerifyInternetDiceConfigurer(prefs);
 
     final String tab = Resources.getString("Prefs.internet_dice_tab");
     prefs.addOption(tab, diceServer);
     prefs.addOption(tab, serverKey);
-    prefs.addOption(tab, verify);
   }
 
   static void verifyInternetDice(Prefs prefs) throws IOException {
@@ -346,8 +342,14 @@ public final class DieManager extends AbstractConfigurable {
   }
 
   static final class TrimmingPasswordConfigurer extends PasswordConfigurer {
-    TrimmingPasswordConfigurer(String key, String name, String val) {
+    private final Prefs prefs;
+    private Component controls;
+    private JButton verifyButton;
+
+    TrimmingPasswordConfigurer(Prefs prefs, String key, String name, String val) {
       super(key, name, strip(val));
+      this.prefs = prefs;
+      length = 40;
     }
 
     @Override
@@ -360,41 +362,16 @@ public final class DieManager extends AbstractConfigurable {
       super.setValue(strip(s));
     }
 
-    private static String strip(String value) {
-      return value == null ? "" : value.strip();
-    }
-  }
-
-  static final class VerifyInternetDiceConfigurer extends Configurer {
-    private final Prefs prefs;
-    private Component controls;
-    private JButton verifyButton;
-
-    VerifyInternetDiceConfigurer(Prefs prefs) {
-      super(VERIFY_DICE_SERVER, Resources.getString("Prefs.internet_dice_verify"));
-      this.prefs = prefs;
-    }
-
-    @Override
-    public String getValueString() {
-      return null;
-    }
-
-    @Override
-    public void setValue(String s) {
-    }
-
     @Override
     public Component getControls() {
       if (controls != null) {
         return controls;
       }
 
-      final ConfigurerPanel panel = new ConfigurerPanel(getName(), "[]", "[][]"); //NON-NLS
+      controls = super.getControls();
       verifyButton = new JButton(Resources.getString("Prefs.internet_dice_verify_button"));
       verifyButton.addActionListener(e -> verify());
-      panel.add(verifyButton);
-      controls = panel;
+      p.add(verifyButton);
       return controls;
     }
 
@@ -433,6 +410,10 @@ public final class DieManager extends AbstractConfigurable {
           }
         }
       }.execute();
+    }
+
+    private static String strip(String value) {
+      return value == null ? "" : value.strip();
     }
   }
 }
