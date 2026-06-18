@@ -291,8 +291,6 @@ public class WizardDisplayerImpl extends WizardDisplayer
 
     protected Object showInDialog(Rectangle bounds)
     {
-        // TODO: add flag for "showInFrame"
-
         JDialog dlg = createDialog();
 
         buttonManager.setWindow(dlg);
