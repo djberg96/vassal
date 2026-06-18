@@ -22,10 +22,14 @@ import java.util.List;
 import java.util.Map;
 
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.io.IOException;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.SwingWorker;
+import javax.swing.JTextField;
 
 import VASSAL.build.AbstractConfigurable;
 import VASSAL.build.Buildable;
@@ -342,6 +346,8 @@ public final class DieManager extends AbstractConfigurable {
   }
 
   static final class TrimmingPasswordConfigurer extends PasswordConfigurer {
+    private static final int API_KEY_COLUMNS = 40;
+
     private final Prefs prefs;
     private Component controls;
     private JButton verifyButton;
@@ -349,7 +355,11 @@ public final class DieManager extends AbstractConfigurable {
     TrimmingPasswordConfigurer(Prefs prefs, String key, String name, String val) {
       super(key, name, strip(val));
       this.prefs = prefs;
-      length = 40;
+    }
+
+    @Override
+    protected JTextField buildTextField() {
+      return new JPasswordField(API_KEY_COLUMNS);
     }
 
     @Override
@@ -369,9 +379,17 @@ public final class DieManager extends AbstractConfigurable {
       }
 
       controls = super.getControls();
+      final Component passwordControl = p.getComponent(p.getComponentCount() - 1);
+      p.remove(passwordControl);
+
       verifyButton = new JButton(Resources.getString("Prefs.internet_dice_verify_button"));
       verifyButton.addActionListener(e -> verify());
-      p.add(verifyButton);
+
+      final JPanel inputRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+      inputRow.setOpaque(false);
+      inputRow.add(passwordControl);
+      inputRow.add(verifyButton);
+      p.add(inputRow, "growx");
       return controls;
     }
 
