@@ -327,10 +327,6 @@ public final class ServerAddressBook {
         setCurrentServer(index);
         return;
       }
-      else if (P2P_TYPE.equals(type) && P2P_TYPE.equals(ep.getProperty(TYPE_KEY))) {
-        setCurrentServer(index);
-        return;
-      }
 
       index++;
     }
