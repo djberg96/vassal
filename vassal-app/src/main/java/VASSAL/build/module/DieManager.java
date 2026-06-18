@@ -31,6 +31,7 @@ import VASSAL.build.module.dice.RollSet;
 import VASSAL.build.module.documentation.HelpFile;
 import VASSAL.command.Command;
 import VASSAL.configure.BooleanConfigurer;
+import VASSAL.configure.PasswordConfigurer;
 import VASSAL.configure.StringArrayConfigurer;
 import VASSAL.configure.StringConfigurer;
 import VASSAL.configure.StringEnumConfigurer;
@@ -90,16 +91,11 @@ public final class DieManager extends AbstractConfigurable {
      * The Dice Manager needs some preferences
      */
 
-    final StringEnumConfigurer dieserver = new StringEnumConfigurer(DICE_SERVER, "Internet Dice Server", getDescriptions());
-    dieserver.setValue(server.getDescription());
-    final StringConfigurer serverpw = new StringConfigurer(SERVER_PW, "Dice Server API Key / Password");
     final BooleanConfigurer useemail = new BooleanConfigurer(USE_EMAIL, "Email results?");
     final StringConfigurer pemail = new StringConfigurer(PRIMARY_EMAIL, "Primary Email");
     final StringArrayConfigurer abook = new StringArrayConfigurer(ADDRESS_BOOK, "Address Book");
     final BooleanConfigurer multiroll = new BooleanConfigurer(MULTI_ROLL, "Put multiple rolls into single email");
 
-    GameModule.getGameModule().getPrefs().addOption(null, dieserver);
-    GameModule.getGameModule().getPrefs().addOption(null, serverpw);
     GameModule.getGameModule().getPrefs().addOption(DIE_MANAGER, useemail);
 
     GameModule.getGameModule().getPrefs().addOption(DIE_MANAGER, abook);
@@ -131,6 +127,25 @@ public final class DieManager extends AbstractConfigurable {
 
   public static String[] getAvailableServerDescriptions() {
     return new String[] { RANDOM_ORG_DESCRIPTION, Q_RANDOM_DESCRIPTION };
+  }
+
+  public static void addGlobalPreferences(Prefs prefs) {
+    final StringEnumConfigurer diceServer = new StringEnumConfigurer(
+      DICE_SERVER,
+      Resources.getString("Prefs.internet_dice_server"),
+      getAvailableServerDescriptions()
+    );
+    diceServer.setValue(DEFAULT_DICE_SERVER);
+
+    final PasswordConfigurer serverKey = new PasswordConfigurer(
+      SERVER_PW,
+      Resources.getString("Prefs.internet_dice_api_key"),
+      ""
+    );
+
+    final String tab = Resources.getString("Prefs.internet_dice_tab");
+    prefs.addOption(tab, diceServer);
+    prefs.addOption(tab, serverKey);
   }
 
   // Return names of all known Dice Servers
@@ -200,20 +215,7 @@ public final class DieManager extends AbstractConfigurable {
   }
 
   public void roll(int nDice, int nSides, int plus, boolean reportTotal, String description, FormattedString format) {
-    roll(nDice, nSides, plus, reportTotal, description, format, null, null);
-  }
-
-  public void roll(
-    int nDice,
-    int nSides,
-    int plus,
-    boolean reportTotal,
-    String description,
-    FormattedString format,
-    String serverDescription,
-    String apiKey
-  ) {
-    getPrefs(serverDescription, apiKey);
+    getPrefs();
     final MultiRoll mroll = getMultiRollForSelectedServer(nDice, nSides);
     rollConfigured(nDice, nSides, plus, reportTotal, description, format, mroll);
   }
@@ -285,28 +287,39 @@ public final class DieManager extends AbstractConfigurable {
    * Preferences may change at ANY time!
    */
   private void getPrefs() {
-    getPrefs(null, null);
-  }
-
-  private void getPrefs(String serverDescription, String apiKey) {
-
-    final Prefs prefs = GameModule.getGameModule().getPrefs();
+    final Prefs modulePrefs = GameModule.getGameModule().getPrefs();
+    final Prefs globalPrefs = Prefs.getGlobalPrefs();
 
     // Get the correct server
-    final String serverName = serverDescription == null || serverDescription.isBlank()
-      ? (String) prefs.getValue(DICE_SERVER)
-      : serverDescription;
+    final String serverName = stringPref(globalPrefs, DICE_SERVER, DEFAULT_DICE_SERVER);
     final DieServer selectedServer = getServerFromDescription(serverName);
     server = selectedServer == null ? servers.values().iterator().next() : selectedServer;
 
     // And tell it the prefs it will need
-    server.setPasswd(apiKey == null ? (String) prefs.getValue(SERVER_PW) : apiKey);
-    server.setUseEmail((Boolean) prefs.getValue(USE_EMAIL));
-    server.setPrimaryEmail((String) prefs.getValue(PRIMARY_EMAIL));
-    server.setSecondaryEmail((String) prefs.getValue(SECONDARY_EMAIL));
+    server.setPasswd(stringPref(globalPrefs, SERVER_PW, ""));
+    server.setUseEmail(booleanPref(modulePrefs, USE_EMAIL));
+    server.setPrimaryEmail(stringPref(modulePrefs, PRIMARY_EMAIL, ""));
+    server.setSecondaryEmail(stringPref(modulePrefs, SECONDARY_EMAIL, ""));
 
-    useMultiRoll = (Boolean) prefs.getValue(MULTI_ROLL);
+    useMultiRoll = booleanPref(modulePrefs, MULTI_ROLL);
 
+  }
+
+  private static String stringPref(Prefs prefs, String key, String defaultValue) {
+    final Object value = prefs.getValue(key);
+    if (value instanceof String s && !s.isBlank()) {
+      return s;
+    }
+    return defaultValue;
+  }
+
+  private static boolean booleanPref(Prefs prefs, String key) {
+    return Boolean.TRUE.equals(prefs.getValue(key));
+  }
+
+  public boolean canUseInternetDice() {
+    getPrefs();
+    return !server.isPasswdRequired() || !server.getPasswd().isBlank();
   }
 
   /*

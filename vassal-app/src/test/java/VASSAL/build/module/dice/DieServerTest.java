@@ -182,7 +182,7 @@ class DieServerTest {
     final IOException e = assertThrows(IOException.class, () -> server.doIRoll(rollSet));
 
     assertEquals(
-      "RANDOM.ORG API key is required. Set it in the Dice Server API Key / Password preference.",
+      "RANDOM.ORG API key is required. Set it in Preferences > Internet Dice.",
       e.getMessage()
     );
   }

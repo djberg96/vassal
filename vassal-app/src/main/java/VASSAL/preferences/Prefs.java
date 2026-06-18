@@ -18,6 +18,7 @@
 package VASSAL.preferences;
 
 import VASSAL.Info;
+import VASSAL.build.module.DieManager;
 import VASSAL.build.module.WizardSupport;
 import VASSAL.configure.BooleanConfigurer;
 import VASSAL.configure.Configurer;
@@ -338,6 +339,8 @@ public class Prefs implements Closeable {
     );
 
     globalPrefs.addOption(Resources.getString("Prefs.general_tab"), auditConf);
+
+    DieManager.addGlobalPreferences(globalPrefs);
   }
 
   public static String sanitize(String str) {

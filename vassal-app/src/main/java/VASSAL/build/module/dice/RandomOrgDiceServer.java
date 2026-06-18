@@ -24,7 +24,7 @@ public class RandomOrgDiceServer extends DieServer {
   @Override
   public RollSet doIRoll(RollSet toss) throws IOException {
     if (password == null || password.isBlank()) {
-      throw new IOException("RANDOM.ORG API key is required. Set it in the Dice Server API Key / Password preference.");
+      throw new IOException("RANDOM.ORG API key is required. Set it in Preferences > Internet Dice.");
     }
 
     int requestId = 1;
