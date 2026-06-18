@@ -24,8 +24,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorCompletionService;
+import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -69,7 +73,7 @@ public class TilesToImage {
     final File bdir = new File(base).getParentFile();
     final FileFilter filter = pathname -> pathname.getPath().startsWith(base);
 
-    final Pattern p  = Pattern.compile(base + "\\((\\d+),(\\d+)\\)@1:");
+    final Pattern p  = Pattern.compile(Pattern.quote(base) + "\\((\\d+),(\\d+)\\)@1:");
     int max_row = 0;
     int max_col = 0;
     for (final File f : bdir.listFiles(filter)) {
@@ -98,21 +102,80 @@ public class TilesToImage {
     final BufferedImage img =
       new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 
-    final Graphics2D g = img.createGraphics();
+    final ExecutorService exec =
+      TileThreadPools.create(TilesToImage.class.getSimpleName());
 
-    // TODO: We could do this faster by making it multithreaded, since
-    // writes to the destination image never overlap.
-    for (int tx = 0; tx < tcols; ++tx) {
-      for (int ty = 0; ty < trows; ++ty) {
-        final File tfile =
-          new File(base + "(" + tx + "," + ty + ")@1:" + scale);
-        final BufferedImage tile = TileUtils.read(tfile);
+    try {
+      final ExecutorCompletionService<TilePlacement> tiles =
+        new ExecutorCompletionService<>(exec);
+      final int tileCount = tcols * trows;
 
-        g.drawImage(tile, tx * tw, ty * th, null);
+      for (int tx = 0; tx < tcols; ++tx) {
+        for (int ty = 0; ty < trows; ++ty) {
+          final int tileX = tx;
+          final int tileY = ty;
+          tiles.submit(() -> readTile(base, scale, tileX, tileY));
+        }
       }
+
+      final Graphics2D g = img.createGraphics();
+      try {
+        for (int i = 0; i < tileCount; ++i) {
+          final TilePlacement tile = getTile(tiles);
+          g.drawImage(tile.image, tile.x * tw, tile.y * th, null);
+        }
+      }
+      finally {
+        g.dispose();
+      }
+    }
+    finally {
+      exec.shutdown();
     }
 
     // write the cobbled image
-    ImageIO.write(img, "PNG", Files.newOutputStream(Path.of(dpath))); //NON-NLS
+    try (OutputStream out = Files.newOutputStream(Path.of(dpath))) {
+      if (!ImageIO.write(img, "PNG", out)) { //NON-NLS
+        throw new IOException("No PNG image writer is available"); //NON-NLS
+      }
+    }
+  }
+
+  private static TilePlacement getTile(
+    ExecutorCompletionService<TilePlacement> tiles
+  ) throws IOException {
+    try {
+      return tiles.take().get();
+    }
+    catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IOException("Interrupted while reading image tiles", e); //NON-NLS
+    }
+    catch (ExecutionException e) {
+      throw new IOException("Failed to read image tile", e.getCause()); //NON-NLS
+    }
+  }
+
+  private static TilePlacement readTile(
+    String base,
+    String scale,
+    int tileX,
+    int tileY
+  ) throws IOException {
+    final File tfile =
+      new File(base + "(" + tileX + "," + tileY + ")@1:" + scale);
+    return new TilePlacement(tileX, tileY, TileUtils.read(tfile));
+  }
+
+  private static class TilePlacement {
+    private final int x;
+    private final int y;
+    private final BufferedImage image;
+
+    private TilePlacement(int x, int y, BufferedImage image) {
+      this.x = x;
+      this.y = y;
+      this.image = image;
+    }
   }
 }
