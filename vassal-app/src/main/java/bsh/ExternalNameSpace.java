@@ -24,7 +24,6 @@
  *                                                                           *
  *****************************************************************************/
  
- // TODO
 package	bsh;
 
 import java.io.IOException;
@@ -54,19 +53,17 @@ import java.util.Collections;
 	shadow any previously defined variables in the scope. 
 	<p/>
 
-	Note: this class is inherentely dependent on Java 1.2, however it is not
-	used directly by the core as other than type NameSpace, so no dependency is
-	introduced.
+	Note: this class depends on the Java Collections Framework, but is not
+	used directly by the core other than as type NameSpace.
 */
 /*
 	Implementation notes:
 
-	It would seem that we should have been accomplished this by overriding the
+	It would seem that we should have accomplished this by overriding the
 	getImportedVar() method of NameSpace, which behaves in a similar way
 	for fields of classes and objects.  However we need more control here to
 	be able to bump up the precedence and remove items that have been removed
-	via the map.  So we override getVariableImp().  We should reevaluate this
-	at some point.  All of NameSpace is a mess.
+	via the map.  So we override getVariableImpl().
 
 	The primary abstraction here is that we override createVariable() to
 	create LHS Variables bound to the map for this namespace.
@@ -249,13 +246,12 @@ public class ExternalNameSpace extends NameSpace
     }
 
 
-	/*
-		Note: this method should be overridden to add the names from the
-		external map, as is done in getVariableNames();
-	*/
 	protected void getAllNamesAux( List<String> list ) 
 	{
-		super.getAllNamesAux( list );
+		list.addAll( Arrays.asList( getVariableNames() ) );
+		list.addAll( Arrays.asList( getMethodNames() ) );
+		if ( getParent() != null )
+			getParent().getAllNamesAux( list );
 	}
 
 	/**
