@@ -223,13 +223,7 @@ public class TextItem extends Item {
       s = text;
     }
     else {
-      // TODO condition is always "true"
-      if (defn != null) {
-        // TODO condition is always true
-        if (ti != null) {
-          s = ti.getValue();
-        }
-      }
+      s = ti.getValue();
     }
 
     final Graphics2D g2d = ((Graphics2D) g);

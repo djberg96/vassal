@@ -3,10 +3,12 @@ package VASSAL.build.module.gamepieceimage;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -27,6 +29,9 @@ public class GamePieceImageConfigurerTest {
   @BeforeEach
   public void setupColorManager() {
     new ColorManager().addTo(null);
+    final FontManager fontManager = new FontManager();
+    fontManager.addTo(null);
+    fontManager.build(null);
   }
 
   @Test
@@ -92,6 +97,23 @@ public class GamePieceImageConfigurerTest {
     final GamePieceImage image = new GamePieceImage(encoded);
 
     assertEquals(encoded, image.getAttributeValueString(GamePieceImage.PROPS));
+  }
+
+  @Test
+  public void textItemDrawUsesFallbackDefinitionForVariableText() {
+    final GamePieceLayout layout = new GamePieceLayout();
+    final TextItem item = new TextItem(layout, "Text");
+    final BufferedImage image = new BufferedImage(80, 80, BufferedImage.TYPE_INT_ARGB);
+
+    final Graphics2D g = image.createGraphics();
+    try {
+      item.draw(g, null);
+    }
+    finally {
+      g.dispose();
+    }
+
+    assertTrue(hasVisiblePixel(image));
   }
 
   @Test
@@ -189,5 +211,17 @@ public class GamePieceImageConfigurerTest {
     }
 
     throw new AssertionError("No component named " + name);
+  }
+
+  private static boolean hasVisiblePixel(BufferedImage image) {
+    for (int y = 0; y < image.getHeight(); ++y) {
+      for (int x = 0; x < image.getWidth(); ++x) {
+        if ((image.getRGB(x, y) >>> 24) != 0) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 }
