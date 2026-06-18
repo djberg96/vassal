@@ -21,8 +21,6 @@ package VASSAL.build.module;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -38,17 +36,14 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.border.Border;
 import javax.swing.border.EtchedBorder;
 
 import VASSAL.build.GameModule;
 import VASSAL.build.module.dice.RollSet;
-import VASSAL.preferences.Prefs;
 
 /**
  * @author Brent Easton
@@ -56,18 +51,15 @@ import VASSAL.preferences.Prefs;
  * Dialog for defining a {@link DieManager RollSet}
  * For use with internet dice rollers
  */
-public final class MultiRoll extends JDialog implements ActionListener {
+public final class MultiRoll extends JDialog {
   private static final long serialVersionUID = 1L;
 
   private final JButton rollButton = new JButton("Roll");
   private final JButton canButton = new JButton("Cancel");
-  private final JButton emailButton = new JButton("Change Email Address");
 
   private JDialog me;
   private JPanel serverPanel;
   private JLabel serverLabel;
-  private JPanel emailPanel;
-  private JLabel emailLabel;
   private JPanel descPanel;
   private JTextField descText;
   private JPanel topPanel;
@@ -160,7 +152,6 @@ public final class MultiRoll extends JDialog implements ActionListener {
   @Override
   public void setVisible(boolean b) {
     setServerHeader();
-    setEmailHeader();
     super.setVisible(b);
   }
 
@@ -177,18 +168,12 @@ public final class MultiRoll extends JDialog implements ActionListener {
     topPanel = new JPanel();
     topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.PAGE_AXIS));
 
-    // Build the Server/Email header
+    // Build the server header
     serverPanel = new JPanel();
     serverLabel = new JLabel();
     setServerHeader();
     serverPanel.add(serverLabel);
     topPanel.add(serverPanel);
-
-    emailPanel = new JPanel();
-    emailLabel = new JLabel();
-    setEmailHeader();
-    emailPanel.add(emailLabel);
-    topPanel.add(emailPanel);
 
     // And the body
     descPanel = new JPanel();
@@ -239,11 +224,8 @@ public final class MultiRoll extends JDialog implements ActionListener {
       setVisible(false);
     });
 
-    emailButton.addActionListener(e -> updateEmailAddress());
-
     buttonPanel.add(rollButton);
     buttonPanel.add(canButton);
-    buttonPanel.add(emailButton);
 
     add(topPanel, BorderLayout.PAGE_START);
     add(buttonPanel, BorderLayout.PAGE_END);
@@ -253,56 +235,6 @@ public final class MultiRoll extends JDialog implements ActionListener {
 
   protected void setServerHeader() {
     serverLabel.setText("Server: " + dieManager.getServer().getName());
-  }
-
-  private static final String EMAIL_OFF = "Off";
-
-  protected void setEmailHeader() {
-
-    final String label;
-    final Prefs prefs = GameModule.getGameModule().getPrefs();
-
-    if (Boolean.TRUE.equals(prefs.getValue(DieManager.USE_EMAIL))) {
-      label = (String) prefs.getValue(DieManager.SECONDARY_EMAIL);
-    }
-    else {
-      label = EMAIL_OFF;
-    }
-    emailLabel.setText("Email: " + label);
-  }
-
-  protected void updateEmailAddress() {
-
-    final Prefs prefs = GameModule.getGameModule().getPrefs();
-    final String[] aBook = (String[]) prefs.getValue(DieManager.ADDRESS_BOOK);
-
-    final JPopupMenu popup = new JPopupMenu();
-
-    JMenuItem menuItem = new JMenuItem(EMAIL_OFF);
-    menuItem.addActionListener(this);
-    popup.add(menuItem);
-
-    for (final String s : aBook) {
-      menuItem = new JMenuItem(s);
-      menuItem.addActionListener(this);
-      popup.add(menuItem);
-    }
-
-    popup.show(emailButton, emailButton.getX(), emailButton.getY());
-  }
-
-  @Override
-  public void actionPerformed(ActionEvent e) {
-    final String address = e.getActionCommand();
-    final Prefs prefs = GameModule.getGameModule().getPrefs();
-    if (address.equals(EMAIL_OFF)) {
-      prefs.setValue(DieManager.USE_EMAIL, Boolean.FALSE);
-    }
-    else {
-      prefs.setValue(DieManager.SECONDARY_EMAIL, address);
-      prefs.setValue(DieManager.USE_EMAIL, Boolean.TRUE);
-    }
-    setEmailHeader();
   }
 
   protected static class HeaderRow extends JPanel {

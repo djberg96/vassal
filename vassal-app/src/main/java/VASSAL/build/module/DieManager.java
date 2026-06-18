@@ -32,8 +32,6 @@ import VASSAL.build.module.documentation.HelpFile;
 import VASSAL.command.Command;
 import VASSAL.configure.BooleanConfigurer;
 import VASSAL.configure.PasswordConfigurer;
-import VASSAL.configure.StringArrayConfigurer;
-import VASSAL.configure.StringConfigurer;
 import VASSAL.configure.StringEnumConfigurer;
 import VASSAL.i18n.Resources;
 import VASSAL.preferences.Prefs;
@@ -57,15 +55,10 @@ public final class DieManager extends AbstractConfigurable {
   private DieServer server;
   private String lastServerName = ""; //NON-NLS
   private MultiRoll myMultiRoll;
-  final StringEnumConfigurer semail;
 
   public static final String USE_INTERNET_DICE = "useinternetdice"; //NON-NLS
   public static final String DICE_SERVER = "diceserver"; //NON-NLS
   public static final String SERVER_PW = "serverpw"; //NON-NLS
-  public static final String USE_EMAIL = "useemail"; //NON-NLS
-  public static final String PRIMARY_EMAIL = "primaryemail"; //NON-NLS
-  public static final String SECONDARY_EMAIL = "secondaryemail"; //NON-NLS
-  public static final String ADDRESS_BOOK = "addressbook"; //NON-NLS
   public static final String MULTI_ROLL = "multiroll"; //NON-NLS
   public static final String DIE_MANAGER = "Internet Die Roller"; //NON-NLS
 
@@ -91,38 +84,13 @@ public final class DieManager extends AbstractConfigurable {
      * The Dice Manager needs some preferences
      */
 
-    final BooleanConfigurer useemail = new BooleanConfigurer(USE_EMAIL, "Email results?");
-    final StringConfigurer pemail = new StringConfigurer(PRIMARY_EMAIL, "Primary Email");
-    final StringArrayConfigurer abook = new StringArrayConfigurer(ADDRESS_BOOK, "Address Book");
-    final BooleanConfigurer multiroll = new BooleanConfigurer(MULTI_ROLL, "Put multiple rolls into single email");
+    final BooleanConfigurer multiroll = new BooleanConfigurer(MULTI_ROLL, "Show multi-roll dialog");
 
-    GameModule.getGameModule().getPrefs().addOption(DIE_MANAGER, useemail);
-
-    GameModule.getGameModule().getPrefs().addOption(DIE_MANAGER, abook);
-    final String[] addressList = addressBookValues(GameModule.getGameModule().getPrefs().getValue(ADDRESS_BOOK));
-    semail = new StringEnumConfigurer(SECONDARY_EMAIL, "Secondary Email", addressList);
-
-    GameModule.getGameModule().getPrefs().addOption(DIE_MANAGER, pemail);
-    GameModule.getGameModule().getPrefs().addOption(DIE_MANAGER, semail);
     GameModule.getGameModule().getPrefs().addOption(DIE_MANAGER, multiroll);
-
-    setSemailValues();
-    abook.addPropertyChangeListener(e -> setSemailValues());
   }
 
   private void registerServer(DieServer dieServer) {
     servers.put(dieServer.getName(), dieServer);
-  }
-
-  public void setSemailValues() {
-    final String currentSemail = (String) GameModule.getGameModule().getPrefs().getValue(SECONDARY_EMAIL);
-    final String[] addressBook = addressBookValues(GameModule.getGameModule().getPrefs().getValue(ADDRESS_BOOK));
-    semail.setValidValues(addressBook);
-    semail.setValue(currentSemail);
-  }
-
-  static String[] addressBookValues(Object value) {
-    return value instanceof String[] ? (String[]) value : new String[0];
   }
 
   public static String[] getAvailableServerDescriptions() {
@@ -261,18 +229,6 @@ public final class DieManager extends AbstractConfigurable {
     if (desc == null || desc.length() == 0) {
       desc = GameModule.getGameModule().getChatter().getInputField().getText();
     }
-    if (server.getUseEmail()) {
-      if (desc == null || desc.length() == 0) {
-        chatCommand.append(new Chatter.DisplayText(GameModule.getGameModule().getChatter(),
-                                                   " - Emailing " + server.getSecondaryEmail() + " (no subject line)"));
-        chatCommand.append(new Chatter.DisplayText(GameModule.getGameModule().getChatter(),
-                                                   " - Leave text in the chat input area to provide a subject line"));
-      }
-      else {
-        chatCommand.append(new Chatter.DisplayText(GameModule.getGameModule().getChatter(),
-                                                   " - Emailing " + server.getSecondaryEmail() + " (Subject:  " + desc + ")"));
-      }
-    }
     chatCommand.execute();
     GameModule.getGameModule().sendAndLog(chatCommand);
 
@@ -297,9 +253,6 @@ public final class DieManager extends AbstractConfigurable {
 
     // And tell it the prefs it will need
     server.setPasswd(stringPref(globalPrefs, SERVER_PW, ""));
-    server.setUseEmail(booleanPref(modulePrefs, USE_EMAIL));
-    server.setPrimaryEmail(stringPref(modulePrefs, PRIMARY_EMAIL, ""));
-    server.setSecondaryEmail(stringPref(modulePrefs, SECONDARY_EMAIL, ""));
 
     useMultiRoll = booleanPref(modulePrefs, MULTI_ROLL);
 
@@ -421,10 +374,5 @@ public final class DieManager extends AbstractConfigurable {
 
   public static String getConfigureTypeName() {
     return Resources.getString("Editor.DieManager.component_type"); //$NON-NLS-1$
-  }
-
-  public void setSecondaryEmail(String email) {
-    GameModule.getGameModule().getPrefs().setValue(SECONDARY_EMAIL, email);
-    server.setSecondaryEmail(email);
   }
 }

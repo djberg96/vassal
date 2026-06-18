@@ -31,15 +31,10 @@ public abstract class DieServer implements Auditable {
   protected java.util.Random ran;
   protected String name;
   protected String description;
-  protected boolean emailOnly;
   protected int maxRolls;
-  protected int maxEmails;
   protected String serverURL;
   protected boolean passwdRequired = false;
   protected String password = "";  //NON-NLS
-  protected boolean useEmail;
-  protected String primaryEmail;
-  protected String secondaryEmail;
   protected boolean canDoSeparateDice = false;
 
   /*
@@ -85,34 +80,6 @@ public abstract class DieServer implements Auditable {
 
   public void setPasswd(String s) {
     password = s;
-  }
-
-  public void setPrimaryEmail(String e) {
-    primaryEmail = e;
-  }
-
-  public String getPrimaryEmail() {
-    return primaryEmail;
-  }
-
-  public void setSecondaryEmail(String e) {
-    secondaryEmail = e;
-  }
-
-  public String getSecondaryEmail() {
-    return secondaryEmail;
-  }
-
-  public void setUseEmail(boolean use) {
-    useEmail = use;
-  }
-
-  public boolean getUseEmail() {
-    return useEmail;
-  }
-
-  public int getMaxEmails() {
-    return maxEmails;
   }
 
   /**
@@ -214,21 +181,6 @@ public abstract class DieServer implements Auditable {
          ByteArrayOutputStream out = new ByteArrayOutputStream()) {
       input.transferTo(out);
       return out.toString(StandardCharsets.UTF_8);
-    }
-  }
-
-  /*
-   * Extract the portion of the email address withing the  angle brackets.
-   * Allows Email addresses like 'Joe Blow <j.blow@somewhere.com>'
-   */
-  public String extractEmail(String email) {
-    final int start = email.indexOf('<');
-    final int end = email.indexOf('>');
-    if (start >= 0 && end >= 0 && end > start) {
-      return email.substring(start + 1, end);
-    }
-    else {
-      return email;
     }
   }
 }

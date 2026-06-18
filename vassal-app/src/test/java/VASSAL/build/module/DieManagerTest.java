@@ -23,8 +23,6 @@ public class DieManagerTest {
     final GameModule gameModule = mock(GameModule.class);
     final Prefs prefs = mock(Prefs.class);
     when(gameModule.getPrefs()).thenReturn(prefs);
-    when(prefs.getValue(DieManager.ADDRESS_BOOK)).thenReturn(new String[0]);
-    when(prefs.getValue(DieManager.SECONDARY_EMAIL)).thenReturn("");
 
     try (MockedStatic<GameModule> staticGameModule = Mockito.mockStatic(GameModule.class)) {
       staticGameModule.when(GameModule::getGameModule).thenReturn(gameModule);
@@ -40,17 +38,10 @@ public class DieManagerTest {
   }
 
   @Test
-  public void missingAddressBookPreferenceIsTreatedAsEmpty() {
-    assertArrayEquals(new String[0], DieManager.addressBookValues(null));
-  }
-
-  @Test
-  public void nullAddressBookPreferenceDoesNotBreakConstruction() {
+  public void moduleEmailPreferencesAreNotRequiredForConstruction() {
     final GameModule gameModule = mock(GameModule.class);
     final Prefs prefs = mock(Prefs.class);
     when(gameModule.getPrefs()).thenReturn(prefs);
-    when(prefs.getValue(DieManager.ADDRESS_BOOK)).thenReturn(null);
-    when(prefs.getValue(DieManager.SECONDARY_EMAIL)).thenReturn("");
 
     try (MockedStatic<GameModule> staticGameModule = Mockito.mockStatic(GameModule.class)) {
       staticGameModule.when(GameModule::getGameModule).thenReturn(gameModule);
