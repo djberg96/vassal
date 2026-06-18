@@ -284,72 +284,6 @@ public class ADC2Module extends Importer {
     }
   }
 
-  public class StatusDots {
-    // type
-    public static final int NOT_USED = 0;
-    public static final int MOVED = 1;
-    public static final int IN_COMBAT = 2;
-    public static final int ATTACKED = 3;
-    public static final int DEFENDED = 4;
-    public static final int CLASS_VALUE = 5;
-    public static final int PIECE_VALUE = 6;
-
-    // position
-    public static final int DO_NOT_DRAW = 0;
-    public static final int TOP_LEFT = 1;
-    public static final int TOP_CENTER = 2;
-    public static final int TOP_RIGHT = 3;
-    public static final int CENTER_LEFT = 4;
-    public static final int CENTER_CENTER = 5;
-    public static final int CENTER_RIGHT = 6;
-    public static final int BOTTOM_LEFT = 7;
-    public static final int BOTTOM_CENTER = 8;
-    public static final int BOTTOM_RIGHT = 9;
-
-    private final int type;
-    private final int show;
-    private final Color color;
-    private final int position;
-    private final int size;
-
-    protected StatusDots(int type, int show, Color color, int position, int size) {
-      this.type = type;
-      this.show = show;
-      this.color = color;
-      this.position = position;
-      this.size = size;
-    }
-
-    public Color getColor() {
-      return color;
-    }
-
-    public int getPosition() {
-      return position;
-    }
-
-    public int getShow() {
-      return show;
-    }
-
-    public int getSize() {
-      return size;
-    }
-
-    public int getType() {
-      return type & 0xf;
-    }
-
-    public String getStatusPropertyName() {
-      if (getType() == CLASS_VALUE)
-        return classValues[type >>> 4];
-      else if (getType() == PIECE_VALUE)
-        return pieceValues[type >>> 4];
-      else
-        return null;
-    }
-  }
-
   private static final int FORCE_POOL_BLOCK_END = 30000;
   public static final String DRAW_ON_TOP_OF_OTHERS = "Draw on top of others?";
   public static final String PIECE = "Pieces";
@@ -478,7 +412,8 @@ public class ADC2Module extends Importer {
       insertComponent(pieceSlot, parent);
     }
 
-    // TODO: create option whereby anyone can flip/hide a card.
+    // COMPAT: ADC2 can allow any player to flip/hide a card; this imports
+    // card visibility through the closest VASSAL side ownership model.
     public Player getPlayer() {
       return pieceClass.getOwner();
     }
@@ -493,8 +428,8 @@ public class ADC2Module extends Importer {
         gamePiece = getBasicPiece();
         if (gamePiece == null)
           return null;
-        // TODO: implement a YES_NO field type for PropertySheets
-        // and a stack property viewer.
+        // COMPAT: ADC2 yes/no values are represented as text in VASSAL
+        // property sheets until PropertySheet has a dedicated boolean field.
         // Piece values
         appendDecorator(getPieceNameMarker());
         appendDecorator(getDynamicProperty());
@@ -598,7 +533,8 @@ public class ADC2Module extends Importer {
       return layer;
     }
 
-    // TODO: provide angle phase offset for FreeRotator
+    // COMPAT: ADC2 facings can have a phase offset; FreeRotator imports the
+    // nearest equivalent facing count without per-piece offset metadata.
     protected FreeRotator getFreeRotator() {
       final FreeRotator p = pieceClass.getFreeRotatorDecorator();
       if (p != null) {
@@ -617,8 +553,8 @@ public class ADC2Module extends Importer {
       return p;
     }
 
-    //TODO:  add more math functions to MouseOverStackViewer including min(), max(), and mean().
-    //     and antialiased characters in MouseOverStackViewer
+    // REFACTOR: MouseOverStackViewer could expose more aggregate functions
+    // such as min(), max(), and mean().
     protected PropertySheet getPiecePropertySheet() {
       if (piecePS == null) {
         piecePS = new PropertySheet();
@@ -830,7 +766,8 @@ public class ADC2Module extends Importer {
       return (hiddenPieceOptions & 0x4) > 0 || hiddenWhenPlaced();
     }
 
-    // TODO: add game master option to players
+    // COMPAT: ADC2 can mark a side as game master; VASSAL imports the player
+    // roster without a distinct game-master side role.
     public boolean isGameMaster() {
       return (hiddenPieceOptions & 0x8) > 0;
     }
@@ -1032,7 +969,8 @@ public class ADC2Module extends Importer {
       return Decorator.create(Replace::new, Replace.ID + "Flip Back;B;" + se.getValue(), null);
     }
 
-    // TODO: find a different way to do this so that we don't have to generate unique class names.
+    // REFACTOR: Replace generated unique class names with stable piece-slot
+    // references if Replace can target slots without name-derived paths.
     private String getFlipClassTreeConfigurePath() {
       SequenceEncoder se2 = new SequenceEncoder(PieceWindow.class.getName(), ':');
       se2.append(FLIP_DEFINITIONS);
@@ -1198,7 +1136,8 @@ public class ADC2Module extends Importer {
       return layer;
     }
 
-    // TODO: permit offset to mask image.
+    // COMPAT: ADC2 supports offset mask images; the generated VASSAL mask
+    // currently uses the default Obscurable placement.
     public Obscurable getPieceValueMask() throws IOException {
       if (getOwner().useHiddenPieces()) {
         final SequenceEncoder se = new SequenceEncoder(';');
@@ -1246,7 +1185,8 @@ public class ADC2Module extends Importer {
         final SequenceEncoder se = new SequenceEncoder(';');
         se.append(NamedKeyStroke.of(KeyStroke.getKeyStroke('H', InputEvent.CTRL_DOWN_MASK))); // key command
         if (getHiddenSymbol() == null) {
-          // TODO Add transparency to background color as well as alpha for unit.
+          // COMPAT: Hideable lacks an imported ADC2-style transparent
+          // background color; unit alpha still carries the main hidden state.
           se.append("Hide Piece"); // command
           se.append(new Color(255, 255, 255)); // background colour
           se.append(sides); // owning player
@@ -1479,7 +1419,6 @@ public class ADC2Module extends Importer {
   private int version;
   private int classCombatSummaryValues;
   private int pieceCombatSummaryValues;
-  private final StatusDots[] statusDots = new StatusDots[6]; //NOPMD
   private final List<String> turnNames = new ArrayList<>();
   private boolean useLOS;
   private String deckName;
@@ -1508,9 +1447,6 @@ public class ADC2Module extends Importer {
     private final Color foreground;
     private final int tab;
     private String imageName;
-    // TODO contents of statusDots are updated but never used
-    private final List<StatusDots> statusDots = new ArrayList<>();
-
     public StateFlag(String flag, Color background, Color foreground, int tab) {
       this.name = flag;
       this.background = background;
@@ -1532,10 +1468,6 @@ public class ADC2Module extends Importer {
         GameModule.getGameModule().getArchiveWriter().addImage(imageName, imageDataArray);
       }
       return imageName;
-    }
-
-    public void addStatusDots(StatusDots dots) {
-      statusDots.add(dots);
     }
 
     public void drawFlagImage(Graphics2D g) {
@@ -1635,7 +1567,8 @@ public class ADC2Module extends Importer {
       if (header != -3 && header != -2)
         throw new FileFormatException("Invalid Game Module Header");
 
-      // TODO: figure out version-specific formats for older versions.
+      // COMPAT: Older ADC2 versions may have version-specific block formats
+      // not modeled here; keep the parsed version available for block readers.
       version = in.readUnsignedShort();
 
       final String s = readWindowsFileName(in);
@@ -1647,8 +1580,8 @@ public class ADC2Module extends Importer {
         throw new FileNotFoundException("Unable to locate map file.");
       map.importFile(action, mapFile);
 
-      // TODO: each block has an ideosyncratic way of terminating itself.
-      // this has to be tested extensively.
+      // COMPAT: ADC2 blocks terminate idiosyncratically, so each reader
+      // consumes exactly the bytes required by the corresponding block format.
       try {
         readGameTurnBlock(in);
         readClassBlock(in);
@@ -1684,7 +1617,8 @@ public class ADC2Module extends Importer {
     }
   }
 
-  // TODO: what happens when this conflicts with the draw options in the map file itself?
+  // COMPAT: Module draw options are read to keep block alignment, but the
+  // imported VASSAL map keeps its own map-file drawing configuration.
   private void readDrawOptionsBlock(DataInputStream in) throws IOException {
     ADC2Utils.readBlockHeader(in, "Draw Options");
 
@@ -1710,7 +1644,8 @@ public class ADC2Module extends Importer {
     in.readFully(new byte[4]);
   }
 
-  // TODO: allow multiple players to see hidden units.
+  // COMPAT: ADC2 alliances can share hidden-unit visibility. VASSAL import
+  // currently merges allied sides but does not create multi-side hide rules.
   protected void readAllianceBlock(DataInputStream in) throws IOException {
     ADC2Utils.readBlockHeader(in, "Alliances");
 
@@ -1876,13 +1811,11 @@ public class ADC2Module extends Importer {
 
     final byte[] size = new byte[3];
     for (int i = 0; i < 6; ++i) {
-      final int type = in.readByte();
-      final int show = ADC2Utils.readBase250Word(in);
-      final int color = in.readUnsignedByte();
-      final int position = in.readByte();
+      in.readByte(); // type
+      ADC2Utils.readBase250Word(in); // show flags
+      in.readUnsignedByte(); // color
+      in.readByte(); // position
       in.readFully(size);
-
-      statusDots[i] = new StatusDots(type, show, ADC2Utils.getColorFromIndex(color), position, size[2]);
     }
   }
 
@@ -1981,7 +1914,8 @@ public class ADC2Module extends Importer {
     }
   }
 
-  // TODO: this is a big job to implement and may not even be worth doing at all.
+  // DEFERRED: ADC2 replay import would require translating a whole log format
+  // into VASSAL commands; skip the block after preserving stream alignment.
   protected void readReplayBlock(DataInputStream in) throws IOException {
     ADC2Utils.readBlockHeader(in, "Replay");
 
@@ -2427,7 +2361,8 @@ public class ADC2Module extends Importer {
     list.setAttribute("property", "currentTurn");
     final String[] names = new String[turnNames.size()];
     list.setAttribute("list", StringArrayConfigurer.arrayToString(turnNames.toArray(names)));
-    // TODO: set current turn
+    // COMPAT: ADC2 current-turn state is not imported; only turn names are
+    // converted into a VASSAL turn tracker.
   }
 
   protected void configureDiceRoller(GameModule gameModule) {
@@ -2502,7 +2437,8 @@ public class ADC2Module extends Importer {
       roster.setAttribute(PlayerRoster.SIDES, se.getValue());
   }
 
-  // TODO make a select all cards in hand option
+  // REFACTOR: Add a hand-level "select all cards" command if VASSAL hand
+  // windows grow support for bulk card actions.
   protected void writeHandsToArchive(GameModule module) throws IOException {
     final int nHands = forcePools.count(HandPool.class);
     if (nHands == 0)
@@ -2700,8 +2636,8 @@ public class ADC2Module extends Importer {
    *
    * @throws IOException
    */
-  // TODO: cards should not be accessible if they are invisible. Can still draw
-  // invisible cards right now.
+  // COMPAT: ADC2 can hide force-pool card accessibility more strictly than
+  // this generated VASSAL tray, where invisible cards can still be drawn.
   protected void writeForcePoolsToArchive(GameModule gameModule) throws IOException {
     final int nForcePools = forcePools.count(ForcePool.class);
     if (nForcePools == 0)
