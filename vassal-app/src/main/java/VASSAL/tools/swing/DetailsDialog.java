@@ -33,6 +33,7 @@ import javax.swing.SwingUtilities;
 
 import net.miginfocom.swing.MigLayout;
 
+import VASSAL.tools.ApplicationIcons;
 import VASSAL.tools.BrowserSupport;
 import VASSAL.tools.DialogUtils;
 
@@ -101,6 +102,7 @@ public class DetailsDialog {
       messageType,
       JOptionPane.DEFAULT_OPTION
     ).createDialog(parent, title);
+    ApplicationIcons.setFor(dialog);
 
     dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
     dialog.setResizable(true);

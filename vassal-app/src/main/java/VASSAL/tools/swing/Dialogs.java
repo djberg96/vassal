@@ -30,6 +30,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.LayoutStyle;
 
+import VASSAL.tools.ApplicationIcons;
 import VASSAL.tools.BrowserSupport;
 import VASSAL.tools.DialogUtils;
 
@@ -175,6 +176,7 @@ public class Dialogs {
     final JOptionPane opt = new JOptionPane(
       content, messageType, optionType, icon, options, initialValue);
     final JDialog dialog = opt.createDialog(parent, title);
+    ApplicationIcons.setFor(dialog);
 
     dialog.setModalityType(Dialog.ModalityType.APPLICATION_MODAL);
     dialog.setLocationRelativeTo(parent);

@@ -19,6 +19,7 @@
 package VASSAL.tools;
 
 import java.awt.Graphics2D;
+import java.awt.Window;
 import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.List;
@@ -30,8 +31,6 @@ import org.apache.commons.lang3.SystemUtils;
 
 import VASSAL.tools.image.ImageIOException;
 import VASSAL.tools.image.ImageUtils;
-
-// TODO: Ensure wizard and parentless dialogs receive the correct application icons.
 
 public class ApplicationIcons {
 
@@ -89,12 +88,14 @@ public class ApplicationIcons {
   }
 
   public static void setFor(JFrame w) {
-    if (icons != null) {
-      w.setIconImages(icons);
-    }
+    setFor((Window) w);
   }
 
   public static void setFor(JDialog w) {
+    setFor((Window) w);
+  }
+
+  public static void setFor(Window w) {
     if (icons != null) {
       w.setIconImages(icons);
     }

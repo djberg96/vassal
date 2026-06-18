@@ -15,6 +15,7 @@
 package org.netbeans.api.wizard.displayer;
 
 import VASSAL.build.GameModule;
+import VASSAL.tools.ApplicationIcons;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -286,6 +287,7 @@ public class WizardDisplayerImpl extends WizardDisplayer
         {
             dlg = new JDialog(GameModule.getGameModule().getPlayerWindow());
         }
+        ApplicationIcons.setFor(dlg);
         return dlg;
     }
 
