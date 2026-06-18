@@ -21,8 +21,12 @@ package org.netbeans.spi.wizard;
 
 import java.awt.Component;
 import java.awt.Font;
+import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 
@@ -45,8 +49,6 @@ public class Summary {
     //Summary
     
     Summary(String text, Object result) {
-        // TODO: Create Swing components on the EDT, using invokeAndWait where
-        // appropriate.
         if (text == null) {
             throw new NullPointerException ("Text is null"); //NOI18N
         }
@@ -55,7 +57,11 @@ public class Summary {
                     "whitespace"); //NOI18N
         }
         this.result = result;
-        JTextArea jta = new JTextArea();
+        comp = createOnEdt(() -> createTextComponent(text));
+    }
+
+    private static Component createTextComponent(String text) {
+        final JTextArea jta = new JTextArea();
         jta.setText (text);
         jta.setWrapStyleWord(true);
         jta.setLineWrap(true);
@@ -66,7 +72,7 @@ public class Summary {
         if (f != null) { //may be on old GTK L&F, etc.
             jta.setFont (f);
         }
-        comp = new JScrollPane (jta);
+        return new JScrollPane (jta);
     }
     
     Summary(String[] items, Object result) {
@@ -77,8 +83,7 @@ public class Summary {
             throw new IllegalArgumentException ("Items array empty"); //NOI18N
         }
         this.result = result;
-        JList<String> list = new JList<>(items);
-        comp = new JScrollPane (list);
+        comp = createOnEdt(() -> new JScrollPane(new JList<>(items)));
     }
     
     Summary(Component comp, Object result) {
@@ -145,5 +150,31 @@ public class Summary {
      */ 
     public Object getResult() {
         return result;
+    }
+
+    private static Component createOnEdt(Supplier<Component> supplier) {
+        if (SwingUtilities.isEventDispatchThread()) {
+            return supplier.get();
+        }
+
+        final AtomicReference<Component> result = new AtomicReference<>();
+        try {
+            SwingUtilities.invokeAndWait(() -> result.set(supplier.get()));
+        }
+        catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted while creating summary component", e); //NOI18N
+        }
+        catch (InvocationTargetException e) {
+            final Throwable cause = e.getCause();
+            if (cause instanceof RuntimeException) {
+                throw (RuntimeException) cause;
+            }
+            if (cause instanceof Error) {
+                throw (Error) cause;
+            }
+            throw new IllegalStateException("Could not create summary component", cause); //NOI18N
+        }
+        return result.get();
     }
 }
