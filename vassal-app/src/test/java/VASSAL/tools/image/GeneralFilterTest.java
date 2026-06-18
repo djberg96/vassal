@@ -18,14 +18,51 @@
 
 package VASSAL.tools.image;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
+import org.junit.jupiter.api.Test;
+
 public class GeneralFilterTest {
+  @Test
+  public void zoomPreservesSourceColorModel() {
+    final BufferedImage src =
+      new BufferedImage(2, 2, BufferedImage.TYPE_INT_ARGB_PRE);
+
+    final BufferedImage dst = GeneralFilter.zoom(
+      new Rectangle(0, 0, 4, 4),
+      src,
+      new GeneralFilter.BoxFilter()
+    );
+
+    assertEquals(4, dst.getWidth());
+    assertEquals(4, dst.getHeight());
+    assertSame(src.getColorModel(), dst.getColorModel());
+    assertEquals(src.isAlphaPremultiplied(), dst.isAlphaPremultiplied());
+  }
+
+  @Test
+  public void zoomPreservesOpaqueImageType() {
+    final BufferedImage src =
+      new BufferedImage(2, 2, BufferedImage.TYPE_INT_RGB);
+
+    final BufferedImage dst = GeneralFilter.zoom(
+      new Rectangle(0, 0, 4, 4),
+      src,
+      new GeneralFilter.BoxFilter()
+    );
+
+    assertEquals(BufferedImage.OPAQUE, dst.getTransparency());
+    assertSame(src.getColorModel(), dst.getColorModel());
+  }
+
   /** A program for running filter benchmarks. */
   public static void main(String[] args) throws IOException {
     BufferedImage src = ImageIO.read(new File(args[0]));

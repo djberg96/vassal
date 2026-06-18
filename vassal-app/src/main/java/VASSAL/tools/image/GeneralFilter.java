@@ -265,7 +265,8 @@ public final class GeneralFilter {
       src.getColorModel().createCompatibleWritableRaster(dst.width, dst.height);
     zoom(dstR, dstR.getBounds(), src, filter);
 
-    // TODO: Check whether returning this compatible image affects hardware acceleration.
+    // The destination image must use the source ColorModel because resample()
+    // writes premultiplied or unpremultiplied pixel data based on the source.
     return new BufferedImage(
       src.getColorModel(),
       dstR,
