@@ -480,9 +480,10 @@ class Name implements java.io.Serializable
 			if ( specialFieldsVisible )
 				throw new UtilEvalError("Redundant to call .this on This type");
 
-			// Allow getThis() to work through BlockNameSpace to the method
-			// namespace
-			// TODO: Re-evaluate whether this namespace adjustment is still needed.
+			// Resolve through BlockNameSpace/method scopes before checking
+			// class context. Without this, bare "this" inside a scripted class
+			// block returns the bsh.This wrapper instead of the generated class
+			// instance.
 			This ths = thisNameSpace.getThis( interpreter );
 			thisNameSpace= ths.getNameSpace();
 			Object result = ths;
