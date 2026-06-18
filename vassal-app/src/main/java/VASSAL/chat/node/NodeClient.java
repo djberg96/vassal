@@ -521,8 +521,6 @@ public class NodeClient implements LockableChatServerConnection,
         new SynchAction(pendingSynchToRoom.getOwningPlayer(), this)
           .actionPerformed(null);
 
-        GameModule.getGameModule().warn(Resources.getString("Chat.synchronize_complete"));
-
         final GameModule gm = GameModule.getGameModule();
         final Chatter chatter = gm.getChatter();
         final String playerName = getUserInfo().getName();

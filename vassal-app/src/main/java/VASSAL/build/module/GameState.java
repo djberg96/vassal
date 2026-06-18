@@ -134,6 +134,7 @@ public class GameState implements CommandEncoder {
   protected String loadComments;
   protected boolean loadingInBackground = false;
   private boolean fastForwarding = false;
+  private boolean synchronizationRequestPending = false;
   private final AttachmentManager attachmentManager = new AttachmentManager();
 
   public AttachmentManager getAttachmentManager() {
@@ -145,6 +146,17 @@ public class GameState implements CommandEncoder {
    */
   public boolean isLoadingInBackground() {
     return loadingInBackground;
+  }
+
+  public void markSynchronizationRequestSent() {
+    synchronizationRequestPending = true;
+  }
+
+  private void reportSynchronizationComplete() {
+    if (synchronizationRequestPending) {
+      synchronizationRequestPending = false;
+      GameModule.getGameModule().warn(Resources.getString("Chat.synchronize_complete"));
+    }
   }
 
   /**
@@ -1301,7 +1313,11 @@ public class GameState implements CommandEncoder {
 
     @Override
     protected void executeCommand() {
-      GameModule.getGameModule().getGameState().setup(gameStarting);
+      final GameState gameState = GameModule.getGameModule().getGameState();
+      gameState.setup(gameStarting);
+      if (gameStarting) {
+        gameState.reportSynchronizationComplete();
+      }
     }
 
     @Override

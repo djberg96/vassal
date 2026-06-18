@@ -84,6 +84,7 @@ public final class SynchAction extends AbstractAction {
         GameModule.getGameModule().setGameFileMode(GameModule.GameFileMode.NEW_GAME);
         GameModule.getGameModule().getGameState().setup(false);
         client.sendTo(p, new SynchCommand(client.getUserInfo(), client));
+        GameModule.getGameModule().getGameState().markSynchronizationRequestSent();
         lastSync = now;
 
         GameModule.getGameModule().warn(Resources.getString("Chat.sent_sync_request"));  
