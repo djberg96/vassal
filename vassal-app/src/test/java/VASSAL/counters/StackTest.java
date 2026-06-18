@@ -464,6 +464,32 @@ public class StackTest {
   }
 
   @Test
+  public void getPiecesInVisibleOrderIteratorShouldReturnSnapshot() {
+    // prepare
+    final GamePiece gamePiece1 = mock(GamePiece.class);
+    final GamePiece gamePiece2 = mock(GamePiece.class);
+    final GamePiece gamePiece3 = mock(GamePiece.class);
+    when(gamePiece2.getProperty(Properties.SELECTED)).thenReturn(true);
+    final List<GamePiece> gamePieces = Arrays.asList(gamePiece2, gamePiece3, gamePiece1);
+
+    // run
+    Stack s = new Stack();
+    s.add(gamePiece1);
+    s.add(gamePiece2);
+    s.add(gamePiece3);
+    final Iterator<GamePiece> iterator = s.getPiecesInVisibleOrderIterator();
+    s.removeAll();
+
+    // assert
+    int i = 0;
+    while (iterator.hasNext()) {
+      final GamePiece gamePiece = iterator.next();
+      assertEquals(gamePieces.get(i++), gamePiece);
+    }
+    assertEquals(gamePieces.size(), i);
+  }
+
+  @Test
   public void asListShouldReturnWithCorrectSize() {
     // prepare
     final GamePiece gamePiece1 = mock(GamePiece.class);

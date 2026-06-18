@@ -159,10 +159,9 @@ public interface PieceFinder {
            i.hasNext();) {
         final GamePiece child = i.next();
 
-        // Pieces can be moved by background threads causing the size of
-        // the Stack to change after the Iterator is generated.
-        // TODO: Fix the threading bug which can move pieces while a stack is
-        // being inspected.
+        // The visible-order iterator snapshots stack contents. Recheck the
+        // current index in case a piece was removed or reordered after that
+        // snapshot but before this hit test.
         final int index = s.indexOf(child);
         if (index >= 0 && index < shapes.length) {
           if (shapes[index].contains(pt)) {

@@ -881,10 +881,13 @@ public class Stack extends AbstractImageFinder implements GamePiece, StateMergea
 
   private class VisibleOrderIterator implements Iterator<GamePiece> {
     private GamePiece next;
-    private int index = pieceCount - 1;
+    private int index;
     private boolean doingSelected = true;
+    private final GamePiece[] p;
 
     public VisibleOrderIterator() {
+      p = Arrays.copyOf(contents, pieceCount);
+      index = p.length - 1;
       next = findNext();
     }
 
@@ -903,17 +906,17 @@ public class Stack extends AbstractImageFinder implements GamePiece, StateMergea
     private GamePiece findNext() {
       GamePiece ret = null;
       while (index >= 0) {
-        final GamePiece p = getPieceAt(index--);
+        final GamePiece piece = p[index--];
         if (doingSelected ^ !Boolean.TRUE.equals(
-                              p.getProperty(Properties.SELECTED))) {
-          ret = p;
+                              piece.getProperty(Properties.SELECTED))) {
+          ret = piece;
           break;
         }
       }
 
       if (ret == null && doingSelected) {
         doingSelected = false;
-        index = pieceCount - 1;
+        index = p.length - 1;
         ret = findNext();
       }
       return ret;
