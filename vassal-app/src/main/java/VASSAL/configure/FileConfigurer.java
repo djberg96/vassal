@@ -96,17 +96,34 @@ public class FileConfigurer extends Configurer {
 
   @Override
   public void setValue(Object o) {
-// TODO: Handle archive-contained files without requiring a local filesystem path.
-    final File f = (File) o;
-    if (f != null && !f.getPath().isEmpty() && f.exists()) {
-      if (archive != null) {
-        addToArchive(f);
-      }
+    final File f = toFile(o);
+    if (isLocalArchiveSource(f)) {
+      addToArchive(f);
     }
     super.setValue(f);
     if (tf != null && !noUpdate) {
       tf.setText(getValueString());
     }
+  }
+
+  private File toFile(Object o) {
+    if (o == null || o instanceof File) {
+      return (File) o;
+    }
+
+    if (o instanceof String s) {
+      return toFile(s);
+    }
+
+    throw new ClassCastException("Cannot convert " + o.getClass().getName() + " to File"); //NON-NLS
+  }
+
+  private File toFile(String s) {
+    return s == null || s.isEmpty() ? null : new File(s);
+  }
+
+  private boolean isLocalArchiveSource(File f) {
+    return archive != null && f != null && !f.getPath().isEmpty() && f.exists();
   }
 
   protected void addToArchive(File f) {
@@ -115,11 +132,7 @@ public class FileConfigurer extends Configurer {
 
   @Override
   public void setValue(String s) {
-    if (s == null || s.isEmpty())
-      setValue((Object) null);
-    else {
-      setValue(new File(s));
-    }
+    setValue((Object) toFile(s));
   }
 
   @Override
