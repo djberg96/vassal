@@ -30,7 +30,6 @@ import VASSAL.build.module.dice.RandomOrgDiceServer;
 import VASSAL.build.module.dice.RollSet;
 import VASSAL.build.module.documentation.HelpFile;
 import VASSAL.command.Command;
-import VASSAL.configure.BooleanConfigurer;
 import VASSAL.configure.PasswordConfigurer;
 import VASSAL.configure.StringEnumConfigurer;
 import VASSAL.i18n.Resources;
@@ -48,19 +47,14 @@ public final class DieManager extends AbstractConfigurable {
   private final Map<String, DieServer> servers;
   private final List<InternetDiceButton> dieButtons = new ArrayList<>();
   private String desc = "Die Manager"; //NON-NLS
-  private boolean useMultiRoll;
   private int defaultNDice = 2;
   private int defaultNSides = 6;
 
   private DieServer server;
-  private String lastServerName = ""; //NON-NLS
-  private MultiRoll myMultiRoll;
 
   public static final String USE_INTERNET_DICE = "useinternetdice"; //NON-NLS
   public static final String DICE_SERVER = "diceserver"; //NON-NLS
   public static final String SERVER_PW = "serverpw"; //NON-NLS
-  public static final String MULTI_ROLL = "multiroll"; //NON-NLS
-  public static final String DIE_MANAGER = "Internet Die Roller"; //NON-NLS
 
   public static final String DESC = "description"; //NON-NLS
   public static final String DFLT_NSIDES = "dfltnsides"; //NON-NLS
@@ -79,14 +73,6 @@ public final class DieManager extends AbstractConfigurable {
     server = new RandomOrgDiceServer();
     registerServer(server);
     registerServer(new QRandomDiceServer());
-
-    /*
-     * The Dice Manager needs some preferences
-     */
-
-    final BooleanConfigurer multiroll = new BooleanConfigurer(MULTI_ROLL, "Show multi-roll dialog");
-
-    GameModule.getGameModule().getPrefs().addOption(DIE_MANAGER, multiroll);
   }
 
   private void registerServer(DieServer dieServer) {
@@ -167,25 +153,9 @@ public final class DieManager extends AbstractConfigurable {
     return defaultNSides;
   }
 
-  public MultiRoll getMultiRoll(int nDice, int nSides) {
-    getPrefs();
-    return getMultiRollForSelectedServer(nDice, nSides);
-  }
-
-  private MultiRoll getMultiRollForSelectedServer(int nDice, int nSides) {
-    final String serverName = server.getName();
-    if (myMultiRoll == null || !serverName.equals(lastServerName)) {
-      myMultiRoll = new MultiRoll(this, nDice, nSides);
-    }
-    lastServerName = serverName;
-
-    return myMultiRoll;
-  }
-
   public void roll(int nDice, int nSides, int plus, boolean reportTotal, String description, FormattedString format) {
     getPrefs();
-    final MultiRoll mroll = getMultiRollForSelectedServer(nDice, nSides);
-    rollConfigured(nDice, nSides, plus, reportTotal, description, format, mroll);
+    rollConfigured(nDice, nSides, plus, reportTotal, description, format);
   }
 
   private void rollConfigured(
@@ -194,34 +164,11 @@ public final class DieManager extends AbstractConfigurable {
     int plus,
     boolean reportTotal,
     String description,
-    FormattedString format,
-    MultiRoll mroll
+    FormattedString format
   ) {
-    final RollSet rollSet;
-
     String desc = GameModule.getGameModule().getChatter().getInputField().getText();
-    if (desc != null && desc.length() > 0) {
-      mroll.setDescription(desc);
-    }
-
-    // Do we want full multi-roll capabilities? If required, pop-up the multi-roll
-    // cofigurer to get the details
-    if (useMultiRoll) {
-      mroll.setVisible(true);
-
-      if (mroll.wasCancelled()) {
-        return;
-      }
-      rollSet = mroll.getRollSet();
-      desc = rollSet.getDescription();
-    }
-
-    // Multi Roll preference not selected, so build a dummy MultiRoll object
-    else {
-      final DieRoll[] rolls = {new DieRoll(description, nDice, nSides, plus, reportTotal)};
-      rollSet = new RollSet(description, rolls);
-      desc = "";
-    }
+    final DieRoll[] rolls = {new DieRoll(description, nDice, nSides, plus, reportTotal)};
+    final RollSet rollSet = new RollSet(description, rolls);
 
     final Command chatCommand = new Chatter.DisplayText(GameModule.getGameModule().getChatter(),
                                                   " - Roll sent to " + server.getDescription());
@@ -243,7 +190,6 @@ public final class DieManager extends AbstractConfigurable {
    * Preferences may change at ANY time!
    */
   private void getPrefs() {
-    final Prefs modulePrefs = GameModule.getGameModule().getPrefs();
     final Prefs globalPrefs = Prefs.getGlobalPrefs();
 
     // Get the correct server
@@ -253,9 +199,6 @@ public final class DieManager extends AbstractConfigurable {
 
     // And tell it the prefs it will need
     server.setPasswd(stringPref(globalPrefs, SERVER_PW, ""));
-
-    useMultiRoll = booleanPref(modulePrefs, MULTI_ROLL);
-
   }
 
   private static String stringPref(Prefs prefs, String key, String defaultValue) {
@@ -264,10 +207,6 @@ public final class DieManager extends AbstractConfigurable {
       return s;
     }
     return defaultValue;
-  }
-
-  private static boolean booleanPref(Prefs prefs, String key) {
-    return Boolean.TRUE.equals(prefs.getValue(key));
   }
 
   public boolean canUseInternetDice() {
