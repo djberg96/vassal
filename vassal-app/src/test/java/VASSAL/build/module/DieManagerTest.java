@@ -3,11 +3,18 @@ package VASSAL.build.module;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import java.awt.Component;
+import java.awt.Container;
+import javax.swing.JButton;
+import javax.swing.JPasswordField;
 
 import VASSAL.build.GameModule;
 import VASSAL.configure.Configurer;
@@ -74,6 +81,31 @@ public class DieManagerTest {
   }
 
   @Test
+  public void internetDiceApiKeyVisibilityCanBeToggled() {
+    final DieManager.TrimmingPasswordConfigurer configurer =
+      new DieManager.TrimmingPasswordConfigurer(mock(Prefs.class), DieManager.SERVER_PW, "API key / password", "");
+
+    final Component controls = configurer.getControls();
+    final JPasswordField keyField = findComponent(controls, JPasswordField.class);
+    final JButton showButton = findButton(controls, "Show");
+    assertNotNull(keyField);
+    assertNotNull(showButton);
+
+    final char maskedEchoChar = keyField.getEchoChar();
+    assertNotEquals((char) 0, maskedEchoChar);
+
+    showButton.doClick();
+
+    assertEquals((char) 0, keyField.getEchoChar());
+    assertEquals("Hide", showButton.getText());
+
+    showButton.doClick();
+
+    assertEquals(maskedEchoChar, keyField.getEchoChar());
+    assertEquals("Show", showButton.getText());
+  }
+
+  @Test
   public void randomOrgVerificationRequiresApiKey() {
     final Prefs prefs = mock(Prefs.class);
     when(prefs.getValue(DieManager.DICE_SERVER)).thenReturn(DieManager.RANDOM_ORG_DESCRIPTION);
@@ -82,5 +114,39 @@ public class DieManagerTest {
     final Exception e = assertThrows(Exception.class, () -> DieManager.verifyInternetDice(prefs));
 
     assertEquals("An API key is required for the selected service.", e.getMessage());
+  }
+
+  private static <T extends Component> T findComponent(Component component, Class<T> type) {
+    if (type.isInstance(component)) {
+      return type.cast(component);
+    }
+
+    if (component instanceof Container container) {
+      for (Component child : container.getComponents()) {
+        final T match = findComponent(child, type);
+        if (match != null) {
+          return match;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  private static JButton findButton(Component component, String text) {
+    if (component instanceof JButton button && text.equals(button.getText())) {
+      return button;
+    }
+
+    if (component instanceof Container container) {
+      for (Component child : container.getComponents()) {
+        final JButton match = findButton(child, text);
+        if (match != null) {
+          return match;
+        }
+      }
+    }
+
+    return null;
   }
 }

@@ -346,11 +346,13 @@ public final class DieManager extends AbstractConfigurable {
   }
 
   static final class TrimmingPasswordConfigurer extends PasswordConfigurer {
-    private static final int API_KEY_COLUMNS = 40;
+    private static final int API_KEY_COLUMNS = 32;
 
     private final Prefs prefs;
     private Component controls;
     private JButton verifyButton;
+    private JButton showButton;
+    private char maskedEchoChar;
 
     TrimmingPasswordConfigurer(Prefs prefs, String key, String name, String val) {
       super(key, name, strip(val));
@@ -382,15 +384,28 @@ public final class DieManager extends AbstractConfigurable {
       final Component passwordControl = p.getComponent(p.getComponentCount() - 1);
       p.remove(passwordControl);
 
+      final JPasswordField passwordField = (JPasswordField) nameField;
+      maskedEchoChar = passwordField.getEchoChar();
+
       verifyButton = new JButton(Resources.getString("Prefs.internet_dice_verify_button"));
       verifyButton.addActionListener(e -> verify());
+
+      showButton = new JButton(Resources.getString("Prefs.internet_dice_show_key"));
+      showButton.addActionListener(e -> toggleKeyVisibility(passwordField));
 
       final JPanel inputRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
       inputRow.setOpaque(false);
       inputRow.add(passwordControl);
       inputRow.add(verifyButton);
+      inputRow.add(showButton);
       p.add(inputRow, "growx");
       return controls;
+    }
+
+    private void toggleKeyVisibility(JPasswordField passwordField) {
+      final boolean hidden = passwordField.getEchoChar() != 0;
+      passwordField.setEchoChar(hidden ? (char) 0 : maskedEchoChar);
+      showButton.setText(Resources.getString(hidden ? "Prefs.internet_dice_hide_key" : "Prefs.internet_dice_show_key"));
     }
 
     private void verify() {
