@@ -43,7 +43,6 @@ import org.apache.commons.lang3.ArrayUtils;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -628,10 +627,7 @@ public class Obscurable extends Decorator implements TranslatablePiece {
     // Therefore, un-select the piece if turning it face down
     if (retVal != null && PEEK == displayStyle &&
         peekKey == null && obscuredToOthers()) {
-      // TODO: Avoid deferring this removal once KeyBuffer updates are safe from
-      // this call path.
-      final Runnable runnable = () -> KeyBuffer.getBuffer().remove(getOutermost(this));
-      SwingUtilities.invokeLater(runnable);
+      KeyBuffer.getBuffer().remove(getOutermost(this));
     }
     return retVal;
   }

@@ -17,6 +17,8 @@
 
 package VASSAL.counters;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -75,6 +77,29 @@ public class ObscurableTest extends DecoratorTest {
     trait.access = PieceAccessConfigurer.decode("side:");
     trait.description = "plover";
     serializeTest("Inset Style", trait); // NON-NLS
+  }
+
+  @Test
+  public void maskWithPlainPeekStyleDeselectsImmediately() {
+    try (MockedStatic<GameModule> staticGm = Mockito.mockStatic(GameModule.class)) {
+      final GameModule gm = mock(GameModule.class);
+      when(gm.createPiece(anyString())).thenAnswer(i -> new BasicPiece((String) i.getArguments()[0]));
+      staticGm.when(GameModule::getGameModule).thenReturn(gm);
+      staticGm.when(GameModule::getActiveUserId).thenReturn("player");
+
+      final Obscurable trait = new Obscurable();
+      trait.setInner(createBasicPiece());
+      trait.keyCommand = NamedKeyStroke.of("mask");
+      trait.displayStyle = Obscurable.PEEK;
+      trait.peekKey = null;
+
+      final KeyBuffer buffer = KeyBuffer.getBuffer();
+      buffer.clear();
+      buffer.add(trait);
+
+      assertNotNull(trait.myKeyEvent(NamedKeyStroke.of("mask").getKeyStroke()));
+      assertFalse(buffer.contains(trait));
+    }
   }
 
   public Obscurable creatObscurable() {
