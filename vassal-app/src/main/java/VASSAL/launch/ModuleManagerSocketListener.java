@@ -23,6 +23,7 @@ import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
@@ -44,51 +45,24 @@ public final class ModuleManagerSocketListener implements Runnable {
     this.execute = execute;
   }
 
-  @SuppressWarnings("PMD.UseTryWithResources")
   @Override
   public void run() {
     try {
-      Socket clientSocket = null;
-
-      // TODO while can only complete by throwing, do not use exceptions for ordinary control flow
-      while (true) {
+      while (!serverSocket.isClosed()) {
         try {
-          clientSocket = serverSocket.accept();
-          final String message;
-
-          try (ObjectInputStream in = new ObjectInputStream(
-            new BufferedInputStream(clientSocket.getInputStream()))) {
-
-            message = execute.apply(in.readObject());
+          handleClient(serverSocket.accept());
+        }
+        catch (SocketException e) {
+          if (serverSocket.isClosed()) {
+            break;
           }
-          clientSocket.close();
-
-          if (message == null || clientSocket.isClosed()) continue;
-
-          try (PrintStream out = new PrintStream(
-            new BufferedOutputStream(clientSocket.getOutputStream()), true, StandardCharsets.UTF_8)) {
-            out.println(message);
-          }
+          showSocketError(e);
         }
         catch (IOException e) {
-          ErrorDialog.showDetails(
-            e,
-            ThrowableUtils.getStackTrace(e),
-            "Error.socket_error"
-          );
+          showSocketError(e);
         }
         catch (ClassNotFoundException e) {
           ErrorDialog.bug(e);
-        }
-        finally {
-          if (clientSocket != null) {
-            try {
-              clientSocket.close();
-            }
-            catch (IOException e) {
-              logger.error("Error while closing client socket", e);
-            }
-          }
         }
       }
     }
@@ -102,5 +76,30 @@ public final class ModuleManagerSocketListener implements Runnable {
         }
       }
     }
+  }
+
+  private void handleClient(Socket clientSocket) throws IOException, ClassNotFoundException {
+    try (clientSocket;
+         ObjectInputStream in = new ObjectInputStream(
+           new BufferedInputStream(clientSocket.getInputStream()))) {
+
+      final String message = execute.apply(in.readObject());
+      if (message == null) {
+        return;
+      }
+
+      try (PrintStream out = new PrintStream(
+        new BufferedOutputStream(clientSocket.getOutputStream()), true, StandardCharsets.UTF_8)) {
+        out.println(message);
+      }
+    }
+  }
+
+  private void showSocketError(IOException e) {
+    ErrorDialog.showDetails(
+      e,
+      ThrowableUtils.getStackTrace(e),
+      "Error.socket_error"
+    );
   }
 }
