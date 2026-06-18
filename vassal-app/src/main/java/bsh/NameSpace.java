@@ -305,7 +305,7 @@ public class NameSpace implements Serializable, BshClassManager.Listener, NameSo
 		if ( existing != null )
 		{
 			try {
-			existing.setValue( value, Variable.ASSIGNMENT );
+			existing.setValue( value, Variable.ASSIGNMENT, strictJava );
 			} catch ( UtilEvalError e ) {
 				throw new UtilEvalError(
 					"Variable assignment: " + name + ": " + e.getMessage());

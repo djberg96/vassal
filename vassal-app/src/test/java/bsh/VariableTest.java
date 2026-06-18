@@ -8,9 +8,26 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class VariableTest {
+  @Test
+  public void strictJavaRejectsBeanShellNumericWrapperAssignment() {
+    final Interpreter interpreter = new Interpreter();
+    interpreter.setStrictJava(true);
+
+    final EvalError thrown = assertThrows(
+      EvalError.class,
+      () -> interpreter.eval(
+        "Byte value = Byte.valueOf(\"1\"); value = Integer.valueOf(\"2\");"
+      )
+    );
+
+    assertFalse(thrown.getMessage().contains("internal Error"));
+  }
+
   @Test
   public void serializationPreservesSerializableValue()
     throws Exception {

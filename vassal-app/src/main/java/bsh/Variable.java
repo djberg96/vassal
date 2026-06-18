@@ -95,6 +95,12 @@ public class Variable implements java.io.Serializable
 	public void setValue( Object value, int context ) 
 		throws UtilEvalError
 	{
+		setValue(value, context, false);
+	}
+
+	public void setValue( Object value, int context, boolean strictJava )
+		throws UtilEvalError
+	{
 
 		// check this.value
         if (hasModifier("final")) {
@@ -110,16 +116,18 @@ public class Variable implements java.io.Serializable
 
 		if ( lhs != null )
 		{
-			lhs.assign( Primitive.unwrap(value), false/*strictjava*/ );
+			lhs.assign( Primitive.unwrap(value), strictJava );
 			return;
 		}
 
-		// TODO: should add isJavaCastable() test for strictJava
-		// (as opposed to isJavaAssignable())
-		if ( type != null )
+		if ( type != null ) {
+			final Class<?> valueType = Types.getType(value);
+			if ( strictJava && !Types.isJavaCastable( type, valueType ) )
+				throw Types.castError( type, valueType, context );
 			value = Types.castObject( value, type, 
 				context == DECLARATION ? Types.CAST : Types.ASSIGNMENT
 			);
+		}
 
 		this.value= value;
 	}
