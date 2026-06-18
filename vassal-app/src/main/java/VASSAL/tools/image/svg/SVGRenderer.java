@@ -248,8 +248,7 @@ public class SVGRenderer {
         throw new TranscoderException(e);
       }
 
-      // TODO: Confirm that renderer.getOffScreen() is the correct image source
-      // for all Batik renderer states.
+      // The ImageRenderer paints into its offscreen buffer during repaint().
       BufferedImage rend = renderer.getOffScreen();
       renderer = null; // We're done with it...
 
