@@ -49,8 +49,6 @@ public class EditModuleAction extends LoadModuleAction {
   protected void loadModule(File f) throws IOException {
     GameModule.init(new GameModule(new ArchiveWriter(new ZipArchive(f), ".vmod"))); //NON-NLS
 
-// TODO: Decide whether editing a module should hide the Module Manager window.
-//    ModuleManagerWindow.getInstance().setVisible(false);
     final JFrame frame = GameModule.getGameModule().getPlayerWindow();
     frame.setVisible(true);
 

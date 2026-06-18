@@ -167,6 +167,9 @@ public abstract class AbstractLaunchAction extends AbstractAction {
 
   protected abstract LaunchTask getLaunchTask();
 
+  protected void childProcessStarted(LaunchRequest request) {
+  }
+
   private record LaunchHeapSettings(
     String moduleName,
     int maximumHeap,
@@ -344,6 +347,7 @@ public abstract class AbstractLaunchAction extends AbstractAction {
         mmw.addModule(lr.module);
       }
       mmw.setWaitCursor(false);
+      childProcessStarted(lr);
 
       try {
         proc.future.get();

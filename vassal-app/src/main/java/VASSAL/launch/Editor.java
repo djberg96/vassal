@@ -18,6 +18,7 @@
 
 package VASSAL.launch;
 
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +26,7 @@ import java.net.URLConnection;
 
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
@@ -232,6 +234,13 @@ public final class Editor extends Launcher {
       // register that this module is being edited
       markEditing(lr.module);
       return true;
+    }
+
+    @Override
+    protected void childProcessStarted(LaunchRequest request) {
+      if (window instanceof Frame frame) {
+        SwingUtilities.invokeLater(() -> frame.setState(Frame.ICONIFIED));
+      }
     }
 
     @Override
