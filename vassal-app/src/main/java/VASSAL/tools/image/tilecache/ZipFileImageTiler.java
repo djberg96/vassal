@@ -34,9 +34,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.LineIterator;
 
@@ -44,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import VASSAL.tools.IteratorUtils;
-import VASSAL.tools.concurrent.DaemonThreadFactory;
 import VASSAL.tools.image.ImageIOImageLoader;
 import VASSAL.tools.image.ImageLoader;
 import VASSAL.tools.image.ImageTypeConverter;
@@ -134,65 +130,63 @@ public class ZipFileImageTiler {
 
   private static void writeToStream(OutputStream os, String zpath, String tpath, int tw, int th) {
 
-    // TODO: Determine what the optimal number of threads is.
-    final Runtime runtime = Runtime.getRuntime();
-    final ExecutorService exec = new ThreadPoolExecutor(
-      runtime.availableProcessors(),
-      runtime.availableProcessors() + 1,
-      60, TimeUnit.SECONDS,
-      new LinkedBlockingQueue<>(),
-      new DaemonThreadFactory(ZipFileImageTiler.class.getSimpleName())
-    );
+    final ExecutorService exec =
+      TileThreadPools.create(ZipFileImageTiler.class.getSimpleName());
 
-    final ImageTypeConverter itc = new MemoryImageTypeConverter();
-    final ImageLoader loader = new ImageIOImageLoader(itc);
+    try {
+      final ImageTypeConverter itc = new MemoryImageTypeConverter();
+      final ImageLoader loader = new ImageIOImageLoader(itc);
 
-    final TileSlicer slicer = new TileSlicerImpl();
-    final FileArchiveImageTiler tiler = new FileArchiveImageTiler();
+      final TileSlicer slicer = new TileSlicerImpl();
+      final FileArchiveImageTiler tiler = new FileArchiveImageTiler();
 
-    // Get the image paths from stdin, one per line
-    try (BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
-      final Iterable<String> ipaths = IteratorUtils.iterate(new LineIterator(stdin));
+      // Get the image paths from stdin, one per line
+      try (BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8))) {
+        final Iterable<String> ipaths = IteratorUtils.iterate(new LineIterator(stdin));
 
-      try (PrintStream out = new PrintStream(os, false, StandardCharsets.UTF_8)) {
-        out.println("\n" + READY);
-        out.flush();
-
-        final Callback<String> imageStartL = ipath -> {
-          out.println("\n" + IMAGE_BEGIN + ipath);
+        try (PrintStream out = new PrintStream(os, false, StandardCharsets.UTF_8)) {
+          out.println("\n" + READY);
           out.flush();
-        };
 
-        final Callback<String> imageDoneL = ipath -> {
-          out.println("\n" + IMAGE_END + ipath);
-          out.flush();
-        };
+          final Callback<String> imageStartL = ipath -> {
+            out.println("\n" + IMAGE_BEGIN + ipath);
+            out.flush();
+          };
 
-        final Callback<Void> tileL = obj -> {
-          out.println("\n" + TILE_END);
-          out.flush();
-        };
+          final Callback<String> imageDoneL = ipath -> {
+            out.println("\n" + IMAGE_END + ipath);
+            out.flush();
+          };
 
-        final Callback<Void> doneL = obj -> {
-          out.println("\n" + DONE);
-          out.flush();
-        };
+          final Callback<Void> tileL = obj -> {
+            out.println("\n" + TILE_END);
+            out.flush();
+          };
 
-        try (FileArchive fa = new ZipArchive(zpath)) {
-          // Tile the images
-          tiler.run(
-            fa, tpath, tw, th, ipaths, exec,
-            loader, slicer,
-            imageStartL, imageDoneL, tileL, doneL
-          );
-        }
-        catch (IOException e) {
-          logger.error("", e);
+          final Callback<Void> doneL = obj -> {
+            out.println("\n" + DONE);
+            out.flush();
+          };
+
+          try (FileArchive fa = new ZipArchive(zpath)) {
+            // Tile the images
+            tiler.run(
+              fa, tpath, tw, th, ipaths, exec,
+              loader, slicer,
+              imageStartL, imageDoneL, tileL, doneL
+            );
+          }
+          catch (IOException e) {
+            logger.error("", e);
+          }
         }
       }
     }
     catch (IOException e) {
       logger.error("Tiling I/O error", e);
+    }
+    finally {
+      exec.shutdown();
     }
   }
 }

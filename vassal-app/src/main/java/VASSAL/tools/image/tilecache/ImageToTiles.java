@@ -25,11 +25,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
-import VASSAL.tools.concurrent.DaemonThreadFactory;
 import VASSAL.tools.image.FallbackImageTypeConverter;
 import VASSAL.tools.image.ImageIOImageLoader;
 import VASSAL.tools.image.ImageLoader;
@@ -62,15 +58,8 @@ public class ImageToTiles {
     final int tw = Integer.parseInt(args[2]);
     final int th = Integer.parseInt(args[3]);
 
-    // TODO: Determine what the optimal number of threads is.
-    final Runtime runtime = Runtime.getRuntime();
-    final ExecutorService exec = new ThreadPoolExecutor(
-      runtime.availableProcessors(),
-      runtime.availableProcessors() + 1,
-      60, TimeUnit.SECONDS,
-      new LinkedBlockingQueue<>(),
-      new DaemonThreadFactory(ImageToTiles.class.getSimpleName())
-    );
+    final ExecutorService exec =
+      TileThreadPools.create(ImageToTiles.class.getSimpleName());
 
     final TemporaryFileFactory tfac = () -> Files.createTempFile(Path.of(tpath), "img_", "").toFile();  //NON-NLS
 
@@ -90,8 +79,12 @@ public class ImageToTiles {
 
     final TileSlicer slicer = new TileSlicerImpl();
 
-    slicer.slice(src, iname, tpath, tw, th, exec, dotter);
-    exec.shutdown();
+    try {
+      slicer.slice(src, iname, tpath, tw, th, exec, dotter);
+    }
+    finally {
+      exec.shutdown();
+    }
     System.out.println("");
   }
 }
