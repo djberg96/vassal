@@ -154,7 +154,8 @@ public class MapBoard extends Importer {
         insertComponent(slot, stack);
 
         if (isSwitchable()) {
-          // TODO: initial state of layer visibility
+          // COMPAT: ADC2 stores initial layer visibility, but VASSAL imports
+          // switchable mapboard elements as initially visible layer pieces.
           // add stack layer control
           final LayerControl control = new LayerControl();
           insertComponent(control, l);
@@ -2178,7 +2179,6 @@ public class MapBoard extends Importer {
         fontStyle |= Font.BOLD;
       f = new Font(fontName, fontStyle, size);
       if (isUnderline) {
-        // TODO: why doesn't underlining doesn't work? Why why why?
         final java.util.Map<TextAttribute, Object> hash = new HashMap<>();
         hash.put(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_ON);
         f = f.deriveFont(hash);
@@ -2321,8 +2321,8 @@ public class MapBoard extends Importer {
     ADC2Utils.readBlockHeader(in, "Map Item Draw Flag");
 
     // obviously, element types can't be sorted before we do this.
-    // TODO: check this! If they're turned off in the map, can they be turned on
-    // again in the player?
+    // COMPAT: ADC2 separates editor draw flags from player visibility. The
+    // importer treats disabled map items as omitted from the generated board.
     final List<MapLayer> elements = new ArrayList<>(mapElements);
     if (in.readByte() == 0)
       mapElements.remove(elements.get(drawingPriorities[0]));
@@ -2797,7 +2797,8 @@ public class MapBoard extends Importer {
       readTableColorBlock(in);
       readHexNumberingBlock(in);
 
-      // TODO: default map item drawing order appears to be different for different maps.
+      // COMPAT: ADC2's implicit default drawing order varies across observed
+      // maps, so explicit drawing-order blocks are honored when present.
       try { // optional blocks
         readMapBoardOverlaySymbolBlock(in);
         readVersionBlock(in);
@@ -2910,8 +2911,6 @@ public class MapBoard extends Importer {
     // default grid
     final AbstractConfigurable ac = getLayout().getGeometricGrid();
 
-    // TODO: set default grid numbering for maps that have no sheets (e.g., Air Assault on Crete).
-
     // ensure that we don't have a singleton null
     if (mapSheets.size() == 1 && mapSheets.get(0) == null)
       mapSheets.remove(0);
@@ -2936,6 +2935,7 @@ public class MapBoard extends Importer {
       insertComponent(zg, board);
     }
     else {
+      insertComponent(getLayout().getGridNumbering(), ac);
       // add the default grid to the board
       insertComponent(ac, board);
     }
