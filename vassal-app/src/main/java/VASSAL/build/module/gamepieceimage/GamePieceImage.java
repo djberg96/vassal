@@ -39,6 +39,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -57,6 +58,7 @@ import org.w3c.dom.Element;
 public class GamePieceImage extends AbstractConfigurable implements Visualizable, Cloneable, UniqueIdManager.Identifyable {
 
   protected static final String NAME = "name"; //$NON-NLS-1$
+  protected static final String BUCKET = "bucket"; //$NON-NLS-1$
   protected static final String PROPS = "props"; //$NON-NLS-1$
 
   public static final String PART_SIZE = "Size"; //$NON-NLS-1$
@@ -75,6 +77,7 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
   protected GamePieceLayout layout;
   protected ColorSwatch bgColor = ColorSwatch.getWhite();
   protected ColorSwatch borderColor = ColorSwatch.getBlack();
+  protected String bucket = ""; //$NON-NLS-1$
   protected String id;
 
   protected static final UniqueIdManager idMgr = new UniqueIdManager("GamePieceImage"); //$NON-NLS-1$
@@ -109,6 +112,7 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
     this.layout = defn.getLayout();
     this.bgColor = defn.getBgColor();
     this.borderColor = defn.getBorderColor();
+    this.bucket = defn.getBucket();
     this.instances.addAll(defn.getInstances());
   }
 
@@ -137,6 +141,7 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
   public String[] getAttributeDescriptions() {
     return new String[] {
       Resources.getString("Editor.name_label"),
+      Resources.getString("Editor.imageSelector.bucket"),
       Resources.getString("Editor.background_color"),
       Resources.getString("Editor.border_color"),
       "",
@@ -148,6 +153,7 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
   public Class<?>[] getAttributeTypes() {
     return new Class<?>[] {
       ImageNameConfig.class,
+      BucketConfig.class,
       BgColorSwatchConfig.class,
       BorderColorSwatchConfig.class,
       DefnConfig.class
@@ -188,7 +194,7 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
 
   @Override
   public String[] getAttributeNames() {
-    return new String[] {NAME, BG_COLOR, BORDER_COLOR, PROPS, VERSION};
+    return new String[] {NAME, BUCKET, BG_COLOR, BORDER_COLOR, PROPS, VERSION};
   }
 
   public ColorSwatch getBgColor() {
@@ -199,6 +205,10 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
     return borderColor;
   }
 
+  public String getBucket() {
+    return bucket;
+  }
+
   public String getVersion() {
     return version;
   }
@@ -207,18 +217,19 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
   @SuppressWarnings("unchecked")
   public void setAttribute(String key, Object value) {
     if (NAME.equals(key)) {
+      final String oldImageName = getArchiveImageName();
       final String newName = (String) value;
-      final String oldName = getConfigureName();
-      if (!oldName.equals(newName) && oldName.length() > 0) {
-        final ArchiveWriter w = GameModule.getGameModule().getArchiveWriter();
-        w.removeImage(oldName);
-        w.addImage(newName, getEncodedImage((BufferedImage) visImage));
-      }
       setConfigureName(newName);
       // If the user manages to type in a proper V1 image name, flip it over to Version 1
       if (! isVersion1() && isVersion1ImageName(newName)) {
         version = VERSION_1;
       }
+      moveVisualizerImage(oldImageName);
+    }
+    else if (BUCKET.equals(key)) {
+      final String oldImageName = getArchiveImageName();
+      bucket = normalizeBucket((String) value);
+      moveVisualizerImage(oldImageName);
     }
     else if (BG_COLOR.equals(key)) {
       if (value instanceof String) {
@@ -264,6 +275,9 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
     if (NAME.equals(key)) {
       return getConfigureName();
     }
+    else if (BUCKET.equals(key)) {
+      return getBucket();
+    }
     else if (BG_COLOR.equals(key)) {
       return bgColor.encode();
     }
@@ -296,7 +310,10 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
 
   @Override
   public void addLocalImageNames(Collection<String> s) {
-    if (getConfigureName() != null) s.add(getConfigureName());
+    final String imageName = getArchiveImageName();
+    if (imageName != null && !imageName.isBlank()) {
+      s.add(imageName);
+    }
   }
 
   @Override
@@ -371,10 +388,11 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
 
       final ArchiveWriter w = GameModule.getGameModule().getArchiveWriter();
       if (w != null) {
-        if (getConfigureName() != null && getConfigureName().length() > 0) {
-          w.addImage(getConfigureName(),
+        final String imageName = getArchiveImageName();
+        if (imageName != null && !imageName.isBlank()) {
+          w.addImage(imageName,
                      getEncodedImage((BufferedImage) visImage));
-          final SourceOp op = Op.load(getConfigureName());
+          final SourceOp op = Op.load(imageName);
           op.update();
         }
       }
@@ -508,8 +526,64 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
     return VERSION_1.equals(version);
   }
 
+  public String getArchiveImageName() {
+    return imageNameForBucket(bucket, getConfigureName());
+  }
+
+  private void moveVisualizerImage(String oldImageName) {
+    final String newImageName = getArchiveImageName();
+    if (oldImageName == null || oldImageName.isBlank() || oldImageName.equals(newImageName)) {
+      return;
+    }
+    if (!(visImage instanceof BufferedImage)) {
+      return;
+    }
+
+    final ArchiveWriter w = GameModule.getGameModule().getArchiveWriter();
+    if (w == null) {
+      return;
+    }
+
+    w.removeImage(oldImageName);
+    if (newImageName != null && !newImageName.isBlank()) {
+      w.addImage(newImageName, getEncodedImage((BufferedImage) visImage));
+      final SourceOp op = Op.load(newImageName);
+      op.update();
+    }
+  }
+
   private boolean isVersion1ImageName(String name) {
     return name != null && !name.isEmpty() && name.matches("^[\\w.-]+\\.png$");
+  }
+
+  static String imageNameForBucket(String bucket, String fileName) {
+    final String normalizedBucket = normalizeBucket(bucket);
+    if (fileName == null || fileName.isBlank()) {
+      return "";
+    }
+
+    return normalizedBucket.isEmpty() ? fileName : normalizedBucket + "/" + fileName;
+  }
+
+  static String normalizeBucket(String bucket) {
+    if (bucket == null) {
+      return "";
+    }
+
+    return Arrays.stream(bucket.trim().replace('\\', '/').split("/"))
+      .map(String::trim)
+      .filter(segment -> !segment.isBlank())
+      .filter(segment -> !segment.equals("."))
+      .filter(segment -> !segment.equals(".."))
+      .reduce((left, right) -> left + "/" + right)
+      .orElse("");
+  }
+
+  public static class BucketConfig implements ConfigurerFactory {
+    @Override
+    public Configurer getConfigurer(AutoConfigurable c, String key, String name) {
+      return new StringConfigurer(key, name, ((GamePieceImage) c).getBucket());
+    }
   }
 
   public static class ImageNameConfig implements ConfigurerFactory {

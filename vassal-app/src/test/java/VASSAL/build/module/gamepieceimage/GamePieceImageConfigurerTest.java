@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -85,6 +86,40 @@ public class GamePieceImageConfigurerTest {
     assertEquals("Layout", image.getConfigureName());
     assertEquals("Layout", image.getLocalizedConfigureName());
     assertEquals(layout, image.getLayout());
+  }
+
+  @Test
+  public void gamePieceImageStoresArchiveNameInBucket() {
+    final GamePieceImage image = new GamePieceImage();
+    image.setConfigureName("counter.png");
+    image.setAttribute(GamePieceImage.BUCKET, " Union / Brigade A ");
+
+    assertEquals("Union/Brigade A", image.getAttributeValueString(GamePieceImage.BUCKET));
+    assertEquals("Union/Brigade A/counter.png", image.getArchiveImageName());
+  }
+
+  @Test
+  public void gamePieceImageNormalizesUnsafeBucketSegments() {
+    assertEquals(
+      "Union/Brigade A",
+      GamePieceImage.normalizeBucket(" /Union/./../Brigade A/ ")
+    );
+    assertEquals(
+      "Union/Brigade A/counter.png",
+      GamePieceImage.imageNameForBucket("Union\\Brigade A", "counter.png")
+    );
+  }
+
+  @Test
+  public void gamePieceImageReportsBucketedLocalImageName() {
+    final GamePieceImage image = new GamePieceImage();
+    image.setConfigureName("counter.png");
+    image.setAttribute(GamePieceImage.BUCKET, "Union");
+    final List<String> imageNames = new ArrayList<>();
+
+    image.addLocalImageNames(imageNames);
+
+    assertEquals(List.of("Union/counter.png"), imageNames);
   }
 
   @Test
