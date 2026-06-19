@@ -39,7 +39,6 @@ import VASSAL.tools.NamedKeyStroke;
 import VASSAL.tools.SequenceEncoder;
 import VASSAL.tools.imageop.GamePieceOp;
 import VASSAL.tools.imageop.Op;
-import VASSAL.tools.imageop.RotateScaleOp;
 import VASSAL.tools.swing.SwingUtils;
 import net.miginfocom.swing.MigLayout;
 
@@ -53,7 +52,6 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
@@ -124,7 +122,6 @@ public class FreeRotator extends Decorator
   protected java.util.Map<Double, Rectangle> bounds = new HashMap<>();
 
   protected GamePieceOp gpOp;
-  protected java.util.Map<Double, RotateScaleOp> rotOp = new HashMap<>();
 
   protected double tempAngle, startAngle;
   protected Point pivot;
@@ -290,30 +287,15 @@ public class FreeRotator extends Decorator
       piece.draw(g, x, y, obs, zoom);
     }
     else {
-      final double angle = getAngle();
-      RotateScaleOp op;
-
       if (getGpOp() != null && getGpOp().isChanged()) {
         gpOp = Op.piece(piece);
         bounds.clear();
-        rotOp.clear();
-        op = Op.rotateScale(gpOp, angle, zoom);
-        rotOp.put(angle, op);
-      }
-      else {
-        op = rotOp.get(angle);
-        if (op == null || op.getScale() != zoom) {
-          op = Op.rotateScale(gpOp, angle, zoom);
-          rotOp.put(angle, op);
-        }
       }
 
-      final Rectangle r = boundingBox();
-
-      final Image img = op.getImage();
-      if (img != null) {
-        g.drawImage(img, x + (int) (zoom * r.x), y + (int) (zoom * r.y), obs);
-      }
+      final Graphics2D g2d = (Graphics2D) g.create();
+      g2d.rotate(getAngleInRadians(), x + zoom * centerX(), y + zoom * centerY());
+      piece.draw(g2d, x, y, obs, zoom);
+      g2d.dispose();
     }
   }
 

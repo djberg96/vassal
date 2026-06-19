@@ -23,6 +23,8 @@ import VASSAL.tools.NamedKeyStroke;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.image.BufferedImage;
 import java.lang.reflect.InvocationTargetException;
 
 import org.junit.jupiter.api.Test;
@@ -442,10 +444,56 @@ public class FreeRotatorTest extends DecoratorTest {
     assertEquals("0", fr.myGetState());
   }
 
+  @Test
+  public void rotatedDrawPaintsInnerPieceWithRotatedGraphicsAtMapZoom() {
+    final RecordingPiece piece = new RecordingPiece();
+    final FreeRotator fr = new FreeRotator();
+    fr.setInner(piece);
+    fr.validAngles = new double[] {-90.0};
+
+    final BufferedImage target = new BufferedImage(40, 40, BufferedImage.TYPE_INT_ARGB);
+    final Graphics2D g = target.createGraphics();
+    final AffineTransform originalTransform = g.getTransform();
+
+    fr.draw(g, 20, 20, null, 2.0);
+    g.dispose();
+
+    assertEquals(20, piece.drawX);
+    assertEquals(20, piece.drawY);
+    assertEquals(2.0, piece.drawZoom);
+    assertEquals(originalTransform, piece.originalTransform);
+    assertEquals(
+      AffineTransform.getRotateInstance(fr.getAngleInRadians(), 20.0, 20.0),
+      piece.drawTransform
+    );
+  }
+
   class DummyPiece extends BasicPiece {
     @Override
     public Object getPublicProperty(Object key) {
       return null;
+    }
+  }
+
+  class RecordingPiece extends DummyPiece {
+    int drawX;
+    int drawY;
+    double drawZoom;
+    AffineTransform originalTransform;
+    AffineTransform drawTransform;
+
+    @Override
+    public Rectangle boundingBox() {
+      return new Rectangle(-5, -5, 10, 10);
+    }
+
+    @Override
+    public void draw(Graphics g, int x, int y, Component obs, double zoom) {
+      drawX = x;
+      drawY = y;
+      drawZoom = zoom;
+      originalTransform = new AffineTransform();
+      drawTransform = ((Graphics2D) g).getTransform();
     }
   }
 
