@@ -60,6 +60,38 @@ public class DataArchiveTest {
   }
 
   @Test
+  public void imageNameCacheUpdatesAfterArchiveWriterChanges() throws IOException {
+    final FileArchive fileArchive = mock(FileArchive.class);
+    when(fileArchive.getFiles("images"))
+      .thenReturn(List.of("images/base.png"))
+      .thenReturn(List.of(
+        "images/base.png",
+        "images/generated.png",
+        "images/Union/BrigadeA/seventh_infantry.png"
+      ))
+      .thenReturn(List.of(
+        "images/base.png",
+        "images/Union/BrigadeA/seventh_infantry.png"
+      ));
+
+    try (ArchiveWriter archive = new ArchiveWriter(fileArchive)) {
+      assertEquals(sorted("base.png"), archive.getImageNameSet());
+
+      archive.addImage("generated.png", new byte[] { 1 });
+      assertEquals(
+        sorted("base.png", "generated.png", "Union/BrigadeA/seventh_infantry.png"),
+        archive.getImageNameSet()
+      );
+
+      archive.removeImage("generated.png");
+      assertEquals(
+        sorted("base.png", "Union/BrigadeA/seventh_infantry.png"),
+        archive.getImageNameSet()
+      );
+    }
+  }
+
+  @Test
   public void imageNamesIncludeExtensions() throws IOException {
     final FileArchive baseArchive = mock(FileArchive.class);
     when(baseArchive.getFiles("images")).thenReturn(List.of("images/base.png"));

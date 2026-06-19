@@ -162,12 +162,12 @@ public class ArchiveWriter extends DataArchive {
     }
 
     Op.load(name).update();
-    localImages = null;
+    resetLocalImages();
   }
 
   public void addImage(String name, byte[] contents) {
     addFile(imageDir + name, contents);
-    localImages = null;
+    resetLocalImages();
   }
 
   public void addSound(String path, String fileName) {
@@ -176,7 +176,7 @@ public class ArchiveWriter extends DataArchive {
 
   public void removeImage(String name) {
     removeFile(imageDir + name);
-    localImages = null;
+    resetLocalImages();
   }
 
   /**

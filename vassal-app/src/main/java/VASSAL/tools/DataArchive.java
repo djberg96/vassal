@@ -494,7 +494,7 @@ public class DataArchive extends SecureClassLoader implements Closeable {
     return defineClass(name, data, 0, data.length, cs);
   }
 
-  private void resetLocalImages() {
+  protected void resetLocalImages() {
     for (int i = 0; i < cachedLocalImages.length; ++i) {
       cachedLocalImages[i] = null;
     }
