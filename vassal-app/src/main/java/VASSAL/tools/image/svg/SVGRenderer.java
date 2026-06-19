@@ -35,6 +35,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 
+import javax.xml.XMLConstants;
+
 import org.apache.batik.anim.dom.SVGDOMImplementation;
 import org.apache.batik.bridge.BridgeContext;
 import org.apache.batik.bridge.BridgeException;
@@ -80,6 +82,10 @@ public class SVGRenderer {
   private static final ImageRendererFactory rendFactory =
     new ConcreteImageRendererFactory();
 
+  private static final String XLINK_NAMESPACE = "http://www.w3.org/1999/xlink"; //NON-NLS
+  private static final String HREF = "href"; //NON-NLS
+  private static final String XLINK_HREF = "xlink:href"; //NON-NLS
+
   private final SVGDocument doc;
   private final float defaultW, defaultH;
   private final Rasterizer r = new Rasterizer();
@@ -97,11 +103,38 @@ public class SVGRenderer {
   public SVGRenderer(String file, InputStream in) throws IOException {
     // load the SVG
     doc = SVGImageUtils.getDocument(file, in);
+    addLegacyXLinkHrefAttributes(doc);
 
     // get the default image size
     final Dimension s = SVGImageUtils.getImageSize(doc);
     defaultW = s.width;
     defaultH = s.height;
+  }
+
+  private static void addLegacyXLinkHrefAttributes(Document document) {
+    final Element root = document.getDocumentElement();
+    if (root != null && addLegacyXLinkHrefAttributes(root)) {
+      root.setAttributeNS(
+        XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:xlink", XLINK_NAMESPACE //NON-NLS
+      );
+    }
+  }
+
+  private static boolean addLegacyXLinkHrefAttributes(Node node) {
+    boolean changed = false;
+
+    if (node instanceof Element e) {
+      if (e.hasAttribute(HREF) && !e.hasAttributeNS(XLINK_NAMESPACE, HREF)) {
+        e.setAttributeNS(XLINK_NAMESPACE, XLINK_HREF, e.getAttribute(HREF));
+        changed = true;
+      }
+    }
+
+    for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
+      changed |= addLegacyXLinkHrefAttributes(child);
+    }
+
+    return changed;
   }
 
   private static final double DEGTORAD = Math.PI / 180.0;

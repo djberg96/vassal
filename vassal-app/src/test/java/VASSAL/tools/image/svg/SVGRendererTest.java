@@ -20,6 +20,15 @@ class SVGRendererTest {
     </svg>
     """;
 
+  private static final String SVG_WITH_MODERN_HREF = """
+    <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10">
+      <defs>
+        <rect id="mark" x="0" y="0" width="10" height="10" fill="#0000ff"/>
+      </defs>
+      <use href="#mark"/>
+    </svg>
+    """;
+
   @Test
   void renderReturnsPixelsFromBatikOffscreenImage() throws IOException {
     final BufferedImage image = renderer().render();
@@ -42,10 +51,24 @@ class SVGRendererTest {
     assertPixel(new Color(255, 0, 0, 255), image, 3, 2);
   }
 
+  @Test
+  void renderSupportsUseHrefWithoutExplicitXLinkNamespace() throws IOException {
+    final BufferedImage image = renderer(SVG_WITH_MODERN_HREF).render();
+
+    assertNotNull(image);
+    assertEquals(10, image.getWidth());
+    assertEquals(10, image.getHeight());
+    assertPixel(new Color(0, 0, 255, 255), image, 5, 5);
+  }
+
   private static SVGRenderer renderer() throws IOException {
+    return renderer(SVG);
+  }
+
+  private static SVGRenderer renderer(String svg) throws IOException {
     return new SVGRenderer(
       "test.svg",
-      new ByteArrayInputStream(SVG.getBytes(StandardCharsets.UTF_8))
+      new ByteArrayInputStream(svg.getBytes(StandardCharsets.UTF_8))
     );
   }
 

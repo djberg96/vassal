@@ -88,7 +88,12 @@ public class SourceOpSVGImpl extends AbstractTiledOpImpl
     try (InputStream in = archive.getInputStream(name);
          BufferedInputStream bin = new BufferedInputStream(in)) {
       final SVGRenderer renderer = new SVGRenderer(archive.getURL(name), bin);
-      return renderer.render();
+      final BufferedImage image = renderer.render();
+      if (image == null) {
+        throw new ImageIOException(name, "Failed to render SVG"); //NON-NLS
+      }
+
+      return image;
     }
     catch (FileNotFoundException | NoSuchFileException e) {
       throw new ImageNotFoundException(name, e);

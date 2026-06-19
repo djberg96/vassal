@@ -119,7 +119,12 @@ public class RotateScaleOpSVGImpl extends AbstractTileOpImpl
 
       if (size == null) fixSize();
 
-      return renderer.render(angle, scale);
+      final BufferedImage image = renderer.render(angle, scale);
+      if (image == null) {
+        throw new ImageIOException(name, "Failed to render SVG"); //NON-NLS
+      }
+
+      return image;
     }
     catch (FileNotFoundException | NoSuchFileException e) {
       throw new ImageNotFoundException(name, e);

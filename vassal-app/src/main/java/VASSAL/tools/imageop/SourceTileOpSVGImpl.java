@@ -96,7 +96,12 @@ public class SourceTileOpSVGImpl extends AbstractTileOpImpl
       final SVGRenderer renderer = new SVGRenderer(archive.getURL(name), bin);
 
       final Rectangle2D aoi = new Rectangle2D.Float(x0, y0, x1 - x0, y1 - y0);
-      return renderer.render(0.0, 1.0, aoi);
+      final BufferedImage image = renderer.render(0.0, 1.0, aoi);
+      if (image == null) {
+        throw new ImageIOException(name, "Failed to render SVG"); //NON-NLS
+      }
+
+      return image;
     }
     catch (FileNotFoundException | NoSuchFileException e) {
       throw new ImageNotFoundException(name, e);
