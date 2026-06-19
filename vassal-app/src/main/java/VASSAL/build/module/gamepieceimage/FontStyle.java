@@ -65,7 +65,7 @@ public class FontStyle extends AbstractConfigurable {
   public String[] getAttributeDescriptions() {
     return new String[] {
       Resources.getString("Editor.FontStyle.style_name"),
-      Resources.getString("Editor.FontStyle.font_style")
+      Resources.getString("Editor.FontConfigurer.font_family")
     };
   }
 
@@ -80,7 +80,9 @@ public class FontStyle extends AbstractConfigurable {
   public static class FontStyleConfig implements ConfigurerFactory {
     @Override
     public Configurer getConfigurer(AutoConfigurable c, String key, String name) {
-      return new FontConfigurer(key, name, ((FontStyle) c).font);
+      final StringEnumConfigurer configurer = new StringEnumConfigurer(key, name, FontManager.ALLOWABLE_FONTS);
+      configurer.setValue(((FontStyle) c).font.getName());
+      return configurer;
     }
   }
 
@@ -96,7 +98,10 @@ public class FontStyle extends AbstractConfigurable {
     }
     else if (STYLE.equals(key)) {
       if (o instanceof String) {
-        o = FontConfigurer.decode((String) o);
+        final String value = (String) o;
+        o = value.indexOf(',') >= 0
+          ? FontConfigurer.decode(value)
+          : new OutlineFont(value, Font.PLAIN, FontManager.DEFAULT_FONT.getSize(), false);
       }
       font = (OutlineFont) o;
     }
@@ -109,7 +114,7 @@ public class FontStyle extends AbstractConfigurable {
       return getConfigureName();
     }
     else if (STYLE.equals(key)) {
-      return FontConfigurer.encode(font);
+      return font.getName();
     }
     else
       return null;

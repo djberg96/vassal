@@ -26,6 +26,7 @@ import VASSAL.i18n.Resources;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,8 +144,8 @@ public class FontManager extends AbstractConfigurable {
   @Override
   public void remove(Buildable b) {
     super.remove(b);
-    if (b instanceof ColorSwatch) {
-      fontStyles.remove(((ColorSwatch) b).getConfigureName());
+    if (b instanceof FontStyle) {
+      fontStyles.remove(((FontStyle) b).getConfigureName());
     }
   }
 
@@ -161,6 +162,10 @@ public class FontManager extends AbstractConfigurable {
     final List<String> names = new ArrayList<>(fontStyles.size());
     for (final FontStyle fs : fontStyles.values()) {
       names.add(fs.getConfigureName());
+    }
+    Collections.sort(names);
+    if (names.remove(DEFAULT)) {
+      names.add(0, DEFAULT);
     }
     return names.toArray(new String[0]);
   }

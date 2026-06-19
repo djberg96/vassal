@@ -45,6 +45,11 @@ public class TextItem extends Item {
   public static final String TYPE = "Text"; //$NON-NLS-1$
 
   protected static final String FONT = "font"; //$NON-NLS-1$
+  protected static final String FONT_FAMILY = "fontFamily"; //$NON-NLS-1$
+  protected static final String FONT_SIZE = "fontSize"; //$NON-NLS-1$
+  protected static final String FONT_BOLD = "fontBold"; //$NON-NLS-1$
+  protected static final String FONT_ITALIC = "fontItalic"; //$NON-NLS-1$
+  protected static final String FONT_OUTLINE = "fontOutline"; //$NON-NLS-1$
   protected static final String SOURCE = "source"; //$NON-NLS-1$
   protected static final String TEXT = "text"; //$NON-NLS-1$
 
@@ -68,6 +73,11 @@ public class TextItem extends Item {
   public static final int AL_BOTTOM = 4;
 
   protected String fontStyleName = "Default"; //$NON-NLS-1$
+  protected String fontFamily = FontManager.DEFAULT;
+  protected int fontSize = FontManager.DEFAULT_FONT.getSize();
+  protected boolean fontBold = false;
+  protected boolean fontItalic = false;
+  protected boolean fontOutline = false;
   protected String textSource = SRC_VARIABLE;
   protected String text = ""; //$NON-NLS-1$
 
@@ -95,7 +105,11 @@ public class TextItem extends Item {
   public String[] getAttributeDescriptions() {
     return ArrayUtils.insert(
       2, super.getAttributeDescriptions(),
-      Resources.getString("Editor.TextItem.font_style"),
+      Resources.getString("Editor.FontConfigurer.font_family"),
+      Resources.getString("Editor.FontConfigurer.font_size"),
+      Resources.getString("Editor.FontConfigurer.bold_checkbox"),
+      Resources.getString("Editor.FontConfigurer.italic_checkbox"),
+      Resources.getString("Editor.FontConfigurer.outline_checkbox"),
       Resources.getString("Editor.TextItem.text_option"),
       Resources.getString("Editor.TextItem.text")
     );
@@ -105,7 +119,11 @@ public class TextItem extends Item {
   public Class<?>[] getAttributeTypes() {
     return ArrayUtils.insert(
       2, super.getAttributeTypes(),
-      FontStyleConfig.class,
+      FontFamilyConfig.class,
+      Integer.class,
+      Boolean.class,
+      Boolean.class,
+      Boolean.class,
       TextSource.class,
       String.class);
   }
@@ -114,12 +132,16 @@ public class TextItem extends Item {
   public String[] getAttributeNames() {
     return ArrayUtils.insert(
       2, super.getAttributeNames(),
-      FONT,
+      FONT_FAMILY,
+      FONT_SIZE,
+      FONT_BOLD,
+      FONT_ITALIC,
+      FONT_OUTLINE,
       SOURCE,
       TEXT);
   }
 
-  public static class FontStyleConfig implements ConfigurerFactory {
+  public static class FontFamilyConfig implements ConfigurerFactory {
     @Override
     public Configurer getConfigurer(AutoConfigurable c, String key, String name) {
       return new StringEnumConfigurer(key, name, FontManager.getFontManager().getFontNames());
@@ -129,7 +151,35 @@ public class TextItem extends Item {
   @Override
   public void setAttribute(String key, Object o) {
     if (FONT.equals(key)) {
-      fontStyleName = (String)o;
+      fontStyleName = (String) o;
+      applyFontStyle(FontManager.getFontManager().getFontStyle(fontStyleName));
+    }
+    else if (FONT_FAMILY.equals(key)) {
+      fontFamily = (String) o;
+    }
+    else if (FONT_SIZE.equals(key)) {
+      if (o instanceof String) {
+        o = Integer.valueOf((String) o);
+      }
+      fontSize = Math.max(1, (Integer) o);
+    }
+    else if (FONT_BOLD.equals(key)) {
+      if (o instanceof String) {
+        o = Boolean.valueOf((String) o);
+      }
+      fontBold = Boolean.TRUE.equals(o);
+    }
+    else if (FONT_ITALIC.equals(key)) {
+      if (o instanceof String) {
+        o = Boolean.valueOf((String) o);
+      }
+      fontItalic = Boolean.TRUE.equals(o);
+    }
+    else if (FONT_OUTLINE.equals(key)) {
+      if (o instanceof String) {
+        o = Boolean.valueOf((String) o);
+      }
+      fontOutline = Boolean.TRUE.equals(o);
     }
     else if (SOURCE.equals(key)) {
       textSource = (String) o;
@@ -152,6 +202,21 @@ public class TextItem extends Item {
 
     if (FONT.equals(key)) {
       return fontStyleName;
+    }
+    else if (FONT_FAMILY.equals(key)) {
+      return fontFamily;
+    }
+    else if (FONT_SIZE.equals(key)) {
+      return Integer.toString(fontSize);
+    }
+    else if (FONT_BOLD.equals(key)) {
+      return Boolean.toString(fontBold);
+    }
+    else if (FONT_ITALIC.equals(key)) {
+      return Boolean.toString(fontItalic);
+    }
+    else if (FONT_OUTLINE.equals(key)) {
+      return Boolean.toString(fontOutline);
     }
     else if (SOURCE.equals(key)) {
       return textSource;
@@ -243,8 +308,7 @@ public class TextItem extends Item {
       g2d.transform(newXForm);
     }
 
-    final FontStyle fs = FontManager.getFontManager().getFontStyle(fontStyleName);
-    final Font f = fs.getFont();
+    final Font f = getFont();
 
     drawLabel(g, s, origin.x, origin.y, f, hAlign, vAlign, fg, bg, null, outline, ol);
 
@@ -284,6 +348,7 @@ public class TextItem extends Item {
     if (item.fontStyleName.length() == 0) {
       item.fontStyleName = FontManager.DEFAULT;
     }
+    item.applyFontStyle(FontManager.getFontManager().getFontStyle(item.fontStyleName));
     item.textSource = sd.nextToken(SRC_VARIABLE);
     item.text = sd.nextToken(""); //$NON-NLS-1$
     item.changeCmd = sd.nextToken(""); //$NON-NLS-1$
@@ -291,6 +356,11 @@ public class TextItem extends Item {
     item.lockCmd = sd.nextToken(""); //$NON-NLS-1$
     item.lockKey = sd.nextKeyStroke(null);
     item.lockable = sd.nextBoolean(false);
+    item.fontFamily = sd.nextToken(item.fontFamily);
+    item.fontSize = sd.nextInt(item.fontSize);
+    item.fontBold = sd.nextBoolean(item.fontBold);
+    item.fontItalic = sd.nextBoolean(item.fontItalic);
+    item.fontOutline = sd.nextBoolean(item.fontOutline);
 
   }
 
@@ -307,6 +377,11 @@ public class TextItem extends Item {
     se1.append(lockCmd);
     se1.append(lockKey);
     se1.append(lockable);
+    se1.append(fontFamily);
+    se1.append(fontSize);
+    se1.append(fontBold);
+    se1.append(fontItalic);
+    se1.append(fontOutline);
 
     final SequenceEncoder se2 = new SequenceEncoder(se1.getValue(), '|');
     se2.append(super.encode());
@@ -315,7 +390,28 @@ public class TextItem extends Item {
   }
 
   public boolean isOutline() {
-    return FontManager.getFontManager().getFontStyle(fontStyleName).isOutline();
+    return fontOutline;
+  }
+
+  protected OutlineFont getFont() {
+    int style = Font.PLAIN;
+    if (fontBold) {
+      style |= Font.BOLD;
+    }
+    if (fontItalic) {
+      style |= Font.ITALIC;
+    }
+    final String resolvedFamily = FontManager.getFontManager().getFontStyle(fontFamily).getFont().getName();
+    return new OutlineFont(resolvedFamily, style, fontSize, fontOutline);
+  }
+
+  private void applyFontStyle(FontStyle style) {
+    final OutlineFont font = style.getFont();
+    fontFamily = style.getConfigureName();
+    fontSize = Math.max(1, font.getSize());
+    fontBold = (font.getStyle() & Font.BOLD) != 0;
+    fontItalic = (font.getStyle() & Font.ITALIC) != 0;
+    fontOutline = font.isOutline();
   }
 
   public boolean isFixed() {

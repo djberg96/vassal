@@ -20,7 +20,6 @@ package VASSAL.build.module.gamepieceimage;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -28,6 +27,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.util.List;
 
 import javax.swing.JTextPane;
 
@@ -96,7 +96,7 @@ public class TextBoxItem extends TextItem {
 
   @Override
   public VisibilityCondition getAttributeVisibility(String name) {
-    if (FONT.equals(name)) {
+    if (List.of(FONT, FONT_FAMILY, FONT_SIZE, FONT_BOLD, FONT_ITALIC, FONT_OUTLINE).contains(name)) {
       return () -> !isHTML;
     }
     else {
@@ -228,9 +228,7 @@ public class TextBoxItem extends TextItem {
     l.setSize(width - 2, height - 2);
     l.setBackground(bg != null ? bg : new Color(0, true));
     l.setForeground(fg != null ? fg : new Color(0, true));
-    final FontStyle fs = FontManager.getFontManager().getFontStyle(fontStyleName);
-    final Font f = fs.getFont();
-    l.setFont(f);
+    l.setFont(getFont());
 
     final BufferedImage img = ImageUtils.createCompatibleTranslucentImage(
       Math.max(l.getWidth(), 1),

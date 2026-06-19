@@ -1,6 +1,7 @@
 package VASSAL.build.module.gamepieceimage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -114,6 +115,50 @@ public class GamePieceImageConfigurerTest {
     }
 
     assertTrue(hasVisiblePixel(image));
+  }
+
+  @Test
+  public void textItemMigratesLegacyFontStyleToItemFontSettings() {
+    final FontManager fontManager = FontManager.getFontManager();
+    fontManager.add(new FontStyle(
+      "Caption",
+      new OutlineFont(FontManager.SERIF, Font.BOLD | Font.ITALIC, 22, true)
+    ));
+
+    final TextItem item = new TextItem(new GamePieceLayout());
+    TextItem.decode(item, "Text;Caption;Fixed for this layout;Hi;;;;;false");
+
+    assertEquals("Caption", item.getAttributeValueString(TextItem.FONT_FAMILY));
+    assertEquals("22", item.getAttributeValueString(TextItem.FONT_SIZE));
+    assertEquals("true", item.getAttributeValueString(TextItem.FONT_BOLD));
+    assertEquals("true", item.getAttributeValueString(TextItem.FONT_ITALIC));
+    assertEquals("true", item.getAttributeValueString(TextItem.FONT_OUTLINE));
+  }
+
+  @Test
+  public void textItemFontSettingsRoundTripThroughEncoding() {
+    FontManager.getFontManager().add(new FontStyle(
+      "Mono",
+      new OutlineFont(FontManager.MONOSPACED, Font.PLAIN, 12, false)
+    ));
+    final GamePieceLayout layout = new GamePieceLayout();
+    final TextItem item = new TextItem(layout, "Text");
+
+    item.setAttribute(TextItem.FONT_FAMILY, "Mono");
+    item.setAttribute(TextItem.FONT_SIZE, 18);
+    item.setAttribute(TextItem.FONT_BOLD, true);
+    item.setAttribute(TextItem.FONT_ITALIC, false);
+    item.setAttribute(TextItem.FONT_OUTLINE, true);
+
+    final Item decoded = Item.decode(layout, item.encode());
+
+    final TextItem decodedText = assertInstanceOf(TextItem.class, decoded);
+    assertEquals("Mono", decoded.getAttributeValueString(TextItem.FONT_FAMILY));
+    assertEquals("18", decoded.getAttributeValueString(TextItem.FONT_SIZE));
+    assertEquals("true", decoded.getAttributeValueString(TextItem.FONT_BOLD));
+    assertEquals("false", decoded.getAttributeValueString(TextItem.FONT_ITALIC));
+    assertEquals("true", decoded.getAttributeValueString(TextItem.FONT_OUTLINE));
+    assertEquals(FontManager.MONOSPACED, decodedText.getFont().getName());
   }
 
   @Test
