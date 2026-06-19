@@ -50,6 +50,7 @@ public class TextItem extends Item {
   protected static final String FONT_BOLD = "fontBold"; //$NON-NLS-1$
   protected static final String FONT_ITALIC = "fontItalic"; //$NON-NLS-1$
   protected static final String FONT_OUTLINE = "fontOutline"; //$NON-NLS-1$
+  protected static final String FONT_OUTLINE_THICKNESS = "fontOutlineThickness"; //$NON-NLS-1$
   protected static final String SOURCE = "source"; //$NON-NLS-1$
   protected static final String TEXT = "text"; //$NON-NLS-1$
 
@@ -71,6 +72,7 @@ public class TextItem extends Item {
   public static final int AL_LEFT = 2;
   public static final int AL_TOP = 3;
   public static final int AL_BOTTOM = 4;
+  private static final int DEFAULT_OUTLINE_THICKNESS = 1;
 
   protected String fontStyleName = "Default"; //$NON-NLS-1$
   protected String fontFamily = FontManager.DEFAULT;
@@ -78,6 +80,7 @@ public class TextItem extends Item {
   protected boolean fontBold = false;
   protected boolean fontItalic = false;
   protected boolean fontOutline = false;
+  protected int fontOutlineThickness = DEFAULT_OUTLINE_THICKNESS;
   protected String textSource = SRC_VARIABLE;
   protected String text = ""; //$NON-NLS-1$
 
@@ -110,6 +113,7 @@ public class TextItem extends Item {
       Resources.getString("Editor.FontConfigurer.bold_checkbox"),
       Resources.getString("Editor.FontConfigurer.italic_checkbox"),
       Resources.getString("Editor.FontConfigurer.outline_checkbox"),
+      Resources.getString("Editor.TextItem.outline_thickness"),
       Resources.getString("Editor.TextItem.text_option"),
       Resources.getString("Editor.TextItem.text")
     );
@@ -124,6 +128,7 @@ public class TextItem extends Item {
       Boolean.class,
       Boolean.class,
       Boolean.class,
+      Integer.class,
       TextSource.class,
       String.class);
   }
@@ -137,6 +142,7 @@ public class TextItem extends Item {
       FONT_BOLD,
       FONT_ITALIC,
       FONT_OUTLINE,
+      FONT_OUTLINE_THICKNESS,
       SOURCE,
       TEXT);
   }
@@ -181,6 +187,12 @@ public class TextItem extends Item {
       }
       fontOutline = Boolean.TRUE.equals(o);
     }
+    else if (FONT_OUTLINE_THICKNESS.equals(key)) {
+      if (o instanceof String) {
+        o = Integer.valueOf((String) o);
+      }
+      fontOutlineThickness = Math.max(1, (Integer) o);
+    }
     else if (SOURCE.equals(key)) {
       textSource = (String) o;
     }
@@ -218,6 +230,9 @@ public class TextItem extends Item {
     else if (FONT_OUTLINE.equals(key)) {
       return Boolean.toString(fontOutline);
     }
+    else if (FONT_OUTLINE_THICKNESS.equals(key)) {
+      return Integer.toString(fontOutlineThickness);
+    }
     else if (SOURCE.equals(key)) {
       return textSource;
     }
@@ -233,6 +248,9 @@ public class TextItem extends Item {
   public VisibilityCondition getAttributeVisibility(String name) {
     if (TEXT.equals(name)) {
       return fixedCond;
+    }
+    else if (FONT_OUTLINE_THICKNESS.equals(name)) {
+      return this::isOutline;
     }
     else {
       return super.getAttributeVisibility(name);
@@ -261,7 +279,7 @@ public class TextItem extends Item {
       return;
     }
 
-    final boolean outline = ti.isOutline();
+    final boolean outline = isOutline();
     final Color ol = ti.getOutlineColor().getColor();
 
     final String compass = GamePieceLayout.getCompassPoint(getLocation());
@@ -310,7 +328,7 @@ public class TextItem extends Item {
 
     final Font f = getFont();
 
-    drawLabel(g, s, origin.x, origin.y, f, hAlign, vAlign, fg, bg, null, outline, ol);
+    drawLabel(g, s, origin.x, origin.y, f, hAlign, vAlign, fg, bg, null, outline, ol, fontOutlineThickness);
 
     if (saveXForm != null) {
       g2d.setTransform(saveXForm);
@@ -361,6 +379,7 @@ public class TextItem extends Item {
     item.fontBold = sd.nextBoolean(item.fontBold);
     item.fontItalic = sd.nextBoolean(item.fontItalic);
     item.fontOutline = sd.nextBoolean(item.fontOutline);
+    item.fontOutlineThickness = sd.nextInt(DEFAULT_OUTLINE_THICKNESS);
 
   }
 
@@ -382,6 +401,7 @@ public class TextItem extends Item {
     se1.append(fontBold);
     se1.append(fontItalic);
     se1.append(fontOutline);
+    se1.append(fontOutlineThickness);
 
     final SequenceEncoder se2 = new SequenceEncoder(se1.getValue(), '|');
     se2.append(super.encode());
@@ -391,6 +411,10 @@ public class TextItem extends Item {
 
   public boolean isOutline() {
     return fontOutline;
+  }
+
+  public int getOutlineThickness() {
+    return fontOutlineThickness;
   }
 
   protected OutlineFont getFont() {
@@ -412,6 +436,7 @@ public class TextItem extends Item {
     fontBold = (font.getStyle() & Font.BOLD) != 0;
     fontItalic = (font.getStyle() & Font.ITALIC) != 0;
     fontOutline = font.isOutline();
+    fontOutlineThickness = DEFAULT_OUTLINE_THICKNESS;
   }
 
   public boolean isFixed() {
@@ -441,6 +466,10 @@ public class TextItem extends Item {
   }
 
   public static void drawLabel(Graphics g, String text, int x, int y, Font f, int hAlign, int vAlign, Color fgColor, Color bgColor, Color borderColor, boolean outline, Color outlineColor) {
+    drawLabel(g, text, x, y, f, hAlign, vAlign, fgColor, bgColor, borderColor, outline, outlineColor, DEFAULT_OUTLINE_THICKNESS);
+  }
+
+  public static void drawLabel(Graphics g, String text, int x, int y, Font f, int hAlign, int vAlign, Color fgColor, Color bgColor, Color borderColor, boolean outline, Color outlineColor, int outlineThickness) {
     g.setFont(f);
     final int buffer = g.getFontMetrics().getLeading();
     final int width = g.getFontMetrics().stringWidth(text) + 2 * buffer;
@@ -477,14 +506,29 @@ public class TextItem extends Item {
     final int x1 = x0 + buffer;
     if (outline && outlineColor != null) {
       g.setColor(outlineColor);
-      g.drawString(text, x1 - 1, y1 - 1);
-      g.drawString(text, x1 - 1, y1 + 1);
-      g.drawString(text, x1 + 1, y1 - 1);
-      g.drawString(text, x1 + 1, y1 + 1);
+      drawOutline(g, text, x1, y1, Math.max(1, outlineThickness));
     }
 
     g.setColor(fgColor);
     g.drawString(text, x1, y1);
 
+  }
+
+  private static void drawOutline(Graphics g, String text, int x, int y, int thickness) {
+    if (thickness == DEFAULT_OUTLINE_THICKNESS) {
+      g.drawString(text, x - 1, y - 1);
+      g.drawString(text, x - 1, y + 1);
+      g.drawString(text, x + 1, y - 1);
+      g.drawString(text, x + 1, y + 1);
+      return;
+    }
+
+    for (int yOffset = -thickness; yOffset <= thickness; ++yOffset) {
+      for (int xOffset = -thickness; xOffset <= thickness; ++xOffset) {
+        if (xOffset != 0 || yOffset != 0) {
+          g.drawString(text, x + xOffset, y + yOffset);
+        }
+      }
+    }
   }
 }

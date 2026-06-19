@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Font;
@@ -197,6 +198,61 @@ public class GamePieceImageConfigurerTest {
   }
 
   @Test
+  public void textItemOutlineThicknessDefaultsForLegacyEncoding() {
+    final TextItem item = new TextItem(new GamePieceLayout());
+
+    TextItem.decode(item, "Text;Default;Fixed for this layout;Hi;;;;;false");
+
+    assertEquals("1", item.getAttributeValueString(TextItem.FONT_OUTLINE_THICKNESS));
+    assertEquals(1, item.getOutlineThickness());
+  }
+
+  @Test
+  public void textItemOutlineThicknessRoundTripsThroughEncoding() {
+    final GamePieceLayout layout = new GamePieceLayout();
+    final TextItem item = new TextItem(layout, "Text");
+
+    item.setAttribute(TextItem.FONT_OUTLINE, true);
+    item.setAttribute(TextItem.FONT_OUTLINE_THICKNESS, 4);
+
+    final TextItem decoded = assertInstanceOf(TextItem.class, Item.decode(layout, item.encode()));
+
+    assertEquals("4", decoded.getAttributeValueString(TextItem.FONT_OUTLINE_THICKNESS));
+    assertEquals(4, decoded.getOutlineThickness());
+  }
+
+  @Test
+  public void drawLabelUsesConfigurableOutlineThickness() {
+    final int thinPixels = outlinePixelCount(1);
+    final int thickPixels = outlinePixelCount(3);
+
+    assertTrue(thickPixels > thinPixels);
+  }
+
+  @Test
+  public void textItemDrawUsesConfiguredOutlineThickness() {
+    final int thinPixels = textItemOutlinePixelCount(1);
+    final int thickPixels = textItemOutlinePixelCount(3);
+
+    assertTrue(thickPixels > thinPixels);
+  }
+
+  @Test
+  public void textItemLayoutPreviewUsesOutlineWithoutInstance() {
+    final TextItem item = newOutlinedTextItem(3);
+    final BufferedImage image = new BufferedImage(120, 60, BufferedImage.TYPE_INT_ARGB);
+    final Graphics2D g = image.createGraphics();
+    try {
+      item.draw(g, null);
+    }
+    finally {
+      g.dispose();
+    }
+
+    assertTrue(colorPixelCount(image, Color.RED) > 0);
+  }
+
+  @Test
   public void getEncodedImageWritesReadablePng() throws IOException {
     final GamePieceImage image = new GamePieceImage();
     final BufferedImage source = new BufferedImage(4, 4, BufferedImage.TYPE_INT_ARGB);
@@ -303,5 +359,92 @@ public class GamePieceImageConfigurerTest {
     }
 
     return false;
+  }
+
+  private static int outlinePixelCount(int thickness) {
+    final BufferedImage image = new BufferedImage(120, 60, BufferedImage.TYPE_INT_ARGB);
+    final Graphics2D g = image.createGraphics();
+    try {
+      TextItem.drawLabel(
+        g,
+        "Hi",
+        60,
+        30,
+        new Font(FontManager.SANS_SERIF, Font.PLAIN, 24),
+        TextItem.AL_CENTER,
+        TextItem.AL_CENTER,
+        Color.BLACK,
+        null,
+        null,
+        true,
+        Color.RED,
+        thickness
+      );
+    }
+    finally {
+      g.dispose();
+    }
+
+    int count = 0;
+    for (int y = 0; y < image.getHeight(); ++y) {
+      for (int x = 0; x < image.getWidth(); ++x) {
+        if ((image.getRGB(x, y) & 0x00ffffff) == (Color.RED.getRGB() & 0x00ffffff)) {
+          ++count;
+        }
+      }
+    }
+
+    return count;
+  }
+
+  private static int textItemOutlinePixelCount(int thickness) {
+    final TextItem item = newOutlinedTextItem(thickness);
+    final GamePieceLayout layout = item.getLayout();
+
+    final GamePieceImage definition = new GamePieceImage(layout);
+    final TextItemInstance instance = new TextItemInstance("Text", TextItem.TYPE, GamePieceLayout.CENTER, "Hi");
+    instance.setFgColor(ColorSwatch.getBlack());
+    instance.setOutlineColor(ColorSwatch.getRed());
+    instance.addTo(definition);
+    definition.getInstances().add(instance);
+
+    final BufferedImage image = new BufferedImage(120, 60, BufferedImage.TYPE_INT_ARGB);
+    final Graphics2D g = image.createGraphics();
+    try {
+      item.draw(g, definition);
+    }
+    finally {
+      g.dispose();
+    }
+
+    return colorPixelCount(image, Color.RED);
+  }
+
+  private static TextItem newOutlinedTextItem(int thickness) {
+    final GamePieceLayout layout = new GamePieceLayout();
+    layout.setWidth(120);
+    layout.setHeight(60);
+
+    final TextItem item = new TextItem(layout, "Text");
+    item.setAttribute(TextItem.SOURCE, TextItem.SRC_FIXED);
+    item.setAttribute(TextItem.TEXT, "Hi");
+    item.setAttribute(TextItem.FONT_SIZE, 24);
+    item.setAttribute(TextItem.FONT_OUTLINE, true);
+    item.setAttribute(TextItem.FONT_OUTLINE_THICKNESS, thickness);
+    layout.addItem(item);
+    return item;
+  }
+
+  private static int colorPixelCount(BufferedImage image, Color color) {
+    int count = 0;
+    for (int y = 0; y < image.getHeight(); ++y) {
+      for (int x = 0; x < image.getWidth(); ++x) {
+        if ((image.getRGB(x, y) & 0x00ffffff) == (color.getRGB() & 0x00ffffff)) {
+          ++count;
+        }
+      }
+    }
+
+    return count;
   }
 }
