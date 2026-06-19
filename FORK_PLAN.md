@@ -59,14 +59,24 @@ Before publishing a renamed fork:
 
 ## Name Candidates
 
-Recommended working name: **Boardwright**.
+Recommended working name: **Dannik**.
 
-Rationale: It suggests a craft tool for making and playing board-game modules,
-is not tied to the old VASSAL metaphor, and leaves room for both editor and
-player identities.
+Rationale: It is short, direct, easy to pronounce, and has a vassal-adjacent
+meaning without being visually or phonetically close to VASSAL. It also has a
+personal hook for the fork owner while still reading like a standalone product
+name.
+
+Preferred backups:
+
+- **Chenshu**: Distinctive and pronounceable, with a subject/vassal meaning.
+- **Samant**: Strong, compact, and historically connected to feudatory/vassal
+  language.
 
 Other candidates:
 
+- **Boardwright**: Suggests a craft tool for making and playing board-game
+  modules; clearer as a product category but less connected to the VASSAL
+  lineage.
 - **Tablewright**: Similar craft-tool feel, slightly broader tabletop emphasis.
 - **Hexwright**: Strong wargame signal, but too hex-specific for card and board
   games.
