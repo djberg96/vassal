@@ -12,9 +12,9 @@ review, or broader testing before work begins.
 - Current state:
   - Game Piece Image text items define a font family plus per-layout size,
     bold, italic, and outline settings.
-  - Actual outline color comes from each `TextItemInstance`, so individual
-    generated images can use different colors without duplicating the layout.
-  - Outline thickness is configurable on the text item layout.
+  - Outline color and thickness are configurable on the text item layout.
+  - Legacy labels without a layout-level outline color still use each
+    `TextItemInstance` outline color, preserving older generated images.
   - The default one-pixel thickness preserves the previous corner-offset
     outline behavior for old modules.
   - `TextBoxItem` renders through `JTextPane` and does not use the outline

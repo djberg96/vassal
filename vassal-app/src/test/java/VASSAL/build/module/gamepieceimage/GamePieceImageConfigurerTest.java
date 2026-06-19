@@ -222,6 +222,30 @@ public class GamePieceImageConfigurerTest {
   }
 
   @Test
+  public void textItemOutlineColorDefaultsForLegacyEncoding() {
+    final TextItem item = new TextItem(new GamePieceLayout());
+
+    TextItem.decode(item, "Text;Default;Fixed for this layout;Hi;;;;;false");
+
+    assertEquals("", item.getAttributeValueString(TextItem.FONT_OUTLINE_COLOR));
+    assertEquals(Color.RED, item.getOutlineColor().getColor());
+  }
+
+  @Test
+  public void textItemOutlineColorRoundTripsThroughEncoding() {
+    final GamePieceLayout layout = new GamePieceLayout();
+    final TextItem item = new TextItem(layout, "Text");
+
+    item.setAttribute(TextItem.FONT_OUTLINE, true);
+    item.setAttribute(TextItem.FONT_OUTLINE_COLOR, ColorSwatch.getWhite());
+
+    final TextItem decoded = assertInstanceOf(TextItem.class, Item.decode(layout, item.encode()));
+
+    assertEquals(ColorSwatch.WHITE, decoded.getAttributeValueString(TextItem.FONT_OUTLINE_COLOR));
+    assertEquals(Color.WHITE, decoded.getOutlineColor().getColor());
+  }
+
+  @Test
   public void drawLabelUsesConfigurableOutlineThickness() {
     final int thinPixels = outlinePixelCount(1);
     final int thickPixels = outlinePixelCount(3);
@@ -250,6 +274,31 @@ public class GamePieceImageConfigurerTest {
     }
 
     assertTrue(colorPixelCount(image, Color.RED) > 0);
+  }
+
+  @Test
+  public void textItemUsesLayoutOutlineColorWhenSet() {
+    final TextItem item = newOutlinedTextItem(3);
+    item.setAttribute(TextItem.FONT_OUTLINE_COLOR, ColorSwatch.getWhite());
+    final BufferedImage image = drawTextItem(item, null);
+
+    assertTrue(colorPixelCount(image, Color.WHITE) > 0);
+  }
+
+  @Test
+  public void textItemUsesInstanceOutlineColorWhenLayoutColorIsUnset() {
+    final TextItem item = newOutlinedTextItem(3);
+    final GamePieceLayout layout = item.getLayout();
+    final GamePieceImage definition = new GamePieceImage(layout);
+    final TextItemInstance instance = new TextItemInstance("Text", TextItem.TYPE, GamePieceLayout.CENTER, "Hi");
+    instance.setFgColor(ColorSwatch.getBlack());
+    instance.setOutlineColor(ColorSwatch.getWhite());
+    instance.addTo(definition);
+    definition.getInstances().add(instance);
+
+    final BufferedImage image = drawTextItem(item, definition);
+
+    assertTrue(colorPixelCount(image, Color.WHITE) > 0);
   }
 
   @Test
@@ -408,15 +457,7 @@ public class GamePieceImageConfigurerTest {
     instance.addTo(definition);
     definition.getInstances().add(instance);
 
-    final BufferedImage image = new BufferedImage(120, 60, BufferedImage.TYPE_INT_ARGB);
-    final Graphics2D g = image.createGraphics();
-    try {
-      item.draw(g, definition);
-    }
-    finally {
-      g.dispose();
-    }
-
+    final BufferedImage image = drawTextItem(item, definition);
     return colorPixelCount(image, Color.RED);
   }
 
@@ -433,6 +474,19 @@ public class GamePieceImageConfigurerTest {
     item.setAttribute(TextItem.FONT_OUTLINE_THICKNESS, thickness);
     layout.addItem(item);
     return item;
+  }
+
+  private static BufferedImage drawTextItem(TextItem item, GamePieceImage definition) {
+    final BufferedImage image = new BufferedImage(120, 60, BufferedImage.TYPE_INT_ARGB);
+    final Graphics2D g = image.createGraphics();
+    try {
+      item.draw(g, definition);
+    }
+    finally {
+      g.dispose();
+    }
+
+    return image;
   }
 
   private static int colorPixelCount(BufferedImage image, Color color) {

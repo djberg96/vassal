@@ -51,6 +51,7 @@ public class TextItem extends Item {
   protected static final String FONT_ITALIC = "fontItalic"; //$NON-NLS-1$
   protected static final String FONT_OUTLINE = "fontOutline"; //$NON-NLS-1$
   protected static final String FONT_OUTLINE_THICKNESS = "fontOutlineThickness"; //$NON-NLS-1$
+  protected static final String FONT_OUTLINE_COLOR = "fontOutlineColor"; //$NON-NLS-1$
   protected static final String SOURCE = "source"; //$NON-NLS-1$
   protected static final String TEXT = "text"; //$NON-NLS-1$
 
@@ -81,6 +82,7 @@ public class TextItem extends Item {
   protected boolean fontItalic = false;
   protected boolean fontOutline = false;
   protected int fontOutlineThickness = DEFAULT_OUTLINE_THICKNESS;
+  protected ColorSwatch fontOutlineColor;
   protected String textSource = SRC_VARIABLE;
   protected String text = ""; //$NON-NLS-1$
 
@@ -114,6 +116,7 @@ public class TextItem extends Item {
       Resources.getString("Editor.FontConfigurer.italic_checkbox"),
       Resources.getString("Editor.FontConfigurer.outline_checkbox"),
       Resources.getString("Editor.TextItem.outline_thickness"),
+      Resources.getString("Editor.TextItem.outline_color"),
       Resources.getString("Editor.TextItem.text_option"),
       Resources.getString("Editor.TextItem.text")
     );
@@ -129,6 +132,7 @@ public class TextItem extends Item {
       Boolean.class,
       Boolean.class,
       Integer.class,
+      OutlineColorSwatchConfig.class,
       TextSource.class,
       String.class);
   }
@@ -143,6 +147,7 @@ public class TextItem extends Item {
       FONT_ITALIC,
       FONT_OUTLINE,
       FONT_OUTLINE_THICKNESS,
+      FONT_OUTLINE_COLOR,
       SOURCE,
       TEXT);
   }
@@ -193,6 +198,13 @@ public class TextItem extends Item {
       }
       fontOutlineThickness = Math.max(1, (Integer) o);
     }
+    else if (FONT_OUTLINE_COLOR.equals(key)) {
+      if (o instanceof String) {
+        final String color = (String) o;
+        o = color.isBlank() ? null : new ColorSwatch(color);
+      }
+      fontOutlineColor = (ColorSwatch) o;
+    }
     else if (SOURCE.equals(key)) {
       textSource = (String) o;
     }
@@ -233,6 +245,9 @@ public class TextItem extends Item {
     else if (FONT_OUTLINE_THICKNESS.equals(key)) {
       return Integer.toString(fontOutlineThickness);
     }
+    else if (FONT_OUTLINE_COLOR.equals(key)) {
+      return fontOutlineColor == null ? "" : fontOutlineColor.encode(); //$NON-NLS-1$
+    }
     else if (SOURCE.equals(key)) {
       return textSource;
     }
@@ -250,6 +265,9 @@ public class TextItem extends Item {
       return fixedCond;
     }
     else if (FONT_OUTLINE_THICKNESS.equals(name)) {
+      return this::isOutline;
+    }
+    else if (FONT_OUTLINE_COLOR.equals(name)) {
       return this::isOutline;
     }
     else {
@@ -280,7 +298,7 @@ public class TextItem extends Item {
     }
 
     final boolean outline = isOutline();
-    final Color ol = ti.getOutlineColor().getColor();
+    final Color ol = getOutlineColor(ti).getColor();
 
     final String compass = GamePieceLayout.getCompassPoint(getLocation());
     int hAlign = AL_CENTER;
@@ -380,6 +398,8 @@ public class TextItem extends Item {
     item.fontItalic = sd.nextBoolean(item.fontItalic);
     item.fontOutline = sd.nextBoolean(item.fontOutline);
     item.fontOutlineThickness = sd.nextInt(DEFAULT_OUTLINE_THICKNESS);
+    final String outlineColor = sd.nextToken(null);
+    item.fontOutlineColor = outlineColor == null || outlineColor.isBlank() ? null : new ColorSwatch(outlineColor);
 
   }
 
@@ -402,6 +422,7 @@ public class TextItem extends Item {
     se1.append(fontItalic);
     se1.append(fontOutline);
     se1.append(fontOutlineThickness);
+    se1.append(getAttributeValueString(FONT_OUTLINE_COLOR));
 
     final SequenceEncoder se2 = new SequenceEncoder(se1.getValue(), '|');
     se2.append(super.encode());
@@ -415,6 +436,10 @@ public class TextItem extends Item {
 
   public int getOutlineThickness() {
     return fontOutlineThickness;
+  }
+
+  public ColorSwatch getOutlineColor() {
+    return fontOutlineColor == null ? ColorSwatch.getRed() : fontOutlineColor;
   }
 
   protected OutlineFont getFont() {
@@ -437,6 +462,7 @@ public class TextItem extends Item {
     fontItalic = (font.getStyle() & Font.ITALIC) != 0;
     fontOutline = font.isOutline();
     fontOutlineThickness = DEFAULT_OUTLINE_THICKNESS;
+    fontOutlineColor = null;
   }
 
   public boolean isFixed() {
@@ -462,6 +488,37 @@ public class TextItem extends Item {
     @Override
     public Configurer getConfigurer(AutoConfigurable c, String key, String name) {
       return new FormattedStringConfigurer(key, name, new String[]{PIECE_NAME, LABEL});
+    }
+  }
+
+  public static class OutlineColorSwatchConfig implements ConfigurerFactory {
+    @Override
+    public Configurer getConfigurer(AutoConfigurable c, String key, String name) {
+      return new OptionalOutlineColorConfigurer(key, name, (TextItem) c);
+    }
+  }
+
+  private ColorSwatch getOutlineColor(TextItemInstance instance) {
+    return fontOutlineColor == null ? instance.getOutlineColor() : fontOutlineColor;
+  }
+
+  private static class OptionalOutlineColorConfigurer extends ColorSwatchConfigurer {
+    private final TextItem item;
+
+    OptionalOutlineColorConfigurer(String key, String name, TextItem item) {
+      super(key, name, item.getOutlineColor());
+      this.item = item;
+    }
+
+    @Override
+    public void setValue(String s) {
+      if (s == null || s.isBlank()) {
+        value = item.getOutlineColor();
+        buildSwatches();
+        return;
+      }
+
+      super.setValue(s);
     }
   }
 
