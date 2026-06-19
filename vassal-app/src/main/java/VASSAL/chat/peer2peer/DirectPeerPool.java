@@ -120,7 +120,7 @@ public class DirectPeerPool implements PeerPool, ChatControlsInitializer {
   }
 
   @Override
-  public void connectSucceeded(PeerInfo peerInfo) {
+  public void connectSucceeded(PeerInfo peerInfo, Runnable afterAcknowledged) {
     SwingUtilities.invokeLater(() -> {
       JOptionPane.showMessageDialog(
         frame,
@@ -131,6 +131,7 @@ public class DirectPeerPool implements PeerPool, ChatControlsInitializer {
       if (frame != null) {
         frame.setVisible(false);
       }
+      afterAcknowledged.run();
     });
   }
 

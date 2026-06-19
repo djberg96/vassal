@@ -365,11 +365,9 @@ public class P2PClient implements ChatServerConnection, ChatControlsInitializer,
     }
 
     fireStatus(Resources.getString("Peer2Peer.connected", details));
-    pool.connectSucceeded(pPeerInfo);
-
     propSupport.firePropertyChange(AVAILABLE_ROOMS, null, roomMgr.update(pPeerInfo));
     propSupport.firePropertyChange(ROOM, null, getRoom());
-    requestSyncAfterPeerConnect(pPeerInfo);
+    pool.connectSucceeded(pPeerInfo, () -> requestSyncAfterPeerConnect(pPeerInfo));
   }
 
   private void requestSyncAfterPeerConnect(PeerInfo pPeerInfo) {

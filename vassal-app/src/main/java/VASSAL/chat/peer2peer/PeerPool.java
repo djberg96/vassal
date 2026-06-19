@@ -31,6 +31,7 @@ public interface PeerPool {
   void disconnect();
   void connectFailed(PeerInfo peerInfo);
 
-  default void connectSucceeded(PeerInfo peerInfo) {
+  default void connectSucceeded(PeerInfo peerInfo, Runnable afterAcknowledged) {
+    afterAcknowledged.run();
   }
 }
