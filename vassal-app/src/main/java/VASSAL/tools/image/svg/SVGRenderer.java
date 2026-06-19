@@ -18,55 +18,29 @@
 
 package VASSAL.tools.image.svg;
 
-import java.awt.AlphaComposite;
 import java.awt.Dimension;
 import java.awt.Graphics2D;
-import java.awt.Paint;
-import java.awt.Shape;
+import java.awt.RenderingHints;
 import java.awt.geom.AffineTransform;
-import java.awt.geom.NoninvertibleTransformException;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
-import javax.xml.XMLConstants;
-
-import org.apache.batik.anim.dom.SVGDOMImplementation;
-import org.apache.batik.bridge.BridgeContext;
-import org.apache.batik.bridge.BridgeException;
-import org.apache.batik.bridge.DocumentLoader;
-import org.apache.batik.bridge.UserAgent;
-import org.apache.batik.ext.awt.image.GraphicsUtil;
-import org.apache.batik.gvt.renderer.ConcreteImageRendererFactory;
-import org.apache.batik.gvt.renderer.ImageRenderer;
-import org.apache.batik.gvt.renderer.ImageRendererFactory;
-import org.apache.batik.transcoder.SVGAbstractTranscoder;
-import org.apache.batik.transcoder.TranscoderException;
-import org.apache.batik.transcoder.TranscoderInput;
-import org.apache.batik.transcoder.TranscoderOutput;
-import org.apache.batik.transcoder.TranscodingHints;
-import org.apache.batik.transcoder.keys.BooleanKey;
-import org.apache.batik.transcoder.keys.PaintKey;
-
-import org.apache.commons.lang3.SystemUtils;
+import com.github.weisj.jsvg.SVGDocument;
+import com.github.weisj.jsvg.parser.LoaderContext;
+import com.github.weisj.jsvg.parser.SVGLoader;
+import com.github.weisj.jsvg.parser.resources.ResourcePolicy;
+import com.github.weisj.jsvg.view.ViewBox;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.svg.SVGDocument;
-
-import VASSAL.build.GameModule;
-import VASSAL.tools.DataArchive;
 import VASSAL.tools.image.ImageUtils;
 
 /**
@@ -79,250 +53,123 @@ public class SVGRenderer {
   private static final Logger logger =
     LoggerFactory.getLogger(SVGRenderer.class);
 
-  private static final ImageRendererFactory rendFactory =
-    new ConcreteImageRendererFactory();
+  private static final LoaderContext LOADER_CONTEXT = LoaderContext.builder()
+    .externalResourcePolicy(ResourcePolicy.ALLOW_RELATIVE)
+    .build();
 
-  private static final String XLINK_NAMESPACE = "http://www.w3.org/1999/xlink"; //NON-NLS
-  private static final String HREF = "href"; //NON-NLS
-  private static final String XLINK_HREF = "xlink:href"; //NON-NLS
+  private static final double DEGTORAD = Math.PI / 180.0;
 
   private final SVGDocument doc;
   private final float defaultW, defaultH;
-  private final Rasterizer r = new Rasterizer();
 
   /**
    * Closes the {@link InputStream}.
    */
   public SVGRenderer(URL file, InputStream in) throws IOException {
-    this(file.toString(), in);
+    this(toURI(file), in);
   }
 
   /**
    * Closes the {@link InputStream}.
    */
   public SVGRenderer(String file, InputStream in) throws IOException {
-    // load the SVG
-    doc = SVGImageUtils.getDocument(file, in);
-    addLegacyXLinkHrefAttributes(doc);
-
-    // get the default image size
-    final Dimension s = SVGImageUtils.getImageSize(doc);
-    defaultW = s.width;
-    defaultH = s.height;
+    this(toURI(file), in);
   }
 
-  private static void addLegacyXLinkHrefAttributes(Document document) {
-    final Element root = document.getDocumentElement();
-    if (root != null && addLegacyXLinkHrefAttributes(root)) {
-      root.setAttributeNS(
-        XMLConstants.XMLNS_ATTRIBUTE_NS_URI, "xmlns:xlink", XLINK_NAMESPACE //NON-NLS
-      );
+  private SVGRenderer(URI file, InputStream in) throws IOException {
+    final byte[] svg;
+    try (in) {
+      svg = in.readAllBytes();
+    }
+
+    doc = new SVGLoader().load(new ByteArrayInputStream(svg), file, LOADER_CONTEXT);
+    if (doc == null) {
+      throw new IOException("Could not load SVG " + file);
+    }
+
+    final Dimension size = SVGImageUtils.getImageSize(
+      file.toString(), new ByteArrayInputStream(svg)
+    );
+    defaultW = size.width;
+    defaultH = size.height;
+  }
+
+  private static URI toURI(URL file) throws IOException {
+    try {
+      return file.toURI();
+    }
+    catch (URISyntaxException e) {
+      throw new IOException(e);
     }
   }
 
-  private static boolean addLegacyXLinkHrefAttributes(Node node) {
-    boolean changed = false;
-
-    if (node instanceof Element e) {
-      if (e.hasAttribute(HREF) && !e.hasAttributeNS(XLINK_NAMESPACE, HREF)) {
-        e.setAttributeNS(XLINK_NAMESPACE, XLINK_HREF, e.getAttribute(HREF));
-        changed = true;
-      }
+  private static URI toURI(String file) {
+    try {
+      return URI.create(file);
     }
-
-    for (Node child = node.getFirstChild(); child != null; child = child.getNextSibling()) {
-      changed |= addLegacyXLinkHrefAttributes(child);
+    catch (IllegalArgumentException e) {
+      return new File(file).toURI();
     }
-
-    return changed;
   }
-
-  private static final double DEGTORAD = Math.PI / 180.0;
 
   public BufferedImage render() {
     return render(0.0, 1.0);
   }
 
   public BufferedImage render(double angle, double scale) {
-    // The renderer needs the bounds unscaled---scaling comes from the
-    // width and height hints.
-    AffineTransform px = AffineTransform.getRotateInstance(
+    final AffineTransform px = AffineTransform.getRotateInstance(
       angle * DEGTORAD, defaultW / 2.0, defaultH / 2.0);
-    r.setTransform(px);
-
-    px = new AffineTransform(px);
     px.scale(scale, scale);
 
     final Rectangle2D rect = new Rectangle2D.Float(0, 0, defaultW, defaultH);
-    final Rectangle2D b = px.createTransformedShape(rect).getBounds2D();
+    final Rectangle2D bounds = px.createTransformedShape(rect).getBounds2D();
 
-    r.addTranscodingHint(Rasterizer.KEY_WIDTH, (float) b.getWidth());
-    r.addTranscodingHint(Rasterizer.KEY_HEIGHT, (float) b.getHeight());
+    final int w = Math.max(1, (int) (bounds.getWidth() + 0.5));
+    final int h = Math.max(1, (int) (bounds.getHeight() + 0.5));
 
     try {
-      r.transcode(new TranscoderInput(doc), null);
-      return r.getBufferedImage();
+      final BufferedImage image = ImageUtils.createCompatibleTranslucentImage(w, h);
+      final Graphics2D g = image.createGraphics();
+      setQualityRenderingHints(g);
+      g.translate(-bounds.getX(), -bounds.getY());
+      g.rotate(angle * DEGTORAD, defaultW / 2.0, defaultH / 2.0);
+      g.scale(scale, scale);
+      doc.render(null, g, new ViewBox(defaultW, defaultH));
+      g.dispose();
+      return image;
     }
-    catch (BridgeException | TranscoderException e) {
+    catch (RuntimeException e) {
       logger.error("Failed to render SVG at angle {} and scale {}", angle, scale, e);
+      return null;
     }
-
-    return null;
   }
 
   public BufferedImage render(double angle, double scale, Rectangle2D aoi) {
-    // The renderer needs the bounds unscaled---scaling comes from the
-    // width and height hints.
-    AffineTransform px = AffineTransform.getRotateInstance(
-      angle * DEGTORAD, defaultW / 2.0, defaultH / 2.0);
-    r.setTransform(px);
-
-    px = new AffineTransform(px);
-    px.scale(scale, scale);
-
-    r.addTranscodingHint(Rasterizer.KEY_WIDTH, (float) aoi.getWidth());
-    r.addTranscodingHint(Rasterizer.KEY_HEIGHT, (float) aoi.getHeight());
-    r.addTranscodingHint(Rasterizer.KEY_AOI, aoi);
+    final int w = Math.max(1, (int) (aoi.getWidth() + 0.5));
+    final int h = Math.max(1, (int) (aoi.getHeight() + 0.5));
 
     try {
-      r.transcode(new TranscoderInput(doc), null);
-      return r.getBufferedImage();
-    }
-    catch (BridgeException | TranscoderException e) {
-      logger.error("Failed to render SVG area {} at angle {} and scale {}", aoi, angle, scale, e);
-    }
-
-    return null;
-  }
-
-  private static class DataArchiveDocumentLoader extends DocumentLoader {
-    public DataArchiveDocumentLoader(UserAgent userAgent) {
-      super(userAgent);
-    }
-
-    @Override
-    public Document loadDocument(String uri)
-        throws MalformedURLException, IOException {
-      final String file = new File(URI.create(uri).toURL().getPath()).getName();
-      final DataArchive mda = GameModule.getGameModule().getDataArchive();
-      try (InputStream inner = mda.getInputStream(file);
-           BufferedInputStream in = new BufferedInputStream(inner)) {
-        return loadDocument(uri, in);
-      }
-      catch (DOMException e) {
-        throw new IOException(e);
-      }
-    }
-  }
-
-  private static class Rasterizer extends SVGAbstractTranscoder {
-    private final DocumentLoader docLoader;
-    private BufferedImage image;
-    private AffineTransform xform;
-
-    public Rasterizer() {
-      docLoader = new DataArchiveDocumentLoader(userAgent);
-    }
-
-    @Override
-    protected BridgeContext createBridgeContext() {
-      return new BridgeContext(userAgent, docLoader);
-    }
-
-    @Override
-    protected void transcode(Document document,
-                             String uri,
-                             TranscoderOutput output)
-                             throws TranscoderException {
-      if (SystemUtils.IS_OS_MAC) {
-        final Element g = document.createElementNS(
-          SVGDOMImplementation.SVG_NAMESPACE_URI, "g" //NON-NLS
-        );
-        g.setAttributeNS(null, "transform", "rotate(0.000001)"); //NON-NLS
-
-        // interpose this <g> element between <svg> and its children
-        final Element svg = document.getDocumentElement();
-        Node n;
-        while ((n = svg.getFirstChild()) != null) {
-          g.appendChild(n);
-        }
-
-        svg.appendChild(g);
-      }
-
-      // Sets up root, curTxf & curAoi
-      super.transcode(document, uri, output);
-
-       // prepare the image to be painted
-      final int w = (int)(width + 0.5);
-      final int h = (int)(height + 0.5);
-
-      if (w <= 0 || h <= 0) {
-        writeImage(ImageUtils.NULL_IMAGE);
-        return;
-      }
-
-      // paint the SVG document using the bridge package
-      // create the appropriate renderer
-      ImageRenderer renderer = rendFactory.createStaticImageRenderer();
-      renderer.updateOffScreen(w, h);
-      if (xform != null) curTxf.concatenate(xform);
-      renderer.setTransform(curTxf);
-      renderer.setTree(this.root);
-      this.root = null; // We're done with it...
-
-      // now we are sure that the aoi is the image size
-      final Shape raoi = new Rectangle2D.Float(0, 0, width, height);
-      // Warning: the renderer's AOI must be in user space
-      try {
-        renderer.repaint(curTxf.createInverse().createTransformedShape(raoi));
-      }
-      catch (NoninvertibleTransformException e) {
-        throw new TranscoderException(e);
-      }
-
-      // The ImageRenderer paints into its offscreen buffer during repaint().
-      BufferedImage rend = renderer.getOffScreen();
-      renderer = null; // We're done with it...
-
-      // produce an opaque image if our background color is set
-      final BufferedImage dest = ImageUtils.createCompatibleImage(
-        w, h, !hints.containsKey(KEY_BACKGROUND_COLOR)
-      );
-
-      final Graphics2D g2d = GraphicsUtil.createGraphics(dest);
-      if (hints.containsKey(KEY_BACKGROUND_COLOR)) {
-        final Paint bgcolor = (Paint) hints.get(KEY_BACKGROUND_COLOR);
-        g2d.setComposite(AlphaComposite.SrcOver);
-        g2d.setPaint(bgcolor);
-        g2d.fillRect(0, 0, w, h);
-      }
-
-      if (rend != null) { // might be null if the svg document is empty
-        g2d.drawRenderedImage(rend, new AffineTransform());
-      }
-      g2d.dispose();
-      rend = null; // We're done with it...
-
-      writeImage(dest);
-    }
-
-    private void writeImage(BufferedImage image) {
-      this.image = image;
-    }
-
-    public BufferedImage getBufferedImage() {
+      final BufferedImage image = ImageUtils.createCompatibleTranslucentImage(w, h);
+      final Graphics2D g = image.createGraphics();
+      setQualityRenderingHints(g);
+      g.translate(-aoi.getX(), -aoi.getY());
+      g.rotate(angle * DEGTORAD, defaultW / 2.0, defaultH / 2.0);
+      g.scale(scale, scale);
+      doc.render(null, g, new ViewBox(defaultW, defaultH));
+      g.dispose();
       return image;
     }
-
-    public void setTransform(AffineTransform px) {
-      xform = px;
+    catch (RuntimeException e) {
+      logger.error("Failed to render SVG area {} at angle {} and scale {}", aoi, angle, scale, e);
+      return null;
     }
   }
 
-  public static final TranscodingHints.Key KEY_BACKGROUND_COLOR =
-    new PaintKey();
-
-  public static final TranscodingHints.Key KEY_FORCE_TRANSPARENT_WHITE =
-    new BooleanKey();
+  private static void setQualityRenderingHints(Graphics2D g) {
+    g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+    g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+    g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+    g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+    g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+  }
 }
