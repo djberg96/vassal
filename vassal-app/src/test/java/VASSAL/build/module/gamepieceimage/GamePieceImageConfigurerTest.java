@@ -1,6 +1,7 @@
 package VASSAL.build.module.gamepieceimage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -357,6 +358,21 @@ public class GamePieceImageConfigurerTest {
     final GamePieceImage image = new GamePieceImage(layout);
     final byte[] encoded = image.getEncodedArchiveImage("counter.svg");
 
+    assertNotNull(new SVGRenderer("counter.svg", new ByteArrayInputStream(encoded)).render());
+  }
+
+  @Test
+  public void getEncodedArchiveImageWritesSymbolSizeAsVectorSvg() throws IOException {
+    final GamePieceLayout layout = new GamePieceLayout();
+    layout.setWidth(80);
+    layout.setHeight(80);
+    layout.addItem(new SymbolItem(layout, "Symbol"));
+
+    final GamePieceImage image = new GamePieceImage(layout);
+    final byte[] encoded = image.getEncodedArchiveImage("counter.svg");
+    final String svg = new String(encoded, StandardCharsets.UTF_8);
+
+    assertFalse(svg.contains("<image"));
     assertNotNull(new SVGRenderer("counter.svg", new ByteArrayInputStream(encoded)).render());
   }
 

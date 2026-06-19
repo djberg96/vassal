@@ -24,6 +24,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
+import java.awt.Stroke;
 import java.awt.geom.Arc2D;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
@@ -429,11 +430,11 @@ public class Symbol {
       }
       final int gap = bounds.width / 15;
 
-      final BufferedImage bi = buildSizeImage(g, count, type, sym_w, sym_h, gap);
+      final int sizeWidth = sizeImageWidth(count, type, sym_w, gap);
 
-      final int xpos = bounds.x + (bounds.width / 2) - (bi.getWidth() / 2) + gap; // + (gap/2) - (bi.getWidth()/2);
+      final int xpos = bounds.x + (bounds.width / 2) - (sizeWidth / 2) + gap; // + (gap/2) - (sizeWidth/2);
       final int ypos = bounds.y - sym_h - 1;
-      g.drawImage(bi, xpos, ypos, null);
+      drawSizeSymbols((Graphics2D) g, count, type, sym_w, sym_h, gap, xpos, ypos);
     }
 
     public static BufferedImage buildSizeImage(String size, int sym_w, int sym_h, int gap) {
@@ -450,9 +451,18 @@ public class Symbol {
     }
 
     protected static BufferedImage createImage(int count, int sym_w, int sym_h, int gap) {
+      final int w = symbolRunWidth(count, sym_w, gap);
+      return ImageUtils.createCompatibleTranslucentImage(w, sym_h + 1);
+    }
+
+    protected static int sizeImageWidth(int count, String type, int sym_w, int gap) {
+      return symbolRunWidth(count, type.equals(INSTALLATION_SYMBOL) ? sym_w * 3 : sym_w, gap);
+    }
+
+    private static int symbolRunWidth(int count, int sym_w, int gap) {
       int w = sym_w * count + gap * (count - 1) + 1;
       if (w < 1) w = sym_w;
-      return ImageUtils.createCompatibleTranslucentImage(w, sym_h + 1);
+      return w;
     }
 
     public static BufferedImage buildSizeImage(Graphics g, int count, String type, int sym_w, int sym_h, int gap) {
@@ -474,33 +484,52 @@ public class Symbol {
       big.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
       big.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-      int x_pos = 0;
-      for (int i = 0; i < count; i++) {
-        if (type.equals(TEAM_SYMBOL)) {
-          final int radius = sym_w / 2;
-          big.drawOval(x_pos, sym_h / 3, radius * 2, radius * 2);
-          big.drawLine(x_pos, sym_h, x_pos + sym_w, 0);
-        }
-        else if (type.equals(SQUAD_SYMBOL)) {
-          final int radius = sym_w / 2;
-          big.fillOval(x_pos, sym_h / 3, radius * 2, radius * 2);
-        }
-        else if (type.equals(COMPANY_SYMBOL)) {
-          big.drawLine(x_pos + sym_w / 2, 0, x_pos + sym_w / 2, sym_h);
-        }
-        else if (type.equals(BRIGADE_SYMBOL)) {
-          big.drawLine(x_pos, 0, x_pos + sym_w, sym_h);
-          big.drawLine(x_pos, sym_h, x_pos + sym_w, 0);
-        }
-        else if (type.equals(INSTALLATION_SYMBOL)) {
-          big.fillRect(x_pos, sym_h / 2, x_pos + 3 * sym_w, sym_h);
-        }
-        x_pos += sym_w + gap;
-      }
+      drawSizeSymbols(big, count, type, sym_w, sym_h, gap, 0, 0);
 
       big.dispose();
 
       return bi;
+    }
+
+    private static void drawSizeSymbols(Graphics2D g, int count, String type, int sym_w, int sym_h, int gap, int x, int y) {
+      final Object oldAntialiasing = g.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+      final Stroke oldStroke = g.getStroke();
+
+      // Force size symbols to be drawn 1 pixel wide with anti-aliasing to ensure readability.
+      g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+      g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+      int x_pos = x;
+      for (int i = 0; i < count; i++) {
+        if (type.equals(TEAM_SYMBOL)) {
+          final int radius = sym_w / 2;
+          g.drawOval(x_pos, y + sym_h / 3, radius * 2, radius * 2);
+          g.drawLine(x_pos, y + sym_h, x_pos + sym_w, y);
+        }
+        else if (type.equals(SQUAD_SYMBOL)) {
+          final int radius = sym_w / 2;
+          g.fillOval(x_pos, y + sym_h / 3, radius * 2, radius * 2);
+        }
+        else if (type.equals(COMPANY_SYMBOL)) {
+          g.drawLine(x_pos + sym_w / 2, y, x_pos + sym_w / 2, y + sym_h);
+        }
+        else if (type.equals(BRIGADE_SYMBOL)) {
+          g.drawLine(x_pos, y, x_pos + sym_w, y + sym_h);
+          g.drawLine(x_pos, y + sym_h, x_pos + sym_w, y);
+        }
+        else if (type.equals(INSTALLATION_SYMBOL)) {
+          g.fillRect(x_pos, y + sym_h / 2, 3 * sym_w, sym_h);
+        }
+        x_pos += sym_w + gap;
+      }
+
+      g.setStroke(oldStroke);
+      if (oldAntialiasing == null) {
+        g.getRenderingHints().remove(RenderingHints.KEY_ANTIALIASING);
+      }
+      else {
+        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, oldAntialiasing);
+      }
     }
   }
 
