@@ -243,7 +243,9 @@ public class TextBoxItem extends TextItem {
     if (saveXForm != null) {
       g2d.setTransform(saveXForm);
     }
-    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, aa);
+    if (aa != null) {
+      g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, aa);
+    }
   }
 
   @Override

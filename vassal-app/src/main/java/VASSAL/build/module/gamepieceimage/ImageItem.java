@@ -183,7 +183,9 @@ public class ImageItem extends Item {
         final Point origin = layout.getPosition(this);
         g.drawImage(img, origin.x, origin.y, null);
 
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, aa);
+        if (aa != null) {
+          g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, aa);
+        }
       }
     }
   }

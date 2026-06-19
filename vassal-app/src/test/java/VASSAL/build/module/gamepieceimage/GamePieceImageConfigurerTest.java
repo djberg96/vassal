@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,6 +24,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 
 import VASSAL.i18n.Resources;
+import VASSAL.tools.image.svg.SVGRenderer;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -84,9 +86,16 @@ public class GamePieceImageConfigurerTest {
     layout.setConfigureName("Layout");
     final GamePieceImage image = new GamePieceImage(layout);
 
-    assertEquals("Layout", image.getConfigureName());
-    assertEquals("Layout", image.getLocalizedConfigureName());
+    assertEquals("Layout.svg", image.getConfigureName());
+    assertEquals("Layout.svg", image.getLocalizedConfigureName());
     assertEquals(layout, image.getLayout());
+  }
+
+  @Test
+  public void gamePieceImageDefaultsLayoutNameToSvg() {
+    assertEquals("counter.svg", GamePieceImage.defaultImageName("counter"));
+    assertEquals("counter.svg", GamePieceImage.defaultImageName("counter.svg"));
+    assertEquals("counter.png", GamePieceImage.defaultImageName("counter.png"));
   }
 
   @Test
@@ -309,6 +318,46 @@ public class GamePieceImageConfigurerTest {
     final byte[] encoded = image.getEncodedImage(source);
 
     assertNotNull(ImageIO.read(new ByteArrayInputStream(encoded)));
+  }
+
+  @Test
+  public void getEncodedArchiveImageWritesReadableSvgText() throws IOException {
+    final GamePieceLayout layout = new GamePieceLayout();
+    layout.setWidth(80);
+    layout.setHeight(40);
+
+    final TextItem item = new TextItem(layout, "Text");
+    item.setAttribute(TextItem.SOURCE, TextItem.SRC_FIXED);
+    item.setAttribute(TextItem.TEXT, "Readable");
+    layout.addItem(item);
+
+    final GamePieceImage image = new GamePieceImage(layout);
+
+    final byte[] encoded = image.getEncodedArchiveImage("counter.svg");
+    final String svg = new String(encoded, StandardCharsets.UTF_8);
+
+    assertTrue(svg.contains("<text"));
+    assertTrue(svg.contains("Readable"));
+    assertNotNull(new SVGRenderer("counter.svg", new ByteArrayInputStream(encoded)).render());
+  }
+
+  @Test
+  public void getEncodedArchiveImageWritesSvgForCommonItemTypes() throws IOException {
+    final GamePieceLayout layout = new GamePieceLayout();
+    layout.setWidth(120);
+    layout.setHeight(80);
+    layout.addItem(new ShapeItem(layout, "Shape"));
+    layout.addItem(new SymbolItem(layout, "Symbol"));
+
+    final TextBoxItem textBox = new TextBoxItem(layout, "TextBox");
+    textBox.setAttribute(TextItem.SOURCE, TextItem.SRC_FIXED);
+    textBox.setAttribute(TextItem.TEXT, "Box");
+    layout.addItem(textBox);
+
+    final GamePieceImage image = new GamePieceImage(layout);
+    final byte[] encoded = image.getEncodedArchiveImage("counter.svg");
+
+    assertNotNull(new SVGRenderer("counter.svg", new ByteArrayInputStream(encoded)).render());
   }
 
   @Test

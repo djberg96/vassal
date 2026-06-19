@@ -38,9 +38,11 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -71,6 +73,7 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
   public static final String VERSION_0 = "0";
   public static final String VERSION_1 = "1";
   private static final String PNG_SUFFIX = ".png";
+  private static final String SVG_SUFFIX = ".svg";
 
   protected List<ItemInstance> instances = new ArrayList<>();
   protected InstanceConfigurer defnConfig = null;
@@ -100,7 +103,7 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
 
   public GamePieceImage(GamePieceLayout l) {
     this();
-    name = l.getConfigureName();
+    name = defaultImageName(l.getConfigureName());
     localizedName = name;
     layout = l;
   }
@@ -391,7 +394,7 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
         final String imageName = getArchiveImageName();
         if (imageName != null && !imageName.isBlank()) {
           w.addImage(imageName,
-                     getEncodedImage((BufferedImage) visImage));
+                     getEncodedArchiveImage(imageName));
           final SourceOp op = Op.load(imageName);
           op.update();
         }
@@ -408,6 +411,23 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
       throw new IllegalStateException("Unable to encode game piece image as PNG", e); //NON-NLS
     }
     return out.toByteArray();
+  }
+
+  byte[] getEncodedArchiveImage(String imageName) {
+    if (isSvgName(imageName)) {
+      return getEncodedSvgImage();
+    }
+
+    return getEncodedImage((BufferedImage) visImage);
+  }
+
+  byte[] getEncodedSvgImage() {
+    try {
+      return layout.buildSvg(this).getBytes(StandardCharsets.UTF_8);
+    }
+    catch (IOException e) {
+      throw new IllegalStateException("Unable to encode game piece image as SVG", e); //NON-NLS
+    }
   }
 
   static void writePng(BufferedImage bufferedImage, OutputStream out) throws IOException {
@@ -546,14 +566,51 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
 
     w.removeImage(oldImageName);
     if (newImageName != null && !newImageName.isBlank()) {
-      w.addImage(newImageName, getEncodedImage((BufferedImage) visImage));
+      w.addImage(newImageName, getEncodedArchiveImage(newImageName));
       final SourceOp op = Op.load(newImageName);
       op.update();
     }
   }
 
   private boolean isVersion1ImageName(String name) {
-    return name != null && !name.isEmpty() && name.matches("^[\\w.-]+\\.png$");
+    return name != null && !name.isEmpty() && name.matches("^[\\w.-]+\\.(png|svg)$");
+  }
+
+  static String defaultImageName(String name) {
+    if (name == null || name.isBlank() || hasSupportedImageSuffix(name)) {
+      return name;
+    }
+
+    return name + SVG_SUFFIX;
+  }
+
+  private static boolean isSvgName(String name) {
+    return name != null && name.toLowerCase(Locale.ROOT).endsWith(SVG_SUFFIX);
+  }
+
+  private static boolean hasSupportedImageSuffix(String name) {
+    if (name == null) {
+      return false;
+    }
+
+    final String lowerName = name.toLowerCase(Locale.ROOT);
+    return lowerName.endsWith(SVG_SUFFIX) || lowerName.endsWith(PNG_SUFFIX);
+  }
+
+  private static int supportedImageSuffixLength(String name) {
+    if (name == null) {
+      return 0;
+    }
+
+    final String lowerName = name.toLowerCase(Locale.ROOT);
+    if (lowerName.endsWith(SVG_SUFFIX)) {
+      return SVG_SUFFIX.length();
+    }
+    else if (lowerName.endsWith(PNG_SUFFIX)) {
+      return PNG_SUFFIX.length();
+    }
+
+    return 0;
   }
 
   static String imageNameForBucket(String bucket, String fileName) {
@@ -589,15 +646,15 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
   public static class ImageNameConfig implements ConfigurerFactory {
     @Override
     public Configurer getConfigurer(AutoConfigurable c, String key, String name) {
-      return new PngImageNameConfigurer(key, name, (GamePieceImage) c);
+      return new ImageNameConfigurer(key, name, (GamePieceImage) c);
     }
   }
 
-  static class PngImageNameConfigurer extends StringConfigurer {
+  static class ImageNameConfigurer extends StringConfigurer {
 
     private final GamePieceImage gpi;
 
-    public PngImageNameConfigurer(String key, String name, GamePieceImage gpi) {
+    public ImageNameConfigurer(String key, String name, GamePieceImage gpi) {
       super(key, name, gpi.getConfigureName());
       this.gpi = gpi;
       setHintKey("Editor.GamePieceImage.png_image_name");
@@ -618,12 +675,12 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
    * ImageNameFilter that controls how the user can change the Image Name.
    * If the GPI is still version 0, then no controls. Note we can't force change an image
    * name because other components may reference that image.
-   * Once the GPI is version 1, then enforce a .png suffix
+   * Once the GPI is version 1, then enforce an image suffix.
    */
   private static class ImageNameFilter extends DocumentFilter {
-    private final PngImageNameConfigurer config;
+    private final ImageNameConfigurer config;
 
-    public ImageNameFilter(PngImageNameConfigurer config) {
+    public ImageNameFilter(ImageNameConfigurer config) {
       this.config = config;
     }
 
@@ -645,15 +702,18 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
       return currentValue;
     }
 
-    /** Does the current text end in '.png'? */
-    private boolean isPng(FilterBypass fb) {
-      return getText(fb).toLowerCase().endsWith(PNG_SUFFIX);
+    private boolean hasImageSuffix(FilterBypass fb) {
+      return hasSupportedImageSuffix(getText(fb));
     }
 
-    /** Ensure the current value ends in '.png' */
-    private void fixPng(FilterBypass fb, int caretPos) throws BadLocationException {
-      if (!isPng(fb)) {
-        super.replace(fb, getText(fb).length(), 0, PNG_SUFFIX, null);
+    private int suffixStart(FilterBypass fb) {
+      return getText(fb).length() - supportedImageSuffixLength(getText(fb));
+    }
+
+    /** Ensure the current value ends in a supported image suffix. */
+    private void fixImageSuffix(FilterBypass fb, int caretPos) throws BadLocationException {
+      if (!hasImageSuffix(fb)) {
+        super.replace(fb, getText(fb).length(), 0, SVG_SUFFIX, null);
         config.setCaretPosition(caretPos);
       }
     }
@@ -662,7 +722,7 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
       return string == null ? "" : string.replaceAll("[^\\w.-]", "");
     }
 
-    /** Don't let any of the '.png' at the end of the string be removed and clean unwanted characters */
+    /** Don't let any image suffix at the end of the string be removed and clean unwanted characters */
     @Override
     public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
       if (!config.isGpiVersion1()) {
@@ -670,16 +730,16 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
         return;
       }
 
-      if (isPng(fb)) {
-        if ((offset + length) > (getText(fb).length() - PNG_SUFFIX.length())) {
+      if (hasImageSuffix(fb)) {
+        if (length != getText(fb).length() && (offset + length) > suffixStart(fb)) {
           return;
         }
       }
       super.remove(fb, offset, length);
-      fixPng(fb, offset);
+      fixImageSuffix(fb, offset);
     }
 
-    /** Nothing to be inserted within the '.png' at the end and clean unwanted characters */
+    /** Nothing to be inserted within the image suffix at the end and clean unwanted characters */
     @Override
     public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
       if (!config.isGpiVersion1()) {
@@ -687,16 +747,16 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
         return;
       }
 
-      if (isPng(fb)) {
-        if ((offset) >= (getText(fb).length() - PNG_SUFFIX.length())) {
+      if (hasImageSuffix(fb)) {
+        if ((offset) >= suffixStart(fb)) {
           return;
         }
       }
       super.insertString(fb, offset, clean(string), attr);
-      fixPng(fb, offset + clean(string).length());
+      fixImageSuffix(fb, offset + clean(string).length());
     }
 
-    /** No part of '.png' at then end of the current text to be replaced and clean unwanted characters */
+    /** No part of the image suffix at then end of the current text to be replaced and clean unwanted characters */
     @Override
     public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
       if (!config.isGpiVersion1()) {
@@ -704,13 +764,13 @@ public class GamePieceImage extends AbstractConfigurable implements Visualizable
         return;
       }
 
-      if (isPng(fb)) {
-        if ((offset + length) > (getText(fb).length() - PNG_SUFFIX.length())) {
+      if (hasImageSuffix(fb)) {
+        if (length != getText(fb).length() && (offset + length) > suffixStart(fb)) {
           return;
         }
       }
       super.replace(fb, offset, length, clean(text), attrs);
-      fixPng(fb, length + clean(text).length());
+      fixImageSuffix(fb, length + clean(text).length());
     }
   }
 }

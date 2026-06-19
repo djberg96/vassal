@@ -243,7 +243,9 @@ public class ShapeItem extends Item {
       }
     }
 
-    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, aa);
+    if (aa != null) {
+      g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, aa);
+    }
   }
 
   @Override

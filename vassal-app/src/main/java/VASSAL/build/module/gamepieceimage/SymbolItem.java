@@ -205,7 +205,9 @@ public class SymbolItem extends Item {
 
     symbol.draw(g, r, si.getFgColor().getColor(), si.getBgColor().getColor(), si.getSizeColor().getColor(), (float) lineWidth);
 
-    g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, aa);
+    if (aa != null) {
+      g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, aa);
+    }
   }
 
   @Override
