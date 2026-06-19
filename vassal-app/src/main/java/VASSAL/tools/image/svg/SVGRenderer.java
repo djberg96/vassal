@@ -60,6 +60,7 @@ public class SVGRenderer {
   private static final double DEGTORAD = Math.PI / 180.0;
 
   private final SVGDocument doc;
+  private final BatikSVGRenderer batikRenderer;
   private final float defaultW, defaultH;
 
   /**
@@ -82,6 +83,16 @@ public class SVGRenderer {
       svg = in.readAllBytes();
     }
 
+    final String svgText = new String(svg, java.nio.charset.StandardCharsets.UTF_8);
+    if (needsBatikFallback(svgText)) {
+      batikRenderer = new BatikSVGRenderer(file.toString(), new ByteArrayInputStream(svg));
+      doc = null;
+      defaultW = 0;
+      defaultH = 0;
+      return;
+    }
+
+    batikRenderer = null;
     doc = new SVGLoader().load(new ByteArrayInputStream(svg), file, LOADER_CONTEXT);
     if (doc == null) {
       throw new IOException("Could not load SVG " + file);
@@ -117,6 +128,10 @@ public class SVGRenderer {
   }
 
   public BufferedImage render(double angle, double scale) {
+    if (batikRenderer != null) {
+      return batikRenderer.render(angle, scale);
+    }
+
     final AffineTransform px = AffineTransform.getRotateInstance(
       angle * DEGTORAD, defaultW / 2.0, defaultH / 2.0);
     px.scale(scale, scale);
@@ -145,6 +160,10 @@ public class SVGRenderer {
   }
 
   public BufferedImage render(double angle, double scale, Rectangle2D aoi) {
+    if (batikRenderer != null) {
+      return batikRenderer.render(angle, scale, aoi);
+    }
+
     final int w = Math.max(1, (int) (aoi.getWidth() + 0.5));
     final int h = Math.max(1, (int) (aoi.getHeight() + 0.5));
 
@@ -171,5 +190,20 @@ public class SVGRenderer {
     g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
     g.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
     g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+  }
+
+  static boolean needsBatikFallback(String svg) {
+    return containsElement(svg, "feTurbulence") ||
+      containsElement(svg, "feDiffuseLighting") ||
+      containsElement(svg, "feDisplacementMap") ||
+      containsElement(svg, "feComposite") ||
+      containsElement(svg, "feBlend") ||
+      containsElement(svg, "feColorMatrix") ||
+      containsElement(svg, "feConvolveMatrix") ||
+      containsElement(svg, "feMorphology");
+  }
+
+  private static boolean containsElement(String svg, String elementName) {
+    return svg.contains("<" + elementName) || svg.contains("<svg:" + elementName);
   }
 }

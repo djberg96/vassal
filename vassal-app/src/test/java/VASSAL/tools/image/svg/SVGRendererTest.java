@@ -10,7 +10,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SVGRendererTest {
   private static final String SVG = """
@@ -30,7 +32,7 @@ class SVGRendererTest {
     """;
 
   @Test
-  void renderReturnsPixelsFromBatikOffscreenImage() throws IOException {
+  void renderReturnsPixelsFromSvgImage() throws IOException {
     final BufferedImage image = renderer().render();
 
     assertNotNull(image);
@@ -41,7 +43,7 @@ class SVGRendererTest {
   }
 
   @Test
-  void renderAreaOfInterestReturnsPixelsFromBatikOffscreenImage() throws IOException {
+  void renderAreaOfInterestReturnsPixelsFromSvgImage() throws IOException {
     final BufferedImage image = renderer().render(0.0, 1.0, new Rectangle2D.Float(2, 3, 4, 3));
 
     assertNotNull(image);
@@ -59,6 +61,27 @@ class SVGRendererTest {
     assertEquals(10, image.getWidth());
     assertEquals(10, image.getHeight());
     assertPixel(new Color(0, 0, 255, 255), image, 5, 5);
+  }
+
+  @Test
+  void simpleSvgDoesNotRequireBatikFallback() {
+    assertFalse(SVGRenderer.needsBatikFallback(SVG));
+  }
+
+  @Test
+  void filterHeavySvgRequiresBatikFallback() {
+    final String svg = """
+      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10">
+        <defs>
+          <filter id="paper">
+            <feTurbulence type="fractalNoise" baseFrequency="0.04"/>
+          </filter>
+        </defs>
+        <rect width="10" height="10" filter="url(#paper)"/>
+      </svg>
+      """;
+
+    assertTrue(SVGRenderer.needsBatikFallback(svg));
   }
 
   private static SVGRenderer renderer() throws IOException {
