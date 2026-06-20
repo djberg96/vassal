@@ -27,7 +27,11 @@ import VASSAL.tools.concurrent.BackgroundTasks;
  */
 public abstract class AbstractUpdateCheckRequest {
   public final void execute() {
-    BackgroundTasks.submit(this::isUpdateAvailable, this::succeeded, this::failed);
+    BackgroundTasks.submit(
+      this::isUpdateAvailable,
+      update -> succeeded(Boolean.TRUE.equals(update)),
+      this::failed
+    );
   }
 
   private Boolean isUpdateAvailable() throws IOException {
