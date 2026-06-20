@@ -7,15 +7,13 @@ import VASSAL.build.module.InternetDiceButton;
 import VASSAL.script.expression.Auditable;
 import VASSAL.tools.ErrorDialog;
 import VASSAL.tools.FormattedString;
+import VASSAL.tools.concurrent.BackgroundTasks;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
-
-import javax.swing.SwingWorker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,27 +91,19 @@ public abstract class DieServer implements Auditable {
    * Internet Servers will call this routine to do their dirty work.
    */
   public void doInternetRoll(final RollSet mroll, final FormattedString format) {
-    new SwingWorker<RollSet, Void>() {
-      @Override
-      public RollSet doInBackground() throws Exception {
-        return rollInBackground(mroll);
-      }
-
-      @Override
-      protected void done() {
-        try {
-          reportResult(get(), format);
+    BackgroundTasks.submit(
+      () -> rollInBackground(mroll),
+      result -> reportResult(result, format),
+      error -> {
+        if (error instanceof InterruptedException) {
+          ErrorDialog.bug(error);
         }
-        catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-          ErrorDialog.bug(e);
-        }
-        catch (ExecutionException e) {
-          logger.error("", e);
-          GameModule.getGameModule().getChatter().send(internetRollFailureMessage(mroll, e.getCause()));
+        else {
+          logger.error("", error);
+          GameModule.getGameModule().getChatter().send(internetRollFailureMessage(mroll, error));
         }
       }
-    }.execute();
+    );
   }
 
   protected RollSet rollInBackground(RollSet rollSet) throws IOException {

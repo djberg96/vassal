@@ -24,11 +24,11 @@ import java.util.Map;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.io.IOException;
+import java.util.concurrent.Future;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.SwingWorker;
 import javax.swing.JTextField;
 
 import VASSAL.build.AbstractConfigurable;
@@ -45,6 +45,7 @@ import VASSAL.configure.StringEnumConfigurer;
 import VASSAL.i18n.Resources;
 import VASSAL.preferences.Prefs;
 import VASSAL.tools.FormattedString;
+import VASSAL.tools.concurrent.BackgroundTasks;
 
 /**
  * @author Brent Easton
@@ -353,6 +354,7 @@ public final class DieManager extends AbstractConfigurable {
     private JButton verifyButton;
     private JButton showButton;
     private char maskedEchoChar;
+    private Future<?> verifyTask;
 
     TrimmingPasswordConfigurer(Prefs prefs, String key, String name, String val) {
       super(key, name, strip(val));
@@ -409,40 +411,35 @@ public final class DieManager extends AbstractConfigurable {
     }
 
     private void verify() {
+      if (verifyTask != null && !verifyTask.isDone()) {
+        return;
+      }
+
       verifyButton.setEnabled(false);
-      new SwingWorker<Void, Void>() {
-        @Override
-        protected Void doInBackground() throws Exception {
+      verifyTask = BackgroundTasks.submit(
+        () -> {
           verifyInternetDice(prefs);
           return null;
-        }
-
-        @Override
-        protected void done() {
+        },
+        ignored -> {
           verifyButton.setEnabled(true);
-          try {
-            get();
-            JOptionPane.showMessageDialog(
-              verifyButton,
-              Resources.getString("Prefs.internet_dice_verify_success"),
-              Resources.getString("Prefs.internet_dice_verify"),
-              JOptionPane.INFORMATION_MESSAGE
-            );
-          }
-          catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-          }
-          catch (Exception e) {
-            final Throwable cause = e.getCause() == null ? e : e.getCause();
-            JOptionPane.showMessageDialog(
-              verifyButton,
-              Resources.getString("Prefs.internet_dice_verify_failure", cause.getMessage()),
-              Resources.getString("Prefs.internet_dice_verify"),
-              JOptionPane.ERROR_MESSAGE
-            );
-          }
+          JOptionPane.showMessageDialog(
+            verifyButton,
+            Resources.getString("Prefs.internet_dice_verify_success"),
+            Resources.getString("Prefs.internet_dice_verify"),
+            JOptionPane.INFORMATION_MESSAGE
+          );
+        },
+        error -> {
+          verifyButton.setEnabled(true);
+          JOptionPane.showMessageDialog(
+            verifyButton,
+            Resources.getString("Prefs.internet_dice_verify_failure", error.getMessage()),
+            Resources.getString("Prefs.internet_dice_verify"),
+            JOptionPane.ERROR_MESSAGE
+          );
         }
-      }.execute();
+      );
     }
 
     private static String strip(String value) {
