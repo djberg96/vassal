@@ -9,6 +9,12 @@ package VASSAL.build.module.documentation.ai;
 
 public record RulesChunk(String title, String fileName, int page, String text) {
   public String citation() {
-    return title + ", p. " + page; //NON-NLS
+    if (page > 0) {
+      return title + ", p. " + page; //NON-NLS
+    }
+    if (fileName == null || fileName.isBlank()) {
+      return title;
+    }
+    return title + " (" + fileName + ")"; //NON-NLS
   }
 }

@@ -9,6 +9,7 @@ package VASSAL.build.module.documentation.ai;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -19,10 +20,13 @@ import java.util.regex.Pattern;
 
 import VASSAL.build.GameModule;
 import VASSAL.build.module.documentation.BrowserPDFFile;
+import VASSAL.build.widget.Chart;
+import VASSAL.build.widget.HtmlChart;
 
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.jsoup.Jsoup;
 
 public class RulesDocumentIndex {
   private static final int MAX_CHUNKS = 8;
@@ -56,6 +60,28 @@ public class RulesDocumentIndex {
             chunks.add(new RulesChunk(title, fileName, page, text));
           }
         }
+      }
+    }
+
+    for (final HtmlChart chart : module.getAllDescendantComponentsOf(HtmlChart.class)) {
+      final String fileName = chart.getFileName();
+      if (fileName == null || fileName.isBlank()) {
+        continue;
+      }
+
+      final String localizedFileName = module.getResourcePathFinder().findHelpFileName(fileName);
+      try (InputStream in = module.getDataArchive().getInputStream(localizedFileName)) {
+        final String text = normalizeText(Jsoup.parse(new String(in.readAllBytes(), StandardCharsets.UTF_8)).text());
+        if (!text.isBlank()) {
+          chunks.add(new RulesChunk(chartTitle(chart), localizedFileName, 0, text));
+        }
+      }
+    }
+
+    for (final Chart chart : module.getAllDescendantComponentsOf(Chart.class)) {
+      final String text = normalizeText(chartText(chart));
+      if (!text.isBlank()) {
+        chunks.add(new RulesChunk(chartTitle(chart), chart.getFileName(), 0, text));
       }
     }
 
@@ -107,6 +133,44 @@ public class RulesDocumentIndex {
       .replaceAll("[ \\t\\x0B\\f\\r]+", " ") //NON-NLS
       .replaceAll("\\n{3,}", "\n\n") //NON-NLS
       .strip();
+  }
+
+  static String chartText(Chart chart) {
+    final List<String> parts = new ArrayList<>();
+    final String name = chart.getConfigureName();
+    if (name != null && !name.isBlank()) {
+      parts.add("Chart name: " + name); //NON-NLS
+    }
+
+    final String description = chart.getDescription();
+    if (description != null && !description.isBlank()) {
+      parts.add("Description: " + description); //NON-NLS
+    }
+
+    final String fileName = chart.getFileName();
+    if (fileName != null && !fileName.isBlank()) {
+      parts.add("Image file: " + fileName); //NON-NLS
+    }
+
+    if (!parts.isEmpty()) {
+      parts.add("This is an image chart. Its visual contents are not available as searchable text yet."); //NON-NLS
+    }
+    return String.join("\n", parts); //NON-NLS
+  }
+
+  private static String chartTitle(Chart chart) {
+    return chartTitle(chart.getConfigureName());
+  }
+
+  private static String chartTitle(HtmlChart chart) {
+    return chartTitle(chart.getConfigureName());
+  }
+
+  private static String chartTitle(String name) {
+    if (name == null || name.isBlank()) {
+      return "Chart"; //NON-NLS
+    }
+    return "Chart: " + name.strip(); //NON-NLS
   }
 
   private record ScoredChunk(RulesChunk chunk, int score) {

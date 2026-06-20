@@ -44,12 +44,12 @@ public class RulesAssistantService {
       index = RulesDocumentIndex.build(module);
     }
     if (index.isEmpty()) {
-      throw new IOException("This module has no PDF help files for the Rules Assistant to read."); //NON-NLS
+      throw new IOException("This module has no rules or chart files for the Rules Assistant to read."); //NON-NLS
     }
 
     final List<RulesChunk> chunks = index.relevantChunks(question);
     if (chunks.isEmpty()) {
-      throw new IOException("No relevant rules excerpts were found in this module's PDF help files."); //NON-NLS
+      throw new IOException("No relevant rules or chart excerpts were found in this module."); //NON-NLS
     }
 
     return clientFor(prefs).answer(buildPrompt(question, chunks));
@@ -136,7 +136,7 @@ public class RulesAssistantService {
     final StringBuilder prompt = new StringBuilder();
     prompt.append("Question:\n")
       .append(question.strip())
-      .append("\n\nRules excerpts:\n"); //NON-NLS
+      .append("\n\nRules and chart excerpts:\n"); //NON-NLS
 
     int remaining = MAX_CONTEXT_CHARS;
     for (final RulesChunk chunk : chunks) {
@@ -155,7 +155,7 @@ public class RulesAssistantService {
       remaining -= citation.length() + excerptLength;
     }
 
-    prompt.append("\nAnswer with concise reasoning and cite source/page labels."); //NON-NLS
+    prompt.append("\nAnswer with concise reasoning and cite source/page or chart labels."); //NON-NLS
     return prompt.toString();
   }
 }
