@@ -20,28 +20,20 @@ package VASSAL.script;
 import bsh.EvalError;
 import bsh.ParseException;
 
-public class CompileResult {
-  protected boolean success;
-  protected EvalError error = null;
-
+public record CompileResult(EvalError error) {
   public CompileResult() {
-    success = true;
-  }
-
-  public CompileResult(EvalError e) {
-    success = false;
-    error = e;
+    this(null);
   }
 
   public boolean isSuccess() {
-    return success;
+    return error == null;
   }
 
   public String getMessage() {
     String message = "";
     if (error != null) {
-      if (error instanceof ParseException) {
-        message = error.getMessage();
+      if (error instanceof ParseException parseException) {
+        message = parseException.getMessage();
       }
       else {
         return error.getErrorLineNumber() + ": " + error.getErrorText();
