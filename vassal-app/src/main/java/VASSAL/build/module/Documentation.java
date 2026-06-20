@@ -26,9 +26,11 @@ import VASSAL.build.module.documentation.BrowserHelpFile;
 import VASSAL.build.module.documentation.BrowserPDFFile;
 import VASSAL.build.module.documentation.HelpFile;
 import VASSAL.build.module.documentation.Tutorial;
+import VASSAL.build.module.documentation.ai.RulesAssistantAction;
 import VASSAL.configure.Configurer;
 import VASSAL.i18n.Resources;
 import VASSAL.tools.ErrorDialog;
+import VASSAL.tools.menu.MenuItemProxy;
 import VASSAL.tools.menu.MenuManager;
 import org.w3c.dom.Element;
 
@@ -44,6 +46,7 @@ public class Documentation extends AbstractConfigurable {
 
   public static final String INTRO_FILE = "/help/Intro.html"; //NON-NLS
   public static final String INTRO_FILENAME = "Intro.html"; //NON-NLS
+  private MenuItemProxy rulesAssistantItem;
 
   public JMenu getHelpMenu() {
     final JMenuBar mb = MenuManager.getInstance().getMenuBarFor(
@@ -82,11 +85,16 @@ public class Documentation extends AbstractConfigurable {
 
   @Override
   public void addTo(Buildable b) {
-
+    rulesAssistantItem = new MenuItemProxy(new RulesAssistantAction());
+    MenuManager.getInstance().addToSection("Documentation.Module", rulesAssistantItem); //NON-NLS
   }
 
   @Override
   public void removeFrom(Buildable b) {
+    if (rulesAssistantItem != null) {
+      MenuManager.getInstance().removeFromSection("Documentation.Module", rulesAssistantItem); //NON-NLS
+      rulesAssistantItem = null;
+    }
   }
 
   @Override
