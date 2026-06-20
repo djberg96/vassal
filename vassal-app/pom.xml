@@ -427,7 +427,6 @@
                 </executions>
             </plugin>
             <plugin>
-              <!-- This does not work with Java 25 -->
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
                 <configuration>

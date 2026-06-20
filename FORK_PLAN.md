@@ -93,7 +93,7 @@ The fork has diverged from upstream in several broad areas.
 
 ### Modern Java And BeanShell Work
 
-- Java 26 build/test path is the working baseline.
+- Java 25+ build/test path is the working baseline.
 - BeanShell support has been modernized around current parser generation and
   warning cleanup.
 - Parser regeneration and diagnostic suppression are documented so generated

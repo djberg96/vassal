@@ -5,7 +5,7 @@ than local warning/TODO cleanup. Items here are not implementation commitments;
 they are parking places for designs that need product decisions, compatibility
 review, or broader testing before work begins.
 
-## Java 26 Architecture Modernization
+## Java 25+ Architecture Modernization
 
 ### Virtual-Thread Background Work
 
@@ -75,13 +75,13 @@ review, or broader testing before work begins.
 - Proposed improvements:
   - Add Java Flight Recorder events around module loading, broader image
     rendering/cache paths, and P2P sync.
-  - Evaluate Java 26 runtime/GC behavior for large modules and document useful
-    launch flags if any are consistently helpful.
+  - Evaluate Java 25+ runtime/GC behavior for large modules and document
+    useful launch flags if any are consistently helpful.
 - Suggested implementation path:
   - Continue adding low-overhead JFR events behind stable utility methods.
   - Use profiling runs on known heavy modules before changing defaults.
 
-### Deferred Java 26 Features
+### Deferred Newer Java Features
 
 - Structured concurrency, Vector API, Foreign Function and Memory API, and
   preview language features may be useful later, but should remain experiments
