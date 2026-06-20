@@ -1,63 +1,107 @@
 package VASSAL.tools;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpRequest;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.time.Duration;
 import java.util.stream.Stream;
-
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.entity.mime.MultipartEntityBuilder;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.ContentType;
-import org.apache.hc.core5.http.ParseException;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
 
 import VASSAL.Info;
 import VASSAL.build.GameModule;
+import VASSAL.tools.http.HttpClientService;
+import VASSAL.tools.http.HttpResponseData;
 
 public class BugUtils {
+  private static final URI BUG_REPORT_URI = URI.create("https://vassalengine.org/util/abr"); //NON-NLS
+  private static final HttpClientService HTTP =
+    HttpClientService.createDefault(Duration.ofSeconds(60));
+
   private BugUtils() {}
 
   public static void sendBugReport(String email,
                                    String description,
                                    String errorLog,
                                    Throwable t) throws IOException {
-    // build the POST body
-    final MultipartEntityBuilder b = MultipartEntityBuilder.create();
-    b.setCharset(StandardCharsets.UTF_8);
+    sendBugReport(email, description, errorLog, t, BUG_REPORT_URI);
+  }
 
-    b.addTextBody("version", Info.getReportableVersion()); //NON-NLS
-    b.addTextBody("email", email); //NON-NLS
-    b.addTextBody("summary", getSummary(t)); //NON-NLS
-    b.addTextBody("description", getDescription(description, errorLog)); //NON-NLS
-    b.addBinaryBody("log", errorLog.getBytes(StandardCharsets.UTF_8), ContentType.TEXT_PLAIN, Info.getErrorLogPath().getName()); //NON-NLS
+  static void sendBugReport(String email,
+                            String description,
+                            String errorLog,
+                            Throwable t,
+                            URI uri) throws IOException {
+    final MultipartBody body = buildBugReportBody(email, description, errorLog, t);
+    final HttpRequest request = HttpRequest.newBuilder(uri)
+      .POST(HttpRequest.BodyPublishers.ofByteArray(body.body()))
+      .header("Content-Type", body.contentType()) //NON-NLS
+      .build();
 
-    final String url = "https://vassalengine.org/util/abr";
-    final HttpPost httpPost = new HttpPost(url);
-    httpPost.setEntity(b.build());
-
-    // send the POST
-    try (CloseableHttpClient client = HttpClients.createDefault()) {
-      client.execute(httpPost, response -> {
-        if (response.getCode() != 201) {
-          final String msg = "Bug report failed: " + response.getCode();
-
-          String responseText = null;
-          try {
-            responseText = EntityUtils.toString(response.getEntity());
-          }
-          catch (ParseException e) {
-            throw new IOException(msg, e);
-          }
-
-          throw new IOException(msg + ": " + responseText);
-        }
-
-        return null;
-      });
+    final HttpResponseData response = HTTP.send(request);
+    if (response.status() != 201) {
+      throw new IOException("Bug report failed: " + response.status() + ": " + response.body()); //NON-NLS
     }
+  }
+
+  static MultipartBody buildBugReportBody(String email,
+                                          String description,
+                                          String errorLog,
+                                          Throwable t) throws IOException {
+    final String boundary = "----VASSAL-BugReport-" + System.nanoTime(); //NON-NLS
+    final ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+    writeTextPart(out, boundary, "version", Info.getReportableVersion()); //NON-NLS
+    writeTextPart(out, boundary, "email", email); //NON-NLS
+    writeTextPart(out, boundary, "summary", getSummary(t)); //NON-NLS
+    writeTextPart(out, boundary, "description", getDescription(description, errorLog)); //NON-NLS
+    writeFilePart(
+      out,
+      boundary,
+      "log", //NON-NLS
+      Info.getErrorLogPath().getName(),
+      errorLog.getBytes(StandardCharsets.UTF_8)
+    );
+    out.write(("--" + boundary + "--\r\n").getBytes(StandardCharsets.UTF_8)); //NON-NLS
+
+    return new MultipartBody(
+      "multipart/form-data; boundary=" + boundary, //NON-NLS
+      out.toByteArray()
+    );
+  }
+
+  private static void writeTextPart(
+    ByteArrayOutputStream out,
+    String boundary,
+    String name,
+    String value
+  ) throws IOException {
+    out.write(("--" + boundary + "\r\n").getBytes(StandardCharsets.UTF_8)); //NON-NLS
+    out.write(("Content-Disposition: form-data; name=\"" + escapeQuoted(name) + "\"\r\n").getBytes(StandardCharsets.UTF_8)); //NON-NLS
+    out.write("Content-Type: text/plain; charset=UTF-8\r\n\r\n".getBytes(StandardCharsets.UTF_8)); //NON-NLS
+    out.write(value.getBytes(StandardCharsets.UTF_8));
+    out.write("\r\n".getBytes(StandardCharsets.UTF_8)); //NON-NLS
+  }
+
+  private static void writeFilePart(
+    ByteArrayOutputStream out,
+    String boundary,
+    String name,
+    String filename,
+    byte[] body
+  ) throws IOException {
+    out.write(("--" + boundary + "\r\n").getBytes(StandardCharsets.UTF_8)); //NON-NLS
+    out.write(("Content-Disposition: form-data; name=\"" + escapeQuoted(name)
+      + "\"; filename=\"" + escapeQuoted(filename) + "\"\r\n").getBytes(StandardCharsets.UTF_8)); //NON-NLS
+    out.write("Content-Type: text/plain\r\n\r\n".getBytes(StandardCharsets.UTF_8)); //NON-NLS
+    out.write(body);
+    out.write("\r\n".getBytes(StandardCharsets.UTF_8)); //NON-NLS
+  }
+
+  private static String escapeQuoted(String value) {
+    return value.replace("\\", "\\\\").replace("\"", "\\\""); //NON-NLS
   }
 
   private static String getDescription(String description, String errorLog) {
@@ -104,5 +148,8 @@ public class BugUtils {
       // then we probably can't write to it either.
       return null;
     }
+  }
+
+  record MultipartBody(String contentType, byte[] body) {
   }
 }
