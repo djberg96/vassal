@@ -19,31 +19,24 @@ package VASSAL.chat;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.Enumeration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.StringJoiner;
 
-import org.apache.commons.io.IOUtils;
-
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.classic.methods.HttpPost;
-import org.apache.hc.client5.http.entity.UrlEncodedFormEntity;
-import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.apache.hc.core5.http.NameValuePair;
-import org.apache.hc.core5.http.ParseException;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.apache.hc.core5.http.message.BasicNameValuePair;
-import org.apache.hc.core5.net.URIBuilder;
+import VASSAL.tools.http.HttpClientService;
+import VASSAL.tools.http.HttpResponseData;
 
 /**
  * Performs Get and Post operations to a given URL
  */
 public class HttpRequestWrapper {
+  private static final HttpClientService HTTP =
+    HttpClientService.createDefault(Duration.ofSeconds(60));
+
   private final String baseURL;
 
   public HttpRequestWrapper(String baseURL) {
@@ -55,36 +48,12 @@ public class HttpRequestWrapper {
   }
 
   private URI buildGet(String path, Properties props) throws IOException {
-    try {
-      final URIBuilder b = new URIBuilder(baseURL + path);
-      if (props != null) {
-        for (final Enumeration<?> e = props.keys(); e.hasMoreElements();) {
-          final String key = (String) e.nextElement();
-          final String value = props.getProperty(key);
-          b.addParameter(key, value);
-        }
-      }
-
-      return b.build();
+    final String url = baseURL + path;
+    final String body = buildFormBody(props);
+    if (body.isEmpty()) {
+      return URI.create(url);
     }
-    catch (URISyntaxException e) {
-      // this should not happen
-      throw new IOException(e);
-    }
-  }
-
-  private String errorMessage(ClassicHttpResponse response) throws IOException {
-    final String msg = response.getCode() + " " + response.getReasonPhrase();
-
-    String responseText = null;
-    try {
-      responseText = EntityUtils.toString(response.getEntity());
-    }
-    catch (ParseException e) {
-      throw new IOException(msg, e);
-    }
-
-    return msg + ": " + responseText;
+    return URI.create(url + (url.contains("?") ? "&" : "?") + body); //NON-NLS
   }
 
   /**
@@ -96,12 +65,12 @@ public class HttpRequestWrapper {
    */
   public List<String> doGet(String path,
                             Properties props) throws IOException {
-    final HttpGet httpGet = new HttpGet(buildGet(path, props));
-    try (CloseableHttpClient client = HttpClients.createMinimal()) {
-      return client.execute(httpGet, response -> getLinesOk(response, 200));
+    final URI uri = buildGet(path, props);
+    try {
+      return getLinesOk(HTTP.get(uri), 200);
     }
     catch (final IOException e) {
-      throw new IOException("Failed to " + httpGet.toString(), e);
+      throw new IOException("Failed to GET " + uri, e); //NON-NLS
     }
   }
 
@@ -109,40 +78,34 @@ public class HttpRequestWrapper {
     return doPost("", p); //$NON-NLS-1$
   }
 
-  private HttpPost buildPost(String path, Properties props) throws IOException {
-    final HttpPost httpPost = new HttpPost(baseURL + path);
-    final List<NameValuePair> params = new ArrayList<>();
-    for (final Enumeration<?> e = props.keys(); e.hasMoreElements();) {
-      final String key = (String) e.nextElement();
-      final String value = props.getProperty(key);
-      params.add(new BasicNameValuePair(key, value));
+  private String buildFormBody(Properties props) {
+    final StringJoiner form = new StringJoiner("&"); //NON-NLS
+    if (props != null) {
+      for (final Enumeration<?> e = props.keys(); e.hasMoreElements();) {
+        final String key = (String) e.nextElement();
+        final String value = props.getProperty(key);
+        form.add(urlEncode(key) + '=' + urlEncode(value));
+      }
     }
-    httpPost.setEntity(new UrlEncodedFormEntity(params));
-    return httpPost;
+    return form.toString();
+  }
+
+  private static String urlEncode(String value) {
+    return URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
 
   public List<String> doPost(String path,
                              Properties props) throws IOException {
-    final HttpPost httpPost = buildPost(path, props);
-    try (CloseableHttpClient client = HttpClients.createDefault()) {
-      return client.execute(httpPost, response -> getLinesOk(response, 201));
-    }
+    final HttpResponseData response = HTTP.postForm(URI.create(baseURL + path), buildFormBody(props));
+    return getLinesOk(response, 201);
   }
 
-  private List<String> getLinesOk(ClassicHttpResponse response, int ok_code) throws IOException {
-    if (response.getCode() == ok_code) {
-      try {
-        return IOUtils.readLines(
-          response.getEntity().getContent(),
-          StandardCharsets.UTF_8
-        );
-      }
-      catch (UnsupportedOperationException e) {
-        throw new IOException(e);
-      }
+  private List<String> getLinesOk(HttpResponseData response, int okCode) throws IOException {
+    if (response.status() == okCode) {
+      return response.body().lines().toList();
     }
     else {
-      throw new IOException(errorMessage(response));
+      throw new IOException(response.status() + ": " + response.body()); //NON-NLS
     }
   }
 }

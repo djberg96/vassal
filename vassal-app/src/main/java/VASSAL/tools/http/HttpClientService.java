@@ -40,12 +40,30 @@ public class HttpClientService {
     return getJson(uri, Map.of());
   }
 
+  public HttpResponseData get(URI uri) throws IOException {
+    return get(uri, Map.of());
+  }
+
+  public HttpResponseData get(URI uri, Map<String, String> headers) throws IOException {
+    final HttpRequest.Builder builder = requestBuilder(uri).GET();
+    headers.forEach(builder::header);
+    return send(builder.build());
+  }
+
   public HttpResponseData getJson(URI uri, Map<String, String> headers) throws IOException {
     final HttpRequest.Builder builder = requestBuilder(uri)
       .GET()
       .header("Accept", "application/json"); //NON-NLS
 
     headers.forEach(builder::header);
+    return send(builder.build());
+  }
+
+  public HttpResponseData postForm(URI uri, String body) throws IOException {
+    final HttpRequest.Builder builder = requestBuilder(uri)
+      .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
+      .header("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8"); //NON-NLS
+
     return send(builder.build());
   }
 

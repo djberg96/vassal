@@ -53,6 +53,16 @@ class HttpClientServiceTest {
   }
 
   @Test
+  void getReadsPlainTextResponse() throws IOException {
+    startServer(exchange -> send(exchange, 200, "one\ntwo")); //NON-NLS
+
+    final HttpResponseData response = client().get(uri("/lines")); //NON-NLS
+
+    assertEquals(200, response.status());
+    assertEquals("one\ntwo", response.body()); //NON-NLS
+  }
+
+  @Test
   void getJsonSendsCustomHeaders() throws IOException {
     final AtomicReference<List<String>> apiKeyHeaders = new AtomicReference<>();
     startServer(exchange -> {
@@ -92,6 +102,29 @@ class HttpClientServiceTest {
     assertEquals("POST", method.get()); //NON-NLS
     assertEquals("{\"name\":\"counter\"}", body.get()); //NON-NLS
     assertTrue(authHeaders.get().contains("Bearer key")); //NON-NLS
+  }
+
+  @Test
+  void postFormSendsUrlEncodedBody() throws IOException {
+    final AtomicReference<String> method = new AtomicReference<>();
+    final AtomicReference<String> body = new AtomicReference<>();
+    final AtomicReference<List<String>> contentTypeHeaders = new AtomicReference<>();
+    startServer(exchange -> {
+      method.set(exchange.getRequestMethod());
+      body.set(new String(exchange.getRequestBody().readAllBytes(), StandardCharsets.UTF_8));
+      contentTypeHeaders.set(exchange.getRequestHeaders().get("Content-Type")); //NON-NLS
+      send(exchange, 201, "created"); //NON-NLS
+    });
+
+    final HttpResponseData response = client().postForm(
+      uri("/post"), //NON-NLS
+      "message=hello+world" //NON-NLS
+    );
+
+    assertEquals(201, response.status());
+    assertEquals("POST", method.get()); //NON-NLS
+    assertEquals("message=hello+world", body.get()); //NON-NLS
+    assertTrue(contentTypeHeaders.get().contains("application/x-www-form-urlencoded; charset=UTF-8")); //NON-NLS
   }
 
   @Test
