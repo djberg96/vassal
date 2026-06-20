@@ -21,6 +21,7 @@ import VASSAL.chat.Player;
 import VASSAL.chat.ServerStatus;
 import VASSAL.chat.SimpleRoom;
 import VASSAL.i18n.Resources;
+import VASSAL.tools.concurrent.BackgroundTasks;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +33,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
-import javax.swing.SwingWorker;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -50,7 +50,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * Shows the current status of connections to the server
@@ -179,8 +179,8 @@ public final class ServerStatusView extends JTabbedPane implements ChangeListene
     refresh(0);
   }
 
-  private transient SwingWorker<ServerStatus.ModuleSummary[], Void> cur_request = null;
-  private transient SwingWorker<ServerStatus.ModuleSummary[], Void> hist_request = null;
+  private transient Future<?> cur_request = null;
+  private transient Future<?> hist_request = null;
 
   private void refresh(final int page) {
     if (page == 0) {
@@ -188,64 +188,40 @@ public final class ServerStatusView extends JTabbedPane implements ChangeListene
 
       setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
-      cur_request = new SwingWorker<>() {
-        @Override
-        public ServerStatus.ModuleSummary[] doInBackground() {
-          return status.getStatus();
-        }
+      cur_request = BackgroundTasks.submit(
+        status::getStatus,
+        modules -> {
+          if (getSelectedIndex() == 0) {
+            refresh(model, modules);
+            fireSelectionChanged();
+          }
 
-        @Override
-        protected void done() {
-          try {
-            if (getSelectedIndex() == 0) {
-              refresh(model, get());
-              fireSelectionChanged();
-            }
-          }
-          catch (InterruptedException ex) {
-            Thread.currentThread().interrupt();
-          }
-          catch (ExecutionException ex) {
+          cur_request = null;
+          clearWaitCursorIfIdle();
+        },
+        ex -> {
+          if (!(ex instanceof InterruptedException)) {
             logger.warn("Failed to refresh current server status", ex);
           }
 
-          if (hist_request == null || hist_request.isDone())
-            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-
           cur_request = null;
+          clearWaitCursorIfIdle();
         }
-      };
-
-      cur_request.execute();
+      );
     }
     else {
       if (hist_request != null && !hist_request.isDone()) return;
 
       setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+      final String historyTitle = getTitleAt(page);
 
-      hist_request = new SwingWorker<>() {
-        @Override
-        public ServerStatus.ModuleSummary[] doInBackground() {
-          return status.getHistory(getTitleAt(page));
-        }
-
-        @Override
-        protected void done() {
+      hist_request = BackgroundTasks.submit(
+        () -> status.getHistory(historyTitle),
+        modules -> {
           final int sel = getSelectedIndex();
           if (sel == page) {
             // page didn't change, refresh with what we computed
-            try {
-              refresh(historicalModels[sel - 1], get());
-            }
-            catch (InterruptedException | ExecutionException ex) {
-              if (ex instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-              }
-              else {
-                logger.warn("Failed to refresh server status history for {}", getTitleAt(page), ex);
-              }
-            }
-
+            refresh(historicalModels[sel - 1], modules);
             fireSelectionChanged();
           }
           else if (sel != 0) {
@@ -254,12 +230,23 @@ public final class ServerStatusView extends JTabbedPane implements ChangeListene
             refresh(sel);
           }
 
-          if (cur_request == null || cur_request.isDone())
-            setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        }
-      };
+          clearWaitCursorIfIdle();
+        },
+        ex -> {
+          if (!(ex instanceof InterruptedException)) {
+            logger.warn("Failed to refresh server status history for {}", historyTitle, ex);
+          }
 
-      hist_request.execute();
+          clearWaitCursorIfIdle();
+        }
+      );
+    }
+  }
+
+  private void clearWaitCursorIfIdle() {
+    if ((cur_request == null || cur_request.isDone()) &&
+        (hist_request == null || hist_request.isDone())) {
+      setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
     }
   }
 
