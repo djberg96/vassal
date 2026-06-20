@@ -26,6 +26,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.SwingWorker;
+import javax.swing.WindowConstants;
 
 import VASSAL.build.GameModule;
 import VASSAL.build.module.NotesWindow;
@@ -54,6 +55,7 @@ public class RulesAssistantDialog extends JDialog {
     super(owner, Resources.getString("RulesAssistant.title"), false);
     this.service = service;
     notesWindow = findNotesWindow();
+    setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
     buildUi();
     pack();
     setMinimumSize(new Dimension(640, 520));
@@ -118,7 +120,7 @@ public class RulesAssistantDialog extends JDialog {
 
       @Override
       public void actionPerformed(ActionEvent e) {
-        dispose();
+        setVisible(false);
       }
     });
 

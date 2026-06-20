@@ -17,15 +17,23 @@ import VASSAL.i18n.Resources;
 public class RulesAssistantAction extends AbstractAction {
   private static final long serialVersionUID = 1L;
 
+  private RulesAssistantDialog dialog;
+
   public RulesAssistantAction() {
     super(Resources.getString("RulesAssistant.menu_item"));
   }
 
   @Override
   public void actionPerformed(ActionEvent e) {
-    new RulesAssistantDialog(
-      GameModule.getGameModule().getPlayerWindow(),
-      new RulesAssistantService(GameModule.getGameModule())
-    ).setVisible(true);
+    final GameModule module = GameModule.getGameModule();
+    if (dialog == null || !dialog.isDisplayable()) {
+      dialog = new RulesAssistantDialog(
+        module.getPlayerWindow(),
+        new RulesAssistantService(module)
+      );
+    }
+
+    dialog.setVisible(true);
+    dialog.toFront();
   }
 }
