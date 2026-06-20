@@ -150,6 +150,22 @@ public final class NotesWindow extends AbstractToolbarItem
     GameModule.getGameModule().sendAndLog(c);
   }
 
+  public void appendPublicNote(String note) {
+    if (note == null || note.isBlank()) {
+      return;
+    }
+
+    final String existing = publicNotes.getValueString();
+    final String cleanedNote = note.strip();
+    final String next = existing == null || existing.isBlank()
+      ? cleanedNote
+      : existing.stripTrailing() + System.lineSeparator() + System.lineSeparator() + cleanedNote;
+
+    publicNotes.setValue(next);
+    lastSavedPublicNotes = next;
+    GameModule.getGameModule().sendAndLog(new SetPublicNote(next));
+  }
+
   private final class NotesDialog extends JDialog {
 
     private static final long serialVersionUID = 1L;
