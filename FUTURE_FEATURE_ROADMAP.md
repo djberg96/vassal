@@ -61,6 +61,8 @@ review, or broader testing before work begins.
 - Current state:
   - Heavy modules can stress image rendering, SVG rendering, tile caches, and
     memory usage, but profiling is mostly manual.
+  - JFR events now cover Rules Assistant request/index work, SVG rendering
+    through JSVG/Batik, and command-line tile slicing/reconstruction.
 - Proposed improvements:
   - Add Java Flight Recorder events around module loading, image rendering,
     SVG renderer fallback, tile generation, Rules Assistant requests, and P2P
@@ -68,7 +70,7 @@ review, or broader testing before work begins.
   - Evaluate Java 26 runtime/GC behavior for large modules and document useful
     launch flags if any are consistently helpful.
 - Suggested implementation path:
-  - Add low-overhead JFR events behind stable utility methods.
+  - Continue adding low-overhead JFR events behind stable utility methods.
   - Use profiling runs on known heavy modules before changing defaults.
 
 ### Deferred Java 26 Features
