@@ -31,6 +31,7 @@ import VASSAL.tools.image.ImageIOImageLoader;
 import VASSAL.tools.image.ImageLoader;
 import VASSAL.tools.image.ImageTypeConverter;
 import VASSAL.tools.io.TemporaryFileFactory;
+import VASSAL.tools.jfr.TileProcessingEvent;
 import VASSAL.tools.lang.Callback;
 
 /**
@@ -78,11 +79,28 @@ public class ImageToTiles {
     final Callback<Void> dotter = obj -> System.out.print('.');
 
     final TileSlicer slicer = new TileSlicerImpl();
+    final TileProcessingEvent event = new TileProcessingEvent();
+    event.operation = "slice"; //NON-NLS
+    event.source = ipath;
+    event.destination = tpath;
+    event.imageWidth = src.getWidth();
+    event.imageHeight = src.getHeight();
+    event.tileWidth = tw;
+    event.tileHeight = th;
+    event.tileCount = TileUtils.tileCount(src.getWidth(), src.getHeight(), tw, th);
+    event.begin();
 
     try {
       slicer.slice(src, iname, tpath, tw, th, exec, dotter);
+      event.success = true;
+    }
+    catch (IOException | RuntimeException e) {
+      event.success = false;
+      event.errorType = e.getClass().getName();
+      throw e;
     }
     finally {
+      event.commit();
       exec.shutdown();
     }
     System.out.println("");

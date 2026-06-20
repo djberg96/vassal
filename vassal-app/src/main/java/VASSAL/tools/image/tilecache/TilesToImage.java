@@ -35,6 +35,8 @@ import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
+import VASSAL.tools.jfr.TileProcessingEvent;
+
 /**
  * Reconstitute an image from tile files.
  *
@@ -105,39 +107,61 @@ public class TilesToImage {
     final ExecutorService exec =
       TileThreadPools.create(TilesToImage.class.getSimpleName());
 
+    final TileProcessingEvent event = new TileProcessingEvent();
+    event.operation = "assemble"; //NON-NLS
+    event.source = base;
+    event.destination = dpath;
+    event.imageWidth = w;
+    event.imageHeight = h;
+    event.tileWidth = tw;
+    event.tileHeight = th;
+    event.tileCount = tcols * trows;
+    event.begin();
+
     try {
-      final ExecutorCompletionService<TilePlacement> tiles =
-        new ExecutorCompletionService<>(exec);
-      final int tileCount = tcols * trows;
-
-      for (int tx = 0; tx < tcols; ++tx) {
-        for (int ty = 0; ty < trows; ++ty) {
-          final int tileX = tx;
-          final int tileY = ty;
-          tiles.submit(() -> readTile(base, scale, tileX, tileY));
-        }
-      }
-
-      final Graphics2D g = img.createGraphics();
       try {
-        for (int i = 0; i < tileCount; ++i) {
-          final TilePlacement tile = getTile(tiles);
-          g.drawImage(tile.image, tile.x * tw, tile.y * th, null);
+        final ExecutorCompletionService<TilePlacement> tiles =
+          new ExecutorCompletionService<>(exec);
+        final int tileCount = tcols * trows;
+
+        for (int tx = 0; tx < tcols; ++tx) {
+          for (int ty = 0; ty < trows; ++ty) {
+            final int tileX = tx;
+            final int tileY = ty;
+            tiles.submit(() -> readTile(base, scale, tileX, tileY));
+          }
+        }
+
+        final Graphics2D g = img.createGraphics();
+        try {
+          for (int i = 0; i < tileCount; ++i) {
+            final TilePlacement tile = getTile(tiles);
+            g.drawImage(tile.image, tile.x * tw, tile.y * th, null);
+          }
+        }
+        finally {
+          g.dispose();
         }
       }
       finally {
-        g.dispose();
+        exec.shutdown();
       }
+
+      // write the cobbled image
+      try (OutputStream out = Files.newOutputStream(Path.of(dpath))) {
+        if (!ImageIO.write(img, "PNG", out)) { //NON-NLS
+          throw new IOException("No PNG image writer is available"); //NON-NLS
+        }
+      }
+      event.success = true;
+    }
+    catch (IOException | RuntimeException e) {
+      event.success = false;
+      event.errorType = e.getClass().getName();
+      throw e;
     }
     finally {
-      exec.shutdown();
-    }
-
-    // write the cobbled image
-    try (OutputStream out = Files.newOutputStream(Path.of(dpath))) {
-      if (!ImageIO.write(img, "PNG", out)) { //NON-NLS
-        throw new IOException("No PNG image writer is available"); //NON-NLS
-      }
+      event.commit();
     }
   }
 
