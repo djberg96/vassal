@@ -9,10 +9,7 @@ import VASSAL.tools.ErrorDialog;
 import VASSAL.tools.FormattedString;
 import VASSAL.tools.concurrent.BackgroundTasks;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -166,11 +163,4 @@ public abstract class DieServer implements Auditable {
 
   public abstract RollSet doIRoll(RollSet toss) throws IOException;
 
-  protected static String readUtf8(InputStream in) throws IOException {
-    try (InputStream input = in;
-         ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-      input.transferTo(out);
-      return out.toString(StandardCharsets.UTF_8);
-    }
-  }
 }

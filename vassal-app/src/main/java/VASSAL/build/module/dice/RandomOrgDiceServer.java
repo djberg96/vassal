@@ -1,17 +1,16 @@
 package VASSAL.build.module.dice;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 
 import VASSAL.build.module.DieManager;
 import VASSAL.build.module.DieRoll;
+import VASSAL.tools.http.HttpClientService;
 
 public class RandomOrgDiceServer extends DieServer {
-  private static final int HTTP_TIMEOUT_MS = 30_000;
+  private static final HttpClientService HTTP =
+    HttpClientService.createDefault(Duration.ofSeconds(30));
 
   public RandomOrgDiceServer() {
     name = "RandomOrg";
@@ -42,19 +41,8 @@ public class RandomOrgDiceServer extends DieServer {
   }
 
   protected String postJson(String requestBody) throws IOException {
-    final HttpURLConnection connection = (HttpURLConnection) URI.create(serverURL).toURL().openConnection();
-    connection.setConnectTimeout(HTTP_TIMEOUT_MS);
-    connection.setReadTimeout(HTTP_TIMEOUT_MS);
-    connection.setDoOutput(true);
-    connection.setRequestMethod("POST");
-    connection.setRequestProperty("Accept", "application/json");
-    connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-
-    try (OutputStream out = connection.getOutputStream()) {
-      out.write(requestBody.getBytes(StandardCharsets.UTF_8));
-    }
-
-    return readConnectionResponse(connection);
+    return HTTP.postJson(URI.create(serverURL), requestBody)
+      .requireSuccess("RANDOM.ORG"); //NON-NLS
   }
 
   static String signedIntegersRequest(String apiKey, int id, int count, int min, int max) {
@@ -88,13 +76,4 @@ public class RandomOrgDiceServer extends DieServer {
     }
   }
 
-  private static String readConnectionResponse(HttpURLConnection connection) throws IOException {
-    final int status = connection.getResponseCode();
-    final InputStream stream = status >= 400 ? connection.getErrorStream() : connection.getInputStream();
-    final String response = stream == null ? "" : readUtf8(stream);
-    if (status >= 400) {
-      throw new IOException("RANDOM.ORG returned HTTP " + status + ": " + response);
-    }
-    return response;
-  }
 }

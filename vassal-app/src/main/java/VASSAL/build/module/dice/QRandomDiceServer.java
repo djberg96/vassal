@@ -1,15 +1,16 @@
 package VASSAL.build.module.dice;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.net.URI;
+import java.time.Duration;
 
 import VASSAL.build.module.DieManager;
 import VASSAL.build.module.DieRoll;
+import VASSAL.tools.http.HttpClientService;
 
 public class QRandomDiceServer extends DieServer {
-  private static final int HTTP_TIMEOUT_MS = 30_000;
+  private static final HttpClientService HTTP =
+    HttpClientService.createDefault(Duration.ofSeconds(30));
 
   public QRandomDiceServer() {
     name = "QRandom";
@@ -43,13 +44,8 @@ public class QRandomDiceServer extends DieServer {
   }
 
   protected String getJson(int count) throws IOException {
-    final HttpURLConnection connection =
-      (HttpURLConnection) URI.create(serverURL + "?n=" + count).toURL().openConnection();
-    connection.setConnectTimeout(HTTP_TIMEOUT_MS);
-    connection.setReadTimeout(HTTP_TIMEOUT_MS);
-    connection.setRequestProperty("Accept", "application/json");
-
-    return readConnectionResponse(connection);
+    return HTTP.getJson(URI.create(serverURL + "?n=" + count)) //NON-NLS
+      .requireSuccess("qrandom.io"); //NON-NLS
   }
 
   static int[] parseDice(String response) throws IOException {
@@ -67,13 +63,4 @@ public class QRandomDiceServer extends DieServer {
     }
   }
 
-  private static String readConnectionResponse(HttpURLConnection connection) throws IOException {
-    final int status = connection.getResponseCode();
-    final InputStream stream = status >= 400 ? connection.getErrorStream() : connection.getInputStream();
-    final String response = stream == null ? "" : readUtf8(stream);
-    if (status >= 400) {
-      throw new IOException("qrandom.io returned HTTP " + status + ": " + response);
-    }
-    return response;
-  }
 }
