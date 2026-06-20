@@ -124,7 +124,7 @@ public class PrivateChatManager {
 
     @Override
     public boolean equals(Object o) {
-      return o instanceof Entry && player.equals(((Entry) o).player);
+      return o instanceof Entry entry && player.equals(entry.player);
     }
   }
 }

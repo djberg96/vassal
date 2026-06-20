@@ -47,10 +47,9 @@ public class InviteEncoder implements CommandEncoder {
 
   @Override
   public String encode(Command c) {
-    if (!(c instanceof InviteCommand)) {
+    if (!(c instanceof InviteCommand cmd)) {
       return null;
     }
-    final InviteCommand cmd = (InviteCommand) c;
     return COMMAND_PREFIX + cmd.getPlayer() + "\t" + cmd.getPlayerId() + "\t" + cmd.getRoom(); //$NON-NLS-1$ //$NON-NLS-2$
   }
 

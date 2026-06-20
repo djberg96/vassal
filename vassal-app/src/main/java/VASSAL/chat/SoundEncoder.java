@@ -60,10 +60,9 @@ public class SoundEncoder implements CommandEncoder {
 
   @Override
   public String encode(Command c) {
-    if (!(c instanceof Cmd)) {
+    if (!(c instanceof Cmd cmd)) {
       return null;
     }
-    final Cmd cmd = (Cmd) c;
     final SequenceEncoder se = new SequenceEncoder('\t');
     se.append(cmd.soundKey);
     se.append(playerEncoder.playerToString(cmd.getSender()));

@@ -44,10 +44,9 @@ public class SynchEncoder implements CommandEncoder {
 
   @Override
   public String encode(Command c) {
-    if (!(c instanceof SynchCommand)) {
+    if (!(c instanceof SynchCommand cmd)) {
       return null;
     }
-    final SynchCommand cmd = (SynchCommand) c;
     return COMMAND_PREFIX + playerEncoder.playerToString(cmd.getPlayer());
   }
 
