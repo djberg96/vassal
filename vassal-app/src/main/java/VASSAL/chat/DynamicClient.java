@@ -19,9 +19,6 @@ package VASSAL.chat;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.concurrent.ExecutionException;
-
-import javax.swing.SwingWorker;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +26,7 @@ import org.slf4j.LoggerFactory;
 import VASSAL.i18n.Resources;
 import VASSAL.tools.ErrorDialog;
 import VASSAL.tools.ThrowableUtils;
+import VASSAL.tools.concurrent.BackgroundTasks;
 
 /**
  * Refreshes every time the user attempts to connect
@@ -51,30 +49,25 @@ public class DynamicClient extends HybridClient {
     if (connect && !isConnected()) {
       if (!connecting) {
         connecting = true;
-        new SwingWorker<ChatServerConnection, Void>() {
-          @Override
-          protected ChatServerConnection doInBackground() throws Exception {
-            return buildDelegate();
-          }
-
-          @Override
-          protected void done() {
-            try {
-              setDelegate(get());
-              DynamicClient.super.setConnected(connect);
-            }
-            catch (final InterruptedException e) {
+        BackgroundTasks.submit(
+          this::buildDelegate,
+          connection -> {
+            setDelegate(connection);
+            DynamicClient.super.setConnected(connect);
+            connecting = false;
+          },
+          e -> {
+            if (e instanceof InterruptedException) {
               log.error("Error while connecting: interrupted", e); //NON-NLS
             }
-            catch (final ExecutionException ex) {
-              final Throwable e = ex.getCause();
+            else {
               fireStatus(Resources.getString("Server.bad_address3")); //$NON-NLS-1$
               ErrorDialog.showDetails(e, ThrowableUtils.getStackTrace(e), "Error.network_communication_error"); //$NON-NLS-1$
               e.printStackTrace();
             }
             connecting = false;
           }
-        }.execute();
+        );
       }
     }
     else {
