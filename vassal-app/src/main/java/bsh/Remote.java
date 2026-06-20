@@ -29,9 +29,13 @@ package bsh;
 
 import java.io.*;
 import java.net.*;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 /**
 	Remote executor class. Posts a script from the command line to a BshServlet
  	or embedded  interpreter using (respectively) HTTP or the bsh telnet
@@ -40,6 +44,12 @@ import java.nio.file.Path;
 */
 public class Remote
 {
+	private static final Duration HTTP_TIMEOUT = Duration.ofSeconds(60);
+	private static final HttpClient HTTP = HttpClient.newBuilder()
+		.connectTimeout(HTTP_TIMEOUT)
+		.followRedirects(HttpClient.Redirect.NORMAL)
+		.build();
+
     public static void main( String args[] )
 		throws Exception
 	{
@@ -133,39 +143,33 @@ public class Remote
 		String formData = buildFormData( text );
 
 		try {
-		  URL url = new URI( postURL ).toURL();
-		  HttpURLConnection urlcon =
-			  (HttpURLConnection) url.openConnection(  );
-		  urlcon.setRequestMethod("POST");
-		  urlcon.setRequestProperty("Content-type",
-			  "application/x-www-form-urlencoded; charset=UTF-8");
-		  urlcon.setDoOutput(true);
-		  urlcon.setDoInput(true);
-		  try (Writer pout = new OutputStreamWriter(
-			  urlcon.getOutputStream(), StandardCharsets.UTF_8)) {
-			pout.write( formData );
-		  }
+		  HttpRequest request = HttpRequest.newBuilder( URI.create( postURL ) )
+			  .timeout( HTTP_TIMEOUT )
+			  .POST( HttpRequest.BodyPublishers.ofString( formData, StandardCharsets.UTF_8 ) )
+			  .header( "Content-Type", "application/x-www-form-urlencoded; charset=UTF-8" )
+			  .build();
+		  HttpResponse<String> response = HTTP.send(
+			  request,
+			  HttpResponse.BodyHandlers.ofString( StandardCharsets.UTF_8 )
+		  );
 
-		  // read results...
-		  int rc = urlcon.getResponseCode();
-		  if ( rc != HttpURLConnection.HTTP_OK )
+		  int rc = response.statusCode();
+		  if ( rc != 200 )
 			System.out.println("Error, HTTP response: "+rc );
 
-		  returnValue = urlcon.getHeaderField("Bsh-Return");
+		  returnValue = response.headers().firstValue("Bsh-Return").orElse(null);
 
-		  try (BufferedReader bin = new BufferedReader(
-			new InputStreamReader( urlcon.getInputStream(), StandardCharsets.UTF_8 ) )) {
-			String line;
-			while ( (line=bin.readLine()) != null )
-			  System.out.println( line );
-		  }
+		  response.body().lines().forEach( System.out::println );
 
 		  System.out.println( "Return Value: "+returnValue );
 
-		} catch (MalformedURLException | URISyntaxException e) {
+		} catch (IllegalArgumentException e) {
 		  System.out.println(e);     // bad postURL
 		} catch (IOException e2) {
 		  System.out.println(e2);    // I/O error
+		} catch (InterruptedException e3) {
+		  Thread.currentThread().interrupt();
+		  System.out.println(e3);
 		}
 
 		return returnValue;
