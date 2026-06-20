@@ -19,7 +19,6 @@ package VASSAL.tools.version;
 
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
-import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
@@ -56,35 +55,35 @@ public class UpdateCheckAction extends AbstractAction {
 
   private class Request extends AbstractUpdateCheckRequest {
     @Override
-    protected void done() {
-      try {
-        final Boolean update = get();
-        if (!update) {
-          // running version is current
-          JOptionPane.showMessageDialog(
-            frame,
-            Resources.getString("UpdateCheckAction.version_current_message"),
-            Resources.getString("UpdateCheckAction.version_current_title"),
-            JOptionPane.INFORMATION_MESSAGE
-          );
-        }
-        else {
-          // running version is obsolete
-          if (JOptionPane.showConfirmDialog(
-              frame,
-              Resources.getString("UpdateCheckAction.update_available_message"),
-              Resources.getString("UpdateCheckAction.update_available_title"),
-              JOptionPane.YES_NO_OPTION,
-              JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-            BrowserSupport.openURL("https://vassalengine.org/download.html");
-          }
-        }
-        return;
+    protected void succeeded(boolean update) {
+      if (!update) {
+        // running version is current
+        JOptionPane.showMessageDialog(
+          frame,
+          Resources.getString("UpdateCheckAction.version_current_message"),
+          Resources.getString("UpdateCheckAction.version_current_title"),
+          JOptionPane.INFORMATION_MESSAGE
+        );
       }
-      catch (InterruptedException e) {
+      else {
+        // running version is obsolete
+        if (JOptionPane.showConfirmDialog(
+            frame,
+            Resources.getString("UpdateCheckAction.update_available_message"),
+            Resources.getString("UpdateCheckAction.update_available_title"),
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+          BrowserSupport.openURL("https://vassalengine.org/download.html");
+        }
+      }
+    }
+
+    @Override
+    protected void failed(Throwable e) {
+      if (e instanceof InterruptedException) {
         ErrorDialog.bug(e);
       }
-      catch (ExecutionException e) {
+      else {
         logger.error("", e);
       }
 

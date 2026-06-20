@@ -17,21 +17,24 @@
 package VASSAL.tools.version;
 
 import java.io.IOException;
-import javax.swing.SwingWorker;
 
 import VASSAL.Info;
+import VASSAL.tools.concurrent.BackgroundTasks;
 
 /**
  * @since 3.1.0
  * @author Joel Uckelman
  */
-public abstract class AbstractUpdateCheckRequest
-                                      extends SwingWorker<Boolean, Void> {
-  @Override
-  protected Boolean doInBackground() throws IOException {
+public abstract class AbstractUpdateCheckRequest {
+  public final void execute() {
+    BackgroundTasks.submit(this::isUpdateAvailable, this::succeeded, this::failed);
+  }
+
+  private Boolean isUpdateAvailable() throws IOException {
     return !VersionUtils.isCurrent(Info.getVersion());
   }
 
-  @Override
-  protected abstract void done();
+  protected abstract void succeeded(boolean update);
+
+  protected abstract void failed(Throwable e);
 }

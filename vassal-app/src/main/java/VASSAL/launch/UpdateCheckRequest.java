@@ -17,8 +17,6 @@
  */
 package VASSAL.launch;
 
-import java.util.concurrent.ExecutionException;
-
 import javax.swing.JOptionPane;
 
 import org.slf4j.Logger;
@@ -38,23 +36,22 @@ public class UpdateCheckRequest extends AbstractUpdateCheckRequest {
     LoggerFactory.getLogger(UpdateCheckRequest.class);
 
   @Override
-  protected void done() {
-    try {
-      final Boolean update = get();
-      if (update) {
-        // running version is obsolete
-        if (JOptionPane.showConfirmDialog(
-            ModuleManagerWindow.getInstance(),
-            Resources.getString("UpdateCheckAction.update_available_message"),
-            Resources.getString("UpdateCheckAction.update_available_title"),
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-          BrowserSupport.openURL("https://vassalengine.org/download.html"); //NON-NLS
-        }
+  protected void succeeded(boolean update) {
+    if (update) {
+      // running version is obsolete
+      if (JOptionPane.showConfirmDialog(
+          ModuleManagerWindow.getInstance(),
+          Resources.getString("UpdateCheckAction.update_available_message"),
+          Resources.getString("UpdateCheckAction.update_available_title"),
+          JOptionPane.YES_NO_OPTION,
+          JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+        BrowserSupport.openURL("https://vassalengine.org/download.html"); //NON-NLS
       }
     }
-    catch (InterruptedException | ExecutionException e) {
-      logger.error("", e);
-    }
+  }
+
+  @Override
+  protected void failed(Throwable e) {
+    logger.error("", e);
   }
 }
