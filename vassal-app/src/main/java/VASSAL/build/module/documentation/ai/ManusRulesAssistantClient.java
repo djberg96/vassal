@@ -14,6 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 
 public class ManusRulesAssistantClient implements RulesAssistantClient {
   private static final int HTTP_TIMEOUT_MS = 60_000;
@@ -26,14 +27,28 @@ public class ManusRulesAssistantClient implements RulesAssistantClient {
   private final String agentProfile;
   private final String baseUrl;
   private final String taskTitle;
+  private final Consumer<String> taskIdConsumer;
   private String taskId;
   private int assistantMessagesSeen;
 
   public ManusRulesAssistantClient(String apiKey, String agentProfile, String baseUrl, String taskTitle) {
+    this(apiKey, agentProfile, baseUrl, taskTitle, null, taskId -> { });
+  }
+
+  public ManusRulesAssistantClient(
+    String apiKey,
+    String agentProfile,
+    String baseUrl,
+    String taskTitle,
+    String taskId,
+    Consumer<String> taskIdConsumer
+  ) {
     this.apiKey = apiKey;
     this.agentProfile = agentProfile;
     this.baseUrl = baseUrl;
     this.taskTitle = taskTitle;
+    this.taskId = taskId == null || taskId.isBlank() ? null : taskId.strip();
+    this.taskIdConsumer = taskIdConsumer == null ? id -> { } : taskIdConsumer;
   }
 
   @Override
@@ -43,10 +58,17 @@ public class ManusRulesAssistantClient implements RulesAssistantClient {
     }
 
     if (taskId == null) {
-      taskId = createTask(prompt);
+      createAndStoreTask(prompt);
     }
     else {
-      sendMessage(prompt);
+      final int existingAssistantMessages = currentAssistantMessageCount(taskId);
+      if (existingAssistantMessages < 0 || !sendMessage(prompt)) {
+        setTaskId(null);
+        createAndStoreTask(prompt);
+      }
+      else {
+        assistantMessagesSeen = existingAssistantMessages;
+      }
     }
 
     final Answer answer = waitForAnswer(taskId, assistantMessagesSeen);
@@ -160,7 +182,7 @@ public class ManusRulesAssistantClient implements RulesAssistantClient {
     return taskId;
   }
 
-  private void sendMessage(String prompt) throws IOException {
+  private boolean sendMessage(String prompt) throws IOException {
     final HttpURLConnection connection = openConnection("/v2/task.sendMessage"); //NON-NLS
     connection.setDoOutput(true);
     connection.setRequestMethod("POST"); //NON-NLS
@@ -171,6 +193,9 @@ public class ManusRulesAssistantClient implements RulesAssistantClient {
     }
 
     final Response response = readResponse(connection);
+    if (response.status() == 404 && isTaskNotFound(response.body())) {
+      return false;
+    }
     if (response.status() >= 400) {
       throw new IOException("Manus task.sendMessage returned HTTP " + response.status()
         + " for task " + taskId + ": " + response.body()); //NON-NLS
@@ -180,6 +205,7 @@ public class ManusRulesAssistantClient implements RulesAssistantClient {
     if (error != null && !error.isBlank()) {
       throw new IOException("Manus returned an error: " + error); //NON-NLS
     }
+    return true;
   }
 
   private Answer waitForAnswer(String taskId, int previousAssistantMessages) throws IOException {
@@ -230,6 +256,35 @@ public class ManusRulesAssistantClient implements RulesAssistantClient {
       sleepBeforeRetry();
     }
     throw new IOException("Timed out waiting for Manus to answer."); //NON-NLS
+  }
+
+  private void createAndStoreTask(String prompt) throws IOException {
+    setTaskId(createTask(prompt));
+    assistantMessagesSeen = 0;
+  }
+
+  private void setTaskId(String taskId) {
+    this.taskId = taskId == null || taskId.isBlank() ? null : taskId.strip();
+    taskIdConsumer.accept(this.taskId == null ? "" : this.taskId);
+  }
+
+  private int currentAssistantMessageCount(String taskId) throws IOException {
+    final Response listResponse = listMessages(taskId);
+    final String response = listResponse.body();
+    if (listResponse.status() == 404 && isTaskNotFound(response)) {
+      return -1;
+    }
+    if (listResponse.status() >= 400) {
+      throw new IOException("Manus task.listMessages returned HTTP " + listResponse.status()
+        + " for task " + taskId + ": " + response); //NON-NLS
+    }
+
+    final String error = firstErrorMessage(response);
+    if (error != null && !error.isBlank()) {
+      throw new IOException("Manus task failed: " + error); //NON-NLS
+    }
+
+    return assistantMessageCount(response);
   }
 
   private Response listMessages(String taskId) throws IOException {

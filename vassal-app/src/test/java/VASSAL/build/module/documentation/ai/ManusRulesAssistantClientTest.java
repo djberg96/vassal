@@ -26,6 +26,23 @@ public class ManusRulesAssistantClientTest {
   }
 
   @Test
+  public void sendMessageJsonUsesStoredTaskId() {
+    final ManusRulesAssistantClient client = new ManusRulesAssistantClient(
+      "key",
+      RulesAssistantPrefs.DEFAULT_MANUS_MODEL,
+      RulesAssistantPrefs.MANUS_BASE_URL,
+      "VASSAL Rules Assistant - Hastings 1066",
+      "task-123",
+      taskId -> { }
+    );
+
+    final String json = client.sendMessageJson("Follow-up?");
+
+    assertEquals(true, json.contains("\"task_id\":\"task-123\""));
+    assertEquals(true, json.contains("\"message\":{\"content\":\"Follow-up?\"}"));
+  }
+
+  @Test
   public void latestAssistantContentReturnsMostRecentAnswer() throws IOException {
     final String response = "{"
       + "\"messages\":["

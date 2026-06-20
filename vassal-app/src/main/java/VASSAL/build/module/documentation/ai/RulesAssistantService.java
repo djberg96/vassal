@@ -8,9 +8,14 @@
 package VASSAL.build.module.documentation.ai;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import java.util.List;
 
 import VASSAL.build.GameModule;
+import VASSAL.configure.StringConfigurer;
 import VASSAL.preferences.Prefs;
 
 public class RulesAssistantService {
@@ -65,7 +70,9 @@ public class RulesAssistantService {
         RulesAssistantPrefs.getApiKey(prefs),
         RulesAssistantPrefs.getModel(prefs),
         RulesAssistantPrefs.getBaseUrl(prefs),
-        taskTitle()
+        taskTitle(),
+        getHiddenPreference(prefs, manusTaskIdPreferenceKey(prefs)),
+        taskId -> setHiddenPreference(prefs, manusTaskIdPreferenceKey(prefs), taskId)
       );
       return client;
     }
@@ -85,6 +92,44 @@ public class RulesAssistantService {
       return "VASSAL Rules Assistant"; //NON-NLS
     }
     return "VASSAL Rules Assistant - " + moduleName.strip(); //NON-NLS
+  }
+
+  private String manusTaskIdPreferenceKey(Prefs prefs) {
+    final String moduleName = module.getGameName() == null ? "" : module.getGameName(); //NON-NLS
+    final String moduleVersion = module.getGameVersion() == null ? "" : module.getGameVersion(); //NON-NLS
+    final String keySeed = moduleName + '\n'
+      + moduleVersion + '\n'
+      + RulesAssistantPrefs.getBaseUrl(prefs) + '\n'
+      + RulesAssistantPrefs.getModel(prefs) + '\n'
+      + hash(RulesAssistantPrefs.getApiKey(prefs));
+    return RulesAssistantPrefs.MANUS_TASK_ID_PREFIX + '.' + hash(keySeed).substring(0, 32);
+  }
+
+  private static String getHiddenPreference(Prefs prefs, String key) {
+    ensureHiddenPreference(prefs, key);
+    final Object value = prefs.getValue(key);
+    return value instanceof String taskId ? taskId.strip() : ""; //NON-NLS
+  }
+
+  private static void setHiddenPreference(Prefs prefs, String key, String value) {
+    ensureHiddenPreference(prefs, key);
+    prefs.setValue(key, value == null ? "" : value.strip()); //NON-NLS
+  }
+
+  private static void ensureHiddenPreference(Prefs prefs, String key) {
+    if (prefs.getOption(key) == null) {
+      prefs.addOption(null, new StringConfigurer(key, null, "")); //NON-NLS
+    }
+  }
+
+  private static String hash(String value) {
+    try {
+      final MessageDigest digest = MessageDigest.getInstance("SHA-256"); //NON-NLS
+      return HexFormat.of().formatHex(digest.digest(value.getBytes(StandardCharsets.UTF_8)));
+    }
+    catch (NoSuchAlgorithmException e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   static String buildPrompt(String question, List<RulesChunk> chunks) {

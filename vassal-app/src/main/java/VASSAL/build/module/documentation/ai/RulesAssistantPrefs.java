@@ -19,6 +19,7 @@ public final class RulesAssistantPrefs {
   public static final String PROVIDER = "rulesAssistantProvider"; //NON-NLS
   public static final String MODEL = "rulesAssistantModel"; //NON-NLS
   public static final String API_KEY = "rulesAssistantApiKey"; //NON-NLS
+  public static final String MANUS_TASK_ID_PREFIX = "rulesAssistantManusTaskId"; //NON-NLS
 
   public static final String OPENAI_PROVIDER = "OpenAI"; //NON-NLS
   public static final String XAI_PROVIDER = "xAI"; //NON-NLS
