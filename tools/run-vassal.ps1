@@ -5,6 +5,19 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+function Invoke-Native {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string] $Command,
+    [string[]] $Arguments
+  )
+
+  & $Command @Arguments
+  if ($LASTEXITCODE -ne 0) {
+    exit $LASTEXITCODE
+  }
+}
+
 $Root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 Set-Location $Root
 
@@ -38,8 +51,23 @@ else {
 
 $ClasspathFile = Join-Path ([System.IO.Path]::GetTempPath()) "vassal-app.classpath"
 
-& $Mvn -T $MavenThreads -U -pl vassal-app -am compile -DskipTests -Dcheckstyle.skip -Dpmd.skip -Dspotbugs.skip
-& $Mvn -T $MavenThreads -pl vassal-app dependency:build-classpath "-Dmdep.outputFile=$ClasspathFile"
+Invoke-Native $Mvn @(
+  "-T", $MavenThreads,
+  "-U",
+  "-pl", "vassal-app",
+  "-am",
+  "compile",
+  "-DskipTests=true",
+  "-Dcheckstyle.skip=true",
+  "-Dpmd.skip=true",
+  "-Dspotbugs.skip=true"
+)
+Invoke-Native $Mvn @(
+  "-T", $MavenThreads,
+  "-pl", "vassal-app",
+  "dependency:build-classpath",
+  "-Dmdep.outputFile=$ClasspathFile"
+)
 
 $DependencyClasspath = (Get-Content -Raw $ClasspathFile).Trim()
 $PathSeparator = [System.IO.Path]::PathSeparator
@@ -49,5 +77,4 @@ $Classpath = @(
   $DependencyClasspath
 ) -join $PathSeparator
 
-& $Java -cp $Classpath VASSAL.launch.ModuleManager @VassalArgs
-exit $LASTEXITCODE
+Invoke-Native $Java (@("-cp", $Classpath, "VASSAL.launch.ModuleManager") + $VassalArgs)
