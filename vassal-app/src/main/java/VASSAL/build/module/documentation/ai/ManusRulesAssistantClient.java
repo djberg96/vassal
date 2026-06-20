@@ -8,16 +8,20 @@
 package VASSAL.build.module.documentation.ai;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.Map;
 import java.util.function.Consumer;
 
+import VASSAL.tools.http.HttpClientService;
+import VASSAL.tools.http.HttpResponseData;
+
 public class ManusRulesAssistantClient implements RulesAssistantClient {
-  private static final int HTTP_TIMEOUT_MS = 60_000;
+  private static final HttpClientService HTTP =
+    HttpClientService.createDefault(Duration.ofSeconds(60));
+
   private static final int POLL_INTERVAL_MS = 1_500;
   private static final int MAX_POLL_ATTEMPTS = 60;
   private static final int MAX_NOT_FOUND_RETRIES = 8;
@@ -156,16 +160,12 @@ public class ManusRulesAssistantClient implements RulesAssistantClient {
   }
 
   private String createTask(String prompt) throws IOException {
-    final HttpURLConnection connection = openConnection("/v2/task.create"); //NON-NLS
-    connection.setDoOutput(true);
-    connection.setRequestMethod("POST"); //NON-NLS
-    connection.setRequestProperty("Content-Type", JSON_CONTENT_TYPE); //NON-NLS
-
-    try (OutputStream out = connection.getOutputStream()) {
-      out.write(createTaskJson(prompt).getBytes(StandardCharsets.UTF_8));
-    }
-
-    final Response response = readResponse(connection);
+    final HttpResponseData response = HTTP.postJson(
+      uri("/v2/task.create"), //NON-NLS
+      createTaskJson(prompt),
+      authHeaders(),
+      JSON_CONTENT_TYPE
+    );
     if (response.status() >= 400) {
       throw new IOException("Manus task.create returned HTTP " + response.status() + ": " + response.body()); //NON-NLS
     }
@@ -183,16 +183,12 @@ public class ManusRulesAssistantClient implements RulesAssistantClient {
   }
 
   private boolean sendMessage(String prompt) throws IOException {
-    final HttpURLConnection connection = openConnection("/v2/task.sendMessage"); //NON-NLS
-    connection.setDoOutput(true);
-    connection.setRequestMethod("POST"); //NON-NLS
-    connection.setRequestProperty("Content-Type", JSON_CONTENT_TYPE); //NON-NLS
-
-    try (OutputStream out = connection.getOutputStream()) {
-      out.write(sendMessageJson(prompt).getBytes(StandardCharsets.UTF_8));
-    }
-
-    final Response response = readResponse(connection);
+    final HttpResponseData response = HTTP.postJson(
+      uri("/v2/task.sendMessage"), //NON-NLS
+      sendMessageJson(prompt),
+      authHeaders(),
+      JSON_CONTENT_TYPE
+    );
     if (response.status() == 404 && isTaskNotFound(response.body())) {
       return false;
     }
@@ -213,7 +209,7 @@ public class ManusRulesAssistantClient implements RulesAssistantClient {
     int seenAssistantMessages = previousAssistantMessages;
     int notFoundRetries = 0;
     for (int attempt = 0; attempt < MAX_POLL_ATTEMPTS; attempt++) {
-      final Response listResponse = listMessages(taskId);
+      final HttpResponseData listResponse = listMessages(taskId);
       final String response = listResponse.body();
       if (listResponse.status() == 404 && isTaskNotFound(response) && notFoundRetries++ < MAX_NOT_FOUND_RETRIES) {
         sleepBeforeRetry();
@@ -269,7 +265,7 @@ public class ManusRulesAssistantClient implements RulesAssistantClient {
   }
 
   private int currentAssistantMessageCount(String taskId) throws IOException {
-    final Response listResponse = listMessages(taskId);
+    final HttpResponseData listResponse = listMessages(taskId);
     final String response = listResponse.body();
     if (listResponse.status() == 404 && isTaskNotFound(response)) {
       return -1;
@@ -287,29 +283,18 @@ public class ManusRulesAssistantClient implements RulesAssistantClient {
     return assistantMessageCount(response);
   }
 
-  private Response listMessages(String taskId) throws IOException {
+  private HttpResponseData listMessages(String taskId) throws IOException {
     final String query = "?task_id=" + URLEncoder.encode(taskId, StandardCharsets.UTF_8)
       + "&order=asc&limit=50"; //NON-NLS
-    final HttpURLConnection connection = openConnection("/v2/task.listMessages" + query); //NON-NLS
-    connection.setRequestMethod("GET"); //NON-NLS
-    return readResponse(connection);
+    return HTTP.getJson(uri("/v2/task.listMessages" + query), authHeaders()); //NON-NLS
   }
 
-  private HttpURLConnection openConnection(String path) throws IOException {
-    final HttpURLConnection connection =
-      (HttpURLConnection) URI.create(baseUrl.strip().replaceAll("/+$", "") + path).toURL().openConnection(); //NON-NLS
-    connection.setConnectTimeout(HTTP_TIMEOUT_MS);
-    connection.setReadTimeout(HTTP_TIMEOUT_MS);
-    connection.setRequestProperty("Accept", "application/json"); //NON-NLS
-    connection.setRequestProperty("x-manus-api-key", apiKey); //NON-NLS
-    return connection;
+  private URI uri(String path) {
+    return URI.create(baseUrl.strip().replaceAll("/+$", "") + path); //NON-NLS
   }
 
-  private static Response readResponse(HttpURLConnection connection) throws IOException {
-    final int status = connection.getResponseCode();
-    final InputStream stream = status >= 400 ? connection.getErrorStream() : connection.getInputStream();
-    final String body = stream == null ? "" : new String(stream.readAllBytes(), StandardCharsets.UTF_8);
-    return new Response(status, body);
+  private Map<String, String> authHeaders() {
+    return Map.of("x-manus-api-key", apiKey); //NON-NLS
   }
 
   private static void sleepBeforeRetry() throws IOException {
@@ -320,9 +305,6 @@ public class ManusRulesAssistantClient implements RulesAssistantClient {
       Thread.currentThread().interrupt();
       throw new IOException("Interrupted while waiting for Manus to answer.", e); //NON-NLS
     }
-  }
-
-  private record Response(int status, String body) {
   }
 
   private record Answer(String content, int assistantMessageCount) {

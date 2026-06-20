@@ -37,12 +37,16 @@ public class HttpClientService {
   }
 
   public HttpResponseData getJson(URI uri) throws IOException {
-    return send(
-      requestBuilder(uri)
-        .GET()
-        .header("Accept", "application/json") //NON-NLS
-        .build()
-    );
+    return getJson(uri, Map.of());
+  }
+
+  public HttpResponseData getJson(URI uri, Map<String, String> headers) throws IOException {
+    final HttpRequest.Builder builder = requestBuilder(uri)
+      .GET()
+      .header("Accept", "application/json"); //NON-NLS
+
+    headers.forEach(builder::header);
+    return send(builder.build());
   }
 
   public HttpResponseData postJson(URI uri, String body) throws IOException {
@@ -51,10 +55,19 @@ public class HttpClientService {
 
   public HttpResponseData postJson(URI uri, String body, Map<String, String> headers)
       throws IOException {
+    return postJson(uri, body, headers, "application/json; charset=UTF-8"); //NON-NLS
+  }
+
+  public HttpResponseData postJson(
+    URI uri,
+    String body,
+    Map<String, String> headers,
+    String contentType
+  ) throws IOException {
     final HttpRequest.Builder builder = requestBuilder(uri)
       .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
       .header("Accept", "application/json") //NON-NLS
-      .header("Content-Type", "application/json; charset=UTF-8"); //NON-NLS
+      .header("Content-Type", contentType); //NON-NLS
 
     headers.forEach(builder::header);
     return send(builder.build());

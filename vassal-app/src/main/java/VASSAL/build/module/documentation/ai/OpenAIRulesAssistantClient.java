@@ -8,14 +8,16 @@
 package VASSAL.build.module.documentation.ai;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.Map;
+
+import VASSAL.tools.http.HttpClientService;
 
 public class OpenAIRulesAssistantClient implements RulesAssistantClient {
-  private static final int HTTP_TIMEOUT_MS = 60_000;
+  private static final HttpClientService HTTP =
+    HttpClientService.createDefault(Duration.ofSeconds(60));
+
   private static final String SYSTEM_PROMPT =
     "You are a board wargame rules assistant. Answer only from the supplied rules excerpts. " //NON-NLS
       + "If the excerpts do not contain the answer, say that the rules excerpts do not answer the question. "
@@ -39,20 +41,12 @@ public class OpenAIRulesAssistantClient implements RulesAssistantClient {
       throw new IOException(providerName + " API key is required. Set it in Preferences > Rules Assistant."); //NON-NLS
     }
 
-    final HttpURLConnection connection = (HttpURLConnection) URI.create(responsesUrl()).toURL().openConnection();
-    connection.setConnectTimeout(HTTP_TIMEOUT_MS);
-    connection.setReadTimeout(HTTP_TIMEOUT_MS);
-    connection.setDoOutput(true);
-    connection.setRequestMethod("POST"); //NON-NLS
-    connection.setRequestProperty("Accept", "application/json"); //NON-NLS
-    connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8"); //NON-NLS
-    connection.setRequestProperty("Authorization", "Bearer " + apiKey); //NON-NLS
+    final String response = HTTP.postJson(
+      URI.create(responsesUrl()),
+      requestJson(prompt),
+      Map.of("Authorization", "Bearer " + apiKey) //NON-NLS
+    ).requireSuccess("AI provider"); //NON-NLS
 
-    try (OutputStream out = connection.getOutputStream()) {
-      out.write(requestJson(prompt).getBytes(StandardCharsets.UTF_8));
-    }
-
-    final String response = readConnectionResponse(connection);
     final String output = jsonStringProperty(response, "output_text"); //NON-NLS
     if (output != null && !output.isBlank()) {
       return output.strip();
@@ -78,16 +72,6 @@ public class OpenAIRulesAssistantClient implements RulesAssistantClient {
 
   private String responsesUrl() {
     return baseUrl.strip().replaceAll("/+$", "") + "/responses"; //NON-NLS
-  }
-
-  static String readConnectionResponse(HttpURLConnection connection) throws IOException {
-    final int status = connection.getResponseCode();
-    final InputStream stream = status >= 400 ? connection.getErrorStream() : connection.getInputStream();
-    final String response = stream == null ? "" : new String(stream.readAllBytes(), StandardCharsets.UTF_8);
-    if (status >= 400) {
-      throw new IOException("AI provider returned HTTP " + status + ": " + response); //NON-NLS
-    }
-    return response;
   }
 
   static boolean hasJsonStringProperty(String json, String propertyName, String expectedValue) throws IOException {

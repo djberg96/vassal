@@ -53,6 +53,23 @@ class HttpClientServiceTest {
   }
 
   @Test
+  void getJsonSendsCustomHeaders() throws IOException {
+    final AtomicReference<List<String>> apiKeyHeaders = new AtomicReference<>();
+    startServer(exchange -> {
+      apiKeyHeaders.set(exchange.getRequestHeaders().get("x-manus-api-key")); //NON-NLS
+      send(exchange, 200, "{\"ok\":true}"); //NON-NLS
+    });
+
+    final HttpResponseData response = client().getJson(
+      uri("/messages"), //NON-NLS
+      Map.of("x-manus-api-key", "key") //NON-NLS
+    );
+
+    assertEquals(200, response.status());
+    assertTrue(apiKeyHeaders.get().contains("key")); //NON-NLS
+  }
+
+  @Test
   void postJsonSendsBodyAndHeaders() throws IOException {
     final AtomicReference<String> method = new AtomicReference<>();
     final AtomicReference<String> body = new AtomicReference<>();
@@ -75,6 +92,25 @@ class HttpClientServiceTest {
     assertEquals("POST", method.get()); //NON-NLS
     assertEquals("{\"name\":\"counter\"}", body.get()); //NON-NLS
     assertTrue(authHeaders.get().contains("Bearer key")); //NON-NLS
+  }
+
+  @Test
+  void postJsonCanUseExactContentType() throws IOException {
+    final AtomicReference<List<String>> contentTypeHeaders = new AtomicReference<>();
+    startServer(exchange -> {
+      contentTypeHeaders.set(exchange.getRequestHeaders().get("Content-Type")); //NON-NLS
+      send(exchange, 200, "{\"ok\":true}"); //NON-NLS
+    });
+
+    final HttpResponseData response = client().postJson(
+      uri("/create"), //NON-NLS
+      "{}",
+      Map.of(),
+      "application/json" //NON-NLS
+    );
+
+    assertEquals(200, response.status());
+    assertTrue(contentTypeHeaders.get().contains("application/json")); //NON-NLS
   }
 
   @Test
