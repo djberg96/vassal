@@ -56,14 +56,12 @@ public class MovementReporter {
 
   protected void extractMoveCommands(Command c) {
     MoveSummary summary = null;
-    if (c instanceof AddPiece) {
-      final AddPiece addPiece = ((AddPiece) c);
+    if (c instanceof AddPiece addPiece) {
       if (shouldReport(addPiece)) {
         summary = createMoveSummary(addPiece);
       }
     }
-    else if (c instanceof MovePiece) {
-      final MovePiece movePiece = (MovePiece) c;
+    else if (c instanceof MovePiece movePiece) {
       if (shouldReport(movePiece)) {
         summary = createMoveSummary(movePiece);
       }
@@ -73,10 +71,10 @@ public class MovementReporter {
       // between the same two map positions on the same two maps?
       final int index = movesToReport.indexOf(summary);
       if (index >= 0
-          && c instanceof MovePiece
-          && shouldReport((MovePiece) c)) {
+          && c instanceof MovePiece movePiece
+          && shouldReport(movePiece)) {
         final MoveSummary existing = movesToReport.get(index);
-        existing.append((MovePiece) c);
+        existing.append(movePiece);
       }
       else {
         movesToReport.add(summary);
@@ -118,9 +116,9 @@ public class MovementReporter {
 
   public Command markMoved(GamePiece p) {
     Command c = null;
-    if (p instanceof Stack) {
+    if (p instanceof Stack stack) {
       c = new NullCommand();
-      for (final GamePiece gp : ((Stack)p).asList()) {
+      for (final GamePiece gp : stack.asList()) {
         c = c.append(markMoved(gp));
       }
     }
@@ -165,8 +163,8 @@ public class MovementReporter {
     if (target == null) {
       return false;
     }
-    if (target instanceof Stack) {
-      final GamePiece top = ((Stack) target).topPiece(null); //NOTE: topPiece() returns the top VISIBLE piece (not hidden by Invisible trait)
+    if (target instanceof Stack stack) {
+      final GamePiece top = stack.topPiece(null); //NOTE: topPiece() returns the top VISIBLE piece (not hidden by Invisible trait)
       return top != null;
     }
     else {
@@ -265,11 +263,11 @@ public class MovementReporter {
       if (target == null) {
         return false;
       }
-      if (target instanceof Stack) {
+      if (target instanceof Stack stack) {
         final Predicate<GamePiece> gamePiecePredicate =
           piece -> Boolean.TRUE.equals(piece.getProperty(Properties.INVISIBLE_TO_ME))
             || Boolean.TRUE.equals(piece.getProperty(Properties.INVISIBLE_TO_OTHERS));
-        return ((Stack) target).asList().stream().anyMatch(gamePiecePredicate);
+        return stack.asList().stream().anyMatch(gamePiecePredicate);
       }
       else {
         return Boolean.FALSE.equals(target.getProperty(Properties.INVISIBLE_DISABLE_AUTO_REPORT_MOVE))
@@ -327,9 +325,7 @@ public class MovementReporter {
     @Override
     public boolean equals(Object o) {
       if (this == o) return true;
-      if (!(o instanceof MoveSummary)) return false;
-
-      final MoveSummary moveSummary = (MoveSummary) o;
+      if (!(o instanceof MoveSummary moveSummary)) return false;
 
       if (!newPosition.equals(moveSummary.newPosition)) return false;
       if (!newMapId.equals(moveSummary.newMapId)) return false;
@@ -391,8 +387,8 @@ public class MovementReporter {
       final StringBuilder names = new StringBuilder();
       boolean first = true;
       for (final GamePiece piece : pieces) {
-        if (piece instanceof Stack) {
-          for (final GamePiece p : ((Stack) piece).asList()) {
+        if (piece instanceof Stack stack) {
+          for (final GamePiece p : stack.asList()) {
             if (isInvisible(p)) {
               if (!first) {
                 names.append(", ");
