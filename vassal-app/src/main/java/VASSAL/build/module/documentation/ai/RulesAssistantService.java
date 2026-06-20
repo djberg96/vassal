@@ -17,6 +17,8 @@ import java.util.List;
 import VASSAL.build.GameModule;
 import VASSAL.configure.StringConfigurer;
 import VASSAL.preferences.Prefs;
+import VASSAL.tools.jfr.RulesAssistantIndexEvent;
+import VASSAL.tools.jfr.RulesAssistantRequestEvent;
 
 public class RulesAssistantService {
   private static final int MAX_CONTEXT_CHARS = 18_000;
@@ -31,28 +33,71 @@ public class RulesAssistantService {
   }
 
   public String ask(String question) throws IOException {
+    final RulesAssistantRequestEvent event = new RulesAssistantRequestEvent();
+    event.moduleName = moduleName();
+    event.questionLength = question == null ? 0 : question.length();
+    event.begin();
+
     if (question == null || question.isBlank()) {
+      event.success = false;
+      event.errorType = IOException.class.getName();
+      event.commit();
       throw new IOException("Enter a rules question first."); //NON-NLS
     }
 
-    final Prefs prefs = Prefs.getGlobalPrefs();
-    if (!RulesAssistantPrefs.isEnabled(prefs)) {
-      throw new IOException("Rules Assistant is disabled. Enable it in Preferences > Rules Assistant."); //NON-NLS
-    }
+    try {
+      final Prefs prefs = Prefs.getGlobalPrefs();
+      event.provider = RulesAssistantPrefs.getProviderDisplayName(prefs);
+      if (!RulesAssistantPrefs.isEnabled(prefs)) {
+        throw new IOException("Rules Assistant is disabled. Enable it in Preferences > Rules Assistant."); //NON-NLS
+      }
 
-    if (index == null) {
-      index = RulesDocumentIndex.build(module);
-    }
-    if (index.isEmpty()) {
-      throw new IOException("This module has no rules or chart files for the Rules Assistant to read."); //NON-NLS
-    }
+      if (index == null) {
+        index = buildIndex();
+      }
+      if (index.isEmpty()) {
+        throw new IOException("This module has no rules or chart files for the Rules Assistant to read."); //NON-NLS
+      }
 
-    final List<RulesChunk> chunks = index.relevantChunks(question);
-    if (chunks.isEmpty()) {
-      throw new IOException("No relevant rules or chart excerpts were found in this module."); //NON-NLS
-    }
+      final List<RulesChunk> chunks = index.relevantChunks(question);
+      event.chunkCount = chunks.size();
+      if (chunks.isEmpty()) {
+        throw new IOException("No relevant rules or chart excerpts were found in this module."); //NON-NLS
+      }
 
-    return clientFor(prefs).answer(buildPrompt(question, chunks));
+      final String answer = clientFor(prefs).answer(buildPrompt(question, chunks));
+      event.success = true;
+      return answer;
+    }
+    catch (IOException | RuntimeException e) {
+      event.success = false;
+      event.errorType = e.getClass().getName();
+      throw e;
+    }
+    finally {
+      event.commit();
+    }
+  }
+
+  private RulesDocumentIndex buildIndex() throws IOException {
+    final RulesAssistantIndexEvent event = new RulesAssistantIndexEvent();
+    event.moduleName = moduleName();
+    event.begin();
+
+    try {
+      final RulesDocumentIndex builtIndex = RulesDocumentIndex.build(module);
+      event.chunkCount = builtIndex.chunkCount();
+      event.success = true;
+      return builtIndex;
+    }
+    catch (IOException | RuntimeException e) {
+      event.success = false;
+      event.errorType = e.getClass().getName();
+      throw e;
+    }
+    finally {
+      event.commit();
+    }
   }
 
   private RulesAssistantClient clientFor(Prefs prefs) {
@@ -87,11 +132,15 @@ public class RulesAssistantService {
   }
 
   private String taskTitle() {
-    final String moduleName = module.getLocalizedGameName();
+    final String moduleName = moduleName();
     if (moduleName == null || moduleName.isBlank()) {
       return "VASSAL Rules Assistant"; //NON-NLS
     }
     return "VASSAL Rules Assistant - " + moduleName.strip(); //NON-NLS
+  }
+
+  private String moduleName() {
+    return module.getLocalizedGameName();
   }
 
   private String manusTaskIdPreferenceKey(Prefs prefs) {

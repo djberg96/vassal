@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.function.Supplier;
 
 import com.github.weisj.jsvg.SVGDocument;
 import com.github.weisj.jsvg.parser.LoaderContext;
@@ -41,6 +42,7 @@ import com.github.weisj.jsvg.view.ViewBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import VASSAL.tools.jfr.SvgRenderEvent;
 import VASSAL.tools.image.ImageUtils;
 
 /**
@@ -61,6 +63,7 @@ public class SVGRenderer {
 
   private final SVGDocument doc;
   private final BatikSVGRenderer batikRenderer;
+  private final String source;
   private final float defaultW, defaultH;
 
   /**
@@ -78,6 +81,7 @@ public class SVGRenderer {
   }
 
   private SVGRenderer(URI file, InputStream in) throws IOException {
+    source = file.toString();
     final byte[] svg;
     try (in) {
       svg = in.readAllBytes();
@@ -129,9 +133,13 @@ public class SVGRenderer {
 
   public BufferedImage render(double angle, double scale) {
     if (batikRenderer != null) {
-      return batikRenderer.render(angle, scale);
+      return recordRender(angle, scale, false, () -> batikRenderer.render(angle, scale));
     }
 
+    return recordRender(angle, scale, false, () -> renderWithJsvg(angle, scale));
+  }
+
+  private BufferedImage renderWithJsvg(double angle, double scale) {
     final AffineTransform px = AffineTransform.getRotateInstance(
       angle * DEGTORAD, defaultW / 2.0, defaultH / 2.0);
     px.scale(scale, scale);
@@ -161,9 +169,13 @@ public class SVGRenderer {
 
   public BufferedImage render(double angle, double scale, Rectangle2D aoi) {
     if (batikRenderer != null) {
-      return batikRenderer.render(angle, scale, aoi);
+      return recordRender(angle, scale, true, () -> batikRenderer.render(angle, scale, aoi));
     }
 
+    return recordRender(angle, scale, true, () -> renderWithJsvg(angle, scale, aoi));
+  }
+
+  private BufferedImage renderWithJsvg(double angle, double scale, Rectangle2D aoi) {
     final int w = Math.max(1, (int) (aoi.getWidth() + 0.5));
     final int h = Math.max(1, (int) (aoi.getHeight() + 0.5));
 
@@ -181,6 +193,29 @@ public class SVGRenderer {
     catch (RuntimeException e) {
       logger.error("Failed to render SVG area {} at angle {} and scale {}", aoi, angle, scale, e);
       return null;
+    }
+  }
+
+  private BufferedImage recordRender(double angle, double scale, boolean areaOfInterest, Supplier<BufferedImage> render) {
+    final SvgRenderEvent event = new SvgRenderEvent();
+    event.source = source;
+    event.renderer = batikRenderer == null ? "jsvg" : "batik"; //NON-NLS
+    event.angleDegrees = angle;
+    event.scale = scale;
+    event.areaOfInterest = areaOfInterest;
+    event.begin();
+
+    try {
+      final BufferedImage image = render.get();
+      if (image != null) {
+        event.width = image.getWidth();
+        event.height = image.getHeight();
+      }
+      event.success = image != null;
+      return image;
+    }
+    finally {
+      event.commit();
     }
   }
 

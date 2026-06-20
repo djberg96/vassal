@@ -92,6 +92,10 @@ public class RulesDocumentIndex {
     return chunks.isEmpty();
   }
 
+  public int chunkCount() {
+    return chunks.size();
+  }
+
   public List<RulesChunk> relevantChunks(String question) {
     final Set<String> queryTokens = tokenize(question);
     if (queryTokens.isEmpty()) {
