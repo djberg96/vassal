@@ -15,6 +15,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Future;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -25,12 +26,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextPane;
-import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 
 import VASSAL.build.GameModule;
 import VASSAL.build.module.NotesWindow;
 import VASSAL.i18n.Resources;
+import VASSAL.tools.concurrent.BackgroundTasks;
 
 import net.miginfocom.swing.MigLayout;
 
@@ -48,6 +49,7 @@ public class RulesAssistantDialog extends JDialog {
   private final JButton saveToNotesButton = new JButton();
   private final JButton askButton = new JButton();
   private final JButton closeButton = new JButton();
+  private Future<?> askTask;
   private int historyIndex = -1;
   private String currentAnswer = "";
 
@@ -146,41 +148,34 @@ public class RulesAssistantDialog extends JDialog {
   }
 
   private void ask() {
+    if (askTask != null && !askTask.isDone()) {
+      return;
+    }
+
     final String question = questionArea.getText();
     askButton.setEnabled(false);
     currentAnswer = "";
     answerArea.setText(RulesAnswerFormatter.toHtml(Resources.getString("RulesAssistant.working")));
     updateActionButtons();
 
-    new SwingWorker<String, Void>() {
-      @Override
-      protected String doInBackground() throws Exception {
-        return service.ask(question);
-      }
-
-      @Override
-      protected void done() {
+    askTask = BackgroundTasks.submit(
+      () -> service.ask(question),
+      answer -> {
         askButton.setEnabled(true);
-        try {
-          final String answer = get();
-          history.add(new HistoryEntry(question, answer));
-          showHistory(history.size() - 1);
-        }
-        catch (InterruptedException e) {
-          Thread.currentThread().interrupt();
-        }
-        catch (Exception e) {
-          final Throwable cause = e.getCause() == null ? e : e.getCause();
-          setAnswer("");
-          JOptionPane.showMessageDialog(
-            RulesAssistantDialog.this,
-            cause.getMessage(),
-            Resources.getString("RulesAssistant.title"),
-            JOptionPane.ERROR_MESSAGE
-          );
-        }
+        history.add(new HistoryEntry(question, answer));
+        showHistory(history.size() - 1);
+      },
+      error -> {
+        askButton.setEnabled(true);
+        setAnswer("");
+        JOptionPane.showMessageDialog(
+          RulesAssistantDialog.this,
+          error.getMessage(),
+          Resources.getString("RulesAssistant.title"),
+          JOptionPane.ERROR_MESSAGE
+        );
       }
-    }.execute();
+    );
   }
 
   private static NotesWindow findNotesWindow() {
