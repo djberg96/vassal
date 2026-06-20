@@ -41,6 +41,7 @@ import VASSAL.tools.BrowserSupport;
 import VASSAL.tools.ErrorDialog;
 import VASSAL.tools.SequenceEncoder;
 import VASSAL.tools.WriteErrorDialog;
+import VASSAL.tools.concurrent.BackgroundTasks;
 import VASSAL.tools.filechooser.FileChooser;
 import VASSAL.tools.filechooser.ModuleExtensionFileFilter;
 import VASSAL.tools.io.DirectoryTreeDeleter;
@@ -84,7 +85,6 @@ import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.TreeExpansionEvent;
@@ -522,9 +522,8 @@ public final class ModuleManagerWindow extends JFrame {
       pd.setStringPainted(false);
       pd.setLocationRelativeTo(ModuleManagerWindow.this);
 
-      final SwingWorker<Void, Void> task = new SwingWorker<>() {
-        @Override
-        public Void doInBackground() throws InterruptedException, IOException {
+      BackgroundTasks.submit(
+        () -> {
           // clear tiles in both old (conf) and new (cache) locations
           for (final File d : List.of(Info.getCacheDir(), Info.getConfDir())) {
             final Path tdir = d.toPath().resolve("tiles");
@@ -534,22 +533,20 @@ public final class ModuleManagerWindow extends JFrame {
                 Files.createDirectory(tdir);
               }
               catch (IOException e) {
-                WriteErrorDialog.error(e, tdir.toFile());
+                SwingUtilities.invokeLater(() ->
+                  WriteErrorDialog.error(e, tdir.toFile()));
               }
             }
           }
 
           return null;
+        },
+        ignored -> closeProgressDialog(pd),
+        e -> {
+          ErrorDialog.bug(e);
+          closeProgressDialog(pd);
         }
-
-        @Override
-        protected void done() {
-          pd.setVisible(false);
-          pd.dispose();
-        }
-      };
-
-      task.execute();
+      );
       pd.setVisible(true);
     }
   }
@@ -587,9 +584,8 @@ public final class ModuleManagerWindow extends JFrame {
       pd.setStringPainted(false);
       pd.setLocationRelativeTo(ModuleManagerWindow.this);
 
-      final SwingWorker<Void, Void> task = new SwingWorker<>() {
-        @Override
-        public Void doInBackground() throws InterruptedException, IOException {
+      BackgroundTasks.submit(
+        () -> {
           final Set<String> known = getModuleTileCacheNames();
           
           // clear tiles in both old (conf) and new (cache) locations
@@ -608,25 +604,28 @@ public final class ModuleManagerWindow extends JFrame {
                   Files.walkFileTree(sdir, new DirectoryTreeDeleter());
                 }
                 catch (IOException e) {
-                  WriteErrorDialog.error(e, sdir.toFile());
+                  SwingUtilities.invokeLater(() ->
+                    WriteErrorDialog.error(e, sdir.toFile()));
                 }
               }
             }
           }
 
           return null;
+        },
+        ignored -> closeProgressDialog(pd),
+        e -> {
+          ErrorDialog.bug(e);
+          closeProgressDialog(pd);
         }
-
-        @Override
-        protected void done() {
-          pd.setVisible(false);
-          pd.dispose();
-        }
-      };
-
-      task.execute();
+      );
       pd.setVisible(true);
     }
+  }
+
+  private void closeProgressDialog(ProgressDialog pd) {
+    pd.setVisible(false);
+    pd.dispose();
   }
 
   // Show/Hide the two 'developer' columns depending on the pref value
