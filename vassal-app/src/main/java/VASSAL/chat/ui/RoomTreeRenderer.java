@@ -67,11 +67,11 @@ public class RoomTreeRenderer extends DefaultTreeCellRenderer {
     putClientProperty("html.disable", Boolean.TRUE); //$NON-NLS-1$
 
     final Object item = ((DefaultMutableTreeNode) value).getUserObject();
-    if (item instanceof Player) {
-      if (((SimpleStatus)((Player) item).getStatus()).isAway()) {
+    if (item instanceof Player player) {
+      if (((SimpleStatus)player.getStatus()).isAway()) {
         setIcon(away);
       }
-      else if (((SimpleStatus)((SimplePlayer) item).getStatus()).isLooking()) {
+      else if (((SimpleStatus)((SimplePlayer) player).getStatus()).isLooking()) {
         setIcon(looking);
       }
       else {
@@ -79,13 +79,11 @@ public class RoomTreeRenderer extends DefaultTreeCellRenderer {
       }
 
     }
-    else if (item instanceof SimpleRoom) {
+    else if (item instanceof SimpleRoom room) {
       String version = null;
-      final SimpleRoom room = (SimpleRoom) item;
 
       if (!room.getName().equals(ChatServerConnection.DEFAULT_ROOM_NAME)) {
-        if (!room.getPlayerList().isEmpty() && room.getPlayerList().get(0).getStatus() instanceof SimpleStatus) {
-          final SimpleStatus status = (SimpleStatus) room.getPlayerList().get(0).getStatus();
+        if (!room.getPlayerList().isEmpty() && room.getPlayerList().get(0).getStatus() instanceof SimpleStatus status) {
           version = VersionUtils.truncateToIncrementalVersion(status.getClient()) + '/' + NodeClient.cleanVersion(status.getModuleVersion());
         }
       }

@@ -46,9 +46,8 @@ public class NodePlayer extends SimplePlayer {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof NodePlayer)) return false;
+    if (!(o instanceof NodePlayer hPlayer)) return false;
 
-    final NodePlayer hPlayer = (NodePlayer) o;
     return Objects.equals(id, hPlayer.id);
   }
 

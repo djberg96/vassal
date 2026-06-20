@@ -99,9 +99,8 @@ public class Node implements MsgSender {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof Node)) return false;
+    if (!(o instanceof Node node)) return false;
 
-    final Node node = (Node) o;
     return Objects.equals(id, node.id);
   }
 

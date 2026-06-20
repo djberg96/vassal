@@ -69,9 +69,8 @@ public final class PlayerNode extends Node implements SocketWatcher {
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
-    if (!(o instanceof PlayerNode)) return false;
+    if (!(o instanceof PlayerNode player)) return false;
 
-    final PlayerNode player = (PlayerNode) o;
     return Objects.equals(id, player.id);
   }
 

@@ -114,8 +114,8 @@ public class SimpleRoom implements Room {
 
   @Override
   public boolean equals(Object o) {
-    if (o instanceof SimpleRoom) {
-      return name != null && name.equals(((SimpleRoom) o).name);
+    if (o instanceof SimpleRoom room) {
+      return name != null && name.equals(room.name);
     }
     else {
       return false;

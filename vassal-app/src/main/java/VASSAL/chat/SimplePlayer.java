@@ -68,8 +68,8 @@ public class SimplePlayer implements Player {
 
   @Override
   public boolean equals(Object o) {
-    if (o instanceof Player) {
-      return id != null && id.equals(((Player) o).getId());
+    if (o instanceof Player player) {
+      return id != null && id.equals(player.getId());
     }
     else {
       return false;
@@ -95,8 +95,8 @@ public class SimplePlayer implements Player {
   }
 
   public void updateStatus() {
-    if (status instanceof SimpleStatus) {
-      ((SimpleStatus) status).updateStatus();
+    if (status instanceof SimpleStatus simpleStatus) {
+      simpleStatus.updateStatus();
     }
   }
 }
