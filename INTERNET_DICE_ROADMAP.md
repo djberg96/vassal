@@ -24,13 +24,22 @@ This roadmap captures a future feature track for RANDOM.ORG result prefetching a
 
 ## Prefetch Configuration
 
-Add a RANDOM.ORG prefetch pool setting:
+Add bounded RANDOM.ORG prefetch settings:
 
 - Name: `RANDOM.ORG prefetch pool size`
 - Default: `50`
 - Minimum: `0`
 - Maximum: `500`
 - `0` means disabled; fetch exactly the dice requested by the current roll.
+- Name: `RANDOM.ORG maximum cached rolls`
+- Default: `500`
+- Minimum: `0`
+- Maximum: `5000`
+
+The pool size controls the target size for each active roll-shape pool. The
+maximum cached rolls setting caps the total hidden results across all active
+pools so modules with many different dice buttons do not multiply the default
+pool size into excessive API usage.
 
 Rationale:
 
@@ -40,23 +49,51 @@ Rationale:
 
 ## Prefetch Model
 
-Use per-die-shape hidden pools for RANDOM.ORG results.
+Use lazy, roll-shape-keyed hidden pools for RANDOM.ORG results.
+
+A roll shape is the normalized request shape, not the physical button:
+
+- selected service
+- die count
+- die sides/range
+- modifier or other deterministic post-processing, if relevant
+
+Examples:
+
+- `1d6`
+- `2d6`
+- `2d8`
+- `3d6+2`
+
+Multiple buttons with the same shape should share a pool. Buttons with
+different shapes should not.
 
 Recommended first implementation:
 
-- Cache by die range, initially `min=1` and `max=<sides>`.
-- A `d6` pool is separate from a `d10` or `d20` pool.
-- When a roll asks for `n` dice:
-  - consume `n` values from the matching hidden pool if available
-  - otherwise fetch a new batch of `max(prefetchPoolSize, n)` values
-  - then consume the required values
+- Create a pool only when that roll shape is actually used.
+- Do not eagerly fill every possible die shape in a module.
+- When a roll asks for a shape:
+  - consume one hidden result from the matching pool if available
+  - otherwise fetch a new batch of `max(prefetchPoolSize, 1)` hidden rolls for
+    that exact shape
+  - then consume one visible roll result
+- A visible `2d6` roll should consume one cached `2d6` result, not two values
+  from a generic `d6` pool.
+- Refill only when a pool is empty in the first version.
+- Later, refill lazily in the background when a pool drops below a low-water
+  mark, such as 20% of its configured target size.
+- Enforce the global maximum cached rolls across all pools before fetching a
+  new batch.
 - Clear pools when:
   - selected dice server changes
   - API key changes
   - prefetch pool size changes
+  - maximum cached rolls changes
   - module/game session ends
 
-The first version should refill synchronously. Background refill can be added later if the UI experience warrants it.
+The first version should refill synchronously only on demand. Background refill
+can be added later if the UI experience warrants it, but it must respect account
+request limits and the global cache cap.
 
 ## Verification Metadata
 
@@ -98,10 +135,12 @@ The full payload should not be dumped into ordinary chat by default. Prefer a co
 ### Phase 2: Prefetch Pool
 
 - Add a `RandomOrgRollPool` or equivalent helper.
-- Cache hidden results by die sides/range.
+- Cache hidden results by normalized roll shape.
 - Add the prefetch size preference to `DieManager`.
+- Add a global maximum cached rolls preference.
 - Clear pools when relevant configuration changes.
 - Keep `0` as exact-fetch mode.
+- Fill pools lazily only after a shape is used.
 
 ### Phase 3: Verification Recording
 
@@ -122,10 +161,16 @@ Prefetch tests:
 
 - default prefetch size is `50`
 - configured prefetch size clamps to `0..500`
+- default maximum cached rolls is `500`
+- maximum cached rolls clamps to `0..5000`
 - `0` uses exact-fetch behavior
-- a `2d6` roll with pool size `50` fetches 50 values and consumes two
+- a `2d6` roll with pool size `50` fetches 50 hidden `2d6` roll
+  results and consumes one
 - repeated `2d6` rolls reuse the same hidden pool without another request
-- different die sizes use separate pools
+- two different `2d6` buttons share the same hidden pool
+- `1d6`, `2d6`, and `2d8` use separate pools
+- unused roll shapes do not prefetch
+- global maximum cached rolls limits total cached results across all pools
 - API key/server/pool-size changes clear cached values
 
 Verification tests:
@@ -145,7 +190,7 @@ Regression tests:
 
 - Should verification metadata be stored in the game log, save file, or a separate sidecar structure?
 - Should a module author or an individual player control the prefetch size?
+- What should the default global cached-roll cap be for free RANDOM.ORG developer accounts?
 - Should verification recording be a global player preference, a module setting, or per-button?
 - How should VASSAL expose verification data without cluttering normal chat?
 - Should background refill be added after the first synchronous implementation?
-
