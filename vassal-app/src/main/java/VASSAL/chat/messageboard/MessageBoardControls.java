@@ -19,6 +19,7 @@ package VASSAL.chat.messageboard;
 
 import VASSAL.i18n.Resources;
 import VASSAL.tools.ErrorDialog;
+import VASSAL.tools.concurrent.BackgroundTasks;
 import VASSAL.tools.menu.MenuManager;
 import VASSAL.tools.swing.SwingUtils;
 
@@ -31,13 +32,12 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingWorker;
 import javax.swing.WindowConstants;
 import java.awt.event.ActionEvent;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * UI controls for posting and retrieving messages from a
@@ -85,29 +85,7 @@ public final class MessageBoardControls {
       Resources.getString("Chat.refresh"));  //$NON-NLS-1$
     refresh.addActionListener(evt -> {
       refresh.setEnabled(false);
-
-      new SwingWorker<Message[], Void>() {
-        @Override
-        protected Message[] doInBackground() {
-          return server.getMessages();
-        }
-
-        @Override
-        protected void done() {
-          try {
-            showMessages(get());
-          }
-          catch (final InterruptedException | ExecutionException e) {
-            ErrorDialog.bug(e);
-          }
-
-          msgFrame.setTitle(serverName != null ?
-            Resources.getString("Chat.message_board_title", serverName) :
-            Resources.getString("Chat.message_board"));   //$NON-NLS-1$
-
-          refresh.setEnabled(true);
-        }
-      }.execute();
+      fetchMessages(() -> refresh.setEnabled(true));
     });
     box.add(refresh);
 
@@ -125,30 +103,10 @@ public final class MessageBoardControls {
       @Override
       public void actionPerformed(ActionEvent evt) {
         setEnabled(false);
-
-        new SwingWorker<Message[], Void>() {
-          @Override
-          protected Message[] doInBackground() {
-            return server.getMessages();
-          }
-
-          @Override
-          protected void done() {
-            try {
-              showMessages(get());
-            }
-            catch (final InterruptedException | ExecutionException e) {
-              ErrorDialog.bug(e);
-            }
-
-            msgFrame.setTitle(serverName != null ?
-              Resources.getString("Chat.message_board_title", serverName) :
-              Resources.getString("Chat.message_board"));   //$NON-NLS-1$
-
-            msgFrame.setVisible(true);
-            setEnabled(true);
-          }
-        }.execute();
+        fetchMessages(() -> {
+          msgFrame.setVisible(true);
+          setEnabled(true);
+        });
       }
     };
 
@@ -180,6 +138,28 @@ public final class MessageBoardControls {
     msgFrame.setLocation(java.awt.Toolkit.getDefaultToolkit().getScreenSize().width / 2 - msgFrame.getSize().width / 2, 0);
   }
 
+  private void fetchMessages(Runnable onComplete) {
+    BackgroundTasks.submit(
+      () -> server.getMessages(),
+      messages -> {
+        showMessages(messages);
+        updateMessageFrameTitle();
+        onComplete.run();
+      },
+      e -> {
+        ErrorDialog.bug(e);
+        updateMessageFrameTitle();
+        onComplete.run();
+      }
+    );
+  }
+
+  private void updateMessageFrameTitle() {
+    msgFrame.setTitle(serverName != null ?
+      Resources.getString("Chat.message_board_title", serverName) :
+      Resources.getString("Chat.message_board"));   //$NON-NLS-1$
+  }
+
   public Action getCheckMessagesAction() {
     return checkMessagesAction;
   }
@@ -191,7 +171,7 @@ public final class MessageBoardControls {
   private class Comp extends JFrame {
     private static final long serialVersionUID = 1L;
 
-    private SwingWorker<Void, Void> sendWorker;
+    private Future<?> sendWorker;
 
     private Comp() {
       super(Resources.getString("Chat.message_composer"));  //$NON-NLS-1$
@@ -213,18 +193,20 @@ public final class MessageBoardControls {
         msgArea.setEnabled(false);
         final String message = msgArea.getText();
 
-        sendWorker = new SwingWorker<>() {
-          @Override
-          protected Void doInBackground() {
-            if (!isCancelled()) {
-              server.postMessage(message);
-            }
+        sendWorker = BackgroundTasks.submit(
+          () -> {
+            server.postMessage(message);
             return null;
-          }
-
-          @Override
-          protected void done() {
-            final boolean cancelled = isCancelled();
+          },
+          ignored -> {
+            sendWorker = null;
+            setVisible(false);
+            msgArea.setText("");  //$NON-NLS-1$
+            okButton.setEnabled(true);
+            msgArea.setEnabled(true);
+          },
+          e -> {
+            final boolean cancelled = sendWorker != null && sendWorker.isCancelled();
             sendWorker = null;
 
             if (!cancelled) {
@@ -235,8 +217,7 @@ public final class MessageBoardControls {
             okButton.setEnabled(true);
             msgArea.setEnabled(true);
           }
-        };
-        sendWorker.execute();
+        );
       });
 
       final JButton cancelButton = new JButton(Resources.getString(Resources.CANCEL));
