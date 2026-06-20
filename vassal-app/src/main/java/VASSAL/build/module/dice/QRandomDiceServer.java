@@ -11,46 +11,38 @@ import VASSAL.tools.http.HttpClientService;
 public class QRandomDiceServer extends DieServer {
   private static final HttpClientService HTTP =
     HttpClientService.createDefault(Duration.ofSeconds(30));
+  private static final String NUMBER_URL = "https://qrandom.io/api/random/ints"; //NON-NLS
 
   public QRandomDiceServer() {
     name = "QRandom";
     description = DieManager.Q_RANDOM_DESCRIPTION;
-    serverURL = "https://qrandom.io/api/random/dice";
+    serverURL = NUMBER_URL;
     canDoSeparateDice = true;
-  }
-
-  @Override
-  public int[] getnSideList() {
-    return new int[]{6};
   }
 
   @Override
   public RollSet doIRoll(RollSet toss) throws IOException {
     for (final DieRoll roll : toss.getDieRolls()) {
-      if (roll.getNumSides() != 6) {
-        throw new IOException("qrandom.io supports only six-sided dice.");
-      }
-
-      final int[] results = requestDice(roll.getNumDice());
+      final int[] results = requestIntegers(roll.getNumDice(), 1, roll.getNumSides());
       applyResults(roll, results);
     }
 
     return toss;
   }
 
-  protected int[] requestDice(int count) throws IOException {
-    final String response = getJson(count);
-    return parseDice(response);
+  protected int[] requestIntegers(int count, int min, int max) throws IOException {
+    final String response = getIntegersJson(count, min, max);
+    return parseIntegers(response);
   }
 
-  protected String getJson(int count) throws IOException {
-    return HTTP.getJson(URI.create(serverURL + "?n=" + count)) //NON-NLS
+  protected String getIntegersJson(int count, int min, int max) throws IOException {
+    return HTTP.getJson(URI.create(serverURL + "?min=" + min + "&max=" + max + "&n=" + count)) //NON-NLS
       .requireSuccess("qrandom.io"); //NON-NLS
   }
 
-  static int[] parseDice(String response) throws IOException {
+  static int[] parseIntegers(String response) throws IOException {
     JsonDieServerSupport.requireNoError(response);
-    return JsonDieServerSupport.intArrayProperty(response, "dice");
+    return JsonDieServerSupport.intArrayProperty(response, "numbers");
   }
 
   private static void applyResults(DieRoll roll, int[] results) throws IOException {

@@ -25,10 +25,10 @@ class DieServerTest {
 
   private static class TestQRandomDiceServer extends QRandomDiceServer {
     @Override
-    protected int[] requestDice(int count) {
+    protected int[] requestIntegers(int count, int min, int max) {
       final int[] results = new int[count];
       for (int i = 0; i < count; i++) {
-        results[i] = i + 1;
+        results[i] = max - i;
       }
       return results;
     }
@@ -84,43 +84,31 @@ class DieServerTest {
   }
 
   @Test
-  void qrandomParsesDiceResponse() throws IOException {
+  void qrandomParsesIntegerArrayResponse() throws IOException {
     assertArrayEquals(
-      new int[]{1, 5, 5, 4},
-      QRandomDiceServer.parseDice("""
+      new int[]{8, 3, 6, 1},
+      QRandomDiceServer.parseIntegers("""
         {
-          "message": "Request: Amount: 4",
-          "dice": [1, 5, 5, 4],
+          "message": "Request: From: 1, To: 8, Amount: 4",
+          "numbers": [8, 3, 6, 1],
           "signature": "abc",
-          "resultType": "dice"
+          "resultType": "randomIntArray"
         }
         """)
     );
   }
 
   @Test
-  void qrandomRejectsNonSixSidedDice() {
-    final QRandomDiceServer server = new QRandomDiceServer();
-    final RollSet rollSet = new RollSet("Attack", new DieRoll[] {
-      new DieRoll("d20", 1, 20)
-    });
-
-    final IOException e = assertThrows(IOException.class, () -> server.doIRoll(rollSet));
-
-    assertEquals("qrandom.io supports only six-sided dice.", e.getMessage());
-  }
-
-  @Test
-  void qrandomAppliesDiceResults() throws IOException {
+  void qrandomAppliesIntegerResults() throws IOException {
     final QRandomDiceServer server = new TestQRandomDiceServer();
     final RollSet rollSet = new RollSet("Attack", new DieRoll[] {
-      new DieRoll("2d6", 2, 6)
+      new DieRoll("2d8", 2, 8)
     });
 
     server.doIRoll(rollSet);
 
-    assertEquals(1, rollSet.getDieRolls()[0].getResult(0));
-    assertEquals(2, rollSet.getDieRolls()[0].getResult(1));
+    assertEquals(8, rollSet.getDieRolls()[0].getResult(0));
+    assertEquals(7, rollSet.getDieRolls()[0].getResult(1));
   }
 
   @Test

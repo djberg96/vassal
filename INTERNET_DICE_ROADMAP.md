@@ -13,6 +13,22 @@ This roadmap captures a future feature track for RANDOM.ORG result prefetching a
 - `RandomOrgDiceServer` calls RANDOM.ORG `generateSignedIntegers` for exactly the dice in the current `RollSet`.
 - The code currently extracts only the returned integer data. It does not preserve the RANDOM.ORG `random` payload or `signature`.
 
+## Provider Capabilities
+
+The cache design should be provider-aware rather than assuming every Internet
+dice service supports the same roll shapes.
+
+- RANDOM.ORG is not limited to six-sided dice in the API path VASSAL uses.
+  `RandomOrgDiceServer` calls `generateSignedIntegers` with `min = 1` and
+  `max = dieSides`, so `d8`, `d10`, `d20`, and other ordinary die sizes can be
+  represented as integer ranges.
+- qrandom.io's dice endpoint is d6-only, but `QRandomDiceServer` uses the
+  generic number-array endpoint with configurable `min` and `max` values. That
+  allows qrandom.io to support ordinary non-d6 dice, subject to provider limits
+  and verification behavior.
+- Future providers should advertise their supported die ranges, batch limits,
+  verification support, and quota behavior explicitly.
+
 ## Design Goals
 
 - Reduce RANDOM.ORG request count for repeated rolls.
@@ -169,6 +185,8 @@ Prefetch tests:
 - repeated `2d6` rolls reuse the same hidden pool without another request
 - two different `2d6` buttons share the same hidden pool
 - `1d6`, `2d6`, and `2d8` use separate pools
+- RANDOM.ORG pools can fetch non-d6 shapes such as `2d8`
+- qrandom.io pools can fetch non-d6 shapes such as `2d8`
 - unused roll shapes do not prefetch
 - global maximum cached rolls limits total cached results across all pools
 - API key/server/pool-size changes clear cached values
@@ -194,3 +212,5 @@ Regression tests:
 - Should verification recording be a global player preference, a module setting, or per-button?
 - How should VASSAL expose verification data without cluttering normal chat?
 - Should background refill be added after the first synchronous implementation?
+- Should provider capability metadata be hard-coded per built-in service first,
+  or exposed as part of a more general provider/plugin model later?
