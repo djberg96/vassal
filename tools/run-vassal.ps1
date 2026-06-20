@@ -38,8 +38,7 @@ else {
 
 $ClasspathFile = Join-Path ([System.IO.Path]::GetTempPath()) "vassal-app.classpath"
 
-& $Mvn -T $MavenThreads -U -pl vassal-deprecation -am install -DskipTests
-& $Mvn -T $MavenThreads -U -pl vassal-app -am package -DskipTests
+& $Mvn -T $MavenThreads -U -pl vassal-app -am compile -DskipTests -Dcheckstyle.skip -Dpmd.skip -Dspotbugs.skip
 & $Mvn -T $MavenThreads -pl vassal-app dependency:build-classpath "-Dmdep.outputFile=$ClasspathFile"
 
 $DependencyClasspath = (Get-Content -Raw $ClasspathFile).Trim()

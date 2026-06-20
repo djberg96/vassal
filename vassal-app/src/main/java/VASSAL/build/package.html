@@ -21,14 +21,15 @@
 <body bgcolor="white">
 
 Provides classes for building Java instances automatically from XML
-files.  This is a home-grown XML-Java binding used to build a {@link
-VASSAL.build.GameModule} from the module file.  Every XML element in
+files.  This is a home-grown XML-Java binding used to build a
+<code>VASSAL.build.GameModule</code> from the module file.  Every XML element in
 the buildFile corresponds to the name of a class in the
 <code>build</code> package hierarchy.  If a class can contain other 
-{@link VASSAL.build.Buildable} instances as sub-components, those
+<code>VASSAL.build.Buildable</code> instances as sub-components, those
 sub-component classes will be contained in a corresponding package.  For
 example, the <code>VASSAL.build.module.map</code> package contains
-classes that are valid sub-components of the {@link VASSAL.build.module.Map} class.
+classes that are valid sub-components of the
+<code>VASSAL.build.module.Map</code> class.
 
 <!-- Put @see and @since tags down here. -->
 @see VASSAL.build.Buildable
