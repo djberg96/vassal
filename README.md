@@ -22,17 +22,28 @@ On Linux, use your package manager to install Java 26 or later.
 
 ### Build and Run from Source
 
-From the repository root, build and launch VASSAL with:
+From the repository root, build and launch VASSAL on macOS or Linux with:
 
 ```sh
 tools/run-vassal.sh
 ```
 
-The script uses 8 Maven build threads by default. To use a different Maven
-thread count:
+On Windows, run the PowerShell version:
+
+```powershell
+.\tools\run-vassal.ps1
+```
+
+The scripts use half of your available processors for Maven builds by default.
+To use a different Maven thread count:
 
 ```sh
 MAVEN_THREADS=4 tools/run-vassal.sh
+```
+
+```powershell
+$env:MAVEN_THREADS = "4"
+.\tools\run-vassal.ps1
 ```
 
 To run the same steps manually:
