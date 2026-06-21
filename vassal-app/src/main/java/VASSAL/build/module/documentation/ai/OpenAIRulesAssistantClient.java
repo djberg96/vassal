@@ -47,14 +47,9 @@ public class OpenAIRulesAssistantClient implements RulesAssistantClient {
       Map.of("Authorization", "Bearer " + apiKey) //NON-NLS
     ).requireSuccess("AI provider"); //NON-NLS
 
-    final String output = jsonStringProperty(response, "output_text"); //NON-NLS
+    final String output = responseOutputText(response);
     if (output != null && !output.isBlank()) {
       return output.strip();
-    }
-
-    final String text = jsonStringProperty(response, "text"); //NON-NLS
-    if (text != null && !text.isBlank()) {
-      return text.strip();
     }
 
     throw new IOException("OpenAI response did not contain text output."); //NON-NLS
@@ -149,6 +144,31 @@ public class OpenAIRulesAssistantClient implements RulesAssistantClient {
       index = json.indexOf(needle, index + needle.length());
     }
     return null;
+  }
+
+  static String responseOutputText(String json) throws IOException {
+    final String directOutput = jsonStringProperty(json, "output_text"); //NON-NLS
+    if (directOutput != null && !directOutput.isBlank()) {
+      return directOutput;
+    }
+
+    final StringBuilder output = new StringBuilder();
+    final String typeNeedle = "\"type\""; //NON-NLS
+    int index = json.indexOf(typeNeedle);
+    while (index >= 0) {
+      if ("output_text".equals(jsonStringProperty(json.substring(index), "type"))) { //NON-NLS
+        final String text = jsonStringProperty(json.substring(index), "text"); //NON-NLS
+        if (text != null && !text.isBlank()) {
+          if (!output.isEmpty()) {
+            output.append(System.lineSeparator());
+          }
+          output.append(text);
+        }
+      }
+      index = json.indexOf(typeNeedle, index + typeNeedle.length());
+    }
+
+    return output.isEmpty() ? null : output.toString();
   }
 
   private static String readJsonString(String json, int quoteIndex) throws IOException {

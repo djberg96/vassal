@@ -20,6 +20,33 @@ public class OpenAIRulesAssistantClientTest {
   }
 
   @Test
+  public void responseOutputTextReadsNestedResponsesText() throws IOException {
+    final String json = "{"
+      + "\"output\":["
+      + "{\"type\":\"message\",\"content\":["
+      + "{\"type\":\"output_text\",\"text\":\"Final answer\"}"
+      + "]}"
+      + "]"
+      + "}";
+
+    assertEquals("Final answer", OpenAIRulesAssistantClient.responseOutputText(json));
+  }
+
+  @Test
+  public void responseOutputTextIgnoresReasoningSummaryText() throws IOException {
+    final String json = "{"
+      + "\"output\":["
+      + "{\"type\":\"reasoning\",\"summary\":[{\"type\":\"summary_text\",\"text\":\"Internal scratchpad\"}]},"
+      + "{\"type\":\"message\",\"content\":["
+      + "{\"type\":\"output_text\",\"text\":\"Player-facing answer\"}"
+      + "]}"
+      + "]"
+      + "}";
+
+    assertEquals("Player-facing answer", OpenAIRulesAssistantClient.responseOutputText(json));
+  }
+
+  @Test
   public void hasJsonStringPropertyFindsLaterMatchingValue() throws IOException {
     final String json = "{\"agent_status\":\"running\"},{\"agent_status\":\"stopped\"}";
 
