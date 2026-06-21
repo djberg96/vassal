@@ -14,6 +14,14 @@ import VASSAL.configure.StringConfigurer;
 import VASSAL.i18n.Resources;
 import VASSAL.preferences.Prefs;
 
+import java.awt.Component;
+import java.awt.FlowLayout;
+
+import javax.swing.JButton;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
+
 public final class RulesAssistantPrefs {
   public static final String ENABLED = "rulesAssistantEnabled"; //NON-NLS
   public static final String PROVIDER = "rulesAssistantProvider"; //NON-NLS
@@ -58,7 +66,7 @@ public final class RulesAssistantPrefs {
       ""
     ));
 
-    prefs.addOption(tab, new PasswordConfigurer(
+    prefs.addOption(tab, new ApiKeyConfigurer(
       API_KEY,
       Resources.getString("Prefs.rules_assistant_api_key"),
       ""
@@ -116,5 +124,66 @@ public final class RulesAssistantPrefs {
       return apiKey.strip();
     }
     return "";
+  }
+
+  static final class ApiKeyConfigurer extends PasswordConfigurer {
+    private static final int API_KEY_COLUMNS = 32;
+
+    private Component controls;
+    private JButton showButton;
+    private char maskedEchoChar;
+
+    ApiKeyConfigurer(String key, String name, String val) {
+      super(key, name, strip(val));
+    }
+
+    @Override
+    protected JTextField buildTextField() {
+      return new JPasswordField(API_KEY_COLUMNS);
+    }
+
+    @Override
+    public String getValueString() {
+      return strip(super.getValueString());
+    }
+
+    @Override
+    public void setValue(String s) {
+      super.setValue(strip(s));
+    }
+
+    @Override
+    public Component getControls() {
+      if (controls != null) {
+        return controls;
+      }
+
+      controls = super.getControls();
+      final Component passwordControl = p.getComponent(p.getComponentCount() - 1);
+      p.remove(passwordControl);
+
+      final JPasswordField passwordField = (JPasswordField) nameField;
+      maskedEchoChar = passwordField.getEchoChar();
+
+      showButton = new JButton(Resources.getString("Prefs.api_key_show"));
+      showButton.addActionListener(e -> toggleKeyVisibility(passwordField));
+
+      final JPanel inputRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
+      inputRow.setOpaque(false);
+      inputRow.add(passwordControl);
+      inputRow.add(showButton);
+      p.add(inputRow, "growx"); //NON-NLS
+      return controls;
+    }
+
+    private void toggleKeyVisibility(JPasswordField passwordField) {
+      final boolean hidden = passwordField.getEchoChar() != 0;
+      passwordField.setEchoChar(hidden ? (char) 0 : maskedEchoChar);
+      showButton.setText(Resources.getString(hidden ? "Prefs.api_key_hide" : "Prefs.api_key_show"));
+    }
+
+    private static String strip(String value) {
+      return value == null ? "" : value.strip();
+    }
   }
 }
