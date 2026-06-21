@@ -369,14 +369,6 @@ public final class RulesAssistantPrefs {
       };
     }
 
-    private static String defaultModelFor(String provider) {
-      return switch (provider) {
-      case XAI_PROVIDER -> DEFAULT_XAI_MODEL;
-      case MANUS_PROVIDER -> DEFAULT_MANUS_MODEL;
-      default -> DEFAULT_OPENAI_MODEL;
-      };
-    }
-
     private static String baseUrlFor(String provider) {
       return switch (provider) {
       case XAI_PROVIDER -> XAI_BASE_URL;
