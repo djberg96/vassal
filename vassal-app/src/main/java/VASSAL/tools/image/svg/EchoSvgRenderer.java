@@ -75,7 +75,6 @@ class EchoSvgRenderer {
 
   private final SVGDocument doc;
   private final float defaultW, defaultH;
-  private final Rasterizer r = new Rasterizer();
 
   EchoSvgRenderer(String file, InputStream in) throws IOException {
     doc = EchoSvgImageUtils.getDocument(file, in);
@@ -113,6 +112,7 @@ class EchoSvgRenderer {
   }
 
   public BufferedImage render(double angle, double scale) {
+    final Rasterizer r = new Rasterizer();
     final AffineTransform px = AffineTransform.getRotateInstance(
       angle * DEGTORAD, defaultW / 2.0, defaultH / 2.0);
 
@@ -138,22 +138,41 @@ class EchoSvgRenderer {
   }
 
   public BufferedImage render(double angle, double scale, Rectangle2D aoi) {
-    final Document renderDoc = createTransformedDocument(
-      AffineTransform.getTranslateInstance(-aoi.getX(), -aoi.getY()),
-      angle
-    );
-
+    final Rasterizer r = new Rasterizer();
     r.addTranscodingHint(Rasterizer.KEY_WIDTH, (float) aoi.getWidth());
     r.addTranscodingHint(Rasterizer.KEY_HEIGHT, (float) aoi.getHeight());
 
     try {
-      r.transcode(new TranscoderInput(renderDoc), null);
+      if (angle == 0.0) {
+        r.addTranscodingHint(Rasterizer.KEY_AOI, toSvgAoi(scale, aoi));
+        r.transcode(new TranscoderInput(doc), null);
+      }
+      else {
+        final Document renderDoc = createTransformedDocument(
+          AffineTransform.getTranslateInstance(-aoi.getX(), -aoi.getY()),
+          angle
+        );
+        r.transcode(new TranscoderInput(renderDoc), null);
+      }
       return r.getBufferedImage();
     }
     catch (BridgeException | TranscoderException e) {
       logger.error("Failed to render SVG area {} at angle {} and scale {}", aoi, angle, scale, e);
       return null;
     }
+  }
+
+  private static Rectangle2D toSvgAoi(double scale, Rectangle2D aoi) {
+    if (scale == 0.0) {
+      return aoi;
+    }
+
+    return new Rectangle2D.Double(
+      aoi.getX() / scale,
+      aoi.getY() / scale,
+      aoi.getWidth() / scale,
+      aoi.getHeight() / scale
+    );
   }
 
   private Document createTransformedDocument(AffineTransform viewportTransform, double angle) {

@@ -54,6 +54,20 @@ class SVGRendererTest {
     </svg>
     """;
 
+  private static final String SVG_WITH_COMPATIBILITY_AOI = """
+    <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+      <defs>
+        <rect id="clipRect" width="100" height="100"/>
+        <clipPath id="clip">
+          <use xlink:href="#clipRect"/>
+        </clipPath>
+      </defs>
+
+      <rect width="100" height="100" fill="#00ff00" clip-path="url(#clip)"/>
+      <rect x="40" y="40" width="20" height="20" fill="#ff0000"/>
+    </svg>
+    """;
+
   @Test
   void renderReturnsPixelsFromSvgImage() throws IOException {
     final BufferedImage image = renderer().render();
@@ -92,7 +106,7 @@ class SVGRendererTest {
   }
 
   @Test
-  void filterHeavySvgRequiresBatikFallback() {
+  void filterHeavySvgUsesCompatibilityFallback() {
     final String svg = """
       <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10">
         <defs>
@@ -105,13 +119,13 @@ class SVGRendererTest {
       """;
 
     assertTrue(SVGRenderer.needsBatikFallback(svg));
-    assertTrue(SVGRenderer.prefersBatikCompatibilityFallback(svg));
+    assertTrue(SVGRenderer.containsFilterCompatibilityFeature(svg));
   }
 
   @Test
   void clippedUseSvgRequiresBatikFallback() {
     assertTrue(SVGRenderer.needsBatikFallback(SVG_WITH_CLIPPED_USE));
-    assertFalse(SVGRenderer.prefersBatikCompatibilityFallback(SVG_WITH_CLIPPED_USE));
+    assertFalse(SVGRenderer.containsFilterCompatibilityFeature(SVG_WITH_CLIPPED_USE));
   }
 
   @Test
@@ -134,6 +148,32 @@ class SVGRendererTest {
     assertEquals(100, image.getHeight());
     assertPixel(new Color(0, 0, 255, 255), image, 24, 40);
     assertPixel(new Color(255, 0, 0, 255), image, 76, 40);
+  }
+
+  @Test
+  void renderCompatibilityAreaOfInterestReturnsCroppedTile() throws IOException {
+    final BufferedImage image = renderer(SVG_WITH_COMPATIBILITY_AOI).render(
+      0.0, 1.0, new Rectangle2D.Float(40, 40, 20, 20)
+    );
+
+    assertNotNull(image);
+    assertEquals(20, image.getWidth());
+    assertEquals(20, image.getHeight());
+    assertPixel(new Color(255, 0, 0, 255), image, 0, 0);
+    assertPixel(new Color(255, 0, 0, 255), image, 19, 19);
+  }
+
+  @Test
+  void renderCompatibilityScaledAreaOfInterestReturnsCroppedTile() throws IOException {
+    final BufferedImage image = renderer(SVG_WITH_COMPATIBILITY_AOI).render(
+      0.0, 2.0, new Rectangle2D.Float(80, 80, 40, 40)
+    );
+
+    assertNotNull(image);
+    assertEquals(40, image.getWidth());
+    assertEquals(40, image.getHeight());
+    assertPixel(new Color(255, 0, 0, 255), image, 0, 0);
+    assertPixel(new Color(255, 0, 0, 255), image, 39, 39);
   }
 
   private static SVGRenderer renderer() throws IOException {

@@ -91,7 +91,7 @@ public class SVGRenderer {
 
     final String svgText = new String(svg, java.nio.charset.StandardCharsets.UTF_8);
     if (needsCompatibilityFallback(svgText)) {
-      preferBatikCompatibilityRenderer = prefersBatikCompatibilityFallback(svgText);
+      preferBatikCompatibilityRenderer = false;
 
       EchoSvgRenderer echoRenderer = null;
       IOException echoException = null;
@@ -367,11 +367,11 @@ public class SVGRenderer {
   }
 
   static boolean needsCompatibilityFallback(String svg) {
-    return prefersBatikCompatibilityFallback(svg) ||
+    return containsFilterCompatibilityFeature(svg) ||
       (containsElement(svg, "clipPath") && containsElement(svg, "use"));
   }
 
-  static boolean prefersBatikCompatibilityFallback(String svg) {
+  static boolean containsFilterCompatibilityFeature(String svg) {
     return containsElement(svg, "feTurbulence") ||
       containsElement(svg, "feDiffuseLighting") ||
       containsElement(svg, "feDisplacementMap") ||
