@@ -235,7 +235,8 @@ public class SVGRenderer {
       containsElement(svg, "feBlend") ||
       containsElement(svg, "feColorMatrix") ||
       containsElement(svg, "feConvolveMatrix") ||
-      containsElement(svg, "feMorphology");
+      containsElement(svg, "feMorphology") ||
+      (containsElement(svg, "clipPath") && containsElement(svg, "use"));
   }
 
   private static boolean containsElement(String svg, String elementName) {

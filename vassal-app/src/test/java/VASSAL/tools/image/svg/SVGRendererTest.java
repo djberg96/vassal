@@ -31,6 +31,29 @@ class SVGRendererTest {
     </svg>
     """;
 
+  private static final String SVG_WITH_CLIPPED_USE = """
+    <svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="50" height="50">
+      <defs>
+        <g id="flag">
+          <linearGradient id="french_flag" x2="100%" y2="0%">
+            <stop offset="33.3%" stop-color="blue"/>
+            <stop offset="33.3%" stop-color="white"/>
+            <stop offset="66.7%" stop-color="white"/>
+            <stop offset="66.7%" stop-color="red"/>
+          </linearGradient>
+          <rect fill="url(#french_flag)" stroke="black" stroke-width="1" width="36" height="24"/>
+          <rect id="border" width="36" height="24" fill="none" stroke="black" stroke-width="0.5"/>
+          <clipPath id="clip">
+            <use xlink:href="#border"/>
+          </clipPath>
+        </g>
+      </defs>
+
+      <rect width="50" height="50" fill="white" stroke="black" stroke-width="2"/>
+      <use xlink:href="#flag" x="7" y="12" clip-path="url(#clip)"/>
+    </svg>
+    """;
+
   @Test
   void renderReturnsPixelsFromSvgImage() throws IOException {
     final BufferedImage image = renderer().render();
@@ -82,6 +105,22 @@ class SVGRendererTest {
       """;
 
     assertTrue(SVGRenderer.needsBatikFallback(svg));
+  }
+
+  @Test
+  void clippedUseSvgRequiresBatikFallback() {
+    assertTrue(SVGRenderer.needsBatikFallback(SVG_WITH_CLIPPED_USE));
+  }
+
+  @Test
+  void renderSupportsClippedUseWithoutCroppingRightEdge() throws IOException {
+    final BufferedImage image = renderer(SVG_WITH_CLIPPED_USE).render();
+
+    assertNotNull(image);
+    assertEquals(50, image.getWidth());
+    assertEquals(50, image.getHeight());
+    assertPixel(new Color(0, 0, 255, 255), image, 12, 20);
+    assertPixel(new Color(255, 0, 0, 255), image, 38, 20);
   }
 
   private static SVGRenderer renderer() throws IOException {
