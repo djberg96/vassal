@@ -16,6 +16,10 @@ review, or broader testing before work begins.
   - Rules Assistant calls, internet dice requests, message-board work, dynamic
     chat connects, server status refreshes, update checks, and tile cache
     maintenance now use virtual-thread-backed background work.
+  - `BackgroundTasks` exposes callback APIs whose names make EDT delivery
+    explicit at call sites.
+  - Focused tests cover callback ordering, error delivery, and cancellation
+    behavior for the shared background task service.
 - Remaining improvements:
   - Evaluate P2P connection attempts and message handling for virtual-thread
     cleanup after more multiplayer testing.
@@ -24,9 +28,8 @@ review, or broader testing before work begins.
   - Continue standardizing cancellation and result delivery back to Swing
     components.
 - Suggested next steps:
-  - Add focused tests around cancellation, error reporting, and callback
-    ordering for newer background workflows.
-  - Keep EDT boundaries explicit in helper APIs when moving older code.
+  - Keep using `submitWithCallbacksOnEdt()` when migrating older blocking code
+    so Swing thread boundaries stay visible.
 
 ### Modern HTTP And External Services
 

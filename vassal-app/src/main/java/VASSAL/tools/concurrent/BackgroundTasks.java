@@ -29,7 +29,11 @@ public final class BackgroundTasks {
     return EXECUTOR.submit(task);
   }
 
-  public static <T> Future<?> submit(
+  /**
+   * Runs {@code task} on a background virtual thread, then invokes exactly one
+   * callback on the Swing event dispatch thread.
+   */
+  public static <T> Future<?> submitWithCallbacksOnEdt(
     Callable<T> task,
     Consumer<? super T> onSuccess,
     Consumer<? super Throwable> onFailure
@@ -50,5 +54,18 @@ public final class BackgroundTasks {
         SwingUtilities.invokeLater(() -> onFailure.accept(t));
       }
     });
+  }
+
+  /**
+   * @deprecated Use {@link #submitWithCallbacksOnEdt(Callable, Consumer, Consumer)}
+   *             so the callback thread boundary is explicit at call sites.
+   */
+  @Deprecated
+  public static <T> Future<?> submit(
+    Callable<T> task,
+    Consumer<? super T> onSuccess,
+    Consumer<? super Throwable> onFailure
+  ) {
+    return submitWithCallbacksOnEdt(task, onSuccess, onFailure);
   }
 }

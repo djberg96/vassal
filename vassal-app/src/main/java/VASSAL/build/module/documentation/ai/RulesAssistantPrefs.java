@@ -282,7 +282,7 @@ public final class RulesAssistantPrefs {
 
       final String provider = currentProvider();
       refreshButton.setEnabled(false);
-      refreshTask = BackgroundTasks.submit(
+      refreshTask = BackgroundTasks.submitWithCallbacksOnEdt(
         () -> refreshedModelIds(provider),
         modelIds -> {
           refreshButton.setEnabled(true);

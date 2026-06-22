@@ -88,7 +88,7 @@ public abstract class DieServer implements Auditable {
    * Internet Servers will call this routine to do their dirty work.
    */
   public void doInternetRoll(final RollSet mroll, final FormattedString format) {
-    BackgroundTasks.submit(
+    BackgroundTasks.submitWithCallbacksOnEdt(
       () -> rollInBackground(mroll),
       result -> reportResult(result, format),
       error -> {

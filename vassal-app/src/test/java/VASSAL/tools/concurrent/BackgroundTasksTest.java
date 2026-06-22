@@ -27,7 +27,7 @@ public class BackgroundTasksTest {
     final AtomicReference<String> result = new AtomicReference<>();
     final AtomicReference<Throwable> error = new AtomicReference<>();
 
-    BackgroundTasks.submit(
+    BackgroundTasks.submitWithCallbacksOnEdt(
       () -> {
         ranOnVirtualThread.set(Thread.currentThread().isVirtual());
         return "finished"; //NON-NLS
@@ -55,7 +55,7 @@ public class BackgroundTasksTest {
     final CountDownLatch done = new CountDownLatch(1);
     final List<String> events = new CopyOnWriteArrayList<>();
 
-    BackgroundTasks.submit(
+    BackgroundTasks.submitWithCallbacksOnEdt(
       () -> {
         events.add("task-start"); //NON-NLS
         events.add("task-end"); //NON-NLS
@@ -83,7 +83,7 @@ public class BackgroundTasksTest {
     final AtomicBoolean successCalled = new AtomicBoolean(false);
     final AtomicReference<Throwable> error = new AtomicReference<>();
 
-    BackgroundTasks.submit(
+    BackgroundTasks.submitWithCallbacksOnEdt(
       () -> {
         throw expected;
       },
@@ -111,7 +111,7 @@ public class BackgroundTasksTest {
     final AtomicBoolean callbackOnEdt = new AtomicBoolean(false);
     final AtomicReference<Throwable> error = new AtomicReference<>();
 
-    final Future<?> future = BackgroundTasks.submit(
+    final Future<?> future = BackgroundTasks.submitWithCallbacksOnEdt(
       () -> {
         started.countDown();
         Thread.sleep(TimeUnit.SECONDS.toMillis(30));

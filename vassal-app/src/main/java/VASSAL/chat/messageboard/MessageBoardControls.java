@@ -139,7 +139,7 @@ public final class MessageBoardControls {
   }
 
   private void fetchMessages(Runnable onComplete) {
-    BackgroundTasks.submit(
+    BackgroundTasks.submitWithCallbacksOnEdt(
       () -> server.getMessages(),
       messages -> {
         showMessages(messages);
@@ -193,7 +193,7 @@ public final class MessageBoardControls {
         msgArea.setEnabled(false);
         final String message = msgArea.getText();
 
-        sendWorker = BackgroundTasks.submit(
+        sendWorker = BackgroundTasks.submitWithCallbacksOnEdt(
           () -> {
             server.postMessage(message);
             return null;

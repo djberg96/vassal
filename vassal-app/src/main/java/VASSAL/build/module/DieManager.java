@@ -416,7 +416,7 @@ public final class DieManager extends AbstractConfigurable {
       }
 
       verifyButton.setEnabled(false);
-      verifyTask = BackgroundTasks.submit(
+      verifyTask = BackgroundTasks.submitWithCallbacksOnEdt(
         () -> {
           verifyInternetDice(prefs);
           return null;

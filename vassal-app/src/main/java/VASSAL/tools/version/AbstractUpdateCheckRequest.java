@@ -27,7 +27,7 @@ import VASSAL.tools.concurrent.BackgroundTasks;
  */
 public abstract class AbstractUpdateCheckRequest {
   public final void execute() {
-    BackgroundTasks.submit(
+    BackgroundTasks.submitWithCallbacksOnEdt(
       this::isUpdateAvailable,
       update -> succeeded(Boolean.TRUE.equals(update)),
       this::failed

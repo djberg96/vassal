@@ -49,7 +49,7 @@ public class DynamicClient extends HybridClient {
     if (connect && !isConnected()) {
       if (!connecting) {
         connecting = true;
-        BackgroundTasks.submit(
+        BackgroundTasks.submitWithCallbacksOnEdt(
           this::buildDelegate,
           connection -> {
             setDelegate(connection);

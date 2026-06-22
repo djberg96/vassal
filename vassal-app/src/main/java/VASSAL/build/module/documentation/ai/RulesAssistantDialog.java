@@ -158,7 +158,7 @@ public class RulesAssistantDialog extends JDialog {
     answerArea.setText(RulesAnswerFormatter.toHtml(Resources.getString("RulesAssistant.working")));
     updateActionButtons();
 
-    askTask = BackgroundTasks.submit(
+    askTask = BackgroundTasks.submitWithCallbacksOnEdt(
       () -> service.ask(question),
       answer -> {
         askButton.setEnabled(true);
