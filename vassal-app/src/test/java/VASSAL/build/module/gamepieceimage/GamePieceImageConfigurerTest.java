@@ -182,6 +182,34 @@ public class GamePieceImageConfigurerTest {
   }
 
   @Test
+  public void textBoxItemMigratesLegacyFontStyleToItemFontSettings() {
+    final FontManager fontManager = FontManager.getFontManager();
+    fontManager.add(new FontStyle(
+      "BoxCaption",
+      new OutlineFont(FontManager.SANS_SERIF, Font.BOLD, 20, true)
+    ));
+
+    final TextBoxItem item = (TextBoxItem) TextBoxItem.decode(
+      new GamePieceLayout(),
+      "TextBox;40;30;false,Text;BoxCaption;Fixed for this layout;Hi;;;;;false"
+    );
+
+    assertEquals("BoxCaption", item.getAttributeValueString(TextItem.FONT_FAMILY));
+    assertEquals("20", item.getAttributeValueString(TextItem.FONT_SIZE));
+    assertEquals("true", item.getAttributeValueString(TextItem.FONT_BOLD));
+    assertEquals("false", item.getAttributeValueString(TextItem.FONT_ITALIC));
+    assertEquals("true", item.getAttributeValueString(TextItem.FONT_OUTLINE));
+  }
+
+  @Test
+  public void fontStylePreservesLegacyFontSettingsWhenSaved() {
+    final OutlineFont legacyFont = new OutlineFont(FontManager.SERIF, Font.BOLD | Font.ITALIC, 22, true);
+    final FontStyle style = new FontStyle("Caption", legacyFont);
+
+    assertEquals(FontConfigurer.encode(legacyFont), style.getAttributeValueString(FontStyle.STYLE));
+  }
+
+  @Test
   public void textItemFontSettingsRoundTripThroughEncoding() {
     FontManager.getFontManager().add(new FontStyle(
       "Mono",

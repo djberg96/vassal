@@ -114,7 +114,7 @@ public class FontStyle extends AbstractConfigurable {
       return getConfigureName();
     }
     else if (STYLE.equals(key)) {
-      return font.getName();
+      return FontConfigurer.encode(font);
     }
     else
       return null;
