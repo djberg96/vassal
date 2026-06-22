@@ -56,6 +56,16 @@
             <id>vassal-releases</id>
             <url>https://vassalengine.org/maven/</url>
         </repository>
+        <repository>
+            <id>css4j-releases</id>
+            <url>https://css4j.github.io/maven/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <build>

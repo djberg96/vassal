@@ -18,6 +18,7 @@
         <main.basedir>${project.basedir}${file.separator}..</main.basedir>
         <project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
         <version.batik>1.19</version.batik>
+        <version.echosvg>2.5</version.echosvg>
         <clirr.nofork.comparison.version>3.7.0</clirr.nofork.comparison.version>
     </properties>
 
@@ -83,6 +84,11 @@
             <groupId>com.github.weisj</groupId>
             <artifactId>jsvg</artifactId>
             <version>2.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.sf.carte</groupId>
+            <artifactId>echosvg-transcoder-svg</artifactId>
+            <version>${version.echosvg}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.xmlgraphics</groupId>

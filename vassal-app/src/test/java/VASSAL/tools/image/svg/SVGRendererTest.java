@@ -105,11 +105,13 @@ class SVGRendererTest {
       """;
 
     assertTrue(SVGRenderer.needsBatikFallback(svg));
+    assertTrue(SVGRenderer.prefersBatikCompatibilityFallback(svg));
   }
 
   @Test
   void clippedUseSvgRequiresBatikFallback() {
     assertTrue(SVGRenderer.needsBatikFallback(SVG_WITH_CLIPPED_USE));
+    assertFalse(SVGRenderer.prefersBatikCompatibilityFallback(SVG_WITH_CLIPPED_USE));
   }
 
   @Test
@@ -121,6 +123,17 @@ class SVGRendererTest {
     assertEquals(50, image.getHeight());
     assertPixel(new Color(0, 0, 255, 255), image, 12, 20);
     assertPixel(new Color(255, 0, 0, 255), image, 38, 20);
+  }
+
+  @Test
+  void renderSupportsScaledClippedUseWithoutDoubleScalingContent() throws IOException {
+    final BufferedImage image = renderer(SVG_WITH_CLIPPED_USE).render(0.0, 2.0);
+
+    assertNotNull(image);
+    assertEquals(100, image.getWidth());
+    assertEquals(100, image.getHeight());
+    assertPixel(new Color(0, 0, 255, 255), image, 24, 40);
+    assertPixel(new Color(255, 0, 0, 255), image, 76, 40);
   }
 
   private static SVGRenderer renderer() throws IOException {

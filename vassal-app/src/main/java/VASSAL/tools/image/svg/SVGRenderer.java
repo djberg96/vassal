@@ -62,7 +62,9 @@ public class SVGRenderer {
   private static final double DEGTORAD = Math.PI / 180.0;
 
   private final SVGDocument doc;
-  private final BatikSVGRenderer batikRenderer;
+  private final EchoSvgRenderer echoCompatibilityRenderer;
+  private final BatikSVGRenderer batikCompatibilityRenderer;
+  private final boolean preferBatikCompatibilityRenderer;
   private final String source;
   private final float defaultW, defaultH;
 
@@ -88,15 +90,56 @@ public class SVGRenderer {
     }
 
     final String svgText = new String(svg, java.nio.charset.StandardCharsets.UTF_8);
-    if (needsBatikFallback(svgText)) {
-      batikRenderer = new BatikSVGRenderer(file.toString(), new ByteArrayInputStream(svg));
+    if (needsCompatibilityFallback(svgText)) {
+      preferBatikCompatibilityRenderer = prefersBatikCompatibilityFallback(svgText);
+
+      EchoSvgRenderer echoRenderer = null;
+      IOException echoException = null;
+      try {
+        echoRenderer = new EchoSvgRenderer(file.toString(), new ByteArrayInputStream(svg));
+      }
+      catch (IOException e) {
+        echoException = e;
+        logger.warn("EchoSVG could not load {}; Batik fallback will be used", file, e);
+      }
+      catch (RuntimeException e) {
+        echoException = new IOException(e);
+        logger.warn("EchoSVG could not load {}; Batik fallback will be used", file, e);
+      }
+
+      BatikSVGRenderer batikRenderer = null;
+      IOException batikException = null;
+      try {
+        batikRenderer = new BatikSVGRenderer(file.toString(), new ByteArrayInputStream(svg));
+      }
+      catch (IOException e) {
+        batikException = e;
+        logger.warn("Batik could not load {}; no fallback renderer is available", file, e);
+      }
+
+      if (echoRenderer == null && batikRenderer == null) {
+        if (echoException != null) {
+          throw echoException;
+        }
+
+        if (batikException != null) {
+          throw batikException;
+        }
+
+        throw new IOException("No SVG compatibility renderer is available for " + file);
+      }
+
+      echoCompatibilityRenderer = echoRenderer;
+      batikCompatibilityRenderer = batikRenderer;
       doc = null;
       defaultW = 0;
       defaultH = 0;
       return;
     }
 
-    batikRenderer = null;
+    echoCompatibilityRenderer = null;
+    batikCompatibilityRenderer = null;
+    preferBatikCompatibilityRenderer = false;
     doc = new SVGLoader().load(new ByteArrayInputStream(svg), file, LOADER_CONTEXT);
     if (doc == null) {
       throw new IOException("Could not load SVG " + file);
@@ -132,11 +175,11 @@ public class SVGRenderer {
   }
 
   public BufferedImage render(double angle, double scale) {
-    if (batikRenderer != null) {
-      return recordRender(angle, scale, false, () -> batikRenderer.render(angle, scale));
+    if (hasCompatibilityRenderer()) {
+      return renderWithCompatibilityRenderer(angle, scale);
     }
 
-    return recordRender(angle, scale, false, () -> renderWithJsvg(angle, scale));
+    return recordRender("jsvg", angle, scale, false, () -> renderWithJsvg(angle, scale)); //NON-NLS
   }
 
   private BufferedImage renderWithJsvg(double angle, double scale) {
@@ -168,11 +211,11 @@ public class SVGRenderer {
   }
 
   public BufferedImage render(double angle, double scale, Rectangle2D aoi) {
-    if (batikRenderer != null) {
-      return recordRender(angle, scale, true, () -> batikRenderer.render(angle, scale, aoi));
+    if (hasCompatibilityRenderer()) {
+      return renderWithCompatibilityRenderer(angle, scale, aoi);
     }
 
-    return recordRender(angle, scale, true, () -> renderWithJsvg(angle, scale, aoi));
+    return recordRender("jsvg", angle, scale, true, () -> renderWithJsvg(angle, scale, aoi)); //NON-NLS
   }
 
   private BufferedImage renderWithJsvg(double angle, double scale, Rectangle2D aoi) {
@@ -196,10 +239,102 @@ public class SVGRenderer {
     }
   }
 
-  private BufferedImage recordRender(double angle, double scale, boolean areaOfInterest, Supplier<BufferedImage> render) {
+  private boolean hasCompatibilityRenderer() {
+    return echoCompatibilityRenderer != null || batikCompatibilityRenderer != null;
+  }
+
+  private BufferedImage renderWithCompatibilityRenderer(double angle, double scale) {
+    if (preferBatikCompatibilityRenderer && batikCompatibilityRenderer != null) {
+      final BufferedImage image = recordRender(
+        "batik", angle, scale, false, //NON-NLS
+        () -> batikCompatibilityRenderer.render(angle, scale)
+      );
+      if (image != null) {
+        return image;
+      }
+
+      logger.warn("Batik failed to render {}; trying EchoSVG fallback", source);
+    }
+
+    if (echoCompatibilityRenderer != null) {
+      boolean failedWithException = false;
+      try {
+        final BufferedImage image = recordRender(
+          "echosvg", angle, scale, false, //NON-NLS
+          () -> echoCompatibilityRenderer.render(angle, scale)
+        );
+        if (image != null) {
+          return image;
+        }
+      }
+      catch (RuntimeException e) {
+        failedWithException = true;
+        logger.warn("EchoSVG failed to render {}; trying Batik fallback", source, e);
+      }
+
+      if (!failedWithException) {
+        logger.warn("EchoSVG failed to render {}; trying Batik fallback", source);
+      }
+    }
+
+    if (batikCompatibilityRenderer != null) {
+      return recordRender(
+        "batik", angle, scale, false, //NON-NLS
+        () -> batikCompatibilityRenderer.render(angle, scale)
+      );
+    }
+
+    return null;
+  }
+
+  private BufferedImage renderWithCompatibilityRenderer(double angle, double scale, Rectangle2D aoi) {
+    if (preferBatikCompatibilityRenderer && batikCompatibilityRenderer != null) {
+      final BufferedImage image = recordRender(
+        "batik", angle, scale, true, //NON-NLS
+        () -> batikCompatibilityRenderer.render(angle, scale, aoi)
+      );
+      if (image != null) {
+        return image;
+      }
+
+      logger.warn("Batik failed to render area {} from {}; trying EchoSVG fallback", aoi, source);
+    }
+
+    if (echoCompatibilityRenderer != null) {
+      boolean failedWithException = false;
+      try {
+        final BufferedImage image = recordRender(
+          "echosvg", angle, scale, true, //NON-NLS
+          () -> echoCompatibilityRenderer.render(angle, scale, aoi)
+        );
+        if (image != null) {
+          return image;
+        }
+      }
+      catch (RuntimeException e) {
+        failedWithException = true;
+        logger.warn("EchoSVG failed to render area {} from {}; trying Batik fallback", aoi, source, e);
+      }
+
+      if (!failedWithException) {
+        logger.warn("EchoSVG failed to render area {} from {}; trying Batik fallback", aoi, source);
+      }
+    }
+
+    if (batikCompatibilityRenderer != null) {
+      return recordRender(
+        "batik", angle, scale, true, //NON-NLS
+        () -> batikCompatibilityRenderer.render(angle, scale, aoi)
+      );
+    }
+
+    return null;
+  }
+
+  private BufferedImage recordRender(String rendererName, double angle, double scale, boolean areaOfInterest, Supplier<BufferedImage> render) {
     final SvgRenderEvent event = new SvgRenderEvent();
     event.source = source;
-    event.renderer = batikRenderer == null ? "jsvg" : "batik"; //NON-NLS
+    event.renderer = rendererName;
     event.angleDegrees = angle;
     event.scale = scale;
     event.areaOfInterest = areaOfInterest;
@@ -228,6 +363,15 @@ public class SVGRenderer {
   }
 
   static boolean needsBatikFallback(String svg) {
+    return needsCompatibilityFallback(svg);
+  }
+
+  static boolean needsCompatibilityFallback(String svg) {
+    return prefersBatikCompatibilityFallback(svg) ||
+      (containsElement(svg, "clipPath") && containsElement(svg, "use"));
+  }
+
+  static boolean prefersBatikCompatibilityFallback(String svg) {
     return containsElement(svg, "feTurbulence") ||
       containsElement(svg, "feDiffuseLighting") ||
       containsElement(svg, "feDisplacementMap") ||
@@ -235,8 +379,7 @@ public class SVGRenderer {
       containsElement(svg, "feBlend") ||
       containsElement(svg, "feColorMatrix") ||
       containsElement(svg, "feConvolveMatrix") ||
-      containsElement(svg, "feMorphology") ||
-      (containsElement(svg, "clipPath") && containsElement(svg, "use"));
+      containsElement(svg, "feMorphology");
   }
 
   private static boolean containsElement(String svg, String elementName) {
