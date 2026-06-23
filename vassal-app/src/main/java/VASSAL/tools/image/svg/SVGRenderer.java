@@ -63,8 +63,6 @@ public class SVGRenderer {
 
   private final SVGDocument doc;
   private final EchoSvgRenderer echoCompatibilityRenderer;
-  private final BatikSVGRenderer batikCompatibilityRenderer;
-  private final boolean preferBatikCompatibilityRenderer;
   private final String source;
   private final float defaultW, defaultH;
 
@@ -90,47 +88,17 @@ public class SVGRenderer {
     }
 
     final String svgText = new String(svg, java.nio.charset.StandardCharsets.UTF_8);
-    if (needsCompatibilityFallback(svgText)) {
-      preferBatikCompatibilityRenderer = false;
-
-      EchoSvgRenderer echoRenderer = null;
-      IOException echoException = null;
+    if (needsCompatibilityRenderer(svgText)) {
       try {
-        echoRenderer = new EchoSvgRenderer(file.toString(), new ByteArrayInputStream(svg));
+        echoCompatibilityRenderer = new EchoSvgRenderer(file.toString(), new ByteArrayInputStream(svg));
       }
       catch (IOException e) {
-        echoException = e;
-        logger.warn("EchoSVG could not load {}; Batik fallback will be used", file, e);
+        throw e;
       }
       catch (RuntimeException e) {
-        echoException = new IOException(e);
-        logger.warn("EchoSVG could not load {}; Batik fallback will be used", file, e);
+        throw new IOException(e);
       }
 
-      BatikSVGRenderer batikRenderer = null;
-      IOException batikException = null;
-      try {
-        batikRenderer = new BatikSVGRenderer(file.toString(), new ByteArrayInputStream(svg));
-      }
-      catch (IOException e) {
-        batikException = e;
-        logger.warn("Batik could not load {}; no fallback renderer is available", file, e);
-      }
-
-      if (echoRenderer == null && batikRenderer == null) {
-        if (echoException != null) {
-          throw echoException;
-        }
-
-        if (batikException != null) {
-          throw batikException;
-        }
-
-        throw new IOException("No SVG compatibility renderer is available for " + file);
-      }
-
-      echoCompatibilityRenderer = echoRenderer;
-      batikCompatibilityRenderer = batikRenderer;
       doc = null;
       defaultW = 0;
       defaultH = 0;
@@ -138,8 +106,6 @@ public class SVGRenderer {
     }
 
     echoCompatibilityRenderer = null;
-    batikCompatibilityRenderer = null;
-    preferBatikCompatibilityRenderer = false;
     doc = new SVGLoader().load(new ByteArrayInputStream(svg), file, LOADER_CONTEXT);
     if (doc == null) {
       throw new IOException("Could not load SVG " + file);
@@ -240,95 +206,21 @@ public class SVGRenderer {
   }
 
   private boolean hasCompatibilityRenderer() {
-    return echoCompatibilityRenderer != null || batikCompatibilityRenderer != null;
+    return echoCompatibilityRenderer != null;
   }
 
   private BufferedImage renderWithCompatibilityRenderer(double angle, double scale) {
-    if (preferBatikCompatibilityRenderer && batikCompatibilityRenderer != null) {
-      final BufferedImage image = recordRender(
-        "batik", angle, scale, false, //NON-NLS
-        () -> batikCompatibilityRenderer.render(angle, scale)
-      );
-      if (image != null) {
-        return image;
-      }
-
-      logger.warn("Batik failed to render {}; trying EchoSVG fallback", source);
-    }
-
-    if (echoCompatibilityRenderer != null) {
-      boolean failedWithException = false;
-      try {
-        final BufferedImage image = recordRender(
-          "echosvg", angle, scale, false, //NON-NLS
-          () -> echoCompatibilityRenderer.render(angle, scale)
-        );
-        if (image != null) {
-          return image;
-        }
-      }
-      catch (RuntimeException e) {
-        failedWithException = true;
-        logger.warn("EchoSVG failed to render {}; trying Batik fallback", source, e);
-      }
-
-      if (!failedWithException) {
-        logger.warn("EchoSVG failed to render {}; trying Batik fallback", source);
-      }
-    }
-
-    if (batikCompatibilityRenderer != null) {
-      return recordRender(
-        "batik", angle, scale, false, //NON-NLS
-        () -> batikCompatibilityRenderer.render(angle, scale)
-      );
-    }
-
-    return null;
+    return recordRender(
+      "echosvg", angle, scale, false, //NON-NLS
+      () -> echoCompatibilityRenderer.render(angle, scale)
+    );
   }
 
   private BufferedImage renderWithCompatibilityRenderer(double angle, double scale, Rectangle2D aoi) {
-    if (preferBatikCompatibilityRenderer && batikCompatibilityRenderer != null) {
-      final BufferedImage image = recordRender(
-        "batik", angle, scale, true, //NON-NLS
-        () -> batikCompatibilityRenderer.render(angle, scale, aoi)
-      );
-      if (image != null) {
-        return image;
-      }
-
-      logger.warn("Batik failed to render area {} from {}; trying EchoSVG fallback", aoi, source);
-    }
-
-    if (echoCompatibilityRenderer != null) {
-      boolean failedWithException = false;
-      try {
-        final BufferedImage image = recordRender(
-          "echosvg", angle, scale, true, //NON-NLS
-          () -> echoCompatibilityRenderer.render(angle, scale, aoi)
-        );
-        if (image != null) {
-          return image;
-        }
-      }
-      catch (RuntimeException e) {
-        failedWithException = true;
-        logger.warn("EchoSVG failed to render area {} from {}; trying Batik fallback", aoi, source, e);
-      }
-
-      if (!failedWithException) {
-        logger.warn("EchoSVG failed to render area {} from {}; trying Batik fallback", aoi, source);
-      }
-    }
-
-    if (batikCompatibilityRenderer != null) {
-      return recordRender(
-        "batik", angle, scale, true, //NON-NLS
-        () -> batikCompatibilityRenderer.render(angle, scale, aoi)
-      );
-    }
-
-    return null;
+    return recordRender(
+      "echosvg", angle, scale, true, //NON-NLS
+      () -> echoCompatibilityRenderer.render(angle, scale, aoi)
+    );
   }
 
   private BufferedImage recordRender(String rendererName, double angle, double scale, boolean areaOfInterest, Supplier<BufferedImage> render) {
@@ -362,11 +254,7 @@ public class SVGRenderer {
     g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
   }
 
-  static boolean needsBatikFallback(String svg) {
-    return needsCompatibilityFallback(svg);
-  }
-
-  static boolean needsCompatibilityFallback(String svg) {
+  static boolean needsCompatibilityRenderer(String svg) {
     return containsFilterCompatibilityFeature(svg) ||
       (containsElement(svg, "clipPath") && containsElement(svg, "use"));
   }

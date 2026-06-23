@@ -16,7 +16,7 @@ import jdk.jfr.Name;
 @Name("VASSAL.SvgRender")
 @Label("SVG Render")
 @Category({"VASSAL", "Image Rendering"})
-@Description("Renders an SVG image through JSVG or the Batik fallback renderer.")
+@Description("Renders an SVG image through JSVG or EchoSVG.")
 public class SvgRenderEvent extends Event {
   @Label("Source")
   public String source;

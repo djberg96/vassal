@@ -68,6 +68,30 @@ class SVGRendererTest {
     </svg>
     """;
 
+  private static final String SVG_WITH_FILTERED_AOI = """
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+      <defs>
+        <filter id="paper">
+          <feTurbulence type="fractalNoise" baseFrequency="0.04"/>
+        </filter>
+      </defs>
+
+      <rect width="100" height="100" fill="#00ff00" filter="url(#paper)"/>
+      <rect x="40" y="40" width="20" height="20" fill="#ff0000"/>
+    </svg>
+    """;
+
+  private static final String SVG_WITH_MARKER_EDGE_FLAG = """
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60" width="60" height="60">
+      <rect x="1" y="1" width="58" height="58" fill="#ffffff" stroke="#000000" stroke-width="2"/>
+      <text x="30" y="13" text-anchor="middle" font-family="Serif" font-size="12">ALGARVE</text>
+      <rect x="13" y="20" width="10" height="18" fill="#0000ff"/>
+      <rect x="24" y="20" width="10" height="18" fill="#ffffff"/>
+      <rect x="35" y="20" width="10" height="18" fill="#ff0000"/>
+      <text x="30" y="52" text-anchor="middle" font-family="Serif" font-size="12">1</text>
+    </svg>
+    """;
+
   @Test
   void renderReturnsPixelsFromSvgImage() throws IOException {
     final BufferedImage image = renderer().render();
@@ -101,30 +125,19 @@ class SVGRendererTest {
   }
 
   @Test
-  void simpleSvgDoesNotRequireBatikFallback() {
-    assertFalse(SVGRenderer.needsBatikFallback(SVG));
+  void simpleSvgDoesNotRequireCompatibilityRenderer() {
+    assertFalse(SVGRenderer.needsCompatibilityRenderer(SVG));
   }
 
   @Test
-  void filterHeavySvgUsesCompatibilityFallback() {
-    final String svg = """
-      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10">
-        <defs>
-          <filter id="paper">
-            <feTurbulence type="fractalNoise" baseFrequency="0.04"/>
-          </filter>
-        </defs>
-        <rect width="10" height="10" filter="url(#paper)"/>
-      </svg>
-      """;
-
-    assertTrue(SVGRenderer.needsBatikFallback(svg));
-    assertTrue(SVGRenderer.containsFilterCompatibilityFeature(svg));
+  void filterHeavySvgUsesCompatibilityRenderer() {
+    assertTrue(SVGRenderer.needsCompatibilityRenderer(SVG_WITH_FILTERED_AOI));
+    assertTrue(SVGRenderer.containsFilterCompatibilityFeature(SVG_WITH_FILTERED_AOI));
   }
 
   @Test
-  void clippedUseSvgRequiresBatikFallback() {
-    assertTrue(SVGRenderer.needsBatikFallback(SVG_WITH_CLIPPED_USE));
+  void clippedUseSvgRequiresCompatibilityRenderer() {
+    assertTrue(SVGRenderer.needsCompatibilityRenderer(SVG_WITH_CLIPPED_USE));
     assertFalse(SVGRenderer.containsFilterCompatibilityFeature(SVG_WITH_CLIPPED_USE));
   }
 
@@ -174,6 +187,30 @@ class SVGRendererTest {
     assertEquals(40, image.getHeight());
     assertPixel(new Color(255, 0, 0, 255), image, 0, 0);
     assertPixel(new Color(255, 0, 0, 255), image, 39, 39);
+  }
+
+  @Test
+  void renderFilterCompatibilityAreaOfInterestReturnsCroppedTile() throws IOException {
+    final BufferedImage image = renderer(SVG_WITH_FILTERED_AOI).render(
+      0.0, 1.0, new Rectangle2D.Float(40, 40, 20, 20)
+    );
+
+    assertNotNull(image);
+    assertEquals(20, image.getWidth());
+    assertEquals(20, image.getHeight());
+    assertPixel(new Color(255, 0, 0, 255), image, 0, 0);
+    assertPixel(new Color(255, 0, 0, 255), image, 19, 19);
+  }
+
+  @Test
+  void renderMarkerStyleSvgDoesNotCropRightEdge() throws IOException {
+    final BufferedImage image = renderer(SVG_WITH_MARKER_EDGE_FLAG).render();
+
+    assertNotNull(image);
+    assertEquals(60, image.getWidth());
+    assertEquals(60, image.getHeight());
+    assertPixel(new Color(0, 0, 255, 255), image, 18, 28);
+    assertPixel(new Color(255, 0, 0, 255), image, 40, 28);
   }
 
   private static SVGRenderer renderer() throws IOException {

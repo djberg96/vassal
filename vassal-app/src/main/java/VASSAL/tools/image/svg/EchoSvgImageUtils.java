@@ -38,8 +38,7 @@ import org.w3c.dom.svg.SVGSVGElement;
 
 /**
  * EchoSVG-backed subset of {@link SVGImageUtils} used by the compatibility
- * renderer. Keeping this separate avoids mixing Batik bridge objects with
- * EchoSVG DOM documents.
+ * renderer.
  */
 final class EchoSvgImageUtils {
   private EchoSvgImageUtils() { }
