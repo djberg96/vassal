@@ -68,8 +68,8 @@ public final class Editor extends Launcher {
 
   @Override
   protected void launch() throws IOException {
-    // Don't cache jar URLConnections on Windows. Batik (and possibly other
-    // things) sometimes read from modules using jar URIs, and the cache
+    // Don't cache jar URLConnections on Windows. Image and archive helpers
+    // sometimes read from modules using jar URIs, and the cache
     // URLConnection uses holds the module file open---which prevents us from
     // saving it.
     if (SystemUtils.IS_OS_WINDOWS) {

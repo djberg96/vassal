@@ -35,19 +35,18 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.batik.anim.dom.SAXSVGDocumentFactory;
-import org.apache.batik.bridge.BridgeContext;
-import org.apache.batik.bridge.BridgeException;
-import org.apache.batik.bridge.UnitProcessor;
-import org.apache.batik.bridge.UserAgentAdapter;
-import org.apache.batik.bridge.ViewBox;
-import org.apache.batik.dom.GenericDOMImplementation;
-import org.apache.batik.dom.util.DOMUtilities;
-import org.apache.batik.dom.util.SAXDocumentFactory;
-import org.apache.batik.dom.util.XLinkSupport;
-import org.apache.batik.dom.util.XMLSupport;
-import org.apache.batik.util.SVGConstants;
-import org.apache.batik.util.XMLResourceDescriptor;
+import io.sf.carte.echosvg.anim.dom.SAXSVGDocumentFactory;
+import io.sf.carte.echosvg.bridge.BridgeContext;
+import io.sf.carte.echosvg.bridge.BridgeException;
+import io.sf.carte.echosvg.bridge.UnitProcessor;
+import io.sf.carte.echosvg.bridge.UserAgentAdapter;
+import io.sf.carte.echosvg.bridge.ViewBox;
+import io.sf.carte.echosvg.dom.GenericDOMImplementation;
+import io.sf.carte.echosvg.dom.util.DOMUtilities;
+import io.sf.carte.echosvg.dom.util.SAXDocumentFactory;
+import io.sf.carte.echosvg.dom.util.XLinkSupport;
+import io.sf.carte.echosvg.dom.util.XMLSupport;
+import io.sf.carte.echosvg.util.SVGConstants;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -79,7 +78,7 @@ public class SVGImageUtils {
 
   // NB: SAXSVGDocumentFactory isn't thread-safe, we have to synchronize on it.
   private static final SAXSVGDocumentFactory FACTORY =
-    new SAXSVGDocumentFactory(XMLResourceDescriptor.getXMLParserClassName());
+    new SAXSVGDocumentFactory();
 
   public static SVGDocument getDocument(String file, InputStream in) throws IOException {
     try (in) {
@@ -364,8 +363,7 @@ public class SVGImageUtils {
     // use the GenericDOMImplementation here because
     // SVGDOMImplementation adds unwanted attributes to SVG elements
     final SAXDocumentFactory fac = new SAXDocumentFactory(
-      new GenericDOMImplementation(),
-      XMLResourceDescriptor.getXMLParserClassName()
+      new GenericDOMImplementation()
     );
 
     final URL here = new File(path).getCanonicalFile().toURI().toURL();

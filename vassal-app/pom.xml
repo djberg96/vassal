@@ -17,7 +17,6 @@
     <properties>
         <main.basedir>${project.basedir}${file.separator}..</main.basedir>
         <project.reporting.outputEncoding>${project.build.sourceEncoding}</project.reporting.outputEncoding>
-        <version.batik>1.19</version.batik>
         <version.echosvg>2.5</version.echosvg>
         <clirr.nofork.comparison.version>3.7.0</clirr.nofork.comparison.version>
     </properties>
@@ -91,34 +90,9 @@
             <version>${version.echosvg}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>batik-codec</artifactId>
-            <version>${version.batik}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>batik-dom</artifactId>
-            <version>${version.batik}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>xalan</groupId>
-                    <artifactId>xalan</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>xml-apis</groupId>
-                    <artifactId>xml-apis</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>batik-extension</artifactId>
-            <version>${version.batik}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.xmlgraphics</groupId>
-            <artifactId>batik-swing</artifactId>
-            <version>${version.batik}</version>
+            <groupId>org.jfree</groupId>
+            <artifactId>org.jfree.svg</artifactId>
+            <version>5.0.7</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.janino</groupId>

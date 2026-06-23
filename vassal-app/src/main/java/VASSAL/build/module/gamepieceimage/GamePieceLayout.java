@@ -27,7 +27,6 @@ import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -44,11 +43,7 @@ import VASSAL.i18n.Resources;
 import VASSAL.tools.SequenceEncoder;
 import VASSAL.tools.image.ImageUtils;
 
-import org.apache.batik.dom.GenericDOMImplementation;
-import org.apache.batik.svggen.SVGGeneratorContext;
-import org.apache.batik.svggen.SVGGraphics2D;
-import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.Document;
+import org.jfree.svg.SVGGraphics2D;
 
 public class GamePieceLayout extends AbstractConfigurable implements Visualizable {
 
@@ -381,23 +376,14 @@ public class GamePieceLayout extends AbstractConfigurable implements Visualizabl
   }
 
   public String buildSvg(GamePieceImage defn) throws IOException {
-    final DOMImplementation impl = GenericDOMImplementation.getDOMImplementation();
-    final Document document = impl.createDocument(
-      SVGGraphics2D.SVG_NAMESPACE_URI,
-      "svg", //NON-NLS
-      null
-    );
-
-    final SVGGraphics2D g = new SVGGraphics2D(
-      SVGGeneratorContext.createDefault(document),
-      false
-    );
-    g.setSVGCanvasSize(new Dimension(Math.max(width, 1), Math.max(height, 1)));
-    drawLayout(g, defn);
-
-    final StringWriter writer = new StringWriter();
-    g.stream(writer, true);
-    return writer.toString();
+    final SVGGraphics2D g = new SVGGraphics2D(Math.max(width, 1), Math.max(height, 1));
+    try {
+      drawLayout(g, defn);
+      return g.getSVGDocument();
+    }
+    finally {
+      g.dispose();
+    }
   }
 
   private void drawLayout(Graphics2D g, GamePieceImage defn) {

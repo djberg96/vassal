@@ -62,11 +62,11 @@ import net.miginfocom.swing.MigLayout;
 
 import org.w3c.dom.svg.SVGDocument;
 
-import org.apache.batik.gvt.GraphicsNode;
-import org.apache.batik.gvt.GVTTreeWalker;
-import org.apache.batik.swing.svg.JSVGComponent;
-import org.apache.batik.swing.svg.GVTTreeBuilderAdapter;
-import org.apache.batik.swing.svg.GVTTreeBuilderEvent;
+import io.sf.carte.echosvg.bridge.BridgeContext;
+import io.sf.carte.echosvg.bridge.GVTBuilder;
+import io.sf.carte.echosvg.bridge.UserAgentAdapter;
+import io.sf.carte.echosvg.gvt.GraphicsNode;
+import io.sf.carte.echosvg.gvt.GVTTreeWalker;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -367,30 +367,25 @@ public class NonRectangular extends Decorator {
             final SVGDocument doc = SVGImageUtils.getDocument(imageName, in);
             final AffineTransform vbm = SVGImageUtils.getViewBoxTransform(doc);
 
-            final JSVGComponent c = new JSVGComponent();
-            c.addGVTTreeBuilderListener(new GVTTreeBuilderAdapter() {
-              @Override
-              public void gvtBuildCompleted(GVTTreeBuilderEvent e) {
-                final GVTTreeWalker tw = new GVTTreeWalker(e.getGVTRoot());
-                final GraphicsNode node = tw.firstChild();
-                shape = node.getOutline();
+            try (BridgeContext context = new BridgeContext(new UserAgentAdapter())) {
+              final GraphicsNode root = new GVTBuilder().build(context, doc);
+              final GVTTreeWalker tw = new GVTTreeWalker(root);
+              final GraphicsNode node = tw.firstChild();
+              shape = (node == null ? root : node).getOutline();
+            }
 
-                // scale the shape against the viewBox, if any
-                shape = vbm.createTransformedShape(shape);
+            // scale the shape against the viewBox, if any
+            shape = vbm.createTransformedShape(shape);
 
-                // put the origin at the center of the shape
-                final Rectangle b = shape.getBounds();
-                shape = AffineTransform.getTranslateInstance(
-                  -b.x - b.width / 2.0,
-                  - b.y - b.height / 2.0
-                ).createTransformedShape(shape);
+            // put the origin at the center of the shape
+            final Rectangle b = shape.getBounds();
+            shape = AffineTransform.getTranslateInstance(
+              -b.x - b.width / 2.0,
+              - b.y - b.height / 2.0
+            ).createTransformedShape(shape);
 
-                controls.revalidate();
-                repack(controls);
-              }
-            });
-
-            c.setSVGDocument(doc);
+            controls.revalidate();
+            repack(controls);
           }
           catch (IOException ex) {
             shape = null;
