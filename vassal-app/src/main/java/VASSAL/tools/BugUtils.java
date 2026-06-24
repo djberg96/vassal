@@ -41,7 +41,11 @@ public class BugUtils {
       .build();
 
     final HttpResponseData response = HTTP.send(request);
-    if (response.status() != 201) {
+    final int status = response.status();
+    // GitHub documents 201 as the expected success code, but starting in
+    // May 2026 we observed that 200 is sometimes returned, contra the
+    // documentation, so we check for both.
+    if (status != 200 && status != 201) {
       throw new IOException("Bug report failed: " + response.status() + ": " + response.body()); //NON-NLS
     }
   }

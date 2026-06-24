@@ -78,6 +78,19 @@ class BugUtilsTest {
   }
 
   @Test
+  void sendBugReportAcceptsOkStatus() throws IOException {
+    startServer(exchange -> send(exchange, 200, "created")); //NON-NLS
+
+    BugUtils.sendBugReport(
+      "player@example.com", //NON-NLS
+      "It broke", //NON-NLS
+      ERROR_LOG,
+      null,
+      serverUri()
+    );
+  }
+
+  @Test
   void sendBugReportThrowsOnUnexpectedStatus() throws IOException {
     startServer(exchange -> send(exchange, 503, "offline")); //NON-NLS
 
