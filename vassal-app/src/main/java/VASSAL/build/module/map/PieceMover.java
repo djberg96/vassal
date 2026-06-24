@@ -53,6 +53,7 @@ import VASSAL.counters.PieceVisitorDispatcher;
 import VASSAL.counters.Properties;
 import VASSAL.counters.PropertyExporter;
 import VASSAL.counters.Stack;
+import VASSAL.i18n.Resources;
 import VASSAL.tools.DebugControls;
 import VASSAL.tools.FormattedString;
 import VASSAL.tools.LaunchButton;
@@ -756,13 +757,34 @@ public class PieceMover extends AbstractBuildable
     Command c = new NullCommand();
     c = c.append(setOldLocations(p));
     if (!loc.equals(p.getPosition())) {
-      c = c.append(markMoved(p, true, false));
+      c = c.append(markMoved(p, true, locationDefinitelyChanged(p, loc)));
     }
     if (p.getParent() != null) {
       final Command removedCommand = p.getParent().pieceRemoved(p);
       c = c.append(removedCommand);
     }
     return c;
+  }
+
+  /**
+   * Determines whether a piece has definitely moved to a different map location.
+   * Offboard moves are always treated as changed so movement trails are recorded
+   * even when two offboard points share the same displayed location name.
+   *
+   * @param p Piece being moved
+   * @param loc Destination point
+   * @return true when the source and destination locations are definitely distinct
+   */
+  protected boolean locationDefinitelyChanged(GamePiece p, Point loc) {
+    final Map map = p.getMap();
+    if (map == null) {
+      return false;
+    }
+
+    final String previousLocation = map.locationName(p.getPosition());
+    return previousLocation == null ||
+           !previousLocation.equals(map.locationName(loc)) ||
+           previousLocation.equals(Resources.getString("Map.offboard")); //$NON-NLS-1$
   }
 
   /**

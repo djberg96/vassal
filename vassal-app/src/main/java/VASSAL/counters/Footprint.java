@@ -249,10 +249,15 @@ public class Footprint extends MovementMarkable {
 
   @Override
   public void setProperty(Object key, Object val) {
-    if (Properties.MOVED.equals(key) || Properties.MAYBE_MOVED.equals(key)) {
+    if (Properties.MOVED.equals(key)) {
       setMoved(Boolean.TRUE.equals(val));
       piece.setProperty(key, val); // Pass on to MovementMarkable
       myBoundingBox = null;
+    }
+    else if (Properties.MAYBE_MOVED.equals(key)) {
+      piece.setProperty(key, val); // Pass on to MovementMarkable
+      myBoundingBox = null;
+      redraw();
     }
     else {
       super.setProperty(key, val);

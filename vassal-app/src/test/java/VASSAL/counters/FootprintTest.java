@@ -17,6 +17,11 @@
 
 package VASSAL.counters;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import VASSAL.build.GameModule;
 import VASSAL.tools.NamedKeyStroke;
 
 import java.awt.Color;
@@ -25,6 +30,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 
 public class FootprintTest extends DecoratorTest {
 
@@ -65,6 +72,29 @@ public class FootprintTest extends DecoratorTest {
     serializeTest("Complex test", trait); // NON-NLS
 
 
+  }
+
+  @Test
+  public void maybeMovedDoesNotAddTrailPoint() {
+    final Footprint trait = new Footprint();
+    final BasicPiece piece = createBasicPiece();
+    trait.setInner(piece);
+    final GameModule gm = mock(GameModule.class);
+    when(gm.isEditorOpen()).thenReturn(false);
+
+    try (MockedStatic<GameModule> staticGm = Mockito.mockStatic(GameModule.class)) {
+      staticGm.when(GameModule::getGameModule).thenReturn(gm);
+
+      piece.setPosition(new Point(10, 20));
+      trait.setProperty(Properties.MOVED, Boolean.TRUE);
+      assertEquals(1, trait.pointList.size());
+      assertEquals(new Point(10, 20), trait.pointList.get(0));
+
+      piece.setPosition(new Point(110, 120));
+      trait.setProperty(Properties.MAYBE_MOVED, Boolean.TRUE);
+      assertEquals(1, trait.pointList.size());
+      assertEquals(new Point(10, 20), trait.pointList.get(0));
+    }
   }
 
 }
