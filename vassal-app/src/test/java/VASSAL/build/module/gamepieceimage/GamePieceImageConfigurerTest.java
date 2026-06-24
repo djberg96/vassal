@@ -134,6 +134,18 @@ public class GamePieceImageConfigurerTest {
   }
 
   @Test
+  public void gamePieceImageCopyPreservesBucketedArchiveName() {
+    final GamePieceImage image = new GamePieceImage();
+    image.setConfigureName("counter.svg");
+    image.setAttribute(GamePieceImage.BUCKET, "Union/Brigade A");
+
+    final GamePieceImage copy = new GamePieceImage(image);
+
+    assertEquals("Union/Brigade A", copy.getAttributeValueString(GamePieceImage.BUCKET));
+    assertEquals("Union/Brigade A/counter.svg", copy.getArchiveImageName());
+  }
+
+  @Test
   public void gamePieceImageParsesEncodedInstances() {
     final List<ItemInstance> items = List.of(
       new TextItemInstance("Text", TextItem.TYPE, GamePieceLayout.N, "Hi"),
@@ -367,6 +379,37 @@ public class GamePieceImageConfigurerTest {
 
     assertTrue(svg.contains("<text"));
     assertTrue(svg.contains("Readable"));
+    assertNotNull(new SVGRenderer("counter.svg", new ByteArrayInputStream(encoded)).render());
+  }
+
+  @Test
+  public void getEncodedArchiveImageWritesTextTypographyToSvg() throws IOException {
+    final GamePieceLayout layout = new GamePieceLayout();
+    layout.setWidth(100);
+    layout.setHeight(60);
+
+    final TextItem item = new TextItem(layout, "Text");
+    item.setAttribute(TextItem.SOURCE, TextItem.SRC_FIXED);
+    item.setAttribute(TextItem.TEXT, "Styled");
+    item.setAttribute(TextItem.FONT_FAMILY, FontManager.SERIF);
+    item.setAttribute(TextItem.FONT_SIZE, 18);
+    item.setAttribute(TextItem.FONT_BOLD, true);
+    item.setAttribute(TextItem.FONT_ITALIC, true);
+    item.setAttribute(TextItem.FONT_OUTLINE, true);
+    item.setAttribute(TextItem.FONT_OUTLINE_THICKNESS, 2);
+    item.setAttribute(TextItem.FONT_OUTLINE_COLOR, ColorSwatch.getWhite());
+    layout.addItem(item);
+
+    final GamePieceImage image = new GamePieceImage(layout);
+    final byte[] encoded = image.getEncodedArchiveImage("counter.svg");
+    final String svg = new String(encoded, StandardCharsets.UTF_8);
+
+    assertTrue(svg.contains("Styled"));
+    assertTrue(svg.contains("font-family"));
+    assertTrue(svg.contains("font-size"));
+    assertTrue(svg.contains("font-weight"));
+    assertTrue(svg.contains("font-style"));
+    assertTrue(svg.contains("#ffffff") || svg.contains("rgb(255,255,255)"));
     assertNotNull(new SVGRenderer("counter.svg", new ByteArrayInputStream(encoded)).render());
   }
 
