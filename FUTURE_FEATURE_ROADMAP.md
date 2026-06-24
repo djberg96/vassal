@@ -39,9 +39,16 @@ review, or broader testing before work begins.
     remote posting, and bug-report upload use the shared layer.
   - Timeout handling and HTTP error-message formatting are centralized for
     those paths.
+  - First-pass `URLConnection` audit found no remaining external-service
+    `HttpURLConnection` callers. The remaining usages are special-purpose
+    URL/JAR/file loading:
+    - `GameState.dropFile()` accepts dropped save-game URLs and must support
+      `file:` and other transferable URL schemes.
+    - `IconFactory.findJarIcons()` uses `JarURLConnection` to enumerate icons
+      packaged in the application JAR.
+    - `Editor.launch()` disables `jar:` URL connection caching on Windows so
+      edited modules can be saved without stale open handles.
 - Remaining improvements:
-  - Audit remaining `HttpURLConnection` usages and classify them as either
-    true external-service calls or special-purpose URL/JAR/file loading.
   - Add retries only where product behavior calls for them; avoid hidden retry
     loops for user-triggered actions unless the UI explains what is happening.
   - Continue improving JSON request/response handling where providers need
