@@ -122,6 +122,7 @@ import VASSAL.tools.WriteErrorDialog;
 import VASSAL.tools.filechooser.FileChooser;
 import VASSAL.tools.image.ImageTileSource;
 import VASSAL.tools.image.tilecache.ImageTileDiskCache;
+import VASSAL.tools.jfr.ModuleLoadEvent;
 import VASSAL.tools.menu.MenuItemProxy;
 import VASSAL.tools.menu.MenuManager;
 import VASSAL.tools.swing.SwingUtils;
@@ -2042,31 +2043,51 @@ public class GameModule extends AbstractConfigurable
           theModule.getDataArchive().getName()));
     }
 
+    final ModuleLoadEvent event = new ModuleLoadEvent();
+    event.archiveName = module.getDataArchive().getName();
+    event.archiveType = module.getDataArchive().getClass().getSimpleName();
+    event.editorMode = module.getDataArchive() instanceof ArchiveWriter;
+    event.begin();
+
     theModule = module;
     theModule.setGpIdSupport(theModule);
     try {
       theModule.build();
+
+      /*
+       *  If we are editing, check for duplicate, illegal or missing GamePiece Id's
+       *  and update if necessary.
+       */
+      if (theModule.getDataArchive() instanceof ArchiveWriter) {
+        theModule.checkGpIds();
+      }
+
+      /*
+       * Tell any Plugin components that the build is complete so that they
+       * can finish initialization.
+       */
+      for (final Plugin plugin : theModule.getComponentsOf(Plugin.class)) {
+        plugin.init();
+      }
     }
     catch (IOException e) {
       theModule = null;
+      event.success = false;
+      event.errorType = e.getClass().getName();
+      event.commit();
+      throw e;
+    }
+    catch (RuntimeException e) {
+      theModule = null;
+      event.success = false;
+      event.errorType = e.getClass().getName();
+      event.commit();
       throw e;
     }
 
-    /*
-     *  If we are editing, check for duplicate, illegal or missing GamePiece Id's
-     *  and update if necessary.
-     */
-    if (theModule.getDataArchive() instanceof ArchiveWriter) {
-      theModule.checkGpIds();
-    }
-
-    /*
-     * Tell any Plugin components that the build is complete so that they
-     * can finish initialization.
-     */
-    for (final Plugin plugin : theModule.getComponentsOf(Plugin.class)) {
-      plugin.init();
-    }
+    event.componentCount = theModule.getAllDescendantComponentsOf(Buildable.class).size();
+    event.success = true;
+    event.commit();
   }
 
   /**

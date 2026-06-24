@@ -54,6 +54,7 @@ import VASSAL.tools.io.DeobfuscatingInputStream;
 import VASSAL.tools.io.ObfuscatingOutputStream;
 import VASSAL.tools.io.ZipArchive;
 import VASSAL.tools.io.ZipWriter;
+import VASSAL.tools.jfr.GameSynchronizationEvent;
 import VASSAL.tools.menu.MenuManager;
 import VASSAL.tools.swing.Dialogs;
 import VASSAL.tools.version.VersionUtils;
@@ -135,6 +136,7 @@ public class GameState implements CommandEncoder {
   protected boolean loadingInBackground = false;
   private boolean fastForwarding = false;
   private boolean synchronizationRequestPending = false;
+  private GameSynchronizationEvent synchronizationEvent;
   private final AttachmentManager attachmentManager = new AttachmentManager();
 
   public AttachmentManager getAttachmentManager() {
@@ -149,13 +151,27 @@ public class GameState implements CommandEncoder {
   }
 
   public void markSynchronizationRequestSent() {
+    finishSynchronizationEvent(false, "superseded"); //NON-NLS
     synchronizationRequestPending = true;
+    synchronizationEvent = new GameSynchronizationEvent();
+    synchronizationEvent.moduleName = GameModule.getGameModule().getGameName();
+    synchronizationEvent.begin();
   }
 
   private void reportSynchronizationComplete() {
     if (synchronizationRequestPending) {
       synchronizationRequestPending = false;
       GameModule.getGameModule().warn(Resources.getString("Chat.synchronize_complete"));
+      finishSynchronizationEvent(true, null);
+    }
+  }
+
+  private void finishSynchronizationEvent(boolean success, String errorType) {
+    if (synchronizationEvent != null) {
+      synchronizationEvent.success = success;
+      synchronizationEvent.errorType = errorType;
+      synchronizationEvent.commit();
+      synchronizationEvent = null;
     }
   }
 
