@@ -21,6 +21,7 @@ import VASSAL.build.Configurable;
 import VASSAL.build.GameModule;
 import VASSAL.build.module.PrototypeDefinition;
 import VASSAL.build.module.documentation.HelpFile;
+import VASSAL.build.module.gamepieceimage.GamePieceImage;
 import VASSAL.build.widget.CardSlot;
 import VASSAL.build.widget.PieceSlot;
 import VASSAL.configure.BooleanConfigurer;
@@ -66,6 +67,7 @@ import javax.swing.table.TableColumnModel;
 import javax.swing.tree.TreePath;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
@@ -76,11 +78,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.LinkedHashSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -107,6 +112,7 @@ public class MassPieceLoader {
   private final List<Emb> layers = new ArrayList<>();
   protected MassLoaderDialog dialog;
   private static final DirectoryConfigurer dirConfig = new DirectoryConfigurer(null, "");
+  private static final BooleanConfigurer generatedImageConfig = new BooleanConfigurer(null, "", Boolean.FALSE);
   private static final BooleanConfigurer basicConfig = new BooleanConfigurer(null, "", Boolean.FALSE);
   private static final BooleanConfigurer emptyLevelConfig = new BooleanConfigurer(null, "", Boolean.FALSE);
   private static final MassPieceDefiner definer = new MassPieceDefiner();
@@ -137,25 +143,43 @@ public class MassPieceLoader {
     protected transient MyTreeTableModel model;
     protected transient BasicNode root;
     protected File loadDirectory;
+    protected boolean generatedImageSource;
 
     public MassLoaderDialog() {
       super(configureTree.getFrame());
       setModal(true);
       setTitle(Resources.getString("Editor.MassPieceLoader.load_multiple"));
-      setLayout(new MigLayout("ins panel,wrap 2," + TraitLayout.STANDARD_GAPY, "[right]rel[grow,fill]", "[][][][]unrel[grow,fill]rel[]")); // NON-NLS
+      setLayout(new MigLayout("ins panel,wrap 2," + TraitLayout.STANDARD_GAPY, "[right]rel[grow,fill]", "[][][][][]unrel[grow,fill]rel[]")); // NON-NLS
       setPreferredSize(new Dimension(800, 600));
 
       dirConfig.addPropertyChangeListener(e -> {
         if (e.getNewValue() != null) {
-          buildTree((File) e.getNewValue());
+          if (generatedImageSource) {
+            generatedImageConfig.setValue(Boolean.FALSE);
+          }
+          else {
+            buildTree((File) e.getNewValue());
+          }
         }
       });
       add(new JLabel(Resources.getString("Editor.MassPieceLoader.image_directory")));
       add(dirConfig.getControls(), "grow"); // NON-NLS
 
+      generatedImageConfig.addPropertyChangeListener(e -> {
+        if (e.getNewValue() != null) {
+          generatedImageSource = generatedImageConfig.booleanValue();
+          setDirectoryControlsEnabled(!generatedImageSource);
+          rebuildTree();
+        }
+      });
+      add(new JLabel(Resources.getString("Editor.MassPieceLoader.generated_images")));
+      add(generatedImageConfig.getControls());
+      generatedImageSource = generatedImageConfig.booleanValue();
+      setDirectoryControlsEnabled(!generatedImageSource);
+
       basicConfig.addPropertyChangeListener(e -> {
         if (e.getNewValue() != null) {
-          buildTree(dirConfig.getFileValue());
+          rebuildTree();
         }
       });
       add(new JLabel(Resources.getString("Editor.MassPieceLoader.no_basic_piece")));
@@ -163,7 +187,7 @@ public class MassPieceLoader {
 
       emptyLevelConfig.addPropertyChangeListener(e -> {
         if (e.getNewValue() != null) {
-          buildTree(dirConfig.getFileValue());
+          rebuildTree();
         }
       });
       add(new JLabel(Resources.getString("Editor.MassPieceLoader.no_empty_level")));
@@ -179,13 +203,13 @@ public class MassPieceLoader {
           definer.setPiece(savePiece);
         }
         else {
-          buildTree(dirConfig.getFileValue());
+          rebuildTree();
         }
       });
       add(defineButton, "skip 1, growx 0"); // NON-NLS
 
       tree = new MyTreeTable();
-      buildTree(dirConfig.getFileValue());
+      rebuildTree();
       //final JPanel treePanel = new JPanel(new MigLayout("ins 0", "[grow,fill]", "[grow,fill]")); // NON-NLS
       //treePanel.add(tree, "grow"); // NON-NLS
       final JScrollPane scrollPane = new JScrollPane(tree);
@@ -223,6 +247,19 @@ public class MassPieceLoader {
           cancel();
         }
       });
+    }
+
+    private void setDirectoryControlsEnabled(boolean enabled) {
+      setEnabled(dirConfig.getControls(), enabled);
+    }
+
+    private void setEnabled(Component component, boolean enabled) {
+      component.setEnabled(enabled);
+      if (component instanceof Container) {
+        for (final Component child : ((Container) component).getComponents()) {
+          setEnabled(child, enabled);
+        }
+      }
     }
 
     public void cancel() {
@@ -267,6 +304,24 @@ public class MassPieceLoader {
       return dirConfig.getFileValue();
     }
 
+    public boolean isGeneratedImageSource() {
+      return generatedImageSource;
+    }
+
+    protected void rebuildTree() {
+      if (generatedImageSource) {
+        buildGeneratedImageTree();
+      }
+      else {
+        buildTree(dirConfig.getFileValue());
+      }
+    }
+
+    protected void buildGeneratedImageTree() {
+      generatedImageSource = true;
+      buildTree(null);
+    }
+
     private void setAllSkip(boolean skip) {
       final int count = root.getChildCount();
       for (int i = 0; i < count; ++i) {
@@ -307,7 +362,12 @@ public class MassPieceLoader {
       }
 
       // Find all of the images in the target directory
-      loadImageNames(dir);
+      if (generatedImageSource) {
+        loadGeneratedImageNames();
+      }
+      else {
+        loadImageNames(dir);
+      }
 
       // Check each image in the target directory to see if it matches the
       // level specification in any of the Embellishments in the template.
@@ -530,10 +590,13 @@ public class MassPieceLoader {
         final BasicNode node = (BasicNode) tree.getPathForRow(row)
             .getLastPathComponent();
         c.setEnabled(!node.isSkip());
+        c.setToolTipText(null);
         if (node instanceof PieceNode) {
           final String image = node.getImageName();
-          final String i = "<html><img src=\"file:/" + loadDirectory.getAbsolutePath() + "/" + image + "\"></html>"; //NON-NLS
-          c.setToolTipText(i);
+          if (loadDirectory != null) {
+            final String i = "<html><img src=\"file:/" + loadDirectory.getAbsolutePath() + "/" + image + "\"></html>"; //NON-NLS
+            c.setToolTipText(i);
+          }
         }
         return c;
       }
@@ -576,13 +639,34 @@ public class MassPieceLoader {
       }
     }
 
+    protected void loadGeneratedImageNames() {
+      imageNames.clear();
+
+      final GameModule module = GameModule.getGameModule();
+      if (module == null) {
+        return;
+      }
+
+      final Set<String> names = new LinkedHashSet<>();
+      for (final GamePieceImage image : module.getAllDescendantComponentsOf(GamePieceImage.class)) {
+        image.rebuildVisualizerImage();
+        final String imageName = image.getArchiveImageName();
+        if (imageName != null && !imageName.isBlank()) {
+          names.add(imageName);
+        }
+      }
+
+      imageNames.addAll(names);
+      Collections.sort(imageNames);
+    }
+
     /**
      * Load the Pieces based on the Node Tree built while user was editing
      */
     public void load() {
       // Check a Directory has been entered
       final File dir = dialog.getDirectory();
-      if (dir == null) {
+      if (dir == null && !dialog.isGeneratedImageSource()) {
         return;
       }
 
@@ -738,6 +822,9 @@ public class MassPieceLoader {
    *          Image name
    */
   protected void addImageToModule(String name) {
+    if (dialog != null && dialog.isGeneratedImageSource()) {
+      return;
+    }
     if (name != null && name.length() > 0) {
       try {
         GameModule.getGameModule().getArchiveWriter().addImage(
@@ -759,8 +846,14 @@ public class MassPieceLoader {
    */
   protected String getPieceName(String baseName) {
     final PieceInfo info = pieceInfo.get(baseName);
-    return info == null ? ImageUtils.stripImageSuffix(baseName) : info
+    return info == null ? defaultPieceName(baseName) : info
         .getName();
+  }
+
+  private static String defaultPieceName(String imageName) {
+    final int slash = Math.max(imageName.lastIndexOf('/'), imageName.lastIndexOf('\\'));
+    final String baseName = slash >= 0 ? imageName.substring(slash + 1) : imageName;
+    return ImageUtils.stripImageSuffix(baseName);
   }
 
   /**
@@ -1107,7 +1200,7 @@ public class MassPieceLoader {
       setImageName(imageName);
       final PieceInfo info = pieceInfo.get(imageName);
       if (info == null) {
-        setName(ImageUtils.stripImageSuffix(imageName));
+        setName(defaultPieceName(imageName));
         setSkip(false);
       }
       else {
