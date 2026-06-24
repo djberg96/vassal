@@ -22,6 +22,13 @@ class SVGRendererTest {
     </svg>
     """;
 
+  private static final String WIDE_SVG = """
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="10">
+      <rect x="0" y="0" width="10" height="10" fill="#0000ff"/>
+      <rect x="10" y="0" width="10" height="10" fill="#ff0000"/>
+    </svg>
+    """;
+
   private static final String SVG_WITH_MODERN_HREF = """
     <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10">
       <defs>
@@ -94,13 +101,28 @@ class SVGRendererTest {
 
   @Test
   void renderReturnsPixelsFromSvgImage() throws IOException {
-    final BufferedImage image = renderer().render();
+    final SVGRenderer renderer = renderer();
+    final BufferedImage image = renderer.render();
 
     assertNotNull(image);
+    assertEquals("jsvg", renderer.rendererName());
     assertEquals(10, image.getWidth());
     assertEquals(10, image.getHeight());
     assertPixel(new Color(0, 255, 0, 255), image, 0, 0);
     assertPixel(new Color(255, 0, 0, 255), image, 3, 4);
+  }
+
+  @Test
+  void renderRotatedSimpleSvgPreservesVectorPathDimensions() throws IOException {
+    final SVGRenderer renderer = renderer(WIDE_SVG);
+    final BufferedImage image = renderer.render(90.0, 1.0);
+
+    assertNotNull(image);
+    assertEquals("jsvg", renderer.rendererName());
+    assertEquals(10, image.getWidth());
+    assertEquals(20, image.getHeight());
+    assertPixel(new Color(0, 0, 255, 255), image, 5, 5);
+    assertPixel(new Color(255, 0, 0, 255), image, 5, 15);
   }
 
   @Test
@@ -143,9 +165,11 @@ class SVGRendererTest {
 
   @Test
   void renderSupportsClippedUseWithoutCroppingRightEdge() throws IOException {
-    final BufferedImage image = renderer(SVG_WITH_CLIPPED_USE).render();
+    final SVGRenderer renderer = renderer(SVG_WITH_CLIPPED_USE);
+    final BufferedImage image = renderer.render();
 
     assertNotNull(image);
+    assertEquals("echosvg", renderer.rendererName());
     assertEquals(50, image.getWidth());
     assertEquals(50, image.getHeight());
     assertPixel(new Color(0, 0, 255, 255), image, 12, 20);

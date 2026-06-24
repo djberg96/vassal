@@ -209,6 +209,10 @@ public class SVGRenderer {
     return echoCompatibilityRenderer != null;
   }
 
+  String rendererName() {
+    return hasCompatibilityRenderer() ? "echosvg" : "jsvg"; //NON-NLS
+  }
+
   private BufferedImage renderWithCompatibilityRenderer(double angle, double scale) {
     return recordRender(
       "echosvg", angle, scale, false, //NON-NLS

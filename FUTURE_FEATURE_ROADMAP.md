@@ -74,7 +74,7 @@ review, or broader testing before work begins.
   - Heavy modules can stress image rendering, SVG rendering, tile caches, and
     memory usage, but profiling is mostly manual.
   - JFR events now cover Rules Assistant request/index work, SVG rendering
-    through JSVG/Batik, and command-line tile slicing/reconstruction.
+    through JSVG/EchoSVG, and command-line tile slicing/reconstruction.
 - Proposed improvements:
   - Add Java Flight Recorder events around module loading, broader image
     rendering/cache paths, and P2P sync.
@@ -149,15 +149,17 @@ review, or broader testing before work begins.
 
 - Current state:
   - SVG rendering uses JSVG by default for normal SVGs.
-  - Complex filter-heavy SVGs fall back to Batik when JSVG output is known to
-    be inadequate.
+  - Complex SVGs with filters or clipped `<use>` content use EchoSVG as a
+    compatibility renderer when JSVG output is known to be inadequate.
+  - Batik has been removed from the renderer stack.
   - Rotated SVG pieces preserve vector rendering instead of degrading to a
     blurry raster path.
 - Remaining improvements:
   - Use JFR recordings from heavy modules to decide whether additional fallback
     rules or renderer options are needed.
-  - Keep Batik available for compatibility unless JSVG can handle the same
-    real modules with equal quality and lower memory use.
+  - Keep regression tests around renderer routing, AOI/tiled rendering,
+    clipped symbols, and rotated pieces so future JSVG/EchoSVG upgrades remain
+    safe.
 
 ## Rules Assistant
 
