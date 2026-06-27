@@ -46,6 +46,12 @@ $env:MAVEN_THREADS = "4"
 .\tools\run-vassal.ps1
 ```
 
+On macOS or Linux, pass Java VM options with `VASSAL_JAVA_OPTS`:
+
+```sh
+VASSAL_JAVA_OPTS="-Dsun.java2d.uiScale=1.5" tools/run-vassal.sh
+```
+
 To run the same steps manually:
 
 ```sh
