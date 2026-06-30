@@ -81,10 +81,12 @@ review, or broader testing before work begins.
   - Heavy modules can stress image rendering, SVG rendering, tile caches, and
     memory usage, but profiling is mostly manual.
   - JFR events now cover Rules Assistant request/index work, SVG rendering
-    through JSVG/EchoSVG, and command-line tile slicing/reconstruction.
+    through JSVG/EchoSVG, command-line tile slicing/reconstruction, module
+    loading, and game synchronization.
 - Proposed improvements:
-  - Add Java Flight Recorder events around module loading, broader image
-    rendering/cache paths, and P2P sync.
+  - Add Java Flight Recorder events around broader image rendering/cache paths.
+  - Review the module-loading and game-synchronization event payloads after
+    profiling real large modules and multiplayer sessions.
   - Evaluate Java 25+ runtime/GC behavior for large modules and document
     useful launch flags if any are consistently helpful.
 - Suggested implementation path:
@@ -110,6 +112,9 @@ review, or broader testing before work begins.
     `TextItemInstance` outline color, preserving older generated images.
   - The default one-pixel thickness preserves the previous corner-offset
     outline behavior for old modules.
+  - Focused tests cover legacy text-item decode defaults, font/outline
+    encode/decode round trips, configurable outline thickness rendering, and
+    layout-vs-instance outline color behavior.
   - `TextBoxItem` renders through `JTextPane` and does not use the outline
     drawing path.
   - Game Piece Image definitions can now define font families separately from
@@ -127,12 +132,11 @@ review, or broader testing before work begins.
     color should remain per generated image unless there is a strong reason to
     centralize it later.
 - Suggested implementation path:
-  - Add characterization tests for current `TextItem` encode/decode
-    compatibility.
   - Keep font-family definitions separate from per-layout typography controls.
   - Update `TextItem.drawLabel()` if outline modes or vector-stroked rendering
     are added.
-  - Add rendering tests for outlined text using small generated images.
+  - Extend rendering tests when adding new outline modes or vector-stroked
+    text.
   - Manually verify the Game Piece Image editor with existing modules.
 
 ## Game Piece Image Assets
