@@ -266,7 +266,7 @@ public class GameModule extends AbstractConfigurable
 
   private static String userId = null;
 
-  private static GameModule theModule;
+  private static volatile GameModule theModule;
 
   private static final String DEFAULT_MODULE_VERSION = "0.0"; //$NON-NLS-1$
 
@@ -2036,11 +2036,12 @@ public class GameModule extends AbstractConfigurable
    * invoking {@link Buildable#build} on all of the module's subcomponents as well, effectively building our whole
    * component hierarchy from the XML.
    */
-  public static void init(GameModule module) throws IOException {
+  public static synchronized void init(GameModule module) throws IOException {
     if (theModule != null) {
+      final GameModule existingModule = theModule;
       throw new UnsupportedOperationException(
         Resources.getString("GameModule.open_error",
-          theModule.getDataArchive().getName()));
+          existingModule.getDataArchive().getName()));
     }
 
     final ModuleLoadEvent event = new ModuleLoadEvent();
@@ -2050,23 +2051,23 @@ public class GameModule extends AbstractConfigurable
     event.begin();
 
     theModule = module;
-    theModule.setGpIdSupport(theModule);
+    module.setGpIdSupport(module);
     try {
-      theModule.build();
+      module.build();
 
       /*
        *  If we are editing, check for duplicate, illegal or missing GamePiece Id's
        *  and update if necessary.
        */
-      if (theModule.getDataArchive() instanceof ArchiveWriter) {
-        theModule.checkGpIds();
+      if (module.getDataArchive() instanceof ArchiveWriter) {
+        module.checkGpIds();
       }
 
       /*
        * Tell any Plugin components that the build is complete so that they
        * can finish initialization.
        */
-      for (final Plugin plugin : theModule.getComponentsOf(Plugin.class)) {
+      for (final Plugin plugin : module.getComponentsOf(Plugin.class)) {
         plugin.init();
       }
     }
@@ -2085,7 +2086,7 @@ public class GameModule extends AbstractConfigurable
       throw e;
     }
 
-    event.componentCount = theModule.getAllDescendantComponentsOf(Buildable.class).size();
+    event.componentCount = module.getAllDescendantComponentsOf(Buildable.class).size();
     event.success = true;
     event.commit();
   }
