@@ -194,6 +194,16 @@ public class GamePieceImageConfigurerTest {
   }
 
   @Test
+  public void textItemDecodeTreatsBlankLegacyFontStyleAsDefault() {
+    final TextItem item = new TextItem(new GamePieceLayout());
+
+    TextItem.decode(item, "Text;;Fixed for this layout;Hi;;;;;false");
+
+    assertEquals(FontManager.DEFAULT, item.getAttributeValueString(TextItem.FONT_FAMILY));
+    assertEquals(FontManager.DEFAULT_FONT.getSize(), item.getFont().getSize());
+  }
+
+  @Test
   public void textBoxItemMigratesLegacyFontStyleToItemFontSettings() {
     final FontManager fontManager = FontManager.getFontManager();
     fontManager.add(new FontStyle(
@@ -248,6 +258,36 @@ public class GamePieceImageConfigurerTest {
   }
 
   @Test
+  public void textItemDecodePreservesLegacyFontSettingsWhenNewFieldsAreMissing() {
+    final FontManager fontManager = FontManager.getFontManager();
+    fontManager.add(new FontStyle(
+      "Caption",
+      new OutlineFont(FontManager.SERIF, Font.BOLD, 22, true)
+    ));
+    final TextItem item = new TextItem(new GamePieceLayout());
+
+    TextItem.decode(item, "Text;Caption;Fixed for this layout;Hi;;;;;false");
+
+    assertEquals("Caption", item.getAttributeValueString(TextItem.FONT_FAMILY));
+    assertEquals("22", item.getAttributeValueString(TextItem.FONT_SIZE));
+    assertEquals("true", item.getAttributeValueString(TextItem.FONT_BOLD));
+    assertEquals("false", item.getAttributeValueString(TextItem.FONT_ITALIC));
+    assertEquals("true", item.getAttributeValueString(TextItem.FONT_OUTLINE));
+    assertEquals("1", item.getAttributeValueString(TextItem.FONT_OUTLINE_THICKNESS));
+    assertEquals("", item.getAttributeValueString(TextItem.FONT_OUTLINE_COLOR));
+  }
+
+  @Test
+  public void textItemDecodeCoercesMinimumFontSizeAndOutlineThickness() {
+    final TextItem item = new TextItem(new GamePieceLayout());
+
+    TextItem.decode(item, "Text;Default;Fixed for this layout;Hi;;;;;false;Default;0;false;false;true;0");
+
+    assertEquals("1", item.getAttributeValueString(TextItem.FONT_SIZE));
+    assertEquals("1", item.getAttributeValueString(TextItem.FONT_OUTLINE_THICKNESS));
+  }
+
+  @Test
   public void textItemOutlineThicknessDefaultsForLegacyEncoding() {
     final TextItem item = new TextItem(new GamePieceLayout());
 
@@ -293,6 +333,16 @@ public class GamePieceImageConfigurerTest {
 
     assertEquals(ColorSwatch.WHITE, decoded.getAttributeValueString(TextItem.FONT_OUTLINE_COLOR));
     assertEquals(Color.WHITE, decoded.getOutlineColor().getColor());
+  }
+
+  @Test
+  public void textItemOutlineColorTreatsBlankDecodedValueAsUnset() {
+    final TextItem item = new TextItem(new GamePieceLayout());
+
+    TextItem.decode(item, "Text;Default;Fixed for this layout;Hi;;;;;false;Default;18;false;false;true;2; ");
+
+    assertEquals("", item.getAttributeValueString(TextItem.FONT_OUTLINE_COLOR));
+    assertEquals(Color.RED, item.getOutlineColor().getColor());
   }
 
   @Test

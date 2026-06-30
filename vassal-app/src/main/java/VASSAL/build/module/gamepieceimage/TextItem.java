@@ -73,6 +73,7 @@ public class TextItem extends Item {
   public static final int AL_LEFT = 2;
   public static final int AL_TOP = 3;
   public static final int AL_BOTTOM = 4;
+  private static final int MIN_FONT_SIZE = 1;
   private static final int DEFAULT_OUTLINE_THICKNESS = 1;
 
   protected String fontStyleName = "Default"; //$NON-NLS-1$
@@ -172,7 +173,7 @@ public class TextItem extends Item {
       if (o instanceof String) {
         o = Integer.valueOf((String) o);
       }
-      fontSize = Math.max(1, (Integer) o);
+      fontSize = normalizeFontSize((Integer) o);
     }
     else if (FONT_BOLD.equals(key)) {
       if (o instanceof String) {
@@ -196,7 +197,7 @@ public class TextItem extends Item {
       if (o instanceof String) {
         o = Integer.valueOf((String) o);
       }
-      fontOutlineThickness = Math.max(1, (Integer) o);
+      fontOutlineThickness = normalizeOutlineThickness((Integer) o);
     }
     else if (FONT_OUTLINE_COLOR.equals(key)) {
       if (o instanceof String) {
@@ -382,10 +383,7 @@ public class TextItem extends Item {
     final SequenceEncoder.Decoder sd = new SequenceEncoder.Decoder(s, ';');
 
     sd.nextToken();
-    item.fontStyleName = sd.nextToken(FontManager.DEFAULT);
-    if (item.fontStyleName.length() == 0) {
-      item.fontStyleName = FontManager.DEFAULT;
-    }
+    item.fontStyleName = decodeFontStyleName(sd);
     item.applyFontStyle(FontManager.getFontManager().getFontStyle(item.fontStyleName));
     item.textSource = sd.nextToken(SRC_VARIABLE);
     item.text = sd.nextToken(""); //$NON-NLS-1$
@@ -395,13 +393,12 @@ public class TextItem extends Item {
     item.lockKey = sd.nextKeyStroke(null);
     item.lockable = sd.nextBoolean(false);
     item.fontFamily = sd.nextToken(item.fontFamily);
-    item.fontSize = sd.nextInt(item.fontSize);
+    item.fontSize = normalizeFontSize(sd.nextInt(item.fontSize));
     item.fontBold = sd.nextBoolean(item.fontBold);
     item.fontItalic = sd.nextBoolean(item.fontItalic);
     item.fontOutline = sd.nextBoolean(item.fontOutline);
-    item.fontOutlineThickness = sd.nextInt(DEFAULT_OUTLINE_THICKNESS);
-    final String outlineColor = sd.nextToken(null);
-    item.fontOutlineColor = outlineColor == null || outlineColor.isBlank() ? null : new ColorSwatch(outlineColor);
+    item.fontOutlineThickness = normalizeOutlineThickness(sd.nextInt(DEFAULT_OUTLINE_THICKNESS));
+    item.fontOutlineColor = decodeOptionalColorSwatch(sd.nextToken(null));
 
   }
 
@@ -459,12 +456,29 @@ public class TextItem extends Item {
   private void applyFontStyle(FontStyle style) {
     final OutlineFont font = style.getFont();
     fontFamily = style.getConfigureName();
-    fontSize = Math.max(1, font.getSize());
+    fontSize = normalizeFontSize(font.getSize());
     fontBold = (font.getStyle() & Font.BOLD) != 0;
     fontItalic = (font.getStyle() & Font.ITALIC) != 0;
     fontOutline = font.isOutline();
     fontOutlineThickness = DEFAULT_OUTLINE_THICKNESS;
     fontOutlineColor = null;
+  }
+
+  private static String decodeFontStyleName(SequenceEncoder.Decoder sd) {
+    final String name = sd.nextToken(FontManager.DEFAULT);
+    return name.isEmpty() ? FontManager.DEFAULT : name;
+  }
+
+  private static int normalizeFontSize(int size) {
+    return Math.max(MIN_FONT_SIZE, size);
+  }
+
+  private static int normalizeOutlineThickness(int thickness) {
+    return Math.max(DEFAULT_OUTLINE_THICKNESS, thickness);
+  }
+
+  private static ColorSwatch decodeOptionalColorSwatch(String encodedColor) {
+    return encodedColor == null || encodedColor.isBlank() ? null : new ColorSwatch(encodedColor);
   }
 
   public boolean isFixed() {
