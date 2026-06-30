@@ -1,6 +1,8 @@
 package VASSAL.build.module.documentation.ai;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 
@@ -56,6 +58,22 @@ public class ManusRulesAssistantClientTest {
   }
 
   @Test
+  public void latestAssistantContentReturnsNullWhenAnswerIsMissing() throws IOException {
+    final String response = "{\"messages\":[{\"type\":\"status_update\"}]}";
+
+    assertNull(ManusRulesAssistantClient.latestAssistantContent(response));
+  }
+
+  @Test
+  public void latestAssistantContentRejectsMalformedAnswerString() {
+    final String response = "{\"messages\":["
+      + "{\"type\":\"assistant_message\",\"assistant_message\":{\"content\":\"Unfinished}"
+      + "]}";
+
+    assertThrows(IOException.class, () -> ManusRulesAssistantClient.latestAssistantContent(response));
+  }
+
+  @Test
   public void assistantMessageCountCountsExistingAnswers() {
     final String response = "{"
       + "\"messages\":["
@@ -80,6 +98,13 @@ public class ManusRulesAssistantClientTest {
   }
 
   @Test
+  public void latestAgentStatusReturnsNullWhenStatusIsMissing() throws IOException {
+    final String response = "{\"messages\":[{\"type\":\"assistant_message\"}]}";
+
+    assertNull(ManusRulesAssistantClient.latestAgentStatus(response));
+  }
+
+  @Test
   public void firstErrorMessageReadsTaskError() throws IOException {
     final String response = "{"
       + "\"messages\":["
@@ -95,6 +120,13 @@ public class ManusRulesAssistantClientTest {
     final String response = "{\"ok\":false,\"error\":{\"code\":\"permission_denied\",\"message\":\"Bad key\"}}";
 
     assertEquals("Bad key", ManusRulesAssistantClient.firstErrorMessage(response));
+  }
+
+  @Test
+  public void firstErrorMessageReturnsNullWhenErrorIsMissing() throws IOException {
+    final String response = "{\"ok\":true}";
+
+    assertNull(ManusRulesAssistantClient.firstErrorMessage(response));
   }
 
   @Test

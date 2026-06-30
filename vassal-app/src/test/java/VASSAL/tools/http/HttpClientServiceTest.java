@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.http.HttpTimeoutException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -156,6 +157,23 @@ class HttpClientServiceTest {
     );
 
     assertEquals("dice.example returned HTTP 503: not today", e.getMessage()); //NON-NLS
+  }
+
+  @Test
+  void requestTimeoutIsAppliedToSlowResponses() throws IOException {
+    startServer(exchange -> {
+      try {
+        Thread.sleep(500);
+      }
+      catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+      }
+      send(exchange, 200, "late"); //NON-NLS
+    });
+
+    final HttpClientService shortTimeoutClient = HttpClientService.createDefault(Duration.ofMillis(50));
+
+    assertThrows(HttpTimeoutException.class, () -> shortTimeoutClient.get(uri("/slow"))); //NON-NLS
   }
 
   private HttpClientService client() {

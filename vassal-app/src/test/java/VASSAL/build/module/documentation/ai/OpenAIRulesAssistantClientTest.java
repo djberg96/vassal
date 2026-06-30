@@ -1,6 +1,8 @@
 package VASSAL.build.module.documentation.ai;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 
@@ -17,6 +19,20 @@ public class OpenAIRulesAssistantClientTest {
     final String json = "{\"output_text\":\"Line 1\\nLine \\\"2\\\"\"}";
 
     assertEquals("Line 1\nLine \"2\"", OpenAIRulesAssistantClient.jsonStringProperty(json, "output_text"));
+  }
+
+  @Test
+  public void jsonStringPropertyRejectsUnterminatedString() {
+    final String json = "{\"output_text\":\"Line 1}";
+
+    assertThrows(IOException.class, () -> OpenAIRulesAssistantClient.jsonStringProperty(json, "output_text"));
+  }
+
+  @Test
+  public void jsonStringPropertyRejectsInvalidUnicodeEscape() {
+    final String json = "{\"output_text\":\"Bad \\u12xz\"}";
+
+    assertThrows(IOException.class, () -> OpenAIRulesAssistantClient.jsonStringProperty(json, "output_text"));
   }
 
   @Test
@@ -44,6 +60,13 @@ public class OpenAIRulesAssistantClientTest {
       + "}";
 
     assertEquals("Player-facing answer", OpenAIRulesAssistantClient.responseOutputText(json));
+  }
+
+  @Test
+  public void responseOutputTextReturnsNullWhenTextIsMissing() throws IOException {
+    final String json = "{\"output\":[{\"type\":\"message\",\"content\":[]}]}";
+
+    assertNull(OpenAIRulesAssistantClient.responseOutputText(json));
   }
 
   @Test

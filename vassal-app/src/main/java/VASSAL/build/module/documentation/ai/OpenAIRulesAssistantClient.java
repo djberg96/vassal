@@ -199,7 +199,12 @@ public class OpenAIRulesAssistantClient implements RulesAssistantClient {
         if (i + 4 >= json.length()) {
           throw new IOException("Incomplete JSON unicode escape."); //NON-NLS
         }
-        sb.append((char) Integer.parseInt(json.substring(i + 1, i + 5), 16));
+        try {
+          sb.append((char) Integer.parseInt(json.substring(i + 1, i + 5), 16));
+        }
+        catch (NumberFormatException e) {
+          throw new IOException("Invalid JSON unicode escape.", e); //NON-NLS
+        }
         i += 4;
       }
       default -> throw new IOException("Unsupported JSON escape: " + escape); //NON-NLS
