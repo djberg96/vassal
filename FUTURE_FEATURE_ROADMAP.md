@@ -20,6 +20,8 @@ review, or broader testing before work begins.
     explicit at call sites.
   - Focused tests cover callback ordering, error delivery, and cancellation
     behavior for the shared background task service.
+  - Module Manager shutdown now guards against late automatic update prompts
+    while the application is closing.
 - Remaining improvements:
   - Evaluate P2P connection attempts and message handling for virtual-thread
     cleanup after more multiplayer testing.
@@ -39,6 +41,13 @@ review, or broader testing before work begins.
     remote posting, and bug-report upload use the shared layer.
   - Timeout handling and HTTP error-message formatting are centralized for
     those paths.
+  - Focused tests cover shared HTTP success/error handling, timeout behavior,
+    Rules Assistant malformed response parsing, and update-check callback
+    behavior.
+  - Update-check availability can be injected for tests while preserving the
+    default live version-check behavior.
+  - External browser launching logs the selected launch path and suppresses
+    noisy browser subprocess stderr.
   - First-pass `URLConnection` audit found no remaining external-service
     `HttpURLConnection` callers. The remaining usages are special-purpose
     URL/JAR/file loading:
@@ -54,9 +63,9 @@ review, or broader testing before work begins.
   - Continue improving JSON request/response handling where providers need
     richer structured data.
 - Suggested next steps:
-  - Add more mockable tests for HTTP status handling, timeouts, and malformed
-    responses.
   - Prefer the shared layer for new external-service work.
+  - Continue adding narrow test seams around external processes and services
+    when behavior is otherwise difficult to exercise.
 
 ### Language Cleanup
 
@@ -83,6 +92,8 @@ review, or broader testing before work begins.
   - JFR events now cover Rules Assistant request/index work, SVG rendering
     through JSVG/EchoSVG, command-line tile slicing/reconstruction, module
     loading, and game synchronization.
+  - Shared helpers centralize JFR success/failure marking so event call sites
+    use consistent outcome metadata.
 - Proposed improvements:
   - Add Java Flight Recorder events around broader image rendering/cache paths.
   - Review the module-loading and game-synchronization event payloads after
@@ -90,7 +101,7 @@ review, or broader testing before work begins.
   - Evaluate Java 25+ runtime/GC behavior for large modules and document
     useful launch flags if any are consistently helpful.
 - Suggested implementation path:
-  - Continue adding low-overhead JFR events behind stable utility methods.
+  - Continue adding low-overhead JFR events through stable utility methods.
   - Use profiling runs on known heavy modules before changing defaults.
 
 ### Deferred Newer Java Features
@@ -115,6 +126,8 @@ review, or broader testing before work begins.
   - Focused tests cover legacy text-item decode defaults, font/outline
     encode/decode round trips, configurable outline thickness rendering, and
     layout-vs-instance outline color behavior.
+  - Text-item serialization uses shared decode/default helpers so hand-edited
+    or partial encodings use the same minimums as editor-set values.
   - `TextBoxItem` renders through `JTextPane` and does not use the outline
     drawing path.
   - Game Piece Image definitions can now define font families separately from
