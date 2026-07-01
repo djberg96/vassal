@@ -38,9 +38,14 @@ public class UpdateCheckRequest extends AbstractUpdateCheckRequest {
   @Override
   protected void succeeded(boolean update) {
     if (update) {
+      final ModuleManagerWindow window = ModuleManagerWindow.getInstance();
+      if (window.isShuttingDown()) {
+        return;
+      }
+
       // running version is obsolete
       if (JOptionPane.showConfirmDialog(
-          ModuleManagerWindow.getInstance(),
+          window,
           Resources.getString("UpdateCheckAction.update_available_message"),
           Resources.getString("UpdateCheckAction.update_available_title"),
           JOptionPane.YES_NO_OPTION,

@@ -202,6 +202,8 @@ public final class ModuleManagerWindow extends JFrame {
 
   private static final ModuleManagerWindow instance = new ModuleManagerWindow();
 
+  private boolean shuttingDown;
+
   private ModuleManagerWindow() {
     setTitle("VASSAL " + Info.getVersion()); //NON-NLS
     setLayout(new BoxLayout(getContentPane(), BoxLayout.X_AXIS));
@@ -213,6 +215,7 @@ public final class ModuleManagerWindow extends JFrame {
 
       @Override
       public void actionPerformed(ActionEvent e) {
+        shuttingDown = true;
         saveColumnWidths();
         final Prefs gp = Prefs.getGlobalPrefs();
         try {
@@ -473,6 +476,10 @@ public final class ModuleManagerWindow extends JFrame {
     final PositionOption option =
       new PositionOption(PositionOption.key + "ModuleManager", this); //NON-NLS
     Prefs.getGlobalPrefs().addOption(option);
+  }
+
+  public boolean isShuttingDown() {
+    return shuttingDown;
   }
 
   public void setWaitCursor(boolean wait) {
