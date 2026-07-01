@@ -122,6 +122,7 @@ import VASSAL.tools.WriteErrorDialog;
 import VASSAL.tools.filechooser.FileChooser;
 import VASSAL.tools.image.ImageTileSource;
 import VASSAL.tools.image.tilecache.ImageTileDiskCache;
+import VASSAL.tools.jfr.JfrEvents;
 import VASSAL.tools.jfr.ModuleLoadEvent;
 import VASSAL.tools.menu.MenuItemProxy;
 import VASSAL.tools.menu.MenuManager;
@@ -2073,22 +2074,17 @@ public class GameModule extends AbstractConfigurable
     }
     catch (IOException e) {
       theModule = null;
-      event.success = false;
-      event.errorType = e.getClass().getName();
-      event.commit();
+      JfrEvents.commitFailure(event, e);
       throw e;
     }
     catch (RuntimeException e) {
       theModule = null;
-      event.success = false;
-      event.errorType = e.getClass().getName();
-      event.commit();
+      JfrEvents.commitFailure(event, e);
       throw e;
     }
 
     event.componentCount = module.getAllDescendantComponentsOf(Buildable.class).size();
-    event.success = true;
-    event.commit();
+    JfrEvents.commitSuccess(event);
   }
 
   /**

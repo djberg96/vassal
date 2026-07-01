@@ -31,6 +31,7 @@ import VASSAL.tools.image.ImageIOImageLoader;
 import VASSAL.tools.image.ImageLoader;
 import VASSAL.tools.image.ImageTypeConverter;
 import VASSAL.tools.io.TemporaryFileFactory;
+import VASSAL.tools.jfr.JfrEvents;
 import VASSAL.tools.jfr.TileProcessingEvent;
 import VASSAL.tools.lang.Callback;
 
@@ -92,11 +93,10 @@ public class ImageToTiles {
 
     try {
       slicer.slice(src, iname, tpath, tw, th, exec, dotter);
-      event.success = true;
+      JfrEvents.markSuccess(event);
     }
     catch (IOException | RuntimeException e) {
-      event.success = false;
-      event.errorType = e.getClass().getName();
+      JfrEvents.markFailure(event, e);
       throw e;
     }
     finally {

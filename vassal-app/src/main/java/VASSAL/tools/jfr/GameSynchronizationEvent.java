@@ -17,7 +17,7 @@ import jdk.jfr.Name;
 @Label("Game Synchronization")
 @Category({"VASSAL", "Networking"})
 @Description("Tracks a requested game synchronization until the received game state is loaded.")
-public class GameSynchronizationEvent extends Event {
+public class GameSynchronizationEvent extends Event implements JfrOutcomeEvent, JfrErrorEvent {
   @Label("Module")
   public String moduleName;
 
@@ -26,4 +26,14 @@ public class GameSynchronizationEvent extends Event {
 
   @Label("Error Type")
   public String errorType;
+
+  @Override
+  public void setSuccess(boolean success) {
+    this.success = success;
+  }
+
+  @Override
+  public void setErrorType(String errorType) {
+    this.errorType = errorType;
+  }
 }

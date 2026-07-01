@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
+import VASSAL.tools.jfr.JfrEvents;
 import VASSAL.tools.jfr.TileProcessingEvent;
 
 /**
@@ -153,11 +154,10 @@ public class TilesToImage {
           throw new IOException("No PNG image writer is available"); //NON-NLS
         }
       }
-      event.success = true;
+      JfrEvents.markSuccess(event);
     }
     catch (IOException | RuntimeException e) {
-      event.success = false;
-      event.errorType = e.getClass().getName();
+      JfrEvents.markFailure(event, e);
       throw e;
     }
     finally {

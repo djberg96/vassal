@@ -17,7 +17,7 @@ import jdk.jfr.Name;
 @Label("Tile Processing")
 @Category({"VASSAL", "Image Tiling"})
 @Description("Slices an image into tiles or reconstructs an image from tiles.")
-public class TileProcessingEvent extends Event {
+public class TileProcessingEvent extends Event implements JfrOutcomeEvent, JfrErrorEvent {
   @Label("Operation")
   public String operation;
 
@@ -47,4 +47,14 @@ public class TileProcessingEvent extends Event {
 
   @Label("Error Type")
   public String errorType;
+
+  @Override
+  public void setSuccess(boolean success) {
+    this.success = success;
+  }
+
+  @Override
+  public void setErrorType(String errorType) {
+    this.errorType = errorType;
+  }
 }

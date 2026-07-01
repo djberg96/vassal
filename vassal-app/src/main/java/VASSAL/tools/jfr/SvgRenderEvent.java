@@ -17,7 +17,7 @@ import jdk.jfr.Name;
 @Label("SVG Render")
 @Category({"VASSAL", "Image Rendering"})
 @Description("Renders an SVG image through JSVG or EchoSVG.")
-public class SvgRenderEvent extends Event {
+public class SvgRenderEvent extends Event implements JfrOutcomeEvent {
   @Label("Source")
   public String source;
 
@@ -41,4 +41,9 @@ public class SvgRenderEvent extends Event {
 
   @Label("Success")
   public boolean success;
+
+  @Override
+  public void setSuccess(boolean success) {
+    this.success = success;
+  }
 }

@@ -55,6 +55,7 @@ import VASSAL.tools.io.ObfuscatingOutputStream;
 import VASSAL.tools.io.ZipArchive;
 import VASSAL.tools.io.ZipWriter;
 import VASSAL.tools.jfr.GameSynchronizationEvent;
+import VASSAL.tools.jfr.JfrEvents;
 import VASSAL.tools.menu.MenuManager;
 import VASSAL.tools.swing.Dialogs;
 import VASSAL.tools.version.VersionUtils;
@@ -168,9 +169,12 @@ public class GameState implements CommandEncoder {
 
   private void finishSynchronizationEvent(boolean success, String errorType) {
     if (synchronizationEvent != null) {
-      synchronizationEvent.success = success;
-      synchronizationEvent.errorType = errorType;
-      synchronizationEvent.commit();
+      if (success) {
+        JfrEvents.commitSuccess(synchronizationEvent);
+      }
+      else {
+        JfrEvents.commitFailure(synchronizationEvent, errorType);
+      }
       synchronizationEvent = null;
     }
   }

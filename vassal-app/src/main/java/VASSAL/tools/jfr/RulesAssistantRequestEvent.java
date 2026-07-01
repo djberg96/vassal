@@ -17,7 +17,7 @@ import jdk.jfr.Name;
 @Label("Rules Assistant Request")
 @Category({"VASSAL", "Rules Assistant"})
 @Description("Answers a Rules Assistant question using indexed module rules and chart excerpts.")
-public class RulesAssistantRequestEvent extends Event {
+public class RulesAssistantRequestEvent extends Event implements JfrOutcomeEvent, JfrErrorEvent {
   @Label("Module")
   public String moduleName;
 
@@ -35,4 +35,14 @@ public class RulesAssistantRequestEvent extends Event {
 
   @Label("Error Type")
   public String errorType;
+
+  @Override
+  public void setSuccess(boolean success) {
+    this.success = success;
+  }
+
+  @Override
+  public void setErrorType(String errorType) {
+    this.errorType = errorType;
+  }
 }

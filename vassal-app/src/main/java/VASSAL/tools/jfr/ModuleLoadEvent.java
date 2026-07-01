@@ -17,7 +17,7 @@ import jdk.jfr.Name;
 @Label("Module Load")
 @Category({"VASSAL", "Module Loading"})
 @Description("Initializes and builds a module from its archive.")
-public class ModuleLoadEvent extends Event {
+public class ModuleLoadEvent extends Event implements JfrOutcomeEvent, JfrErrorEvent {
   @Label("Archive")
   public String archiveName;
 
@@ -35,4 +35,14 @@ public class ModuleLoadEvent extends Event {
 
   @Label("Error Type")
   public String errorType;
+
+  @Override
+  public void setSuccess(boolean success) {
+    this.success = success;
+  }
+
+  @Override
+  public void setErrorType(String errorType) {
+    this.errorType = errorType;
+  }
 }

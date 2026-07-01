@@ -17,6 +17,7 @@ import java.util.List;
 import VASSAL.build.GameModule;
 import VASSAL.configure.StringConfigurer;
 import VASSAL.preferences.Prefs;
+import VASSAL.tools.jfr.JfrEvents;
 import VASSAL.tools.jfr.RulesAssistantIndexEvent;
 import VASSAL.tools.jfr.RulesAssistantRequestEvent;
 
@@ -39,9 +40,7 @@ public class RulesAssistantService {
     event.begin();
 
     if (question == null || question.isBlank()) {
-      event.success = false;
-      event.errorType = IOException.class.getName();
-      event.commit();
+      JfrEvents.commitFailure(event, IOException.class.getName());
       throw new IOException("Enter a rules question first."); //NON-NLS
     }
 
@@ -66,12 +65,11 @@ public class RulesAssistantService {
       }
 
       final String answer = clientFor(prefs).answer(buildPrompt(question, chunks));
-      event.success = true;
+      JfrEvents.markSuccess(event);
       return answer;
     }
     catch (IOException | RuntimeException e) {
-      event.success = false;
-      event.errorType = e.getClass().getName();
+      JfrEvents.markFailure(event, e);
       throw e;
     }
     finally {
@@ -87,12 +85,11 @@ public class RulesAssistantService {
     try {
       final RulesDocumentIndex builtIndex = RulesDocumentIndex.build(module);
       event.chunkCount = builtIndex.chunkCount();
-      event.success = true;
+      JfrEvents.markSuccess(event);
       return builtIndex;
     }
     catch (IOException | RuntimeException e) {
-      event.success = false;
-      event.errorType = e.getClass().getName();
+      JfrEvents.markFailure(event, e);
       throw e;
     }
     finally {

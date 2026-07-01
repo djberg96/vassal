@@ -42,6 +42,7 @@ import com.github.weisj.jsvg.view.ViewBox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import VASSAL.tools.jfr.JfrEvents;
 import VASSAL.tools.jfr.SvgRenderEvent;
 import VASSAL.tools.image.ImageUtils;
 
@@ -242,7 +243,7 @@ public class SVGRenderer {
         event.width = image.getWidth();
         event.height = image.getHeight();
       }
-      event.success = image != null;
+      JfrEvents.markOutcome(event, image != null);
       return image;
     }
     finally {
