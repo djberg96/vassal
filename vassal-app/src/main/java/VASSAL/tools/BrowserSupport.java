@@ -27,6 +27,8 @@ import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 import org.apache.commons.lang3.SystemUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Utility class for displaying an external browser window.
@@ -34,6 +36,9 @@ import org.apache.commons.lang3.SystemUtils;
  * @author rkinney
  */
 public class BrowserSupport {
+  private static final Logger logger =
+    LoggerFactory.getLogger(BrowserSupport.class);
+
   public static void openURI(URI uri) {
     //
     // This method is irritatingly complex because java.awt.Desktop seems
@@ -46,6 +51,7 @@ public class BrowserSupport {
         final Desktop desktop = Desktop.getDesktop();
         if (desktop.isSupported(Desktop.Action.BROWSE)) {
           try {
+            logger.debug("Opening URI with Desktop.browse: {}", uri); //NON-NLS
             desktop.browse(uri);
           }
           catch (IOException e) {
@@ -56,22 +62,32 @@ public class BrowserSupport {
       }
     }
 
-    // Try start, open, or xdg-open in case nothing else works
-    final String uristr = uri.toString();
+    openURIWithExternalLauncher(uri);
+  }
 
-    final String launcher;
-    if (SystemUtils.IS_OS_WINDOWS) {
-      launcher = "start";  //NON-NLS
+  static String externalLauncher() {
+    return externalLauncher(SystemUtils.IS_OS_WINDOWS, SystemUtils.IS_OS_MAC);
+  }
+
+  static String externalLauncher(boolean windows, boolean mac) {
+    if (windows) {
+      return "start"; //NON-NLS
     }
-    else if (SystemUtils.IS_OS_MAC) {
-      launcher = "open";  //NON-NLS
+    else if (mac) {
+      return "open"; //NON-NLS
     }
     else {
-      launcher = "xdg-open";  //NON-NLS
+      return "xdg-open"; //NON-NLS
     }
+  }
+
+  private static void openURIWithExternalLauncher(URI uri) {
+    final String uristr = uri.toString();
+    final String launcher = externalLauncher();
+    logger.debug("Opening URI with external launcher {}: {}", launcher, uristr); //NON-NLS
 
     final ProcessBuilder pb = new ProcessBuilder(launcher, uristr);
-    pb.redirectError(ProcessBuilder.Redirect.INHERIT);
+    pb.redirectError(ProcessBuilder.Redirect.DISCARD);
     try {
       pb.start();
     }
