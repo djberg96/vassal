@@ -16,7 +16,7 @@
  */
 package VASSAL.tools.version;
 
-import java.io.IOException;
+import java.util.Objects;
 
 import VASSAL.Info;
 import VASSAL.tools.concurrent.BackgroundTasks;
@@ -26,16 +26,22 @@ import VASSAL.tools.concurrent.BackgroundTasks;
  * @author Joel Uckelman
  */
 public abstract class AbstractUpdateCheckRequest {
+  private final UpdateAvailabilityChecker checker;
+
+  protected AbstractUpdateCheckRequest() {
+    this(() -> !VersionUtils.isCurrent(Info.getVersion()));
+  }
+
+  protected AbstractUpdateCheckRequest(UpdateAvailabilityChecker checker) {
+    this.checker = Objects.requireNonNull(checker, "checker"); //NON-NLS
+  }
+
   public final void execute() {
     BackgroundTasks.submitWithCallbacksOnEdt(
-      this::isUpdateAvailable,
+      checker::isUpdateAvailable,
       update -> succeeded(Boolean.TRUE.equals(update)),
       this::failed
     );
-  }
-
-  private Boolean isUpdateAvailable() throws IOException {
-    return !VersionUtils.isCurrent(Info.getVersion());
   }
 
   protected abstract void succeeded(boolean update);
