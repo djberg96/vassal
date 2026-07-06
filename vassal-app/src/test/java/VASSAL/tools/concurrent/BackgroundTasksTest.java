@@ -51,6 +51,35 @@ public class BackgroundTasksTest {
   }
 
   @Test
+  public void namedTaskContextIsScopedToBackgroundTask() throws Exception {
+    final CountDownLatch done = new CountDownLatch(1);
+    final AtomicReference<String> taskName = new AtomicReference<>();
+    final AtomicReference<String> callbackName = new AtomicReference<>();
+    final AtomicReference<Throwable> error = new AtomicReference<>();
+
+    BackgroundTasks.submitWithCallbacksOnEdt(
+      "test-background-task", //NON-NLS
+      () -> {
+        taskName.set(BackgroundTasks.currentContext().name());
+        return null;
+      },
+      ignored -> {
+        callbackName.set(BackgroundTasks.currentContext().name());
+        done.countDown();
+      },
+      failure -> {
+        error.set(failure);
+        done.countDown();
+      }
+    );
+
+    assertTrue(done.await(5, TimeUnit.SECONDS));
+    assertNull(error.get());
+    assertEquals("test-background-task", taskName.get()); //NON-NLS
+    assertEquals("unnamed", callbackName.get()); //NON-NLS
+  }
+
+  @Test
   public void successCallbackRunsAfterTaskCompletes() throws Exception {
     final CountDownLatch done = new CountDownLatch(1);
     final List<String> events = new CopyOnWriteArrayList<>();

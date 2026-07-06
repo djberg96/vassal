@@ -16,7 +16,13 @@ import java.util.function.Consumer;
 
 import javax.swing.SwingUtilities;
 
+import VASSAL.tools.jfr.BackgroundTaskEvent;
+import VASSAL.tools.jfr.JfrEvents;
+
 public final class BackgroundTasks {
+  private static final ScopedValue<BackgroundTaskContext> CURRENT_CONTEXT =
+    ScopedValue.newInstance();
+
   private static final ExecutorService EXECUTOR = Executors.newThreadPerTaskExecutor(
     Thread.ofVirtual().name("VASSAL-background-", 0).factory() //NON-NLS
   );
@@ -29,11 +35,33 @@ public final class BackgroundTasks {
     return EXECUTOR.submit(task);
   }
 
+  public static Future<?> submit(String name, Runnable task) {
+    Objects.requireNonNull(task, "task"); //NON-NLS
+    return EXECUTOR.submit(() -> runWithContext(name, () -> {
+      task.run();
+      return null;
+    }));
+  }
+
   /**
    * Runs {@code task} on a background virtual thread, then invokes exactly one
    * callback on the Swing event dispatch thread.
    */
   public static <T> Future<?> submitWithCallbacksOnEdt(
+    Callable<T> task,
+    Consumer<? super T> onSuccess,
+    Consumer<? super Throwable> onFailure
+  ) {
+    return submitWithCallbacksOnEdt(null, task, onSuccess, onFailure);
+  }
+
+  /**
+   * Runs {@code task} on a background virtual thread with a scoped task
+   * context, then invokes exactly one callback on the Swing event dispatch
+   * thread.
+   */
+  public static <T> Future<?> submitWithCallbacksOnEdt(
+    String name,
     Callable<T> task,
     Consumer<? super T> onSuccess,
     Consumer<? super Throwable> onFailure
@@ -44,7 +72,7 @@ public final class BackgroundTasks {
 
     return EXECUTOR.submit(() -> {
       try {
-        final T result = task.call();
+        final T result = runWithContext(name, task);
         SwingUtilities.invokeLater(() -> onSuccess.accept(result));
       }
       catch (Throwable t) {
@@ -54,6 +82,36 @@ public final class BackgroundTasks {
         SwingUtilities.invokeLater(() -> onFailure.accept(t));
       }
     });
+  }
+
+  public static BackgroundTaskContext currentContext() {
+    return CURRENT_CONTEXT.orElse(BackgroundTaskContext.UNNAMED);
+  }
+
+  private static <T> T runWithContext(String name, Callable<T> task) throws Exception {
+    return ScopedValue.where(CURRENT_CONTEXT, BackgroundTaskContext.named(name))
+      .call(() -> {
+        final BackgroundTaskEvent event = new BackgroundTaskEvent();
+        event.taskName = currentContext().name();
+        event.begin();
+
+        try {
+          final T result = task.call();
+          JfrEvents.markSuccess(event);
+          return result;
+        }
+        catch (Exception e) {
+          JfrEvents.markFailure(event, e);
+          throw e;
+        }
+        catch (Error e) {
+          JfrEvents.markFailure(event, e);
+          throw e;
+        }
+        finally {
+          event.commit();
+        }
+      });
   }
 
   /**
@@ -67,5 +125,14 @@ public final class BackgroundTasks {
     Consumer<? super Throwable> onFailure
   ) {
     return submitWithCallbacksOnEdt(task, onSuccess, onFailure);
+  }
+
+  public record BackgroundTaskContext(String name) {
+    private static final BackgroundTaskContext UNNAMED =
+      new BackgroundTaskContext("unnamed"); //NON-NLS
+
+    private static BackgroundTaskContext named(String name) {
+      return name == null || name.isBlank() ? UNNAMED : new BackgroundTaskContext(name);
+    }
   }
 }

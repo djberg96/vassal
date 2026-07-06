@@ -38,6 +38,7 @@ public abstract class AbstractUpdateCheckRequest {
 
   public final void execute() {
     BackgroundTasks.submitWithCallbacksOnEdt(
+      "update-check", //NON-NLS
       checker::isUpdateAvailable,
       update -> succeeded(Boolean.TRUE.equals(update)),
       this::failed
