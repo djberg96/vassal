@@ -31,9 +31,6 @@ snapshots/
 .DS_Store
 
 # Documentation
-userguide.pdf
-developerguide.pdf
-designerguide.pdf
 *.html
 
 # Debian
