@@ -204,6 +204,48 @@ review, or broader testing before work begins.
   - Consider indexing rules/charts in a background task before the first
     question, with clear progress and cancellation.
 
+## Module Authoring API
+
+### Scriptable Module Generation
+
+- Current state:
+  - VASSAL modules are `.vmod` zip archives containing a serialized
+    `buildFile.xml` component tree plus images and other assets.
+  - Module authors can use BeanShell expressions and scripts inside the
+    editor, and advanced modules can import compiled Java custom classes.
+  - There is no first-class programmable interface for creating or modifying
+    modules from Java-compatible languages such as JRuby, Jython, Scala,
+    Kotlin, or other JVM-hosted tooling.
+  - Directly generating or editing `buildFile.xml` from external scripts is
+    possible in principle, but it depends on internal serialization details
+    rather than a stable authoring API.
+- Proposed improvements:
+  - Define a stable declarative module description format, such as JSON or
+    YAML, that can describe common module structure, maps, boards, pieces,
+    prototypes, decks, charts, and assets.
+  - Add a validation and build tool which turns that declarative format into a
+    `.vmod` archive using VASSAL's Java-side component model.
+  - Provide a Java library and CLI suitable for use from JVM-compatible
+    languages and external tools, instead of tying module generation to one
+    embedded language runtime.
+  - Consider small language-specific helper libraries or idiomatic wrappers
+    only after the core Java API, schema, and CLI are stable enough to support
+    real module-author workflows.
+- Compatibility notes:
+  - The public format should avoid exposing raw `buildFile.xml` encodings
+    wherever possible, so internal serialization can keep evolving.
+  - Generated modules should remain editable in the normal VASSAL editor.
+  - Existing BeanShell and Java custom-code support should remain available,
+    but the new API should not require authors to write Java for ordinary
+    module generation tasks, or to adopt a single blessed scripting language.
+- Suggested implementation path:
+  - Start with a narrow vertical slice that can generate a playable minimal
+    module with a map, a board image, a prototype, a few pieces, and image
+    assets.
+  - Add round-trip and editor-open tests before expanding the schema.
+  - Document the schema with examples in the user/developer docs once the
+    first slice is usable.
+
 ## Fork Planning
 
 ### Dannik Working Name
