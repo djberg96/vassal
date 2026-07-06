@@ -922,6 +922,13 @@ Click *Help* to determine your module's exact help menu layout.
 
 Typically, the menu will also include an *About* window to show the version number of the Vassal engine and your current module, which can be useful for troubleshooting.
 
+Some modules can also use *Help > Ask Rules Assistant...*.
+When enabled in Preferences, the Rules Assistant reads rules and chart material included in the module, selects relevant excerpts, and sends your question plus those excerpts to the selected AI provider.
+Answers are intended as play aids, not as official errata or tournament rulings; when a ruling matters, verify it against the cited rules, charts, or the publisher's current rules.
+
+The Rules Assistant window keeps the current session's questions and answers while the module is open.
+You can move backward and forward through that history, copy an answer, or save an answer or selected excerpt to Public Notes when the module includes a Notes window.
+
 === Preferences
 
 You can set a variety of preferences for your Vassal game, both in the Module Manager and the Vassal Player, to customize your Vassal experience.
@@ -996,6 +1003,19 @@ In addition, in *Personal Info*, you can enter a brief description of yourself t
 Select whether your default connection will be to the Vassal Server, or a peer-to-peer connection.
 If you are currently connected, you must disconnect before resetting this preference.
 
+===== Internet Dice
+
+Internet Dice preferences control rolls made by module buttons configured as Internet Dice Buttons.
+The *Internet dice service* setting selects the provider used for those rolls.
+Supported services include *random.org* and *qrandom.io*.
+
+The *API key / password* field stores the credential required by the selected service.
+RANDOM.ORG requires an API key; qrandom.io does not normally require a key.
+Use *Verify* to make a test d6 roll with the selected service and credential.
+Use *Show* or *Hide* to reveal or mask the stored key while editing it.
+
+If an Internet Dice Button cannot use the configured internet service, VASSAL rolls the dice locally instead.
+
 ===== Chat Window
 
 These preferences control the appearance (font, font size and color) of your chat window.
@@ -1008,6 +1028,19 @@ These settings control the appearance of a module’s Turn counters.
 
 The Sounds preference allows you to specify a sound file to play when you are sent a Wake-Up.
 You can keep the default sound, select a different sound file, or play the selected file.
+
+===== Rules Assistant
+
+Rules Assistant preferences control the optional AI rules helper available from *Help > Ask Rules Assistant...*.
+
+* *Enable Rules Assistant:* Turns the feature on for modules opened on this computer.
+* *AI provider:* Selects the provider to use. Supported providers are *OpenAI*, *xAI*, and *Manus*.
+* *Model:* Selects a model. Leave this blank to use the default model for the selected provider.
+* *API key:* Stores the provider API key. Use *Show* or *Hide* to reveal or mask the key while editing it.
+* *Refresh Models:* For OpenAI, retrieves the available model list using the API key. For providers with fixed choices, refresh restores the known model choices.
+
+The assistant sends your question and selected module help excerpts to the configured provider.
+Do not enter private information, unpublished rules material, or other text you do not want sent to that provider.
 
 === Updating Vassal
 

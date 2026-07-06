@@ -30,6 +30,22 @@ image:_images/image196.png[image,width=310,height=215]
 . In the dialog, specify the settings for the button.
 . Click *Ok*.
 
+== Internet Dice Button
+
+An Internet Dice Button is configured like a normal Dice Button, but attempts to obtain its roll results from the internet dice service selected in the player's Preferences.
+The current services are *random.org* and *qrandom.io*.
+
+Internet Dice Buttons use the same number of dice, number of sides, modifiers, total reporting, sorting, prompting, and report format concepts as Dice Buttons.
+Their report format also includes the _$rollDetails$_ variable, which contains the roll description used by the internet dice service.
+
+The internet dice service and API key are player preferences, not module settings.
+This means a module designer can include Internet Dice Buttons without embedding a shared provider key in the module.
+Players who use RANDOM.ORG must enter their own API key in *File > Preferences > Internet Dice*.
+Players can use the *Verify* button in that preference tab to make a test d6 roll and confirm that the selected service and key work.
+
+If the selected internet dice service cannot be used, the button falls back to a local roll.
+Design modules so ordinary play remains understandable from the chat output even when the roll is local.
+
 === Dice Properties
 
 Dice buttons include these system Properties. <name> is the name of the Dice button.

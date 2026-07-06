@@ -118,6 +118,47 @@ The asciidoctor plugin runs once for each of the following:
 * Maven plugin version in link:{rootdir}pom.xml[]
 * Maven plugin configuration in link:{rootdir}vassal-doc/pom.xml[]
 
+== Recent feature architecture
+
+=== Rules Assistant
+
+The Rules Assistant is a player-facing AI helper available from the module Help menu.
+The menu action is `VASSAL.build.module.documentation.ai.RulesAssistantAction`, and the feature's global preferences are registered by `RulesAssistantPrefs`.
+
+The service builds a lightweight in-memory index from module help content:
+
+* `BrowserPDFFile` components are read with PDFBox, one chunk per page.
+* `HtmlChart` components are parsed with Jsoup and indexed as text.
+* Image `Chart` components contribute their configured name, description, and file name as metadata.
+
+`RulesAssistantService` selects the most relevant chunks by token overlap, builds a prompt with source citations, and sends the request through a provider client.
+OpenAI-compatible providers use `OpenAIRulesAssistantClient`; Manus uses `ManusRulesAssistantClient` and stores a hidden task id per module/provider/key/model so a task can be reused while appropriate.
+The UI keeps per-dialog question history, can copy answers, and can append answers or selected excerpts to Public Notes when the module has a `NotesWindow`.
+
+Rules Assistant work is backgrounded with `BackgroundTasks`, and request/index timings are available through the JFR events in `VASSAL.tools.jfr`.
+
+=== Internet dice
+
+Internet dice provider selection and credentials are global preferences managed by `DieManager`.
+The current providers are `RandomOrgDiceServer` and `QRandomDiceServer`, both subclasses of `DieServer`.
+RANDOM.ORG uses `generateSignedIntegers`; qrandom.io uses its integer endpoint.
+
+`InternetDiceButton` inherits normal dice-button configuration and report formatting, adding the `$rollDetails$` report variable.
+When the selected provider is unavailable or lacks a required credential, the button falls back to the local dice path.
+The Internet Dice preference tab includes a verification action which makes a test d6 roll on a background task and reports success or failure on the EDT.
+
+=== Game Piece Image text layout
+
+Game Piece Image font families are defined by Font Styles.
+Per-label typography now lives on the `TextItem` layout item: size, bold, italic, outline enabled, outline thickness, and outline color.
+`TextItemInstance` still carries per-image text values and can override outline color for images whose text is specified individually.
+
+When changing this area, preserve decode defaults for older modules and keep rendering tests around text-item encode/decode and outline drawing behavior.
+
+Generated Game Piece Images are SVG by default.
+`GamePieceLayout` renders through `SVGGraphics2D`, and `GamePieceImage` writes `.svg` archive images unless working with legacy `.png` names.
+Generated images also support image-selector buckets, so code which renames or regenerates them must preserve both the archive image name and the bucket path.
+
 ===== License Maven Plugin
 
 [NOTE]

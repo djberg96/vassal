@@ -15,9 +15,14 @@ You can then begin using this image in any other Vassal component or trait as if
 |===
 a|
 *Name:*:: Specify a name for the image definition.
-This is the name under which this image will appear in the image-chooser drop-down menu in a Game Piece trait's properties. Vassal enforces that the name contains only letters, numbers or the _ character and ends in '.png'.
+This is the name under which this image will appear in the image-chooser drop-down menu in a Game Piece trait's properties.
+Vassal enforces that the name is a simple file name ending in '.svg' or '.png'.
+New generated images use '.svg' by default.
 
 NOTE: Older versions of Vassal prior to version 3.6 allowed for any string of characters to be used for a filename. This is not advisable as it can cause the module to fail to work correctly.
+
+*Bucket:*:: Optional image-selector bucket in which to list this generated image.
+Buckets help organize large image lists and appear in image chooser controls.
 
 *Background color:*:: Select a background color to use behind the whole image from the dropdown list of available colors, or click the _Cancel_ button on that dialog to use a transparent background. Additional colors can be added as a <<GamePieceImageDefinitions.adoc#NamedColors,Named Color>>.
 

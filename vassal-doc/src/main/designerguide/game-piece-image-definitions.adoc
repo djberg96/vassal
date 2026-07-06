@@ -50,15 +50,15 @@ image:_images/image173.png[image,width=157,height=82]
 
 === Font Styles
 
-Font Styles used in Image Layouts are defined here and selected by name from drop-down menus. A Font Style consists of a Font Family, size and style (plain, bold, italic, bold-italic). A default style is always defined: 12 point Dialog font.
+Font Styles used in Image Layouts are defined here and selected by name from drop-down menus.
+A Font Style defines the font family used by text items.
+Size, bold, italic, outline, outline thickness, and outline color are set on each Label item in the Game Piece Layout, so the same font family can be reused with different per-layout typography.
+A default style is always defined: Dialog font.
 
 image:_images/image174.png[image,width=241,height=128]
 
 * *Style Name:* The name of the Font Style that will appear in drop-down menus in the Image Layout.
 * *Font Family:* The Font Family to use. To ensure maximum compatibility and portability, only the pre-defined Java logical fonts are available as options.
-* *Size:* The size of the font style in points.
-* *Bold:* Click on to select a Bold font style.
-* *Italic:* Click on to select an Italic font style.
 * *Sample:* Display a sample of your selected font style.
 
 *To create a font style,*
@@ -127,6 +127,24 @@ image:_images/image177.png[image,width=256,height=101]
 
 [loweralpha, start=15]
 . *Font Style:* Select the name of the Font Style to be used for this Text Item.
+
+[loweralpha, start=15]
+. *Size:* The size of the label text in points.
+
+[loweralpha, start=15]
+. *Bold:* Click on to select a Bold font style for this label.
+
+[loweralpha, start=15]
+. *Italic:* Click on to select an Italic font style for this label.
+
+[loweralpha, start=15]
+. *Outline:* Click on to draw an outline around this label's text.
+
+[loweralpha, start=15]
+. *Outline Thickness:* The thickness, in pixels, of the outline drawn around this label's text.
+
+[loweralpha, start=15]
+. *Outline Color:* The color of the outline drawn around this label's text. When text is specified in individual images, each image can override this color.
 
 [loweralpha, start=15]
 . *Text is:* Select whether the text is specified in the layout or in the images.
@@ -231,7 +249,8 @@ For example, we can create a Game Piece Layout called British Unit. The Layout u
 
 A Game Piece Image has these attributes:
 
-* *Name:* Specify a name for the image definition. This is the name under which this image will appear in the image-selector drop-down menu in a Game Piece Trait's Properties.
+* *Name:* Specify a name for the image definition. This is the name under which this image will appear in the image-selector drop-down menu in a Game Piece Trait's Properties. Generated images are saved as SVG files by default.
+* *Bucket:* Optional image-selector bucket in which to list this generated image. Buckets help organize large image lists and appear in image chooser controls.
 * *Background Color:* Select a background color for the image from the drop down list of available colors.
 * *Items:* The Items panel shows the configurable items that make up your image layout. Click on an item to display the configurable options for that item in the bottom display panel. There is a different display panel for each type of item.
 
@@ -278,3 +297,4 @@ _*Creating a Game Piece Image*_
 . Click *Ok*.
 
 Once youʼve created an image, it will appear in the image-chooser drop-down list alongside imported images. You can then assign the Game Piece Image to Game Pieces. See page 40 for information on creating Game Pieces.
+Generated images are stored as SVG in the module archive, so they scale cleanly and can be inspected or edited with external SVG tools if needed.

@@ -148,6 +148,18 @@ Once the justification is set by the Location, you can still use the X/Y offset 
 
 *Font style:*::  Select the name of the Font Style to be used for this Text Item.
 
+*Size:*:: The size of the label text in points.
+
+*Bold:*:: When selected, draws this label in bold.
+
+*Italic:*:: When selected, draws this label in italic.
+
+*Outline:*:: When selected, draws an outline around this label's text.
+
+*Outline thickness:*:: The thickness, in pixels, of the text outline.
+
+*Outline color:*:: The color of the text outline. When the text is specified in individual images, each image can override this color.
+
 *Text option:*:: Select how the text is provided for each image created using this layout:
 +
 *Specified in individual imagaes* - Each image has its own version of the text

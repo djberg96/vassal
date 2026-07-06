@@ -109,3 +109,15 @@ _Prompt for values window for the previous example_
 
 |===
 
+[#InternetDiceButton]
+=== Internet Dice Button
+
+An Internet Dice Button has the same configuration fields and reporting behavior as a Dice Button, but obtains roll results from the internet dice service selected in the player's Preferences.
+Supported services are *random.org* and *qrandom.io*.
+
+The internet dice service and API key are global player preferences rather than module settings.
+RANDOM.ORG requires an API key.
+Players can test the selected service and key from *Preferences > Internet Dice* by pressing *Verify*.
+
+If the selected service cannot be used, the Internet Dice Button rolls locally.
+Internet Dice Button report formats can use the same variables as Dice Button report formats, plus _$rollDetails$_ for the internet roll description.

@@ -13,7 +13,8 @@
 The _[Game Piece Image Definitions]_ component can be found in the top layer of components under the Game Module, and provides a mechanism for building your own images for simple game counters without the need for an external art tool.
 
 Within the Game Piece Image Definitions you can build your own images by combining text, images, and standard NATO symbols.
-Images defined in this component will appear in the drop-down menu for selecting images for any Trait of any Game Piece just like an imported GIF, JPEG, or PNG.
+Images defined in this component will appear in the drop-down menu for selecting images for any Trait of any Game Piece just like an imported SVG, GIF, JPEG, or PNG.
+Generated images are stored as SVG files in the module archive by default.
 
 You can also use your own images instead of the vector drawn NATO ones, so for many games you will be able to define the whole counter set with just a handful of images.
 Furthermore, you can change the size and layout of all the counters in your game easily by adjusting the layouts.
@@ -60,7 +61,9 @@ The fourteen standard built in colors are: Clear, White, Black, Light Gray, Dark
 
 A default font style is always available, but you can create additional font styles to use in creating your <<GamePieceLayouts.adoc#top,Game Piece Layouts>> by right-clicking the [Font Styles] component and selecting "Add Font Style". Your new Font Style can then be selected by name from the dropdown menus while creating new layouts.
 
-A Font Style consists of a Font Family, size and style (plain, bold, italic, bold-italic). A default style is always defined.
+A Font Style defines a Font Family that can be reused by text items in Game Piece Layouts.
+Size, bold, italic, outline, outline thickness, and outline color are set on the individual Label item in the layout.
+A default style is always defined.
 
 [width="100%",cols="50%a,^50%a",]
 |===
@@ -71,12 +74,6 @@ This is the name that will appear in dropdown menus in the Game Piece Layouts pr
 
 *Font Family:*::  The Font Family to use.
 To ensure maximum compatibility and portability, it is recommended that you use only the five Java logical fonts (Dialog, DialogInput, Monospaced, Serif, SansSerif), but other font families installed on your computer may appear as well.
-
-*Size:*::  The size of the font style in points.
-
-*Bold:*::  Click on to select a Bold font style.
-
-*Italic:*::  Click on to select an Italic font style.
 
 *Sample:*::  Displays a sample of your selected font style.
 
