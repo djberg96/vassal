@@ -89,6 +89,7 @@ public abstract class DieServer implements Auditable {
    */
   public void doInternetRoll(final RollSet mroll, final FormattedString format) {
     BackgroundTasks.submitWithCallbacksOnEdt(
+      "internet-dice-roll", //NON-NLS
       () -> rollInBackground(mroll),
       result -> reportResult(result, format),
       error -> {

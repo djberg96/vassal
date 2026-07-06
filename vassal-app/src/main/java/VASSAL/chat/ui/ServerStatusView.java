@@ -189,6 +189,7 @@ public final class ServerStatusView extends JTabbedPane implements ChangeListene
       setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
       cur_request = BackgroundTasks.submitWithCallbacksOnEdt(
+        "server-status-current", //NON-NLS
         status::getStatus,
         modules -> {
           if (getSelectedIndex() == 0) {
@@ -216,6 +217,7 @@ public final class ServerStatusView extends JTabbedPane implements ChangeListene
       final String historyTitle = getTitleAt(page);
 
       hist_request = BackgroundTasks.submitWithCallbacksOnEdt(
+        "server-status-history", //NON-NLS
         () -> status.getHistory(historyTitle),
         modules -> {
           final int sel = getSelectedIndex();

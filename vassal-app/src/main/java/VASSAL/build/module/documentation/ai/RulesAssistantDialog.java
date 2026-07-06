@@ -159,6 +159,7 @@ public class RulesAssistantDialog extends JDialog {
     updateActionButtons();
 
     askTask = BackgroundTasks.submitWithCallbacksOnEdt(
+      "rules-assistant-ask", //NON-NLS
       () -> service.ask(question),
       answer -> {
         askButton.setEnabled(true);

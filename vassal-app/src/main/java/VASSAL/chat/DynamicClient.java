@@ -50,6 +50,7 @@ public class DynamicClient extends HybridClient {
       if (!connecting) {
         connecting = true;
         BackgroundTasks.submitWithCallbacksOnEdt(
+          "dynamic-chat-connect", //NON-NLS
           this::buildDelegate,
           connection -> {
             setDelegate(connection);

@@ -140,6 +140,7 @@ public final class MessageBoardControls {
 
   private void fetchMessages(Runnable onComplete) {
     BackgroundTasks.submitWithCallbacksOnEdt(
+      "message-board-fetch", //NON-NLS
       () -> server.getMessages(),
       messages -> {
         showMessages(messages);
@@ -194,6 +195,7 @@ public final class MessageBoardControls {
         final String message = msgArea.getText();
 
         sendWorker = BackgroundTasks.submitWithCallbacksOnEdt(
+          "message-board-send", //NON-NLS
           () -> {
             server.postMessage(message);
             return null;

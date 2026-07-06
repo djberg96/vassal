@@ -417,6 +417,7 @@ public final class DieManager extends AbstractConfigurable {
 
       verifyButton.setEnabled(false);
       verifyTask = BackgroundTasks.submitWithCallbacksOnEdt(
+        "internet-dice-verify", //NON-NLS
         () -> {
           verifyInternetDice(prefs);
           return null;

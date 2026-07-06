@@ -530,6 +530,7 @@ public final class ModuleManagerWindow extends JFrame {
       pd.setLocationRelativeTo(ModuleManagerWindow.this);
 
       BackgroundTasks.submitWithCallbacksOnEdt(
+        "clear-tile-cache", //NON-NLS
         () -> {
           // clear tiles in both old (conf) and new (cache) locations
           for (final File d : List.of(Info.getCacheDir(), Info.getConfDir())) {
@@ -592,6 +593,7 @@ public final class ModuleManagerWindow extends JFrame {
       pd.setLocationRelativeTo(ModuleManagerWindow.this);
 
       BackgroundTasks.submitWithCallbacksOnEdt(
+        "cleanup-tile-cache", //NON-NLS
         () -> {
           final Set<String> known = getModuleTileCacheNames();
           
